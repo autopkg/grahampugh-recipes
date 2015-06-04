@@ -17,7 +17,7 @@ Input keys:
         <string>/Users/Shared/DeployStudio/Packages</string>
     </dict>
     <key>ParentRecipe</key>
-    <string>com.github.grahampugh.downloads.munkitools2</string>
+    <string>com.github.grahampugh.download.munkitools2</string>
     <key>Process</key>
     <array>
         <dict>
