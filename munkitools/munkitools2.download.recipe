@@ -50,6 +50,10 @@ descending by tag names according to LooseVersion semantics.</string>
             <key>Processor</key>
             <string>URLDownloader</string>
         </dict>
+        <dict>
+            <key>Processor</key>
+            <string>EndOfCheckPhase</string>
+        </dict>
      </array>
 </dict>
 </plist>

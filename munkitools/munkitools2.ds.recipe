@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Description</key>
-    <string>Downloads latest version pkg of munkitools, then copies the package to the DeployStudio packages repository.
+    <string>Copies latest munkitools2 package to the DeployStudio packages repository, and gives it an unversioned name so DS recipes don't need to be updated.
 Input keys:
 - DS_PKGS_PATH is the path for the Packages folder in the DeployStudio repository (trailing slash not required/desired).
   The path does not need to be on the same volume as the cache, as the pkg is being duplicated.
