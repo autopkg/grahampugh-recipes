@@ -15,14 +15,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+import os, sys
 import subprocess
+import time
+import logging
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 from autopkglib import Processor, ProcessorError
 from autopkglib import get_pref
 
 __all__ = ["MunkiGitCommitter"]
 
+# edit this if your production branch isn't "master"
+PRODUCTION_BRANCH = "master"
 
 class MunkiGitBranchingCommitter(Processor):
     description = "Allows AutoPkg to commit changes to a munki repository \
@@ -63,7 +69,7 @@ class MunkiGitBranchingCommitter(Processor):
                 # take a GIT_PATH pref
                 return git_path_pref
             else:
-                log_err("WARNING: Git path given in the 'GIT_PATH' preference:"
+                logging.debug("WARNING: Git path given in the 'GIT_PATH' preference:"
                         " '%s' either doesn't exist or is not executable! "
                         "Falling back to one set in PATH, or /usr/bin/git."
                         % git_path_pref)
@@ -86,7 +92,7 @@ class MunkiGitBranchingCommitter(Processor):
            raise GitError if unsuccessful.'''
         gitcmd = self.git_cmd()
         if not gitcmd:
-            raise GitError("ERROR: git is not installed!")
+            logging.debug("ERROR: git is not installed!")
         cmd = [gitcmd]
         cmd.extend(git_options_and_arguments)
         try:
@@ -95,27 +101,30 @@ class MunkiGitBranchingCommitter(Processor):
                 cwd=git_directory)
             (cmd_out, cmd_err) = proc.communicate()
         except OSError as err:
-            raise GitError("ERROR: git execution failed with error code %d: %s"
+            logging.debug("ERROR: git execution failed with error code %d: %s"
                            % (err.errno, err.strerror))
         if proc.returncode != 0:
-            raise GitError("ERROR: %s" % cmd_err)
+            logging.debug("ERROR: %s" % cmd_err)
         else:
             return cmd_out
 
     def checkoutUserBranch(self):
-        """Creates a new git branch with name_timestamp"""
+        """Creates a new git branch with name autopkg_run_timestamp"""
         time_stamp = str(time.strftime('%Y%m%d%H%M%S'))
         branch_committer = "autopkg_run"
         seq = (branch_committer, time_stamp)
         s = "_"
         branch_name = s.join(seq)
-        self.run_git(['checkout', '-b', branch_name])
+        self.run_git(['checkout', '-b', branch_name],
+                     git_directory=self.env["MUNKI_REPO"])
         return branch_name
 
     def checkoutProductionBranch(self):
         """Checkout the master/production branch"""
-        self.run_git(['checkout', PRODUCTION_BRANCH])
-        self.run_git(['pull'])
+        self.run_git(['checkout', PRODUCTION_BRANCH],
+                     git_directory=self.env["MUNKI_REPO"])
+        self.run_git(['pull'],
+                     git_directory=self.env["MUNKI_REPO"])
 
     def main(self):
         # If we did not import anything, skip trying to commit anything.
@@ -136,12 +145,14 @@ class MunkiGitBranchingCommitter(Processor):
             commit_message = "[AutoPkg] Adding {0} version {1}". \
                              format(name, version)
 
-        self.checkoutUserBranch()
+        branch_name = self.checkoutUserBranch()
         self.run_git(['add', pkginfo_path],
                      git_directory=self.env["MUNKI_REPO"])
         self.run_git(['commit', '-m', commit_message],
                      git_directory=self.env["MUNKI_REPO"])
-        self.checkoutProductionBranch()
+        self.run_git(['push', '--set-upstream', 'origin', branch_name],
+                     git_directory=self.env["MUNKI_REPO"])
+#        self.checkoutProductionBranch()
 
 if __name__ == "__main__":
     processor = MunkiGitBranchingCommitter()
