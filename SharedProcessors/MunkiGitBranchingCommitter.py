@@ -24,7 +24,7 @@ from autopkglib import get_pref
 __all__ = ["MunkiGitCommitter"]
 
 
-class MunkiGitCommitter(Processor):
+class MunkiGitBranchingCommitter(Processor):
     description = "Allows AutoPkg to commit changes to a munki repository \
                    that is tracked by a git repository."
     input_variables = {
@@ -144,5 +144,5 @@ class MunkiGitCommitter(Processor):
         self.checkoutProductionBranch()
 
 if __name__ == "__main__":
-    processor = MunkiGitCommitter()
+    processor = MunkiGitBranchingCommitter()
     processor.execute_shell()
