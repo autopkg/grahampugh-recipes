@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
+# Adapted from "MunkiGitCommitter.py",
 # Copyright 2015 Nathan Felton (n8felton)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +26,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 from autopkglib import Processor, ProcessorError
 from autopkglib import get_pref
 
-__all__ = ["MunkiGitCommitter"]
+__all__ = ["MunkiGitBranchingCommitter"]
 
 # edit this if your production branch isn't "master"
 PRODUCTION_BRANCH = "master"
@@ -152,7 +153,7 @@ class MunkiGitBranchingCommitter(Processor):
                      git_directory=self.env["MUNKI_REPO"])
         self.run_git(['push', '--set-upstream', 'origin', branch_name],
                      git_directory=self.env["MUNKI_REPO"])
-#        self.checkoutProductionBranch()
+        self.checkoutProductionBranch()
 
 if __name__ == "__main__":
     processor = MunkiGitBranchingCommitter()
