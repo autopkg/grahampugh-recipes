@@ -8,8 +8,7 @@ Use -k force_rebuild=YES to force a rebuild. It then adds changes to git and com
     <key>Identifier</key>
     <string>com.github.grahampugh.recipes.makecatalogs</string>
     <key>Input</key>
-    <dict>
-    </dict>
+    <dict/>
     <key>MinimumVersion</key>
     <string>0.4.0</string>
     <key>Process</key>
@@ -27,7 +26,7 @@ Use -k force_rebuild=YES to force a rebuild. It then adds changes to git and com
             <key>Processor</key> 
             <string>com.github.grahampugh.recipes.SharedProcessor/MunkiGitCommitter</string> 
             <key>SharedProcessorRepo</key> 
-            <string>https://github.com/grahampugh/recipes/SharedProcessor</string> 
+            <string>https://github.com/grahampugh/recipes</string> 
         </dict> 
     </array>
 </dict>
