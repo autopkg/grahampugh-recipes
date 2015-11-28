@@ -6,7 +6,7 @@
     <string>Rebuilds Munki catalogs in munki_repo_path if any other recipe in the same autopkg run imported something.
 Use -k force_rebuild=YES to force a rebuild. It then adds changes to git and commits & pushes to the repo.</string>
     <key>Identifier</key>
-    <string>com.github.grahampugh.recipes.mungki.makecatalogs</string>
+    <string>com.github.grahampugh.recipes.makecatalogs</string>
     <key>Input</key>
     <dict/>
     <key>MinimumVersion</key>
