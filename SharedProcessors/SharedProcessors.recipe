@@ -5,11 +5,11 @@
     <key>Description</key>
     <string>Shared Processors for grahampugh-recipes</string>
     <key>Identifier</key>
-    <string>com.github.grahampugh.shared</string>
+    <string>com.github.grahampugh.recipes.SharedProcessor</string>
     <key>Input</key>
     <dict/>
     <key>MinimumVersion</key>
-    <string>0.4.3</string>
+    <string>0.4.0</string>
     <key>Process</key>
     <dict/>
 </dict>
