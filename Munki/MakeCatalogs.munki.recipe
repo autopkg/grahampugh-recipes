@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Description</key>
+    <string>Rebuilds Munki catalogs in munki_repo_path if any other recipe in the same autopkg run imported something.
+Use -k force_rebuild=YES to force a rebuild. It then adds changes to git and commits & pushes to the repo.</string>
+    <key>Identifier</key>
+    <string>com.github.grahampugh.recipes.makecatalogs</string>
+    <key>Input</key>
+    <dict>
+    </dict>
+    <key>MinimumVersion</key>
+    <string>0.4.0</string>
+    <key>Process</key>
+    <array>
+        <dict>
+            <key>Processor</key>
+            <string>MakeCatalogsProcessor</string>
+            <key>Arguments</key>
+            <dict>
+                <key>munki_repo_path</key>
+                <string>%MUNKI_REPO%</string>
+            </dict>
+        </dict>
+        <dict> 
+            <key>Processor</key> 
+            <string>com.github.grahampugh.recipes.SharedProcessor/MunkiGitCommitter</string> 
+            <key>SharedProcessorRepo</key> 
+            <string>https://github.com/grahampugh/recipes/SharedProcessor</string> 
+        </dict> 
+    </array>
+</dict>
+</plist>
