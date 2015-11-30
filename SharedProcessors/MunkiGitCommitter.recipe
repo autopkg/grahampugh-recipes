@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>Description</key>
-    <string>Shared Processors for grahampugh-recipes</string>
+    <string>Commits changes to Git Production Branch</string>
     <key>Identifier</key>
-    <string>com.github.grahampugh.recipes.SharedProcessor</string>
+    <string>com.github.grahampugh.recipes.MunkiGitCommitter</string>
     <key>Input</key>
     <dict/>
     <key>MinimumVersion</key>
@@ -15,6 +15,13 @@
         <dict> 
             <key>Processor</key> 
             <string>MunkiGitCommitter</string> 
+            <key>Arguments</key>
+            <dict>
+                <key>MUNKI_REPO</key>
+                <string>%MUNKI_REPO%</string>
+                <key>PRODUCTION_BRANCH</key>
+                <string>master</string>
+            </dict>
         </dict> 
     </array>
 </dict>

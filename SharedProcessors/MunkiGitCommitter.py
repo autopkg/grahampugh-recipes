@@ -37,6 +37,10 @@ class MunkiGitCommitter(Processor):
             "description": "Path to a mounted Munki repo.",
             "required": True
         },    
+        "PRODUCTION_BRANCH": {
+            "description": "Name of Git Production branch",
+            "required": True
+        },    
         "GIT_COMMIT_MESSAGE": {
             "required": False,
             "description": "Any additional message you want attached to the \
