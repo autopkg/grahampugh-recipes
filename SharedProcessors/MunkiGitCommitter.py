@@ -124,7 +124,7 @@ class MunkiGitCommitter(Processor):
         # If we did not import anything, skip trying to commit anything.
         # This also helps run MakeCatalogs.munki.recipe
         if not self.env.get('munki_importer_summary_result'):
-            if not self.env.get('makecatalogs_run_success'):
+            if self.env.get('makecatalogs_run_success') != "1":
                 return
 
         if self.env.get("GIT_COMMIT_MESSAGE"):

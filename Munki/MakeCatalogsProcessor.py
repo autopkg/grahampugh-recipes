@@ -47,7 +47,7 @@ class MakeCatalogsProcessor(Processor):
             "description": "Error output (if any) from makecatalogs.",
         },
          "makecatalogs_run_success": {
-            "description": "Outputs '1' if makecatalogs was successfully run.",
+            "description": "Outputs '1' if makecatalogs was successfully run, '0' if not.",
         },
    }
 
@@ -83,6 +83,7 @@ class MakeCatalogsProcessor(Processor):
             self.output("No need to rebuild catalogs.")
             self.env["makecatalogs_resultcode"] = 0
             self.env["makecatalogs_stderr"] = ""
+            self.env["makecatalogs_run_success"] = "0"
         else:
             # Generate arguments for makecatalogs.
             args = ["/usr/local/munki/makecatalogs",
@@ -102,6 +103,7 @@ class MakeCatalogsProcessor(Processor):
             self.env["makecatalogs_stderr"] = err_out
             if proc.returncode != 0:
                 raise ProcessorError("makecatalogs failed: %s" % err_out)
+                self.env["makecatalogs_run_success"] = "0"
             else:
                 self.output("Munki catalogs rebuilt!")
                 self.env["makecatalogs_run_success"] = "1"
