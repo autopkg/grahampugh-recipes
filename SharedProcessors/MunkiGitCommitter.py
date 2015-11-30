@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
+# Adapted from "MunkiGitCommitter.py",
 # Copyright 2015 Nathan Felton (n8felton)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +18,7 @@
 
 import os
 import subprocess
+import logging
 
 from autopkglib import Processor, ProcessorError
 from autopkglib import get_pref
@@ -66,7 +68,7 @@ class MunkiGitCommitter(Processor):
                 # take a GIT_PATH pref
                 return git_path_pref
             else:
-                log_err("WARNING: Git path given in the 'GIT_PATH' preference:"
+                logging.debug("WARNING: Git path given in the 'GIT_PATH' preference:"
                         " '%s' either doesn't exist or is not executable! "
                         "Falling back to one set in PATH, or /usr/bin/git."
                         % git_path_pref)
@@ -89,7 +91,7 @@ class MunkiGitCommitter(Processor):
            raise GitError if unsuccessful.'''
         gitcmd = self.git_cmd()
         if not gitcmd:
-            raise GitError("ERROR: git is not installed!")
+            logging.debug("ERROR: git is not installed!")
         cmd = [gitcmd]
         cmd.extend(git_options_and_arguments)
         try:
@@ -98,10 +100,10 @@ class MunkiGitCommitter(Processor):
                 cwd=git_directory)
             (cmd_out, cmd_err) = proc.communicate()
         except OSError as err:
-            raise GitError("ERROR: git execution failed with error code %d: %s"
+            logging.debug("ERROR: git execution failed with error code %d: %s"
                            % (err.errno, err.strerror))
         if proc.returncode != 0:
-            raise GitError("ERROR: %s" % cmd_err)
+            logging.debug("ERROR: %s" % cmd_err)
         else:
             return cmd_out
 
