@@ -19,6 +19,7 @@
 import os
 import subprocess
 import logging
+import time
 
 from autopkglib import Processor, ProcessorError
 from autopkglib import get_pref
@@ -126,20 +127,13 @@ class MunkiGitCommitter(Processor):
             if not self.env.get('makecatalogs_run_success'):
                 return
 
-        pkginfo_path = '{0}/{1}'.format('pkgsinfo',
-                                        self.env
-                                        ['munki_importer_summary_result']
-                                        ['data']
-                                        ['pkginfo_path'])
-        name = self.env['munki_importer_summary_result']['data']['name']
-        version = self.env['munki_importer_summary_result']['data']['version']
-        if self.env.get("GIT_COMMIT_MESSAGE"):
+       if self.env.get("GIT_COMMIT_MESSAGE"):
             commit_message = self.env.get('GIT_COMMIT_MESSAGE')
         else:
-            commit_message = "[AutoPkg] Adding {0} version {1}". \
-                             format(name, version)
+            time_stamp = str(time.strftime('%Y%m%d%H%M%S'))
+            commit_message = ("[AutoPkg] Makecatalogs run at %s" % time_stamp)
 
-        self.run_git(['add', pkginfo_path],
+        self.run_git(['add', '--all'],
                      git_directory=self.env["MUNKI_REPO"])
         self.run_git(['commit', '-m', commit_message],
                      git_directory=self.env["MUNKI_REPO"])
