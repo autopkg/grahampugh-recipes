@@ -54,6 +54,10 @@ class MunkiGitCommitter(Processor):
             "required": False,
             "description": "Stuff goes here"
         }
+        "makecatalogs_run_success": {
+            "required": True,
+            "description": "Stuff goes here"
+        }
     }
     output_variables = {
     }

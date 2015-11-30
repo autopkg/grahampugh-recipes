@@ -104,7 +104,7 @@ class MakeCatalogsProcessor(Processor):
                 raise ProcessorError("makecatalogs failed: %s" % err_out)
             else:
                 self.output("Munki catalogs rebuilt!")
-                self.env["makecatalogs_run_success"] = 1
+                self.env["makecatalogs_run_success"] = "1"
 
 
 if __name__ == "__main__":
