@@ -31,8 +31,6 @@ Use -k force_rebuild=YES to force a rebuild. It then adds changes to git and com
             <dict>
                 <key>munki_repo_path</key>
                 <string>%munki_repo_path%</string>
-            </dict>
-            <dict>
                 <key>makecatalogs_run_success</key>
                 <string>%makecatalogs_run_success%</string>
             </dict>
