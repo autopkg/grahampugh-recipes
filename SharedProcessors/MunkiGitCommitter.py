@@ -49,7 +49,7 @@ class MunkiGitCommitter(Processor):
         "munki_importer_summary_result": {
             "required": False,
             "description": "Stuff goes here"
-        }
+        },
         "makecatalogs_resultcode": {
             "required": False,
             "description": "Stuff goes here"
