@@ -127,7 +127,7 @@ class MunkiGitCommitter(Processor):
             if not self.env.get('makecatalogs_run_success'):
                 return
 
-       if self.env.get("GIT_COMMIT_MESSAGE"):
+        if self.env.get("GIT_COMMIT_MESSAGE"):
             commit_message = self.env.get('GIT_COMMIT_MESSAGE')
         else:
             time_stamp = str(time.strftime('%Y%m%d%H%M%S'))
