@@ -27,6 +27,15 @@ Use -k force_rebuild=YES to force a rebuild. It then adds changes to git and com
             <string>com.github.grahampugh.recipes.SharedProcessor/MunkiGitCommitter</string> 
             <key>SharedProcessorRepo</key> 
             <string>https://github.com/grahampugh/recipes</string> 
+            <key>Arguments</key>
+            <dict>
+                <key>munki_repo_path</key>
+                <string>%munki_repo_path%</string>
+            </dict>
+            <dict>
+                <key>makecatalogs_run_success</key>
+                <string>%makecatalogs_run_success%</string>
+            </dict>
         </dict> 
     </array>
 </dict>

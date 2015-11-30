@@ -37,13 +37,19 @@ class MakeCatalogsProcessor(Processor):
         },
     }
     output_variables = {
+        "munki_repo_path": {
+            "description": "Path to the munki repo.",
+        },
         "makecatalogs_resultcode": {
             "description": "Result code from the makecatalogs operation.",
         },
         "makecatalogs_stderr": {
             "description": "Error output (if any) from makecatalogs.",
         },
-    }
+         "makecatalogs_run_success": {
+            "description": "Outputs '1' if makecatalogs was successfully run.",
+        },
+   }
 
     description = __doc__
 
@@ -98,6 +104,7 @@ class MakeCatalogsProcessor(Processor):
                 raise ProcessorError("makecatalogs failed: %s" % err_out)
             else:
                 self.output("Munki catalogs rebuilt!")
+                self.env["makecatalogs_run_success"] = 1
 
 
 if __name__ == "__main__":

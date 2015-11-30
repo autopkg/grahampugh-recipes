@@ -50,6 +50,10 @@ class MunkiGitCommitter(Processor):
             "required": False,
             "description": "Stuff goes here"
         }
+        "makecatalogs_resultcode": {
+            "required": False,
+            "description": "Stuff goes here"
+        }
     }
     output_variables = {
     }
@@ -115,7 +119,8 @@ class MunkiGitCommitter(Processor):
         # If we did not import anything, skip trying to commit anything.
         # This also helps run MakeCatalogs.munki.recipe
         if not self.env.get('munki_importer_summary_result'):
-            return
+            if not self.env.get('makecatalogs_resultcode'):
+                return
 
         pkginfo_path = '{0}/{1}'.format('pkgsinfo',
                                         self.env
