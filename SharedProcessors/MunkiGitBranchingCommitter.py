@@ -107,6 +107,7 @@ class MunkiGitBranchingCommitter(Processor):
         if proc.returncode != 0:
             logging.debug("ERROR: %s" % cmd_err)
         else:
+            logging.debug("GIT CMD processed: %s" % cmd_out)
             return cmd_out
 
     def checkoutUserBranch(self):
