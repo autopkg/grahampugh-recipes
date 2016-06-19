@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Comment</key>
+	<string>Created with Recipe Robot v1.0.2 (https://github.com/homebysix/recipe-robot)</string>
+	<key>Description</key>
+	<string>Downloads the latest version of eqMac and imports it into Munki.</string>
+	<key>Identifier</key>
+	<string>com.grahamrpugh.munki.eqMac</string>
+	<key>Input</key>
+	<dict>
+		<key>MUNKI_REPO_SUBDIR</key>
+		<string>apps/%NAME%</string>
+		<key>NAME</key>
+		<string>eqMac</string>
+		<key>pkginfo</key>
+		<dict>
+			<key>category</key>
+			<string>Music &amp; Video</string>
+			<key>catalogs</key>
+			<array>
+				<string>testing</string>
+			</array>
+			<key>description</key>
+			<string>System-wide Audio Equalizer for Mac OS X</string>
+			<key>developer</key>
+			<string>Romans Kisils</string>
+			<key>display_name</key>
+			<string>eqMac</string>
+			<key>name</key>
+			<string>%NAME%</string>
+			<key>unattended_install</key>
+			<true/>
+			<key>uninstall_method</key>
+			<string>uninstall_script</string>
+			<key>uninstall_script</key>
+			<string>#!/bin/sh
+            # extracted from the eqMac uninstaller app ("uninstall_script.sh")
+            kextunload /System/Library/Extensions/eqMacDriver.kext
+            rm -rf /System/Library/Extensions/eqMacDriver.kext
+            rm -rf /Applications/eqMac.app
+            </string>
+		</dict>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>0.6.1</string>
+	<key>ParentRecipe</key>
+	<string>com.grahamrpugh.download.eqMac</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_path</key>
+				<string>%pathname%</string>
+				<key>repo_subdirectory</key>
+				<string>%MUNKI_REPO_SUBDIR%</string>
+			</dict>
+			<key>Processor</key>
+			<string>MunkiImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
