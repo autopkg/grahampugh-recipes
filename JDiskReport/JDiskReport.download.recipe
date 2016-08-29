@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of JDiskReport.</string>
 	<key>Identifier</key>
-	<string>com.autopkg.grahampugh.download.JDiskReport</string>
+	<string>com.github.grahampugh.download.JDiskReport</string>
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
