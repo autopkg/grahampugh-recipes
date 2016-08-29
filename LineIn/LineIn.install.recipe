@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Installs the latest version of LineIn.</string>
 	<key>Identifier</key>
-	<string>com.grahamrpugh.install.LineIn</string>
+	<string>com.github.grahamrpugh.install.LineIn</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>0.6.1</string>
 	<key>ParentRecipe</key>
-	<string>com.grahamrpugh.download.LineIn</string>
+	<string>com.github.grahamrpugh.download.LineIn</string>
 	<key>Process</key>
 	<array>
 		<dict>
