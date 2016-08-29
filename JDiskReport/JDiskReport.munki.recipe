@@ -5,9 +5,9 @@
 	<key>Comment</key>
 	<string>Created with Recipe Robot v1.0.2 (https://github.com/homebysix/recipe-robot)</string>
 	<key>Description</key>
-	<string>Downloads the latest version of JDiskReport and imports it into Munki.</string>
+	<string>Downloads version 1.4.1 of JDiskReport and imports it into Munki.</string>
 	<key>Identifier</key>
-	<string>com.grahamrpugh.munki.JDiskReport</string>
+	<string>com.github.grahampugh.munki.JDiskReport</string>
 	<key>Input</key>
 	<dict>
 		<key>MUNKI_REPO_SUBDIR</key>
@@ -21,9 +21,9 @@
 				<string>testing</string>
 			</array>
 			<key>description</key>
-			<string> </string>
+			<string>JDiskReport is a Java-based app for graphically showing disk usage.</string>
 			<key>developer</key>
-			<string></string>
+			<string>JGoodies</string>
 			<key>display_name</key>
 			<string>JDiskReport</string>
 			<key>name</key>
@@ -35,7 +35,7 @@
 	<key>MinimumVersion</key>
 	<string>0.6.1</string>
 	<key>ParentRecipe</key>
-	<string>com.grahamrpugh.download.JDiskReport</string>
+	<string>com.github.grahampugh.download.JDiskReport</string>
 	<key>Process</key>
 	<array>
 		<dict>
