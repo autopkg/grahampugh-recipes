@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of LineIn.</string>
 	<key>Identifier</key>
-	<string>com.github.grahamrpugh.download.LineIn</string>
+	<string>com.github.grahampugh.download.LineIn</string>
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
