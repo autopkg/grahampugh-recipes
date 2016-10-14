@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Description</key>
+    <string>Downloads latest version of the Xerox Printer Drivers from Apple, extracts 
+the package from the dmg, and copies it to the DeployStudio packages repository.
+
+Note: This recipe suppresses unnecessary copying of the package using the "StopProcessingIf" 
+processor. This means that any recipe that uses this as a parent recipe could stop execution 
+before reaching the child. You may need to remove the cache for the recipe in question and 
+start again if you manually delete or move the package that this recipe copies by extraction.
+
+Note 2: Normally, we would use the related .pkg recipe as a parent and copy the file to our 
+DS repo, but the order in which AutoPkg currently evaluates variables means that we cannot 
+have a .pkg recipe that copies the package to the AutoPkg cache or to a desired path using 
+an input variable. So this recipe is identical to the .pkg version except that a destination 
+path is included in the Input keys.</string>
+    <key>Identifier</key>
+    <string>com.github.grahampugh.ds.AppleHPPrinterDrivers</string>
+    <key>Input</key>
+    <dict>
+        <key>NAME</key>
+        <string>HPPrinterDrivers</string>
+        <key>DS_PKGS_PATH</key>
+        <string>/Volumes/LMP3TB3/Deploystudio/Packages</string>
+    </dict>
+    <key>ParentRecipe</key>
+    <string>com.github.n8felton.download.AppleHPPrinterDrivers</string>
+    <key>Process</key>
+    <array>
+        <dict>
+            <key>Processor</key>
+            <string>StopProcessingIf</string>
+            <key>Arguments</key>
+            <dict>
+                <key>predicate</key>
+                <string>download_changed == FALSE</string>
+            </dict>
+        </dict>
+        <dict>
+            <key>Processor</key>
+            <string>Copier</string>
+            <key>Arguments</key>
+            <dict>
+                <key>source_path</key>
+                <string>%pathname%/*.pkg</string>
+                <key>destination_path</key>
+                <string>%DS_PKGS_PATH%/%NAME%.pkg</string>
+                <key>overwrite</key>
+                <true/>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>

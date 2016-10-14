@@ -3,3 +3,6 @@
 
 # don't track .pyc files
 *.pyc
+
+# DS template
+Template.ds.recipe 

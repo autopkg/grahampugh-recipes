@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Description</key>
+    <string>Downloads latest version of the HP Printer Drivers from Apple and extracts 
+the package from the dmg.
+
+Note: This recipe suppresses unnecessary copying of the package using the "StopProcessingIf" 
+processor. This means that any recipe that uses this as a parent recipe could stop execution 
+before reaching the child. You may need to remove the cache for the recipe in question and 
+start again if you manually delete or move the package that this recipe creates.</string>
+    <key>Identifier</key>
+    <string>com.github.grahampugh.pkg.AppleHPPrinterDrivers</string>
+    <key>Input</key>
+    <dict>
+        <key>NAME</key>
+        <string>HPPrinterDrivers</string>
+    </dict>
+    <key>ParentRecipe</key>
+    <string>com.github.n8felton.download.AppleHPPrinterDrivers</string>
+    <key>Process</key>
+    <array>
+        <dict>
+            <key>Processor</key>
+            <string>StopProcessingIf</string>
+            <key>Arguments</key>
+            <dict>
+                <key>predicate</key>
+                <string>download_changed == FALSE</string>
+            </dict>
+        </dict>
+        <dict>
+            <key>Processor</key>
+            <string>Copier</string>
+            <key>Arguments</key>
+            <dict>
+                <key>source_path</key>
+                <string>%pathname%/*.pkg</string>
+                <key>destination_path</key>
+                <string>%RECIPE_CACHE_DIR%/%NAME%.pkg</string>
+                <key>overwrite</key>
+                <true/>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>
