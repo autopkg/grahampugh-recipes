@@ -30,7 +30,7 @@ Input keys:
     <key>MinimumVersion</key>
     <string>0.2.0</string>
     <key>ParentRecipe</key>
-    <string>com.github.autpkg.recipes.download.MSOutlook2016</string>
+    <string>com.github.autpkg.download.MSOutlook2016</string>
     <key>Process</key>
     <array>
         <dict>
