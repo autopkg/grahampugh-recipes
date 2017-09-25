@@ -21,9 +21,7 @@
 		<key>POLICY_TEMPLATE</key>
 		<string>PolicyTemplate.xml</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>MacTeX is a redistribution of TeX Live, a typesetting environment.
-
-Note that since the MacTeX distribution package is only made anually, the bundled version of TeXShop is generally older than the version distributed separately.</string>
+		<string>MacTeX is a redistribution of TeX Live, a typesetting environment. Note that since the MacTeX distribution package is only made anually, the bundled version of TeXShop is generally older than the version distributed separately.</string>
 		<key>SELF_SERVICE_ICON</key>
 		<string>MacTeX.png</string>
 	</dict>
@@ -59,6 +57,8 @@ Note that since the MacTeX distribution package is only made anually, the bundle
 				<string>%SELF_SERVICE_DESCRIPTION%</string>
 				<key>self_service_icon</key>
 				<string>%SELF_SERVICE_ICON%</string>
+				<key>version</key>
+				<string>%version%</string>
 			</dict>
 			<key>Processor</key>
 			<string>JSSImporter</string>
