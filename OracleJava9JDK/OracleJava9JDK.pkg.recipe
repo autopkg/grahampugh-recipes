@@ -34,12 +34,12 @@
 		</dict>
 		<dict>
             <key>Processor</key>
-			<string>FlatPkgUnpacker</string>
+			<string>PkgExtractor</string>
 			<key>Arguments</key>
 			<dict>
-				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/unpack</string>
-				<key>flat_pkg_path</key>
+				<key>extract_root</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/root</string>
+				<key>pkg_path</key>
 				<string>%pathname%/*.pkg</string>
 			</dict>
 		</dict>
@@ -51,7 +51,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>input_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/unpack/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info.plist</string>
+				<string>%RECIPE_CACHE_DIR%/downloads/root/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info.plist</string>
 				<key>plist_version_key</key>
 				<string>CFBundleVersion</string>
 			</dict>
@@ -76,7 +76,7 @@
 			<dict>
 				<key>path_list</key>
 				<array>
-					<string>%RECIPE_CACHE_DIR%/unpack</string>
+					<string>%RECIPE_CACHE_DIR%/downloads/root</string>
 				</array>
 			</dict>
 		</dict>
