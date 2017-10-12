@@ -17,7 +17,7 @@ The package's receipt version is useless, so we make an installs item for
 the prefPane bundle, which has historically had consistent versioning.
 </string>
     <key>Identifier</key>
-    <string>com.github.autopkg.munki.OracleJava9</string>
+    <string>com.github.grahampugh.recipes.munki.OracleJava9</string>
     <key>Input</key>
     <dict>
         <key>MUNKI_REPO_SUBDIR</key>

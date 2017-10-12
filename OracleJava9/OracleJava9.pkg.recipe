@@ -15,7 +15,7 @@ To use this recipe, you must accept the Oracle Binary Code License Agreement for
 http://www.oracle.com/technetwork/java/javase/terms/license/index.html
 </string>
     <key>Identifier</key>
-    <string>com.github.autopkg.pkg.OracleJava9</string>
+    <string>com.github.grahampugh.recipes.pkg.OracleJava9</string>
     <key>Input</key>
     <dict>
         <key>NAME</key>
@@ -26,7 +26,7 @@ http://www.oracle.com/technetwork/java/javase/terms/license/index.html
     <key>MinimumVersion</key>
     <string>0.2.9</string>
     <key>ParentRecipe</key>
-    <string>com.github.autopkg.download.OracleJava9</string>
+    <string>com.github.grahampugh.recipes.download.OracleJava9</string>
     <key>Process</key>
     <array>
         <dict>
