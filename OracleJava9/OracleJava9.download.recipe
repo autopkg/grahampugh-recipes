@@ -58,7 +58,7 @@ http://www.oracle.com/technetwork/java/javase/terms/license/index.html
             <key>Arguments</key>
             <dict>
                 <key>input_path</key>
-                <string>%pathname%/Java 9 Update*.app/Contents/Resources/JavaAppletPlugin.pkg</string>
+                <string>%pathname%/Java 9.app/Contents/Resources/JavaAppletPlugin.pkg</string>
                 <key>expected_authority_names</key>
                 <array>
                     <string>Developer ID Installer: Oracle America, Inc. (VB5E2TV963)</string>
