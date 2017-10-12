@@ -32,26 +32,44 @@
 				<string>%pathname%/*.pkg</string>
 			</dict>
 		</dict>
-		<dict>
+        <dict>
             <key>Processor</key>
-			<string>PkgExtractor</string>
+			<string>FlatPkgUnpacker</string>
 			<key>Arguments</key>
 			<dict>
-				<key>extract_root</key>
-				<string>%RECIPE_CACHE_DIR%/downloads/root</string>
-				<key>pkg_path</key>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/UNPACK</string>
+				<key>flat_pkg_path</key>
 				<string>%pathname%/*.pkg</string>
 			</dict>
 		</dict>
 		<dict>
             <key>Processor</key>
+			<string>FileFinder</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pattern</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/UNPACK/jdk*.pkg</string>
+			</dict>
+		</dict>
+		<dict>
+            <key>Processor</key>
+			<string>PkgPayloadUnpacker</string>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/PAYLOAD</string>
+				<key>pkg_payload_path</key>
+				<string>%found_filename%/Payload</string>
+			</dict>
+		</dict>
+		<dict>
+            <key>Processor</key>
 			<string>Versioner</string>
-            <key>Comment</key>
-			<string>The JDK Info.plist has no reliable version number in it (CFBundleShortVersionString=1.0) so we use the included JRE 9 plugin version number instead.</string>
 			<key>Arguments</key>
 			<dict>
 				<key>input_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/downloads/root/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info.plist</string>
+				<string>%RECIPE_CACHE_DIR%/downloads/PAYLOAD/Contents/Info.plist</string>
 				<key>plist_version_key</key>
 				<string>CFBundleVersion</string>
 			</dict>
@@ -61,22 +79,23 @@
 			<string>PkgCopier</string>
 			<key>Arguments</key>
 			<dict>
-                <key>source_pkg</key>
-				<string>%pathname%/*.pkg</string>
 				<key>pkg_path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg</string>
+				<key>source_pkg</key>
+				<string>%pathname%/*.pkg</string>
 			</dict>
 		</dict>
 		<dict>
-            <key>Processor</key>
+			<key>Processor</key>
 			<string>PathDeleter</string>
             <key>Comment</key>
-			<string>Delete unpacked pkg</string>
+			<string>Gotta clean up after myself!</string>
 			<key>Arguments</key>
 			<dict>
 				<key>path_list</key>
 				<array>
-					<string>%RECIPE_CACHE_DIR%/downloads/root</string>
+					<string>%RECIPE_CACHE_DIR%/downloads/UNPACK</string>
+					<string>%RECIPE_CACHE_DIR%/downloads/PAYLOAD</string>
 				</array>
 			</dict>
 		</dict>
