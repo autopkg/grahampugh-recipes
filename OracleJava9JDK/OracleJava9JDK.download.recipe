@@ -58,7 +58,7 @@
             <key>Arguments</key>
             <dict>
                 <key>input_path</key>
-                <string>%pathname%/JDK 9.pkg</string>
+                <string>%pathname%/JDK *.pkg</string>
                 <key>expected_authority_names</key>
                 <array>
                     <string>Developer ID Installer: Oracle America, Inc. (VB5E2TV963)</string>
