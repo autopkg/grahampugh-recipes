@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# FilemakerUpdateDMGExtractor.py
+# FilemakerProAdvancedUpdateDMGExtractor.py
 # Extracts a FileMaker updater package from a given DMG.
 #
 # Copyright 2016 William McGrath
@@ -18,7 +18,7 @@
 
 
 
-"""See docstring for FilemakerUpdateDMGExtractor class"""
+"""See docstring for FilemakerProAdvancedUpdateDMGExtractor class"""
 
 import json
 import os
@@ -28,9 +28,9 @@ import fnmatch
 from autopkglib.DmgMounter import DmgMounter
 from autopkglib import Processor, ProcessorError
 
-__all__ = ["FilemakerUpdateExtractor"]
+__all__ = ["FilemakerProAdvancedUpdateExtractor"]
 
-class FilemakerUpdateExtractor(DmgMounter):
+class FilemakerProAdvancedUpdateExtractor(DmgMounter):
     """Extracts update pkg from given DMG or ZIP"""
 
     description = __doc__
@@ -84,5 +84,5 @@ class FilemakerUpdateExtractor(DmgMounter):
                 self.unmount(self.env["downloaded_file"])
 
 if __name__ == "__main__":
-    PROCESSOR = FilemakerUpdateExtractor()
+    PROCESSOR = FilemakerProAdvancedUpdateExtractor()
     PROCESSOR.execute_shell()
