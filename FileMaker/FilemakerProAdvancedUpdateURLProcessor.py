@@ -75,10 +75,10 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
                 updates.append(pkg)
         return updates
 
-    def filterOutServerUpdates(self, obj):
+    def extractAdvancedUpdates(self, obj):
         updates = []
         for pkg in obj:
-            if re.search('Server', pkg["product"]) == None:
+            if re.search('Advanced', pkg["product"]):
                 updates.append(pkg)
         return updates
 
