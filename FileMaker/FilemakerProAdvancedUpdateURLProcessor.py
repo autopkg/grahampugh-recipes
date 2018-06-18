@@ -91,7 +91,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             return v1
         if patch1 > patch2:
             return v1
-        if build1 > build1:
+        if build1 > build2:
             return v1
         return v1
 
@@ -118,9 +118,9 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             mo = re.search('([0-9]*)v([0-9]*)', minor)
             if mo != None:
                 (minor, build) = mo.groups()
-            versions.append((major, minor, patch, build, version_str))
+            versions.append((major, minor, patch, version_str))
         sorted_versions = sorted(versions, key=itemgetter(0,1,2,3), reverse=True)
-        version_str = versions[0][4]
+        version_str = versions[0][3]
         for pkg in obj:
             if pkg["version"] == version_str:
                 return pkg
@@ -146,7 +146,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
 
     def version_matcher(self, url):
        	fname = os.path.basename(urlparse.urlsplit(url).path)
-        version_match = re.search(r"([0-9]{2}.[0-9]{0,2}.[0-9]{0,2}.[0-9]{0,4})", fname)
+        version_match = re.search(r"([0-9]{2}.[0-9]{0,2}.[0-9]{0,2})", fname)
         if version_match == None:
             raise ProcessorError("Something went wrong matching FMP update to full version.")
         else:
