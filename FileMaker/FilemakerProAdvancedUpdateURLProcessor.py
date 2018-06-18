@@ -139,7 +139,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         metadata = json.loads(data)
         # extract all the Mac updates
         mac_updates = self.extractMacUpdates(metadata)
-        mac_updates = self.filterOutServerUpdates(mac_updates)
+        mac_updates = self.extractAdvancedUpdates(mac_updates)
         mac_updates = self.extractMajorUpdates(mac_updates)
         update = self.findLatestUpdate(mac_updates)
         return update
