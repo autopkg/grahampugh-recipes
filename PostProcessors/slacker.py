@@ -77,13 +77,18 @@ class Slacker(Processor):
         if jss_changed_objects:
             jss_policy_name = "%s" % jss_importer_summary_result["data"]["Policy"]
             jss_policy_version = "%s" % jss_importer_summary_result["data"]["Version"]
+            jss_uploaded_package = "%s" % jss_importer_summary_result["data"]["Package"]
             print "JSS address: %s" % JSS_URL
             print "Title: %s" % prod_name
             print "Policy: %s" % jss_policy_name
             print "Version: %s" % jss_policy_version
             print "Category: %s" % category
             print "Policy Category: %s" % policy_category
-            slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*" % (JSS_URL, prod_name, jss_policy_version, category, jss_policy_name)
+            print "Package: %s" % jss_uploaded_package
+            if jss_uploaded_package:
+                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nUploaded Package Name: *%s*" % (JSS_URL, output_title, jss_policy_version, category, jss_policy_name, jss_uploaded_package)
+            else:
+                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nNo new package uploaded" % (JSS_URL, output_title, jss_policy_version, category, jss_policy_name)
 
             slack_data = {'text': slack_text}
 
