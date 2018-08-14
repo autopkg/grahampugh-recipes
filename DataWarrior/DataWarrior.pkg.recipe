@@ -30,6 +30,8 @@
 				<string>%webversion%</string>
 				<key>app_path</key>
 				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app</string>
+                <key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/%app_name%-%version%.pkg</string>
                 <key>overwrite</key>
 				<false/>
 			</dict>
