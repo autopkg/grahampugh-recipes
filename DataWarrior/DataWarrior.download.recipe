@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the latest version of DataWarrior.</string>
+	<key>Identifier</key>
+	<string>ch.ethz.id.download.DataWarrior</string>
+	<key>Input</key>
+	<dict>
+		<key>DOWNLOAD_URL</key>
+		<string>http://www.openmolecules.org/datawarrior/download.html</string>
+        <!-- https://www.dropbox.com/s/wz8gvp1odmansr9/datawarrior472.dmg?dl=1 -->
+		<key>NAME</key>
+		<string>DataWarrior</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+        <dict>
+            <key>Processor</key>
+			<string>CURLTextSearcher</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>%DOWNLOAD_URL%</string>
+                <key>re_pattern</key>
+				<string>(?P&lt;url&gt;http.*?dmg\?dl=1)</string>
+			</dict>
+		</dict>
+		<dict>
+            <key>Processor</key>
+			<string>CURLDownloader</string>
+			<key>Arguments</key>
+			<dict>
+				<key>filename</key>
+				<string>%NAME%.dmg</string>
+				<key>url</key>
+				<string>%match%</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+	</array>
+</dict>
+</plist>
