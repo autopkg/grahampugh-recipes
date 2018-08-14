@@ -21,9 +21,18 @@
 	<string>com.github.grahampugh.download.DataWarrior</string>
 	<key>Process</key>
 	<array>
-		<dict>
-			<key>Processor</key>
+        <dict>
+            <key>Processor</key>
 			<string>AppPkgCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>version</key>
+				<string>%webversion%</string>
+				<key>app_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app</string>
+                <key>overwrite</key>
+				<false/>
+			</dict>
 		</dict>
 	</array>
 </dict>

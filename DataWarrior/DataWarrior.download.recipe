@@ -60,7 +60,7 @@
 				<key>source_path</key>
 				<string>%pathname%/%NAME%.app</string>
 				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app</string>
                 <key>overwrite</key>
 				<true/>
 			</dict>
@@ -71,27 +71,14 @@
             <key>Arguments</key>
 			<dict>
 				<key>input_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%.app/Contents/Info.plist</string>
+				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist</string>
                 <key>output_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%.app/Contents/Info.plist</string>
+				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist</string>
                 <key>plist_data</key>
                 <dict>
                      <key>CFBundleShortVersionString</key>
                      <string>%webversion%</string>
                  </dict>
-			</dict>
-		</dict>
-        <dict>
-            <key>Processor</key>
-			<string>AppPkgCreator</string>
-			<key>Arguments</key>
-			<dict>
-				<key>version</key>
-				<string>%webversion%</string>
-				<key>app_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
-                <key>overwrite</key>
-				<false/>
 			</dict>
 		</dict>
 		<dict>
