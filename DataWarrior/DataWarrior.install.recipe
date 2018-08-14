@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>ch.ethz.id.download.DataWarrior</string>
+	<string>com.github.grahampugh.download.DataWarrior</string>
 	<key>Process</key>
 	<array>
 		<dict>
