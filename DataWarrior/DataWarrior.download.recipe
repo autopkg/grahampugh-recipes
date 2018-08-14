@@ -10,7 +10,6 @@
 	<dict>
 		<key>DOWNLOAD_URL</key>
 		<string>http://www.openmolecules.org/datawarrior/download.html</string>
-        <!-- https://www.dropbox.com/s/wz8gvp1odmansr9/datawarrior472.dmg?dl=1 -->
 		<key>NAME</key>
 		<string>DataWarrior</string>
 	</dict>
@@ -26,7 +25,7 @@
 				<key>url</key>
 				<string>%DOWNLOAD_URL%</string>
                 <key>re_pattern</key>
-				<string>(?P&lt;url&gt;http.*?dmg\?dl=1)</string>
+				<string>(?P&lt;match&gt;http.*?dmg\?dl=1)</string>
 			</dict>
 		</dict>
 		<dict>
@@ -38,6 +37,61 @@
 				<string>%NAME%.dmg</string>
 				<key>url</key>
 				<string>%match%</string>
+			</dict>
+		</dict>
+        <dict>
+            <key>Processor</key>
+			<string>CURLTextSearcher</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>%DOWNLOAD_URL%</string>
+                <key>result_output_var_name</key>
+				<string>webversion</string>
+                <key>re_pattern</key>
+				<string>(.*Download DataWarrior V(?P&lt;webversion&gt;\d\.\d+\.\d+).*)</string>
+			</dict>
+		</dict>
+        <dict>
+            <key>Processor</key>
+			<string>Copier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_path</key>
+				<string>%pathname%/%NAME%.app</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
+                <key>overwrite</key>
+				<true/>
+			</dict>
+		</dict>
+        <dict>
+			<key>Processor</key>
+			<string>PlistEditor</string>
+            <key>Arguments</key>
+			<dict>
+				<key>input_plist_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app/Contents/Info.plist</string>
+                <key>output_plist_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app/Contents/Info.plist</string>
+                <key>plist_data</key>
+                <dict>
+                     <key>CFBundleShortVersionString</key>
+                     <string>%webversion%</string>
+                 </dict>
+			</dict>
+		</dict>
+        <dict>
+            <key>Processor</key>
+			<string>AppPkgCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>version</key>
+				<string>%webversion%</string>
+				<key>app_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
+                <key>overwrite</key>
+				<false/>
 			</dict>
 		</dict>
 		<dict>
