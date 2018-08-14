@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of DataWarrior and creates a package.</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.pkg.DataWarrior</string>
+	<string>com.github.grahampugh.pkg.DataWarrior</string>
 	<key>Input</key>
 	<dict>
 		<key>BUNDLE_ID</key>

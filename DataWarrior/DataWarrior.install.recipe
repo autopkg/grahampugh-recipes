@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Installs the latest version of DataWarrior.</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.install.DataWarrior</string>
+	<string>com.github.grahampugh.install.DataWarrior</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>

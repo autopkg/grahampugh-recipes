@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of eqMac and imports it into Munki.</string>
 	<key>Identifier</key>
-	<string>com.grahamrpugh.munki.eqMac</string>
+	<string>com.github.grahampugh.munki.eqMac</string>
 	<key>Input</key>
 	<dict>
 		<key>MUNKI_REPO_SUBDIR</key>
@@ -46,7 +46,7 @@
 	<key>MinimumVersion</key>
 	<string>0.6.1</string>
 	<key>ParentRecipe</key>
-	<string>com.grahamrpugh.download.eqMac</string>
+	<string>com.github.grahampugh.download.eqMac</string>
 	<key>Process</key>
 	<array>
 		<dict>

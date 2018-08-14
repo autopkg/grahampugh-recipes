@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of eqMac.</string>
 	<key>Identifier</key>
-	<string>com.grahamrpugh.download.eqMac</string>
+	<string>com.github.grahampugh.download.eqMac</string>
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>

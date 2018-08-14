@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of DataWarrior.</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.download.DataWarrior</string>
+	<string>com.github.grahampugh.download.DataWarrior</string>
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
