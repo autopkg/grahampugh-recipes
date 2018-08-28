@@ -1,0 +1,10 @@
+Description: Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.
+Identifier: com.github.grahampugh.download.filemakerproadvancedupdater
+Input:
+  NAME: FileMaker Pro Advanced
+  major_version: '16'
+Process:
+- Arguments:
+    major_version: '%major_version%'
+  Processor: FilemakerProAdvancedUpdateURLProcessor
+- Processor: URLDownloader

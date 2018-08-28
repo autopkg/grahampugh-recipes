@@ -1,0 +1,32 @@
+Description: Downloads the latest version of DataWarrior.
+Identifier: com.github.grahampugh.download.DataWarrior
+Input:
+  DOWNLOAD_URL: http://www.openmolecules.org/datawarrior/download.html
+  NAME: DataWarrior
+MinimumVersion: 1.0.0
+Process:
+- Arguments:
+    re_pattern: (?P<match>http.*?dmg\?dl=1)
+    url: '%DOWNLOAD_URL%'
+  Processor: URLTextSearcher
+- Arguments:
+    filename: '%NAME%.dmg'
+    url: '%match%'
+  Processor: URLDownloader
+- Arguments:
+    re_pattern: (.*Download DataWarrior V(?P<webversion>\d\.\d+\.\d+).*)
+    result_output_var_name: webversion
+    url: '%DOWNLOAD_URL%'
+  Processor: URLTextSearcher
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
+    overwrite: true
+    source_path: '%pathname%/%NAME%.app'
+  Processor: Copier
+- Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist'
+    output_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist'
+    plist_data:
+      CFBundleShortVersionString: '%webversion%'
+  Processor: PlistEditor
+- Processor: EndOfCheckPhase

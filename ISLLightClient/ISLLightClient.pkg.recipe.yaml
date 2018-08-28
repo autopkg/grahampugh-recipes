@@ -1,0 +1,9 @@
+Description: Downloads the latest version of ISL Light Client and creates a package.
+Identifier: com.github.grahampugh.pkg.ISLLightClient
+Input:
+  BUNDLE_ID: com.islonline.isllight.client
+  NAME: ISL Light Client
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.ISLLightClient
+Process:
+- Processor: AppPkgCreator

@@ -1,0 +1,14 @@
+Description: "Downloads latest version of the HP Printer Drivers from Apple and extracts \nthe package from the dmg.\n\nNote: This recipe suppresses unnecessary copying of the package using the \"StopProcessingIf\" \nprocessor. This means that any recipe that uses this as a parent recipe could stop execution \nbefore reaching the child. You may need to remove the cache for the recipe in question and \nstart again if you manually delete or move the package that this recipe creates."
+Identifier: com.github.grahampugh.pkg.AppleHPPrinterDrivers
+Input:
+  NAME: HPPrinterDrivers
+ParentRecipe: com.github.n8felton.download.AppleHPPrinterDrivers
+Process:
+- Arguments:
+    predicate: download_changed == FALSE
+  Processor: StopProcessingIf
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+    overwrite: true
+    source_path: '%pathname%/*.pkg'
+  Processor: Copier

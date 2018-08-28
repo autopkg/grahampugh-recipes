@@ -1,0 +1,15 @@
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of DataWarrior and creates a package.
+Identifier: com.github.grahampugh.pkg.DataWarrior
+Input:
+  BUNDLE_ID: org.openmolecules.datawarrior
+  NAME: DataWarrior
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.DataWarrior
+Process:
+- Arguments:
+    app_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
+    overwrite: false
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
+    version: '%webversion%'
+  Processor: AppPkgCreator

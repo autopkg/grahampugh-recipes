@@ -1,0 +1,17 @@
+Comment: 'NOTE: May only work within ETH network.'
+Description: Downloads the latest version of ISL Light Client for Mac.
+Identifier: com.github.grahampugh.download.ISLLightClient
+Input:
+  DOWNLOAD_URL: https://swarley.ethz.ch/download/ISLLightClient?platform=mac
+  NAME: ISL Light Client
+MinimumVersion: 0.6.1
+Process:
+- Arguments:
+    filename: ISL Light Client.dmg
+    url: '%DOWNLOAD_URL%'
+  Processor: URLDownloader
+- Processor: EndOfCheckPhase
+- Arguments:
+    input_plist_path: '%pathname%/%NAME%.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+  Processor: Versioner
