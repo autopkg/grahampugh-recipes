@@ -6,9 +6,9 @@ Input:
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.download.DataWarrior
 Process:
-- Arguments:
+- Processor: InstallFromDMG
+  Arguments:
     dmg_path: '%pathname%'
     items_to_copy:
     - destination_path: /Applications
       source_item: DataWarrior.app
-  Processor: InstallFromDMG

@@ -7,9 +7,9 @@ Input:
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.download.DataWarrior
 Process:
-- Arguments:
+- Processor: AppPkgCreator
+  Arguments:
     app_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
     overwrite: false
     pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
     version: '%webversion%'
-  Processor: AppPkgCreator
