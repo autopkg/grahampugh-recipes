@@ -1,0 +1,9 @@
+Description: Downloads the latest version of KNIME and creates a package.
+Identifier: ch.ethz.id.pkg.KNIME
+Input:
+  BUNDLE_ID: org.knime.product
+  NAME: KNIME
+MinimumVersion: 1.0.0
+ParentRecipe: ch.ethz.id.download.KNIME
+Process:
+- Processor: AppPkgCreator
