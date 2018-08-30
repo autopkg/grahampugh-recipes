@@ -4,6 +4,8 @@ Input:
   BUNDLE_ID: org.knime.product
   NAME: KNIME
 MinimumVersion: 1.0.0
-ParentRecipe: com.grahampugh.download.KNIME
+ParentRecipe: com.github.grahampugh.download.KNIME
 Process:
 - Processor: AppPkgCreator
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
