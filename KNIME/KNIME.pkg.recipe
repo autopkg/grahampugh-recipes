@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of KNIME and creates a package.</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.pkg.KNIME</string>
+	<string>com.github.grahampugh.pkg.KNIME</string>
 	<key>Input</key>
 	<dict>
 		<key>BUNDLE_ID</key>
