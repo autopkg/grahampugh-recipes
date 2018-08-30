@@ -12,6 +12,9 @@ Process:
     filename: '%NAME%.dmg'
     url: '%DOWNLOAD_URL%'
 - Processor: EndOfCheckPhase
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: 'download_changed == False'
 - Processor: CodeSignatureVerifier
   Arguments:
     input_path: '%pathname%/KNIME*.app'

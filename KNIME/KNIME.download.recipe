@@ -35,6 +35,15 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>input_path</key>
 				<string>%pathname%/KNIME*.app</string>
 				<key>requirement</key>
