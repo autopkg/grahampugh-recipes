@@ -17,7 +17,6 @@ Process:
 - Processor: Versioner
   Arguments:
     input_plist_path: '%RECIPE_CACHE_DIR%/root/Applications/MathType/MathType.app/Contents/Info.plist'
-    plist_version_key: CFBundleVersion
 - Processor: PkgCopier
   Arguments:
     source_pkg: '%pathname%'
