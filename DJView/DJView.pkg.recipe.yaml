@@ -1,0 +1,8 @@
+Description: Downloads the latest version of DJView and creates a pkg including version number.
+Identifier: com.github.grahampugh.pkg.DJView
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.scriptingosx.download.DjView
+Input:
+  NAME: DjView
+Process:
+- Processor: AppPkgCreator
