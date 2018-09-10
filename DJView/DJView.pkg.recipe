@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of DJView and creates a pkg including version number.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.pkg.DJView</string>
+	<string>com.github.grahampugh.pkg.DjView</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
