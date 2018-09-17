@@ -1,5 +1,5 @@
 Description: Downloads the latest version of ThinLinc Client and creates a package.
-Identifier: ch.ethz.id.pkg.ThinLincClient
+Identifier: com.github.grahampugh.pkg.ThinLincClient
 Input:
   BUNDLE_ID: se.cendio.tlclient
   NAME: ThinLinc Client

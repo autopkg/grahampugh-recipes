@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of ThinLinc Client and creates a package.</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.pkg.ThinLincClient</string>
+	<string>com.github.grahampugh.pkg.ThinLincClient</string>
 	<key>Input</key>
 	<dict>
 		<key>BUNDLE_ID</key>
