@@ -20,6 +20,17 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>pkgdirs</key>
 				<dict>
 					<key>Applications</key>
@@ -62,6 +73,8 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>force_pkg_build</key>
+				<true/>
 				<key>pkg_request</key>
 				<dict>
 					<key>chown</key>
@@ -83,8 +96,6 @@
 							<string>root</string>
 						</dict>
 					</array>
-					<key>force_pkg_build</key>
-					<true/>
 					<key>id</key>
 					<string>edu.uoregon.TeXShop</string>
 					<key>options</key>
