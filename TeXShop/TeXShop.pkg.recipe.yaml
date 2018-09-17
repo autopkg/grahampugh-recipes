@@ -6,6 +6,10 @@ MinimumVersion: 0.2.0
 ParentRecipe: io.github.hjuutilainen.download.TeXShop
 Process:
 - Arguments:
+    predicate: download_changed == False
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
+- Arguments:
     pkgdirs:
       Applications: '0775'
       'Applications/TeX': '0775'
