@@ -1,0 +1,15 @@
+Description: Downloads the latest MacTeX release and renames the pkg to include the version number.
+Identifier: com.github.grahampugh.pkg.MacTeX
+Input:
+  NAME: MacTeX
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.joshua-d-miller.download.MacTeX
+Process:
+- Arguments:
+    predicate: download_changed == False
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
+- Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
+    source_pkg: '%pathname%'
+  Processor: PkgCopier
