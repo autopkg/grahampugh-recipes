@@ -31,6 +31,7 @@ Process:
         path: Applications/TeX
         user: root
       id: edu.uoregon.TeXShop
+      force_pkg_build: true
       options: purge_ds_store
       pkgname: '%NAME%-%version%'
       version: '%version%'

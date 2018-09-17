@@ -83,6 +83,8 @@
 							<string>root</string>
 						</dict>
 					</array>
+					<key>force_pkg_build</key>
+					<true/>
 					<key>id</key>
 					<string>edu.uoregon.TeXShop</string>
 					<key>options</key>
