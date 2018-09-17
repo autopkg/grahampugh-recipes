@@ -1,0 +1,27 @@
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of ThinLinc Client.
+Identifier: com.github.grahampugh.download.ThinLincClient
+Input:
+  SITE_URL: https://www.cendio.com
+  DOWNLOAD_URL: '%SITE_URL%/thinlinc/download'
+  NAME: ThinLinc Client
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+    result_output_var_name: url
+    re_pattern: '"(?P<match>/downloads/clients/tl.*-client-osx\.iso)"'
+- Processor: URLDownloader
+  Arguments:
+    url: '%SITE_URL%%match%'
+    filename: ThinLincClient.iso
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/ThinLinc Client.app'
+    requirement: identifier "se.cendio.tlclient" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = PHUT6TWL4H
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%pathname%/ThinLinc Client.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString

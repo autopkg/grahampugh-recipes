@@ -1,0 +1,14 @@
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Installs the latest version of ThinLinc Client.
+Identifier: ch.ethz.id.install.ThinLincClient
+Input:
+  NAME: ThinLinc Client
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.ThinLincClient
+Process:
+- Arguments:
+    dmg_path: '%pathname%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: ThinLinc Client.app
+  Processor: InstallFromDMG
