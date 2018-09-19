@@ -1,0 +1,33 @@
+Description: Downloads the current stable version of FileZilla.
+Identifier: com.github.grahampugh.recipes.download.FileZilla
+Input:
+  NAME: FileZilla
+  SEARCH_URL: https://filezilla-project.org/download.php?show_all=1
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    result_output_var_name: dl_version
+    re_pattern: '\<\p\>The latest stable version of FileZilla Client is (?P<dl_version>.*)\<\/p\>'
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    result_output_var_name: url
+    re_pattern: '"(?P<url>https://.*/client/FileZilla_.*_macosx-x86.*)"'
+- Processor: URLDownloader
+  Arguments:
+    CHECK_FILESIZE_ONLY: true
+    filename: '%NAME%-%dl_version%.tar.bz2'
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: 'download_changed == False'
+- Processor: Unarchiver
+  Arguments:
+    archive_format: tar_bzip2
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%/FileZilla.app'
+    requirement: identifier "org.filezilla-project.filezilla" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "5VPGKXL75N"
+- Processor: EndOfCheckPhase
