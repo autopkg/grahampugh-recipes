@@ -55,6 +55,15 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>archive_format</key>
 				<string>tar_bzip2</string>
 				<key>archive_path</key>
