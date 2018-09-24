@@ -1,5 +1,5 @@
 Description: Downloads the latest version DjView.
-Identifier: com.github.scriptingosx.download.DjView
+Identifier: com.github.grahampugh.recipes.download.DjView
 Input:
   NAME: DjView
   SEARCH_PATTERN: (?P<url>https://sourceforge\.net/projects/djvu/files/DjVuLibre_MacOS/(?P<dmgversion>.*?)/DjVuLibre-.*?.dmg)

@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version DjView.</string>
 	<key>Identifier</key>
-	<string>com.github.scriptingosx.download.DjView</string>
+	<string>com.github.grahampugh.recipes.download.DjView</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
