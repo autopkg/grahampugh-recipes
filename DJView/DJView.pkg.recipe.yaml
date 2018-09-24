@@ -1,7 +1,7 @@
 Description: Downloads the latest version of DjView and creates a pkg including version number.
-Identifier: com.github.grahampugh.pkg.DjView
+Identifier: com.github.grahampugh.recipes.pkg.DjView
 MinimumVersion: 1.0.0
-ParentRecipe: com.github.scriptingosx.download.DjView
+ParentRecipe: com.github.grahampugh.recipes.download.DjView
 Input:
   NAME: DjView
 Process:
