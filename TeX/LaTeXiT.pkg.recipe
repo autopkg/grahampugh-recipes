@@ -14,7 +14,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.scriptingosx.download.LaTeXiT</string>
+	<string>com.github.grahampugh.recipes.download.LaTeXiT</string>
 	<key>Process</key>
 	<array>
 		<dict>
