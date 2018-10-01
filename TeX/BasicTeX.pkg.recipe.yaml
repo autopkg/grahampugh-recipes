@@ -8,12 +8,7 @@ Process:
 - Processor: StopProcessingIf
   Arguments:
     predicate: download_changed == False
-- Processor: FlatPkgUnpacker
+- Processor: PkgCopier
   Arguments:
-    purge_destination: true
-    destination_path: '%RECIPE_CACHE_DIR%/unpack'
-    flat_pkg_path: '%pathname%'
-- Arguments:
     pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
     source_pkg: '%pathname%'
-  Processor: PkgCopier
