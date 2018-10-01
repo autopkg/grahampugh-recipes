@@ -1,0 +1,23 @@
+Description: Downloads the current version of BasicTeX, a reduced distribution of MacTeX.
+Identifier: com.github.grahampugh.recipes.download.BasicTeX
+Input:
+  DOWNLOAD_URL: http://tug.org/cgi-bin/mactex-download/%NAME%.pkg
+  NAME: BasicTeX
+MinimumVersion: 0.6.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: http://www.tug.org/mactex/morepackages.html
+    re_pattern: 'The full MacTeX-(?P<version>.*) install'
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+    CHECK_FILESIZE_ONLY: true
+- Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Richard Koch (RBGCY5RJWM)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%'
+  Processor: CodeSignatureVerifier
+- Processor: EndOfCheckPhase

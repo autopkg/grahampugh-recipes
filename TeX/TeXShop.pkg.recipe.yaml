@@ -17,11 +17,11 @@ Process:
   Processor: PkgRootCreator
 - Arguments:
     archive_path: '%pathname%'
-    destination_path: '%pkgroot%/Applications/TeX'
+    destination_path: '%pkgroot%/Applications'
     purge_destination: true
   Processor: Unarchiver
 - Arguments:
-    input_plist_path: '%pkgroot%/Applications/TeX/TeXShop.app/Contents/Info.plist'
+    input_plist_path: '%pkgroot%/Applications/TeXShop.app/Contents/Info.plist'
     plist_version_key: CFBundleShortVersionString
   Comment: Get version from the app
   Processor: Versioner
@@ -30,9 +30,6 @@ Process:
       chown:
       - group: admin
         path: Applications
-        user: root
-      - group: admin
-        path: Applications/TeX
         user: root
       id: edu.uoregon.TeXShop
       options: purge_ds_store
