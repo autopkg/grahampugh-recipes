@@ -1,0 +1,31 @@
+Description: Downloads the latest version of Microsoft's Office 365 Suite installer package and renames the package.
+Identifier: com.github.grahampugh.recipes.pkg.MicrosoftOffice365
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.MicrosoftOffice365
+Input:
+  NAME: Microsoft Office 365
+Process:
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/unpack'
+    flat_pkg_path: '%pathname%'
+  Processor: FlatPkgUnpacker
+- Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/downloads/unpack/*OneNote*.pkg'
+  Processor: FileFinder
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/payload'
+    pkg_payload_path: '%found_filename%/Payload'
+  Processor: PkgPayloadUnpacker
+- Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/payload/Microsoft OneNote.app/Contents/Info.plist'
+    plist_version_key: CFBundleVersion
+  Processor: Versioner
+- Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/MicrosoftOffice365Suite-%version%.pkg'
+    source_pkg: '%pathname%'
+  Processor: PkgCopier
+- Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/downloads/unpack'
+    - '%RECIPE_CACHE_DIR%/downloads/payload'
+  Processor: PathDeleter
