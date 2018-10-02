@@ -1,0 +1,16 @@
+Description: Downloads the latest TeXLive Utility release and renames the pkg to include the version number.
+Identifier: com.github.grahampugh.recipes.pkg.TeXLiveUtility
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.grahampugh.recipes.download.TeXLiveUtility
+Input:
+  NAME: TeXLive Utility
+Process:
+- Processor: Unarchiver
+  Arguments:
+    purge_destination: true
+    destination_path: '%RECIPE_CACHE_DIR%/unzip'
+- Processor: AppPkgCreator
+  Arguments:
+    app_path: '%RECIPE_CACHE_DIR%/unzip/*.app'
+    force_pkg_build: true
+    
