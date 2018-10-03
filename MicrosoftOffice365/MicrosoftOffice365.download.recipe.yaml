@@ -15,11 +15,14 @@ Process:
     filename: 'MicrosoftOffice365Suite.pkg'
     url: '%DOWNLOADURL%'
   Processor: URLDownloader
-- Processor: EndOfCheckPhase
-- Arguments:
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: 'download_changed == False'
+- Processor: CodeSignatureVerifier
+  Arguments:
     expected_authority_names:
     - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
     - Developer ID Certification Authority
     - Apple Root CA
     input_path: '%pathname%'
-  Processor: CodeSignatureVerifier
+- Processor: EndOfCheckPhase

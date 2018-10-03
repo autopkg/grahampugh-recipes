@@ -36,8 +36,13 @@ Set the REGION key to
 			<string>URLDownloader</string>
 		</dict>
 		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
 			<key>Processor</key>
-			<string>EndOfCheckPhase</string>
+			<string>StopProcessingIf</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -53,6 +58,10 @@ Set the REGION key to
 			</dict>
 			<key>Processor</key>
 			<string>CodeSignatureVerifier</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
 		</dict>
 	</array>
 </dict>
