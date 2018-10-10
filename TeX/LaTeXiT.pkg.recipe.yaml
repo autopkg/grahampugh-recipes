@@ -1,0 +1,14 @@
+Description: Downloads the latest version of LaTeXiT and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.LaTeXiT
+Input:
+  NAME: LaTeXiT
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.LaTeXiT
+Process:
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: download_changed == False
+  Comment: Checks if the file already exists in the cache
+- Processor: AppPkgCreator
+  Arguments:
+    force_pkg_build: true

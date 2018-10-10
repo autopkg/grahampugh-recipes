@@ -1,0 +1,28 @@
+Description: |
+    Downloads the latest Microsoft Office 2016 SKU-less installer package.
+    Set the REGION key to
+    525133 for Americas (default)
+    532572 for Europe
+    532577 for Asia
+Identifier: com.github.grahampugh.recipes.download.MicrosoftOffice365
+Input:
+  DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
+  NAME: Microsoft Office Suite
+  PRODUCTID: '532572'
+MinimumVersion: 1.0.0
+Process:
+- Arguments:
+    filename: 'MicrosoftOffice365Suite.pkg'
+    url: '%DOWNLOADURL%'
+  Processor: URLDownloader
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: 'download_changed == False'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%'
+- Processor: EndOfCheckPhase

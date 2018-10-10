@@ -1,0 +1,13 @@
+Description: Downloads the latest TeXLive Utility release and renames the pkg to include the version number.
+Identifier: com.github.grahampugh.recipes.download.TeXLiveUtility
+Input:
+  NAME: TeXLive Utility
+MinimumVersion: 0.2.9
+Process:
+- Processor: GitHubReleasesInfoProvider
+  Arguments:
+    github_repo: amaxwell/tlutility
+- Processor: URLDownloader
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: download_changed == False
