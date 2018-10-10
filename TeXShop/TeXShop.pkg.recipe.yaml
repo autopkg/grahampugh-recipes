@@ -1,5 +1,5 @@
 Description: Downloads the current release version of TeXShop and builds a package with TeXShop in /Applications/TeX to match a MacTeX deistribution.
-Identifier: com.github.grahampugh.pkg.TeXShop
+Identifier: com.github.grahampugh.recipes.pkg.TeXShop
 Input:
   NAME: TeXShop
 MinimumVersion: 0.2.0

@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the current release version of TeXShop and builds a package with TeXShop in /Applications/TeX to match a MacTeX deistribution.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.pkg.TeXShop</string>
+	<string>com.github.grahampugh.recipes.pkg.TeXShop</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
