@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the latest version of the core Munki Tools and makes a pkg of it then uploads it to the JSS, and creates a Self-Service Policy available to members of a Testing group.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jss.MunkiToolsCore</string>
+	<key>Input</key>
+	<dict>
+		<key>CATEGORY</key>
+		<string>Administration</string>
+		<key>EXCLUSION_GROUP_NAME</key>
+		<string>%NAME% test version installed</string>
+		<key>EXCLUSION_GROUP_TEMPLATE</key>
+		<string>SmartGroupTemplate-test-installed.xml</string>
+		<key>EXTENSION_ATTRIBUTE</key>
+		<string>%NAME%-ExtensionAttribute.xml</string>
+		<key>GROUP_NAME</key>
+		<string>%NAME% test users</string>
+		<key>GROUP_TEMPLATE</key>
+		<string>SmartGroupTemplate-test-users.xml</string>
+		<key>LANGUAGE</key>
+		<string>ML</string>
+		<key>NAME</key>
+		<string>MunkiToolsCore</string>
+		<key>POLICY_CATEGORY</key>
+		<string>Untested</string>
+		<key>POLICY_LANGUAGE</key>
+		<string></string>
+		<key>POLICY_TEMPLATE</key>
+		<string>PolicyTemplate.xml</string>
+		<key>PROD_NAME</key>
+		<string>%NAME%</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>0.4.0</string>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.pkg.MunkiToolsCore</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>category</key>
+				<string>%CATEGORY%</string>
+				<key>exclusion_groups</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%EXCLUSION_GROUP_NAME%</string>
+						<key>smart</key>
+						<true/>
+						<key>template_path</key>
+						<string>%EXCLUSION_GROUP_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>extension_attributes</key>
+				<array>
+					<dict>
+						<key>ext_attribute_path</key>
+						<string>%EXTENSION_ATTRIBUTE%</string>
+					</dict>
+				</array>
+				<key>groups</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%GROUP_NAME%</string>
+						<key>smart</key>
+						<true/>
+						<key>template_path</key>
+						<string>%GROUP_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/repack/munkitools_core.pkg</string>
+				<key>policy_category</key>
+				<string>%POLICY_CATEGORY%</string>
+				<key>policy_template</key>
+				<string>%POLICY_TEMPLATE%</string>
+				<key>prod_name</key>
+				<string>%NAME%</string>
+			</dict>
+			<key>Processor</key>
+			<string>JSSImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>

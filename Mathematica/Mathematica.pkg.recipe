@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Creates an unlicensed package from the downloaded Mathematica app.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.Mathematica</string>
+	<key>Input</key>
+	<dict>
+		<key>LANGUAGE</key>
+		<string>EN</string>
+		<key>LIST_NAME</key>
+		<string>Mathematica Node</string>
+		<key>NAME</key>
+		<string>Mathematica</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>ParentRecipe</key>
+	<string>NEEDS-OWN-DOWNLOAD-RECIPE</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>overwrite</key>
+				<false/>
+				<key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg</string>
+			</dict>
+			<key>Processor</key>
+			<string>AppPkgCreator</string>
+		</dict>
+	</array>
+</dict>
+</plist>

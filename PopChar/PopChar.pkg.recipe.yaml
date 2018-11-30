@@ -1,0 +1,36 @@
+Description: Packages up a pre-downloaded PopChar app with the required PopChar.sitekey file. SITEKEY_SOURCE must be overridden.
+Identifier: com.github.grahampugh.recipes.pkg.PopChar
+Input:
+  LANGUAGE: ML
+  LIST_NAME: PopChar X
+  NAME: PopChar
+  SITEKEY_SOURCE: '%RECIPE_DIR%/PopChar.sitekey'
+MinimumVersion: 1.0.0
+ParentRecipe: NEEDS-OWN-DOWNLOAD-RECIPE
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+      Applications/PopChar: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Applications/PopChar/%NAME%.app'
+    source_path: '%pathname%/%NAME%.app'
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Applications/PopChar/PopChar.sitekey'
+    source_path: '%SITEKEY_SOURCE%'
+- Processor: PlistReader
+  Arguments:
+    info_path: '%pkgroot%/Applications/PopChar/%NAME%.app/Contents/Info.plist'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      chown: []
+      id: com.ergonis.pkg.PopChar
+      pkgname: '%NAME%-%version%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      version: '%version%'

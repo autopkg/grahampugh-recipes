@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads and package the latest LibreOffice with the right language. Set RELEASE to either "fresh" or "still"</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.download.LibreOfficeLangPack</string>
+	<key>Input</key>
+	<dict>
+		<key>LANGUAGE_CODE</key>
+		<string>de</string>
+		<key>NAME</key>
+		<string>LibreOffice</string>
+		<key>RELEASE</key>
+		<string>still</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>ParentRecipe</key>
+	<string>io.github.hjuutilainen.download.LibreOffice</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>input_var</key>
+				<string>%pathname%</string>
+				<key>rename_var</key>
+				<string>pathname_app</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.sebtomasi.SharedProcessors/RenameVar</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>input_string</key>
+				<string>%url%</string>
+				<key>pattern_replace</key>
+				<array>
+					<dict>
+						<key>pattern</key>
+						<string>.dmg</string>
+						<key>repl</key>
+						<string>_langpack_%LANGUAGE_CODE%.dmg</string>
+					</dict>
+				</array>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.sebtomasi.SharedProcessors/TextSubstituer</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>filename</key>
+				<string>%NAME%_langpack_%LANGUAGE_CODE%.dmg</string>
+				<key>url</key>
+				<string>%parsed_string%</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+	</array>
+</dict>
+</plist>

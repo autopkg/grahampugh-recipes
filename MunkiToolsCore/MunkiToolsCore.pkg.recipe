@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Note: munkitools does not include a code signature. If your organization requires code signature, it is recommended to internally sign the application.
+
+Downloads version 3 of the Munki tools via the official releases listing on GitHub. You can set INCLUDE_PRERELEASES to any value to have this recipe pull prerelease versions.
+
+This recipe also extracts the core components, and repackages them for use in Jamf Pro.
+Other parts of munkitools are not repackaged.
+
+This recipe cannot be overridden to pull a download from an alternate location such as munkibuilds.org - it will only download the official releases. For this, use the munkitools2-autobuild.munki recipe with a manually-provided DOWNLOAD_URL variable.
+
+The GitHubReleasesInfoProvider processor used by this recipe also respects an input variable: ''sort_by_highest_tag_names'', which, if set, will ignore the post dates of the releases and instead sort descending by tag names according to LooseVersion semantics.
+</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.MunkiToolsCore</string>
+	<key>Input</key>
+	<dict>
+		<key>INCLUDE_PRERELEASES</key>
+		<string></string>
+		<key>NAME</key>
+		<string>MunkiToolsCore</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>0.5.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>asset_regex</key>
+				<string>^munkitools-3.*?pkg$</string>
+				<key>github_repo</key>
+				<string>munki/munki</string>
+				<key>include_prereleases</key>
+				<string>%INCLUDE_PRERELEASES%</string>
+			</dict>
+			<key>Processor</key>
+			<string>GitHubReleasesInfoProvider</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack</string>
+				<key>flat_pkg_path</key>
+				<string>%pathname%</string>
+			</dict>
+			<key>Processor</key>
+			<string>FlatPkgUnpacker</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/repack</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pattern</key>
+				<string>%RECIPE_CACHE_DIR%/unpack/munkitools_core-*</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileFinder</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_pkg</key>
+				<string>%RECIPE_CACHE_DIR%/repack/munkitools_core.pkg</string>
+				<key>source_flatpkg_dir</key>
+				<string>%found_filename%</string>
+			</dict>
+			<key>Processor</key>
+			<string>FlatPkgPacker</string>
+		</dict>
+	</array>
+</dict>
+</plist>

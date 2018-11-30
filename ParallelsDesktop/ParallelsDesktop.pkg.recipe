@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Requires a pre-downloaded Parallels Desktop Business Edition mass deployment package.
+This recipe downloads the Parallels pd-autodeploy package, and uses the  ParallelsDesktopPackager processor to create an installable package.
+ParallelsDesktopPackager requires an inputted license key, which could be provided by override.
+</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.ParallelsDesktop</string>
+	<key>Input</key>
+	<dict>
+		<key>LANGUAGE</key>
+		<string>ML</string>
+		<key>LIST_NAME</key>
+		<string>Parallels Desktop for Mac</string>
+		<key>NAME</key>
+		<string>Parallels Desktop</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>ParentRecipe</key>
+	<string>NEEDS-OWN-DOWNLOAD-RECIPE</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>dmg_path</key>
+				<string>%pathname%</string>
+			</dict>
+			<key>Processor</key>
+			<string>AppDmgVersioner</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg</string>
+				<key>predicate</key>
+				<string>download_changed == False</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>filename</key>
+				<string>pd-autodeploy.zip</string>
+				<key>url</key>
+				<string>http://download.parallels.com/desktop/tools/pd-autodeploy.zip</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>archive_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/%filename%</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%</string>
+				<key>purge_destination</key>
+				<true/>
+			</dict>
+			<key>Processor</key>
+			<string>Unarchiver</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pattern</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Parallels Desktop Business Edition mass deployment package*</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileFinder</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg</string>
+				<key>overwrite</key>
+				<true/>
+				<key>source_path</key>
+				<string>%found_filename%/Parallels Desktop Autodeploy.pkg</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/Parallels Desktop DMG/%NAME%.dmg</string>
+				<key>overwrite</key>
+				<true/>
+				<key>source_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/%latest_file%</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>CONFIG_FILE_PATH</key>
+				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/License Key and Configuration/deploy.cfg</string>
+				<key>INFO_PLIST_PATH</key>
+				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/Contents/Info.plist</string>
+				<key>version</key>
+				<string>%version%</string>
+			</dict>
+			<key>Processor</key>
+			<string>ParallelsDesktopPackager</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path_list</key>
+				<array>
+					<string>%RECIPE_CACHE_DIR%/%NAME%</string>
+				</array>
+			</dict>
+			<key>Processor</key>
+			<string>PathDeleter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
