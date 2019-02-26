@@ -45,7 +45,7 @@ class Slacker(Processor):
         },
         "prod_name": {
             "required": False,
-            "description": ("PROD_NAME")
+            "description": ("Title (NAME)")
         },
         "jss_changed_objects": {
             "required": False,
@@ -86,9 +86,9 @@ class Slacker(Processor):
             print "Policy Category: %s" % policy_category
             print "Package: %s" % jss_uploaded_package
             if jss_uploaded_package:
-                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nUploaded Package Name: *%s*" % (JSS_URL, output_title, jss_policy_version, category, jss_policy_name, jss_uploaded_package)
+                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nUploaded Package Name: *%s*" % (JSS_URL, prod_name, jss_policy_version, category, jss_policy_name, jss_uploaded_package)
             else:
-                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nNo new package uploaded" % (JSS_URL, output_title, jss_policy_version, category, jss_policy_name)
+                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nNo new package uploaded" % (JSS_URL, prod_name, jss_policy_version, category, jss_policy_name)
 
             slack_data = {'text': slack_text}
 
