@@ -1,0 +1,13 @@
+Description: Installs the latest version of Backup And sync from Google. Note that the non-localized name for the app is 'Backup and Sync.app'
+Identifier: com.github.grahampugh.install.GoogleBackupAndSync
+Input:
+  NAME: BackupandSync
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.nstrauss.download.BackupandSync
+Process:
+- Arguments:
+    dmg_path: '%pathname%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: 'Backup and Sync.app'
+  Processor: InstallFromDMG
