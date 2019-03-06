@@ -1,0 +1,28 @@
+Description: Checks folder on locally mounted repo for update. Requires override of LIST_NAME and LOCAL_REPO.
+Identifier: com.github.grahampugh.recipes.download.MOE
+Input:
+  EXCEPTION: ''
+  LOCAL_REPO: /Volumes/Packaging/mac-resources
+  LIST_NAME: ChemComp_MOE
+  VENDOR: Chemical_Computing_Group
+MinimumVersion: 0.2.9
+Process:
+- Processor: com.github.grahampugh.recipes.commonprocessors/SubDirectoryList
+  Comment: Get list of folder contents. Outputs found_directories and found_filenames.
+  Arguments:
+    EXCEPTION: '%EXCEPTION%'
+    root_path: '%LOCAL_REPO%/%VENDOR%/%NAME%'
+- Processor: com.github.grahampugh.recipes.commonprocessors/LocalRepoUpdateChecker
+  Comment: 'Gets the latest version of a file and its containing folder. Outputs latest_file, version'
+  Arguments:
+    RECIPE_CACHE_DIR: '%RECIPE_CACHE_DIR%'
+    found_files: '%found_filenames%'
+- Processor: StopProcessingIf
+  Comment: Checks if the file already exists in the cache
+  Arguments:
+    predicate: file_exists == True
+- Processor: URLDownloader
+  Comment: Downloads the file from the source repo to the AutoPkg cache
+  Arguments:
+    url: file://%root_path%/%version%/%latest_file%.dmg
+- Processor: EndOfCheckPhase

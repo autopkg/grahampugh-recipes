@@ -1,0 +1,18 @@
+Comment: Created with Recipe Robot v1.0.2 (https://github.com/homebysix/recipe-robot)
+Description: Installs the latest version of LineIn.
+Identifier: com.github.grahampugh.install.LineIn
+Input:
+  NAME: LineIn
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.grahampugh.download.LineIn
+Process:
+- Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/%NAME%/Applications'
+  Processor: DmgCreator
+- Arguments:
+    dmg_path: '%dmg_path%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: '%NAME%.app'
+  Processor: InstallFromDMG

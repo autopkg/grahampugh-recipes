@@ -1,0 +1,39 @@
+Description: |
+    Note: munkitools does not include a code signature. If your organization requires code signature, it is recommended to internally sign the application.
+
+    Downloads version 3 of the Munki tools via the official releases listing on GitHub. You can set INCLUDE_PRERELEASES to any value to have this recipe pull prerelease versions.
+
+    This recipe also extracts the core components, and repackages them for use in Jamf Pro.
+    Other parts of munkitools are not repackaged.
+
+    This recipe cannot be overridden to pull a download from an alternate location such as munkibuilds.org - it will only download the official releases. For this, use the munkitools2-autobuild.munki recipe with a manually-provided DOWNLOAD_URL variable.
+
+    The GitHubReleasesInfoProvider processor used by this recipe also respects an input variable: ''sort_by_highest_tag_names'', which, if set, will ignore the post dates of the releases and instead sort descending by tag names according to LooseVersion semantics.
+Identifier: com.github.grahampugh.recipes.pkg.MunkiToolsCore
+Input:
+  INCLUDE_PRERELEASES: ''
+  NAME: MunkiToolsCore
+MinimumVersion: 0.5.0
+Process:
+- Arguments:
+    asset_regex: ^munkitools-3.*?pkg$
+    github_repo: munki/munki
+    include_prereleases: '%INCLUDE_PRERELEASES%'
+  Processor: GitHubReleasesInfoProvider
+- Processor: URLDownloader
+- Processor: EndOfCheckPhase
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%'
+  Processor: FlatPkgUnpacker
+- Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/repack'
+  Processor: PkgRootCreator
+- Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/unpack/munkitools_core-*'
+  Processor: FileFinder
+- Arguments:
+    destination_pkg: '%RECIPE_CACHE_DIR%/repack/munkitools_core.pkg'
+    source_flatpkg_dir: '%found_filename%'
+  Processor: FlatPkgPacker

@@ -3,11 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest Microsoft Office 2016 SKU-less installer package.
+	<string>Downloads the latest Microsoft Office 365 SKU-less installer package.
 Set the REGION key to
 525133 for Americas (default)
 532572 for Europe
 532577 for Asia
+871743 for Office 2016
 </string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.download.MicrosoftOffice365</string>
