@@ -2,6 +2,7 @@ Description: Downloads the latest version of MathType.
 Identifier: com.github.grahampugh.download.MathType
 Input:
   DOWNLOAD_URL: https://store.wiris.com/en/products/downloads/mathtype/installer/mac/en
+  STOPPROCESSINGIF_PREDICATE: 'FALSEPREDICATE'
 MinimumVersion: 1.0.0
 Process:
 - Processor: URLDownloader
@@ -11,7 +12,7 @@ Process:
 - Processor: EndOfCheckPhase
 - Processor: StopProcessingIf
   Arguments:
-    predicate: 'download_changed == False'
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 - Processor: CodeSignatureVerifier
   Arguments:
     input_path: '%pathname%'
