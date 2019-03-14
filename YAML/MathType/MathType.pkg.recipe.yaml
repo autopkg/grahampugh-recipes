@@ -12,7 +12,7 @@ Process:
 - Processor: PkgPayloadUnpacker
   Arguments:
     purge_destination: true
-    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/mathtype2.pkg/Payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/mathtype.pkg/Payload'
     destination_path: '%RECIPE_CACHE_DIR%/root'
 - Processor: Versioner
   Arguments:
