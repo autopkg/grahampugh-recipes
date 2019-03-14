@@ -4,6 +4,7 @@ Identifier: com.github.grahampugh.download.LineIn
 Input:
   DOWNLOAD_URL: http://www.rogueamoeba.com/freebies/download/LineIn.zip
   NAME: LineIn
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 0.6.1
 Process:
 - Arguments:
@@ -11,6 +12,10 @@ Process:
     url: '%DOWNLOAD_URL%'
   Processor: URLDownloader
 - Processor: EndOfCheckPhase
+- Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
 - Arguments:
     archive_path: '%pathname%'
     destination_path: '%RECIPE_CACHE_DIR%/%NAME%/Applications'

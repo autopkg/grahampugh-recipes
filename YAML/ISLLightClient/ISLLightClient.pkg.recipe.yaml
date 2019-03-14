@@ -6,4 +6,8 @@ Input:
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.download.ISLLightClient
 Process:
+- Arguments:
+    input_plist_path: '%pathname%/%NAME%.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+  Processor: Versioner
 - Processor: AppPkgCreator

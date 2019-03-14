@@ -3,6 +3,7 @@ Identifier: com.github.grahampugh.recipes.download.BasicTeX
 Input:
   DOWNLOAD_URL: http://tug.org/cgi-bin/mactex-download/%NAME%.pkg
   NAME: BasicTeX
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 0.6.0
 Process:
 - Processor: URLTextSearcher
@@ -13,6 +14,9 @@ Process:
   Arguments:
     url: '%DOWNLOAD_URL%'
     CHECK_FILESIZE_ONLY: true
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 - Arguments:
     expected_authority_names:
     - 'Developer ID Installer: Richard Koch (RBGCY5RJWM)'

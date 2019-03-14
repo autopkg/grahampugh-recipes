@@ -12,6 +12,8 @@
 		<string>https://download.knime.org/analytics-platform/macosx/knime-latest-app.macosx.cocoa.x86_64.dmg</string>
 		<key>NAME</key>
 		<string>KNIME</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == FALSE</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -36,7 +38,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>predicate</key>
-				<string>download_changed == False</string>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
 			</dict>
 			<key>Processor</key>
 			<string>StopProcessingIf</string>

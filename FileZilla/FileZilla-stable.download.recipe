@@ -12,6 +12,8 @@
 		<string>FileZilla</string>
 		<key>SEARCH_URL</key>
 		<string>https://filezilla-project.org/download.php?show_all=1</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == FALSE</string>
 	</dict>
 	<key>Process</key>
 	<array>
@@ -53,10 +55,14 @@
 			<string>URLDownloader</string>
 		</dict>
 		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>predicate</key>
-				<string>download_changed == False</string>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
 			</dict>
 			<key>Processor</key>
 			<string>StopProcessingIf</string>
@@ -84,10 +90,6 @@
 			</dict>
 			<key>Processor</key>
 			<string>CodeSignatureVerifier</string>
-		</dict>
-		<dict>
-			<key>Processor</key>
-			<string>EndOfCheckPhase</string>
 		</dict>
 	</array>
 </dict>

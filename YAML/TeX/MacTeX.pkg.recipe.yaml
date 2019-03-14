@@ -2,11 +2,12 @@ Description: Downloads the latest MacTeX release and renames the pkg to include 
 Identifier: com.github.grahampugh.pkg.MacTeX
 Input:
   NAME: MacTeX
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 0.2.9
 ParentRecipe: com.github.joshua-d-miller.download.MacTeX
 Process:
 - Arguments:
-    predicate: download_changed == False
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
   Comment: Checks if the file already exists in the cache
   Processor: StopProcessingIf
 - Arguments:

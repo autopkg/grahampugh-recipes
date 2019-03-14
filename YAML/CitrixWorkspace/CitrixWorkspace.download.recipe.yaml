@@ -2,6 +2,7 @@ Description: Downloads the latest Citrix Workspace disk image.
 Identifier: com.github.grahampugh.recipes.download.CitrixWorkspace
 Input:
   NAME: Citrix Workspace
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 0.3.1
 Process:
 - Arguments:
@@ -13,6 +14,9 @@ Process:
     url: https:%DYNAMIC_URL%
   Processor: URLDownloader
 - Processor: EndOfCheckPhase
+- Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  Processor: StopProcessingIf
 - Arguments:
     expected_authority_names:
     - 'Developer ID Installer: Citrix Systems, Inc. (S272Y5R93J)'

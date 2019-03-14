@@ -13,6 +13,7 @@ Identifier: com.github.grahampugh.recipes.pkg.MunkiToolsCore
 Input:
   INCLUDE_PRERELEASES: ''
   NAME: MunkiToolsCore
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
 MinimumVersion: 0.5.0
 Process:
 - Arguments:
@@ -21,6 +22,10 @@ Process:
     include_prereleases: '%INCLUDE_PRERELEASES%'
   Processor: GitHubReleasesInfoProvider
 - Processor: URLDownloader
+- Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
 - Processor: EndOfCheckPhase
 - Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/unpack'

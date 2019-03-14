@@ -2,32 +2,43 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>Description</key>
-    <string>Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.</string>
-    <key>Identifier</key>
-    <string>com.github.grahampugh.download.filemakerproadvancedupdater</string>
-    <key>Input</key>
-    <dict>
-        <key>NAME</key>
-        <string>FileMaker Pro Advanced</string>
-        <key>major_version</key>
-        <string>16</string>
-    </dict>
-    <key>Process</key>
-    <array>
-        <dict>
-            <key>Processor</key>
-            <string>FilemakerProAdvancedUpdateURLProcessor</string>
-            <key>Arguments</key>
-            <dict>
-                <key>major_version</key>
-                <string>%major_version%</string>
-            </dict>
-        </dict>
-        <dict>
-            <key>Processor</key>
-            <string>URLDownloader</string>
-        </dict>
-    </array>
+	<key>Description</key>
+	<string>Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.download.filemakerproadvancedupdater</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>FileMaker Pro Advanced</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == FALSE</string>
+		<key>major_version</key>
+		<string>16</string>
+	</dict>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>major_version</key>
+				<string>%major_version%</string>
+			</dict>
+			<key>Processor</key>
+			<string>FilemakerProAdvancedUpdateURLProcessor</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
+			</dict>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+	</array>
 </dict>
 </plist>
