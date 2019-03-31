@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Creates a package from a pre-downloaded JMP installer which has already been installed on a client, and the SIP file converted to a JMP.per file as per the instructions in the JMP Deployment Guide.
+You need to manually supply the JMP version, since attempts to extract this from the installer have so far failed.
+</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.JMP</string>
+	<key>Input</key>
+	<dict>
+		<key>JMP_VERSION</key>
+		<string>14.1</string>
+		<key>NAME</key>
+		<string>JMP</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/JMP_%MAJOR_VERSION%.dmg</string>
+				<key>overwrite</key>
+				<true/>
+				<key>source_path</key>
+				<string>%pathname%</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>#!/bin/bash
+DIR=$(dirname "$0")
+MAJOR=$(echo "%JMP_VERSION%" | cut -d"." -f1)
+MINOR=$(echo "%JMP_VERSION%" | cut -d"." -f2)
+
+# attach main image
+echo "Mounting JMP image"
+hdiutil attach ${DIR}/JMP_${MAJOR}.dmg -nobrowse
+
+# attach installer image, located inside main image
+echo "Mounting JMP installer image"
+hdiutil attach /Volumes/JMP_${MAJOR}_${MINOR}/JMP/JMP/${MAJOR}_${MINOR}/Macintosh/JMP-Install.dmg -nobrowse
+
+# install JMP with Company License
+installer -target / -pkg "/Volumes/JMP-${MAJOR}-Installer/JMP ${MAJOR}.pkg"
+
+# eject mounted JMP volumes
+for path in /Volumes/JMP*; do
+    [ -d "${path}" ] || continue # if not a directory, skip
+    dirname="$(basename "${path}")"
+    hdiutil eject ${path}
+done
+
+# relocate license
+if [[ -f "$HOME/Library/Application Support/JMP/${MAJOR}/JMP.per" ]]; then
+    /bin/mv "$HOME/Library/Application Support/JMP/${MAJOR}/JMP.per" \
+    "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+elif [[ -f "/var/root/Library/Application Support/JMP/${MAJOR}/JMP.per" ]]; then
+    /bin/mkdir -p "/Library/Application Support/JMP/${MAJOR}"
+    /bin/mv "/var/root/Library/Application Support/JMP/${MAJOR}/JMP.per" \
+    "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+    # change permissions
+    /bin/chmod 644 "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+else
+    echo "ERROR: JMP.per not found"
+    exit 1
+fi
+if [[ -f "/Library/Application Support/JMP/${MAJOR}/JMP.per" ]]; then
+    # define license location
+    /usr/bin/defaults write "/Library/Preferences/com.sas.jmp.plist" Setinit_${MAJOR}_Path "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+else
+    echo "ERROR: JMP.per not found in Library folder"
+    exit 1
+fi
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/postinstall</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>force_pkg_build</key>
+				<true/>
+				<key>pkg_request</key>
+				<dict>
+					<key>chown</key>
+					<array>
+					</array>
+					<key>id</key>
+					<string>com.jmp.pkg.JMP</string>
+					<key>pkgname</key>
+					<string>%NAME%-%MAJOR_VERSION%-%version%</string>
+					<key>pkgroot</key>
+					<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+					<key>pkgtype</key>
+					<string>flat</string>
+					<key>scripts</key>
+					<string>Scripts</string>
+					<key>version</key>
+					<string>%version%</string>
+				</dict>
+			</dict>
+			<key>Processor</key>
+			<string>PkgCreator</string>
+		</dict>
+	</array>
+</dict>
+</plist>
