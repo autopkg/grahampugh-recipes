@@ -5,6 +5,7 @@ Input:
   SITE_URL: https://www.cendio.com
   DOWNLOAD_URL: '%SITE_URL%/thinlinc/download'
   NAME: ThinLinc Client
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 1.0.0
 Process:
 - Processor: URLTextSearcher
@@ -16,6 +17,9 @@ Process:
   Arguments:
     url: '%SITE_URL%%match%'
     filename: ThinLincClient.iso
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 - Processor: EndOfCheckPhase
 - Processor: CodeSignatureVerifier
   Arguments:

@@ -10,6 +10,8 @@
 	<dict>
 		<key>NAME</key>
 		<string>TeXLive Utility</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == FALSE</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.9</string>
@@ -32,7 +34,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>predicate</key>
-				<string>download_changed == False</string>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
 			</dict>
 			<key>Processor</key>
 			<string>StopProcessingIf</string>

@@ -11,7 +11,3 @@ Process:
     url: '%DOWNLOAD_URL%'
   Processor: URLDownloader
 - Processor: EndOfCheckPhase
-- Arguments:
-    input_plist_path: '%pathname%/%NAME%.app/Contents/Info.plist'
-    plist_version_key: CFBundleShortVersionString
-  Processor: Versioner

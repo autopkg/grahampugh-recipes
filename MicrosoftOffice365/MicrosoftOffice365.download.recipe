@@ -4,11 +4,12 @@
 <dict>
 	<key>Description</key>
 	<string>Downloads the latest Microsoft Office 365 SKU-less installer package.
-Set the REGION key to
-525133 for Americas (default)
-532572 for Europe
-532577 for Asia
-871743 for Office 2016
+Override the PRODUCTID key to:
+- 525133 for Americas
+- 532572 for Europe
+- 532577 for Asia
+- 871743 for Office 2016
+- 2009112 for Office365 Business Pro (includes Teams)
 </string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.download.MicrosoftOffice365</string>
@@ -20,6 +21,8 @@ Set the REGION key to
 		<string>Microsoft Office Suite</string>
 		<key>PRODUCTID</key>
 		<string>532572</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == FALSE</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -40,7 +43,7 @@ Set the REGION key to
 			<key>Arguments</key>
 			<dict>
 				<key>predicate</key>
-				<string>download_changed == False</string>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
 			</dict>
 			<key>Processor</key>
 			<string>StopProcessingIf</string>

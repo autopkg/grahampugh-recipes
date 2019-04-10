@@ -1,0 +1,10 @@
+Description: Installs the latest version of CitrixWorkspace.
+Identifier: com.github.grahampugh.install.CitrixWorkspace
+Input:
+  NAME: CitrixWorkspace
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.CitrixWorkspace
+Process:
+- Processor: Installer
+  Arguments:
+    pkg_path: '%pathname%/*.pkg'

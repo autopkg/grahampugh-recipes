@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Creates a package for COMSOL Multiphysics.
+There is no download recipe since COMSOL is not publicly available.
+Requires running as: autopkg run --pkg /path/to/downloaded-comsol.dmg "COMSOLMultiphysics.pkg"
+You must also override the keys COMSOL_LICENSE_SERVER, COMSOL_LICENSE_NAME, COMSOL_LICENSE_COMPANY and COMSOL_LICENSE_TYPE.
+These values are part of your licensing setup.
+</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.COMSOLMultiphysics</string>
+	<key>Input</key>
+	<dict>
+		<key>COMSOL_LICENSE_COMPANY</key>
+		<string>EXAMPLE</string>
+		<key>COMSOL_LICENSE_NAME</key>
+		<string>Example User</string>
+		<key>COMSOL_LICENSE_SERVER</key>
+		<string>1234@example.com</string>
+		<key>COMSOL_LICENSE_TYPE</key>
+		<string>mph</string>
+		<key>NAME</key>
+		<string>COMSOL Multiphysics</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/COMSOL.app</string>
+				<key>source_path</key>
+				<string>%pathname%/*.app</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>installdir =
+uninstall = 0
+showgui = 0
+autofinish = 0
+quiet = 0
+
+agree = 1
+license = %COMSOL_LICENSE_SERVER%
+name = %COMSOL_LICENSE_NAME%
+company = %COMSOL_LICENSE_COMPANY%
+lictype = %COMSOL_LICENSE_TYPE%
+
+matlabdir =
+proedir =
+creopdir =
+llexcelallusers = 0
+
+doc = selected
+applications = selected
+cad = 1
+licmanager = 1
+
+shortcuts = 0
+symlinks = 0
+fileassoc = 1
+checkupdate = 0
+
+setsecuritypolicy = 0
+security.comsol.allowbatch = 1
+security.comsol.allowexternalprocess = 0
+security.comsol.allowmethods = 1
+security.comsol.allowapplications = 1
+security.external.enable = 1
+security.external.propertypermission = 0
+security.external.runtimepermission = 0
+security.external.filepermission = limited
+security.external.socketpermission = 0
+security.external.netpermission = 0
+security.external.reflectpermission = 0
+security.external.securitypermission = 0
+</string>
+				<key>file_mode</key>
+				<string>0644</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/setupconfig.ini</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>#!/bin/bash
+
+DIR=$(dirname "$0")
+
+$DIR/COMSOL.app/Contents/Resources/setup -s $DIR/setupconfig.ini
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/postinstall</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_request</key>
+				<dict>
+					<key>chown</key>
+					<array>
+					</array>
+					<key>id</key>
+					<string>com.comsol.pkg.comsol</string>
+					<key>pkgname</key>
+					<string>%NAME%-%version%</string>
+					<key>pkgroot</key>
+					<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+					<key>pkgtype</key>
+					<string>flat</string>
+					<key>scripts</key>
+					<string>Scripts</string>
+					<key>version</key>
+					<string>%version%</string>
+				</dict>
+			</dict>
+			<key>Processor</key>
+			<string>PkgCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path_list</key>
+				<array>
+					<string>%RECIPE_CACHE_DIR%/Scripts</string>
+				</array>
+			</dict>
+			<key>Processor</key>
+			<string>PathDeleter</string>
+		</dict>
+	</array>
+</dict>
+</plist>

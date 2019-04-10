@@ -2,11 +2,12 @@ Description: Downloads the current release version of TeXShop and builds a packa
 Identifier: com.github.grahampugh.recipes.pkg.TeXShop
 Input:
   NAME: TeXShop
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
 MinimumVersion: 0.2.0
 ParentRecipe: io.github.hjuutilainen.download.TeXShop
 Process:
 - Arguments:
-    predicate: download_changed == False
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
   Comment: Checks if the file already exists in the cache
   Processor: StopProcessingIf
 - Arguments:

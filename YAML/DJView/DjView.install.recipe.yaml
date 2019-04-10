@@ -1,0 +1,13 @@
+Description: Installs the latest version of DjView.
+Identifier: com.github.grahampugh.install.DjView
+Input:
+  NAME: DjView
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.DjView
+Process:
+- Processor: InstallFromDMG
+  Arguments:
+    dmg_path: '%pathname%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: DjView.app

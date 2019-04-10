@@ -10,6 +10,8 @@
 	<dict>
 		<key>NAME</key>
 		<string>Citrix Workspace</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == FALSE</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.3.1</string>
@@ -40,6 +42,15 @@
 		<dict>
 			<key>Processor</key>
 			<string>EndOfCheckPhase</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
+			</dict>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>

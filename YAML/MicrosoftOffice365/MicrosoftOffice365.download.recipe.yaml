@@ -1,15 +1,17 @@
 Description: |
     Downloads the latest Microsoft Office 365 SKU-less installer package.
-    Set the REGION key to
-    525133 for Americas (default)
-    532572 for Europe
-    532577 for Asia
-    871743 for Office 2016
+    Override the PRODUCTID key to:
+    - 525133 for Americas
+    - 532572 for Europe
+    - 532577 for Asia
+    - 871743 for Office 2016
+    - 2009112 for Office365 Business Pro (includes Teams)
 Identifier: com.github.grahampugh.recipes.download.MicrosoftOffice365
 Input:
   DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
   NAME: Microsoft Office Suite
   PRODUCTID: '532572'
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 1.0.0
 Process:
 - Arguments:
@@ -18,7 +20,7 @@ Process:
   Processor: URLDownloader
 - Processor: StopProcessingIf
   Arguments:
-    predicate: 'download_changed == False'
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 - Processor: CodeSignatureVerifier
   Arguments:
     expected_authority_names:

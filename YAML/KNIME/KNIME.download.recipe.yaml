@@ -1,10 +1,9 @@
-# Knime requires URLDownloader and Versioner
----
 Description: Downloads the latest version of KNIME.
 Identifier: com.github.grahampugh.download.KNIME
 Input:
   DOWNLOAD_URL: https://download.knime.org/analytics-platform/macosx/knime-latest-app.macosx.cocoa.x86_64.dmg
   NAME: KNIME
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 1.0.0
 Process:
 - Processor: URLDownloader
@@ -14,7 +13,7 @@ Process:
 - Processor: EndOfCheckPhase
 - Processor: StopProcessingIf
   Arguments:
-    predicate: 'download_changed == False'
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 - Processor: CodeSignatureVerifier
   Arguments:
     input_path: '%pathname%/KNIME*.app'

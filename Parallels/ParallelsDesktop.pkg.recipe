@@ -3,25 +3,28 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Requires a pre-downloaded Parallels Desktop Business Edition mass deployment package.
-This recipe downloads the Parallels pd-autodeploy package, and uses the  ParallelsDesktopPackager processor to create an installable package.
-ParallelsDesktopPackager requires an inputted license key, which could be provided by override.
+	<string>Creates a package for Parallels Desktop.
+This is done with the help of the pd-autodeploy file obtained from Parallels website.
+There is no download recipe since Parallels Desktop is not publicly available.
+Requires running as: autopkg run --pkg /path/to/downloaded-parallels.dmg "ParallelsDesktop.pkg"
+You must override the LICENSE_KEY.
+It is also possible to override the software update settings. See ParallelsDesktopPackager.py for details.
 </string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.pkg.ParallelsDesktop</string>
 	<key>Input</key>
 	<dict>
-		<key>LANGUAGE</key>
-		<string>ML</string>
-		<key>LIST_NAME</key>
-		<string>Parallels Desktop for Mac</string>
+		<key>LICENSE_KEY</key>
+		<integer>1234567890</integer>
 		<key>NAME</key>
 		<string>Parallels Desktop</string>
+		<key>SOFTWARE_UPDATES_AUTO_DOWNLOAD</key>
+		<false/>
+		<key>SOFTWARE_UPDATES_CHECK</key>
+		<integer>0</integer>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.0.0</string>
-	<key>ParentRecipe</key>
-	<string>NEEDS-OWN-DOWNLOAD-RECIPE</string>
+	<string>0.6.1</string>
 	<key>Process</key>
 	<array>
 		<dict>
@@ -32,19 +35,6 @@ ParallelsDesktopPackager requires an inputted license key, which could be provid
 			</dict>
 			<key>Processor</key>
 			<string>AppDmgVersioner</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>pkg_path</key>
-				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg</string>
-				<key>predicate</key>
-				<string>download_changed == False</string>
-			</dict>
-			<key>Comment</key>
-			<string>Checks if the file already exists in the cache</string>
-			<key>Processor</key>
-			<string>StopProcessingIf</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -112,6 +102,12 @@ ParallelsDesktopPackager requires an inputted license key, which could be provid
 				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/License Key and Configuration/deploy.cfg</string>
 				<key>INFO_PLIST_PATH</key>
 				<string>%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/Contents/Info.plist</string>
+				<key>license_key</key>
+				<string>%LICENSE_KEY%</string>
+				<key>software_updates_auto_download</key>
+				<string>%SOFTWARE_UPDATES_AUTO_DOWNLOAD%</string>
+				<key>software_updates_check</key>
+				<string>%SOFTWARE_UPDATES_CHECK%</string>
 				<key>version</key>
 				<string>%version%</string>
 			</dict>

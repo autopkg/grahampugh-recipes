@@ -2,11 +2,12 @@ Description: Downloads the latest GhostScript release from the MacTeX site and r
 Identifier: com.github.grahampugh.recipes.pkg.GhostScript
 Input:
   NAME: GhostScript
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 0.2.9
 ParentRecipe: 'com.github.dataJAR-recipes.download.MacTeX Ghostscript'
 Process:
 - Arguments:
-    predicate: download_changed == False
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
   Comment: Checks if the file already exists in the cache
   Processor: StopProcessingIf
 - Arguments:

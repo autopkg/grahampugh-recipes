@@ -3,24 +3,22 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Packages up a pre-downloaded PopChar app with the required PopChar.sitekey file. SITEKEY_SOURCE must be overridden.</string>
+	<string>Creates a package for ChemDraw.
+There is no download recipe since ChemDraw is not publicly available.
+Requires running as: autopkg run --pkg /path/to/downloaded-chemdraw.dmg ChemDraw.pkg
+Only works with ChemDraw 18+ as the name has changed - before it was "ChemDraw Professional"
+</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.pkg.PopChar</string>
+	<string>com.github.grahampugh.recipes.pkg.ChemDraw</string>
 	<key>Input</key>
 	<dict>
-		<key>LANGUAGE</key>
-		<string>ML</string>
-		<key>LIST_NAME</key>
-		<string>PopChar X</string>
+		<key>MAJOR_VERSION</key>
+		<string>18</string>
 		<key>NAME</key>
-		<string>PopChar</string>
-		<key>SITEKEY_SOURCE</key>
-		<string>%RECIPE_DIR%/PopChar.sitekey</string>
+		<string>ChemDraw</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
-	<key>ParentRecipe</key>
-	<string>NEEDS-OWN-DOWNLOAD-RECIPE</string>
 	<key>Process</key>
 	<array>
 		<dict>
@@ -30,7 +28,9 @@
 				<dict>
 					<key>Applications</key>
 					<string>0775</string>
-					<key>Applications/PopChar</key>
+					<key>Library</key>
+					<string>0775</string>
+					<key>Library/QuickLook</key>
 					<string>0775</string>
 				</dict>
 				<key>pkgroot</key>
@@ -43,9 +43,11 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>%pkgroot%/Applications/PopChar/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/pkgroot/Library/QuickLook/CDQuickLook.qlgenerator</string>
+				<key>overwrite</key>
+				<true/>
 				<key>source_path</key>
-				<string>%pathname%/%NAME%.app</string>
+				<string>%pathname%/CDQuickLook.qlgenerator</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
@@ -54,9 +56,11 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>%pkgroot%/Applications/PopChar/PopChar.sitekey</string>
+				<string>%RECIPE_CACHE_DIR%/pkgroot/Applications/ChemDraw %MAJOR_VERSION%.0.app</string>
+				<key>overwrite</key>
+				<true/>
 				<key>source_path</key>
-				<string>%SITEKEY_SOURCE%</string>
+				<string>%pathname%/ChemDraw*.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
@@ -64,24 +68,26 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>info_path</key>
-				<string>%pkgroot%/Applications/PopChar/%NAME%.app/Contents/Info.plist</string>
+				<key>input_plist_path</key>
+				<string>%RECIPE_CACHE_DIR%/pkgroot/Applications/ChemDraw %MAJOR_VERSION%.0.app/Contents/Info.plist</string>
 			</dict>
 			<key>Processor</key>
-			<string>PlistReader</string>
+			<string>Versioner</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>force_pkg_build</key>
+				<true/>
 				<key>pkg_request</key>
 				<dict>
 					<key>chown</key>
 					<array>
 					</array>
 					<key>id</key>
-					<string>com.ergonis.pkg.PopChar</string>
+					<string>com.chemdraw.pkg.ChemDraw%MAJOR_VERSION%</string>
 					<key>pkgname</key>
-					<string>%NAME%-%version%</string>
+					<string>%NAME%-%MAJOR_VERSION%-%version%</string>
 					<key>pkgroot</key>
 					<string>%RECIPE_CACHE_DIR%/pkgroot</string>
 					<key>pkgtype</key>

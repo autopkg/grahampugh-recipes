@@ -3,6 +3,7 @@ Identifier: com.github.grahampugh.recipes.download.FileZilla
 Input:
   NAME: FileZilla
   SEARCH_URL: https://filezilla-project.org/download.php?show_all=1
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 Process:
 - Processor: URLTextSearcher
   Arguments:
@@ -18,9 +19,10 @@ Process:
   Arguments:
     CHECK_FILESIZE_ONLY: true
     filename: '%NAME%-%dl_version%.tar.bz2'
+- Processor: EndOfCheckPhase
 - Processor: StopProcessingIf
   Arguments:
-    predicate: 'download_changed == False'
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 - Processor: Unarchiver
   Arguments:
     archive_format: tar_bzip2
@@ -30,4 +32,3 @@ Process:
   Arguments:
     input_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%/FileZilla.app'
     requirement: identifier "org.filezilla-project.filezilla" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "5VPGKXL75N"
-- Processor: EndOfCheckPhase
