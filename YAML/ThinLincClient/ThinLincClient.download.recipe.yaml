@@ -11,7 +11,7 @@ Process:
   Arguments:
     url: '%DOWNLOAD_URL%'
     result_output_var_name: url
-    re_pattern: '"(?P<match>/downloads/clients/tl.*-client-osx\.iso)"'
+    re_pattern: '"(?P<match>/downloads/clients/tl.*-client-macos\.iso)"'
 - Processor: URLDownloader
   Arguments:
     url: '%SITE_URL%%match%'
