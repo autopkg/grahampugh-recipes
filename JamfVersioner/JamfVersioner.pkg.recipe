@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.JamfVersioner</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>Jamf Versioner</string>
+	</dict>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.download.JamfVersioner</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/JamfVersioner-%version%.pkg</string>
+				<key>overwrite</key>
+				<true/>
+				<key>source_path</key>
+				<string>%pathname%</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+	</array>
+</dict>
+</plist>
