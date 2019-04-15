@@ -8,12 +8,6 @@
 		<platform>Mac</platform>
 		<script>#!/usr/bin/python
 
-'''
-An Extension Attribute that uses Munki's core tools to
-compare the installed version of an application
-with the last version installed by Jamf
-'''
-
 import os
 
 versioner_path = '/usr/local/munki/versioner'

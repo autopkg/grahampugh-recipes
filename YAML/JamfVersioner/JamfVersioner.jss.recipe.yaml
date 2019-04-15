@@ -1,4 +1,4 @@
-Identifier: com.github.grahampugh.recipes.jamfv.JamfVersioner
+Identifier: com.github.grahampugh.recipes.jss.JamfVersioner
 Input:
   CATEGORY: Administration
   EXCLUSION_GROUP_NAME: '%NAME% installed'

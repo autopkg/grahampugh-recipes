@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <policy>
 	<general>
-        <name>%PROD_NAME% v%version%</name>
+        <name>%PROD_NAME%</name>
 		<enabled>true</enabled>
         <trigger>EVENT</trigger>
         <trigger_checkin>false</trigger_checkin>

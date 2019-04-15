@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jamfv.JamfVersioner</string>
+	<string>com.github.grahampugh.recipes.jss.JamfVersioner</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
