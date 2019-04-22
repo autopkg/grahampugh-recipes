@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the current release version of AdoptOpenJDK 8. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.download.AdoptOpenJDK8JRE</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>AdoptOpenJDK 8 JRE</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == False</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>asset_regex</key>
+				<string>^OpenJDK8U-jre_x64_mac_hotspot_.*?.tar.gz$</string>
+				<key>github_repo</key>
+				<string>AdoptOpenJDK/openjdk8-binaries</string>
+			</dict>
+			<key>Processor</key>
+			<string>GitHubReleasesInfoProvider</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+	</array>
+</dict>
+</plist>
