@@ -45,7 +45,7 @@ Process:
         ## script to add the JRE to the path
 
         for i in /Library/Java/JavaVirtualMachines/*-jre; do
-            [[ -d $i ]] && jre_path=$i
+            [[ -d $i ]] && jre_path="$i/Contents/Home/bin"
         done
 
         echo $jre_path >> /tmp/jre

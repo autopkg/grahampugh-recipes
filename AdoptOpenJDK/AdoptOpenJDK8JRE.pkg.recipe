@@ -107,7 +107,7 @@ done
 ## script to add the JRE to the path
 
 for i in /Library/Java/JavaVirtualMachines/*-jre; do
-    [[ -d $i ]] &amp;&amp; jre_path=$i
+    [[ -d $i ]] &amp;&amp; jre_path="$i/Contents/Home/bin"
 done
 
 echo $jre_path &gt;&gt; /tmp/jre
