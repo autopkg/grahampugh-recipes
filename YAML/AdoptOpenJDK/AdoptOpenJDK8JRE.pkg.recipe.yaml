@@ -29,21 +29,28 @@ Process:
     plist_version_key: CFBundleVersion
   Processor: Versioner
 - Arguments:
-    pattern: '%pkgroot%/Library/Java/JavaVirtualMachines/jdk8*/Contents/Home'
-  Processor: FileFinder
-- Arguments:
-    file_content: '%found_filename%'
-    file_mode: '0644'
-    file_path: '%RECIPE_CACHE_DIR%/Scripts/jre'
+    file_content: |
+        #!/bin/bash
+        ## script to remove any existing JRE
+
+        for i in /Library/Java/JavaVirtualMachines/*-jre; do
+            [[ -d $i ]] && rm -rf $i
+        done
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/preinstall'
   Processor: FileCreator
 - Arguments:
     file_content: |
         #!/bin/bash
         ## script to add the JRE to the path
 
-        DIR=$(dirname "$0")
+        for i in /Library/Java/JavaVirtualMachines/*-jre; do
+            [[ -d $i ]] && jre_path=$i
+        done
 
-        /bin/cp "$DIR/jre" /etc/paths.d/jre
+        echo $jre_path >> /tmp/jre
+
+        /bin/mv /tmp/jre /etc/paths.d/jre
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
   Processor: FileCreator

@@ -83,21 +83,18 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>pattern</key>
-				<string>%pkgroot%/Library/Java/JavaVirtualMachines/jdk8*/Contents/Home</string>
-			</dict>
-			<key>Processor</key>
-			<string>FileFinder</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
 				<key>file_content</key>
-				<string>%found_filename%</string>
+				<string>#!/bin/bash
+## script to remove any existing JRE
+
+for i in /Library/Java/JavaVirtualMachines/*-jre; do
+    [[ -d $i ]] &amp;&amp; rm -rf $i
+done
+</string>
 				<key>file_mode</key>
-				<string>0644</string>
+				<string>0755</string>
 				<key>file_path</key>
-				<string>%RECIPE_CACHE_DIR%/Scripts/jre</string>
+				<string>%RECIPE_CACHE_DIR%/Scripts/preinstall</string>
 			</dict>
 			<key>Processor</key>
 			<string>FileCreator</string>
@@ -109,9 +106,13 @@
 				<string>#!/bin/bash
 ## script to add the JRE to the path
 
-DIR=$(dirname "$0")
+for i in /Library/Java/JavaVirtualMachines/*-jre; do
+    [[ -d $i ]] &amp;&amp; jre_path=$i
+done
 
-/bin/cp "$DIR/jre" /etc/paths.d/jre
+echo $jre_path &gt;&gt; /tmp/jre
+
+/bin/mv /tmp/jre /etc/paths.d/jre
 </string>
 				<key>file_mode</key>
 				<string>0755</string>
