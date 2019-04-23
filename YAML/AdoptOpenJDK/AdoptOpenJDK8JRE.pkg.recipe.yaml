@@ -38,7 +38,7 @@ Process:
         done
 
         # update path
-        sed '/-jre/d' /etc/paths /tmp/paths
+        sed '/-jre/d' /etc/paths > /tmp/paths
         mv /tmp/paths /etc/paths
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/preinstall'

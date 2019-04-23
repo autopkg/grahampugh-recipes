@@ -92,7 +92,7 @@ for i in /Library/Java/JavaVirtualMachines/*-jre; do
 done
 
 # update path
-sed '/-jre/d' /etc/paths /tmp/paths
+sed '/-jre/d' /etc/paths &gt; /tmp/paths
 mv /tmp/paths /etc/paths
 </string>
 				<key>file_mode</key>
