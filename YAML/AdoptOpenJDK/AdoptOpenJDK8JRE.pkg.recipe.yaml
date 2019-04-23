@@ -13,6 +13,10 @@ Process:
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
   Processor: PkgRootCreator
 - Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
+  Processor: PkgRootCreator
+- Arguments:
     archive_path: '%pathname%'
     destination_path: '%pkgroot%/Library/Java/JavaVirtualMachines'
     purge_destination: true
@@ -24,6 +28,24 @@ Process:
     input_plist_path: '%found_filename%'
     plist_version_key: CFBundleVersion
   Processor: Versioner
+- Arguments:
+    pattern: '%pkgroot%/Library/Java/JavaVirtualMachines/jdk8*/Contents/Home'
+  Processor: FileFinder
+- Arguments:
+    file_content: '%found_filename%'
+    file_mode: '0644'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/jre'
+- Arguments:
+    file_content: |
+        #!/bin/bash
+        ## script to add the JRE to the path
+
+        DIR=$(dirname "$0")
+
+        /bin/cp "$DIR/jre" /etc/paths.d/jre
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
+  Processor: FileCreator
 - Arguments:
     pkg_request:
       chown:
@@ -39,6 +61,7 @@ Process:
       id: com.AdoptOpenJDK-8.jre
       options: purge_ds_store
       pkgname: 'AdoptOpenJDK8-jre-%version%'
+      scripts: Scripts
       version: '%version%'
   Processor: PkgCreator
 - Arguments:

@@ -38,6 +38,18 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>archive_path</key>
 				<string>%pathname%</string>
 				<key>destination_path</key>
@@ -67,6 +79,45 @@
 			</dict>
 			<key>Processor</key>
 			<string>Versioner</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pattern</key>
+				<string>%pkgroot%/Library/Java/JavaVirtualMachines/jdk8*/Contents/Home</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileFinder</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>%found_filename%</string>
+				<key>file_mode</key>
+				<string>0644</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/jre</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>#!/bin/bash
+## script to add the JRE to the path
+
+DIR=$(dirname "$0")
+
+/bin/cp "$DIR/jre" /etc/paths.d/jre
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/postinstall</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -106,6 +157,8 @@
 					<string>purge_ds_store</string>
 					<key>pkgname</key>
 					<string>AdoptOpenJDK8-jre-%version%</string>
+					<key>scripts</key>
+					<string>Scripts</string>
 					<key>version</key>
 					<string>%version%</string>
 				</dict>
