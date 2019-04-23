@@ -99,6 +99,8 @@
 				<key>file_path</key>
 				<string>%RECIPE_CACHE_DIR%/Scripts/jre</string>
 			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>

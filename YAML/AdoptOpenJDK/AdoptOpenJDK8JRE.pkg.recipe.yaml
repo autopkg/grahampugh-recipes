@@ -35,6 +35,7 @@ Process:
     file_content: '%found_filename%'
     file_mode: '0644'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/jre'
+  Processor: FileCreator
 - Arguments:
     file_content: |
         #!/bin/bash
