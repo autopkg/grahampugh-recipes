@@ -36,6 +36,10 @@ Process:
         for i in /Library/Java/JavaVirtualMachines/*-jre; do
             [[ -d $i ]] && rm -rf $i
         done
+
+        # update path
+        sed '/-jre/d' /etc/paths /tmp/paths
+        mv /tmp/paths /etc/paths
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/preinstall'
   Processor: FileCreator
@@ -47,10 +51,9 @@ Process:
         for i in /Library/Java/JavaVirtualMachines/*-jre; do
             [[ -d $i ]] && jre_path="$i/Contents/Home/bin"
         done
-
-        echo $jre_path >> /tmp/jre
-
-        /bin/mv /tmp/jre /etc/paths.d/jre
+        echo $jre_path > /tmp/jre
+        cat /etc/paths > /tmp/jre
+        /bin/mv /tmp/jre /etc/paths
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
   Processor: FileCreator

@@ -90,6 +90,10 @@
 for i in /Library/Java/JavaVirtualMachines/*-jre; do
     [[ -d $i ]] &amp;&amp; rm -rf $i
 done
+
+# update path
+sed '/-jre/d' /etc/paths /tmp/paths
+mv /tmp/paths /etc/paths
 </string>
 				<key>file_mode</key>
 				<string>0755</string>
@@ -109,10 +113,9 @@ done
 for i in /Library/Java/JavaVirtualMachines/*-jre; do
     [[ -d $i ]] &amp;&amp; jre_path="$i/Contents/Home/bin"
 done
-
-echo $jre_path &gt;&gt; /tmp/jre
-
-/bin/mv /tmp/jre /etc/paths.d/jre
+echo $jre_path &gt; /tmp/jre
+cat /etc/paths &gt; /tmp/jre
+/bin/mv /tmp/jre /etc/paths
 </string>
 				<key>file_mode</key>
 				<string>0755</string>
