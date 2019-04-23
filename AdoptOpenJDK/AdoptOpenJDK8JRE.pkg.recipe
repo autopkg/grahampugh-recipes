@@ -114,7 +114,7 @@ for i in /Library/Java/JavaVirtualMachines/*-jre; do
     [[ -d $i ]] &amp;&amp; jre_path="$i/Contents/Home/bin"
 done
 echo $jre_path &gt; /tmp/jre
-cat /etc/paths &gt; /tmp/jre
+cat /etc/paths &gt;&gt; /tmp/jre
 /bin/mv /tmp/jre /etc/paths
 </string>
 				<key>file_mode</key>
