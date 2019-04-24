@@ -6,7 +6,7 @@ Input:
 MinimumVersion: 1.0.0
 Process:
 - Arguments:
-    asset_regex: ^OpenJDK11-jdk_x64_mac_hotspot_.*?.tar.gz$
+    asset_regex: ^OpenJDK11U-jdk_x64_mac_hotspot_.*?.tar.gz$
     github_repo: AdoptOpenJDK/openjdk11-binaries
   Processor: GitHubReleasesInfoProvider
 - Processor: URLDownloader

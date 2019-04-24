@@ -21,7 +21,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>asset_regex</key>
-				<string>^OpenJDK11-jdk_x64_mac_hotspot_.*?.tar.gz$</string>
+				<string>^OpenJDK11U-jdk_x64_mac_hotspot_.*?.tar.gz$</string>
 				<key>github_repo</key>
 				<string>AdoptOpenJDK/openjdk11-binaries</string>
 			</dict>
