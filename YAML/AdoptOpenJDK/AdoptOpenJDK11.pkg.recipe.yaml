@@ -18,7 +18,7 @@ Process:
     purge_destination: true
   Processor: Unarchiver
 - Arguments:
-    pattern: '%pkgroot%/Library/Java/JavaVirtualMachines/jdk11*/Contents/Info.plist'
+    pattern: '%pkgroot%/Library/Java/JavaVirtualMachines/jdk-11*/Contents/Info.plist'
   Processor: FileFinder
 - Arguments:
     input_plist_path: '%found_filename%'
