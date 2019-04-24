@@ -1,0 +1,17 @@
+Description: Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11
+Input:
+  NAME: AdoptOpenJDK 11
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
+MinimumVersion: 1.0.0
+Process:
+- Arguments:
+    asset_regex: ^OpenJDK11-jdk_x64_mac_hotspot_.*?.tar.gz$
+    github_repo: AdoptOpenJDK/openjdk11-binaries
+  Processor: GitHubReleasesInfoProvider
+- Processor: URLDownloader
+- Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
+- Processor: EndOfCheckPhase
