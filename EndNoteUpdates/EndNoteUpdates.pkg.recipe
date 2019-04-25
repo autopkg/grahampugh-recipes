@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the latest EndNote updates, unzips the contents, and creates a custom package that will install the EndNote update onto the system.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.EndNoteUpdates</string>
+	<key>Input</key>
+	<dict>
+		<key>INT_VERSION</key>
+		<string>19</string>
+		<key>MAJOR_VERSION</key>
+		<string>X9</string>
+		<key>NAME</key>
+		<string>EndNote</string>
+	</dict>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.download.EndNoteUpdates</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/EndNoteUpdater.app</string>
+				<key>source_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%-%MAJOR_VERSION%/*/*.app</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>#!/usr/bin/python
+
+import os
+import os.path
+import shutil
+
+# Check if EndNote Cite While You Write is already installed
+endnote_bundle_2008 = os.path.exists("/Applications/Microsoft Office 2008/Office/Startup/Word/EndNote CWYW Word 2008.bundle")
+endnote_bundle_2011 = os.path.exists("/Applications/Microsoft Office 2011/Office/Startup/Word/EndNote CWYW Word 2011.bundle")
+endnote_bundle_2016 = os.path.exists("/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/EndNote CWYW Word 2016.bundle")
+
+
+def check_endnote_2008():
+    # If the CWYW bundle is installed for Office 2008, then remove it
+    if endnote_bundle_2008:
+        print "EndNote bundle is installed for Office 2008"
+        shutil.rmtree("/Applications/Microsoft Office 2008/Office/Startup/Word/EndNote CWYW Word 2008.bundle")
+        print "Removed the CWYW bundle from 2011"
+    else:
+        print "EndNote bundle is not installed for Office 2008"
+        print "Checking Office 2011 now"
+
+def check_endnote_2011():
+    # If the CWYW bundle is installed for Office 2011, then remove it
+    if endnote_bundle_2011:
+        print "EndNote bundle is installed for Office 2011"
+        shutil.rmtree("/Applications/Microsoft Office 2011/Office/Startup/Word/EndNote CWYW Word 2011.bundle")
+        print "Removed the CWYW bundle from 2011"
+    else:
+        print "EndNote bundle is not installed for Office 2011"
+        print "Proceeding with installation"
+
+def check_endnote_2016():
+    # If the CWYW bundle is installed for Office 2016, then remove it
+    if endnote_bundle_2016:
+        print "EndNote bundle is installed for Office 2016"
+        shutil.rmtree("/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/EndNote CWYW Word 2016.bundle")
+        print "Removed the CWYW bundle from 2016"
+    else:
+        print "EndNote bundle is not installed for Office 2016"
+        print "Proceeding with installation"
+
+def main():
+    check_endnote_2008()
+    check_endnote_2011()
+    check_endnote_2016()
+
+main()
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/preinstall</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>#!/usr/bin/python
+
+import os
+import os.path
+import shutil
+import subprocess
+import glob
+
+def bashCommand(script):
+    try:
+        return subprocess.check_output(script)
+    except (subprocess.CalledProcessError, OSError), err:
+        return "[* Error] **%s** [%s]" % (err, str(script))
+
+installer_app = "EndNoteUpdater.app"
+
+def applyPatch():
+    bashCommand(["%s/Contents/Resources/applyPatch" % installer_app, "-d", "/Applications/EndNote %MAJOR_VERSION%", "-i", "%s/Contents/Resources/Patchfile.patch" % installer_app])
+
+def main():
+    applyPatch()
+
+main()
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/postinstall</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>force_pkg_build</key>
+				<true/>
+				<key>pkg_request</key>
+				<dict>
+					<key>id</key>
+					<string>com.endnote.EndNote%MAJOR_VERSION%</string>
+					<key>options</key>
+					<string>purge_ds_store</string>
+					<key>pkgname</key>
+					<string>%NAME%%MAJOR_VERSION%-%version%</string>
+					<key>pkgroot</key>
+					<string>pkgroot</string>
+					<key>scripts</key>
+					<string>Scripts</string>
+				</dict>
+			</dict>
+			<key>Processor</key>
+			<string>PkgCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path_list</key>
+				<array>
+					<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+					<string>%RECIPE_CACHE_DIR%/Scripts</string>
+				</array>
+			</dict>
+			<key>Processor</key>
+			<string>PathDeleter</string>
+		</dict>
+	</array>
+</dict>
+</plist>

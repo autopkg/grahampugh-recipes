@@ -1,0 +1,115 @@
+Description: Downloads the latest EndNote updates, unzips the contents, and creates a custom package that will install the EndNote update onto the system.
+Identifier: com.github.grahampugh.recipes.pkg.EndNoteUpdates
+Input:
+  NAME: EndNote
+  MAJOR_VERSION: 'X9'
+  INT_VERSION: '19'
+ParentRecipe: com.github.grahampugh.recipes.download.EndNoteUpdates
+Process:
+- Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+  Processor: PkgRootCreator
+- Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
+  Processor: PkgRootCreator
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Scripts/EndNoteUpdater.app'
+    source_path: '%RECIPE_CACHE_DIR%/%NAME%-%MAJOR_VERSION%/*/*.app'
+  Processor: Copier
+- Arguments:
+    file_content: |
+      #!/usr/bin/python
+
+      import os
+      import os.path
+      import shutil
+
+      # Check if EndNote Cite While You Write is already installed
+      endnote_bundle_2008 = os.path.exists("/Applications/Microsoft Office 2008/Office/Startup/Word/EndNote CWYW Word 2008.bundle")
+      endnote_bundle_2011 = os.path.exists("/Applications/Microsoft Office 2011/Office/Startup/Word/EndNote CWYW Word 2011.bundle")
+      endnote_bundle_2016 = os.path.exists("/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/EndNote CWYW Word 2016.bundle")
+
+
+      def check_endnote_2008():
+          # If the CWYW bundle is installed for Office 2008, then remove it
+          if endnote_bundle_2008:
+              print "EndNote bundle is installed for Office 2008"
+              shutil.rmtree("/Applications/Microsoft Office 2008/Office/Startup/Word/EndNote CWYW Word 2008.bundle")
+              print "Removed the CWYW bundle from 2011"
+          else:
+              print "EndNote bundle is not installed for Office 2008"
+              print "Checking Office 2011 now"
+
+      def check_endnote_2011():
+          # If the CWYW bundle is installed for Office 2011, then remove it
+          if endnote_bundle_2011:
+              print "EndNote bundle is installed for Office 2011"
+              shutil.rmtree("/Applications/Microsoft Office 2011/Office/Startup/Word/EndNote CWYW Word 2011.bundle")
+              print "Removed the CWYW bundle from 2011"
+          else:
+              print "EndNote bundle is not installed for Office 2011"
+              print "Proceeding with installation"
+
+      def check_endnote_2016():
+          # If the CWYW bundle is installed for Office 2016, then remove it
+          if endnote_bundle_2016:
+              print "EndNote bundle is installed for Office 2016"
+              shutil.rmtree("/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/EndNote CWYW Word 2016.bundle")
+              print "Removed the CWYW bundle from 2016"
+          else:
+              print "EndNote bundle is not installed for Office 2016"
+              print "Proceeding with installation"
+
+      def main():
+          check_endnote_2008()
+          check_endnote_2011()
+          check_endnote_2016()
+
+      main()
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/preinstall'
+  Processor: FileCreator
+- Arguments:
+    file_content: |
+      #!/usr/bin/python
+
+      import os
+      import os.path
+      import shutil
+      import subprocess
+      import glob
+
+      def bashCommand(script):
+          try:
+              return subprocess.check_output(script)
+          except (subprocess.CalledProcessError, OSError), err:
+              return "[* Error] **%s** [%s]" % (err, str(script))
+
+      installer_app = "EndNoteUpdater.app"
+
+      def applyPatch():
+          bashCommand(["%s/Contents/Resources/applyPatch" % installer_app, "-d", "/Applications/EndNote %MAJOR_VERSION%", "-i", "%s/Contents/Resources/Patchfile.patch" % installer_app])
+
+      def main():
+          applyPatch()
+
+      main()
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
+  Processor: FileCreator
+- Arguments:
+    force_pkg_build: True
+    pkg_request:
+      id: com.endnote.EndNote%MAJOR_VERSION%
+      options: purge_ds_store
+      pkgname: '%NAME%%MAJOR_VERSION%-%version%'
+      pkgroot: pkgroot
+      scripts: Scripts
+  Processor: PkgCreator
+- Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/pkgroot'
+    - '%RECIPE_CACHE_DIR%/Scripts'
+  Processor: PathDeleter
