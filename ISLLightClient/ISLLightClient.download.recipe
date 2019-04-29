@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Comment</key>
-	<string>NOTE: May only work within ETH network.</string>
 	<key>Description</key>
 	<string>Downloads the latest version of ISL Light Client for Mac.</string>
 	<key>Identifier</key>

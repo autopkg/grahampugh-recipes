@@ -1,4 +1,3 @@
-Comment: 'NOTE: May only work within ETH network.'
 Description: Downloads the latest version of ISL Light Client for Mac.
 Identifier: com.github.grahampugh.download.ISLLightClient
 Input:
