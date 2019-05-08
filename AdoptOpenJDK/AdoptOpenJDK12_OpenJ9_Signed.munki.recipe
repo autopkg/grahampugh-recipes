@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the current release version of AdoptOpenJDK 12 OpenJ9. Recipe created by Charles Mission.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.munki.AdoptOpenJDK12_OpenJ9_Signed</string>
+	<key>Input</key>
+	<dict>
+		<key>MUNKI_REPO_SUBDIR</key>
+		<string>apps/AdoptOpenJDK/12/</string>
+		<key>pkginfo</key>
+		<dict>
+			<key>catalogs</key>
+			<array>
+				<string>testing</string>
+			</array>
+			<key>category</key>
+			<string>Developer Tools</string>
+			<key>description</key>
+			<string>AdoptOpenJDK 12 OpenJ9</string>
+			<key>developer</key>
+			<string>AdoptOpenJDK</string>
+			<key>name</key>
+			<string>AdoptOpenJDK 12 OpenJ9</string>
+			<key>unattended_install</key>
+			<true/>
+			<key>unattended_uninstall</key>
+			<true/>
+			<key>uninstall_method</key>
+			<string>removepackages</string>
+		</dict>
+	</dict>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.download.AdoptOpenJDK12_OpenJ9_Signed</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_path</key>
+				<string>%pathname%</string>
+				<key>repo_subdirectory</key>
+				<string>%MUNKI_REPO_SUBDIR%</string>
+			</dict>
+			<key>Processor</key>
+			<string>MunkiImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>

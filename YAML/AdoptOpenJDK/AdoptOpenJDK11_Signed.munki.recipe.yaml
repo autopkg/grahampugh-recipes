@@ -1,0 +1,20 @@
+Description: Downloads the current release version of AdoptOpenJDK 11 HotSpot. Recipe created by Charles Mission.
+Identifier: com.github.grahampugh.recipes.munki.AdoptOpenJDK11_Signed
+Input:
+  MUNKI_REPO_SUBDIR: apps/AdoptOpenJDK/11/
+  pkginfo:
+    catalogs:
+    - testing
+    category: Developer Tools
+    description: AdoptOpenJDK 11 HotSpot
+    developer: AdoptOpenJDK
+    name: AdoptOpenJDK 11
+    unattended_install: true
+    unattended_uninstall: true
+    uninstall_method: removepackages
+ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK11_Signed
+Process:
+- Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+  Processor: MunkiImporter
