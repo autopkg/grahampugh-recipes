@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of AdoptOpenJDK 8 OpenJ9. Recipe created by Charles Mission.</string>
+	<string>Downloads the current release version of AdoptOpenJDK 8 OpenJ9. Recipe created by Charles Misson.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.download.AdoptOpenJDK8_OpenJ9_Signed</string>
+	<string>com.github.autopkg.grahampugh-recipes.download.AdoptOpenJDK8_OpenJ9_Signed</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>

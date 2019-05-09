@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of AdoptOpenJDK 11 Open J9. Recipe created by Charles Mission.</string>
+	<string>Downloads the current release version of AdoptOpenJDK 11 Open J9. Recipe created by Charles Misson.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.munki.AdoptOpenJDK11_OpenJ9_Signed</string>
+	<string>com.github.autopkg.grahampugh-recipes.munki.AdoptOpenJDK11_OpenJ9_Signed</string>
 	<key>Input</key>
 	<dict>
 		<key>MUNKI_REPO_SUBDIR</key>
@@ -33,7 +33,7 @@
 		</dict>
 	</dict>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.recipes.download.AdoptOpenJDK11_OpenJ9_Signed</string>
+	<string>com.github.autopkg.grahampugh-recipes.download.AdoptOpenJDK11_OpenJ9_Signed</string>
 	<key>Process</key>
 	<array>
 		<dict>
