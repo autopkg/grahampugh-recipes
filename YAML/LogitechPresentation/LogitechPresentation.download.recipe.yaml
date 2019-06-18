@@ -1,0 +1,22 @@
+Description: Downloads the current version of LogitechPresentation.
+Identifier: com.github.grahampugh.recipes.download.LogitechPresentation
+Input:
+  NAME: Logitech Presentation
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
+MinimumVersion: 0.6.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://support.logitech.com/en_us/software/logi-presentation
+    re_pattern: (?P<url>https:\/\/download01\.logi\.com\/web\/ftp\/pub\/techsupport\/presentation\/LogiPresentation_(?P<version>.*?)\.dmg)
+- Processor: URLDownloader
+  Arguments:
+    url: '%url%'
+- Processor: EndOfCheckPhase
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+- Arguments:
+    requirement: 'identifier "com.logitech.presenter.installer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QED4VVPZWA'
+    input_path: '%pathname%/LogiPresentation Installer.app'
+  Processor: CodeSignatureVerifier
