@@ -73,7 +73,7 @@ Process:
         /bin/chmod 644 "/Library/LaunchAgents/com.logitech.presenter.plist"
 
         # make a shortcut to the Presentation app
-        /bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation.app"
+        /bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation"
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
   Processor: FileCreator

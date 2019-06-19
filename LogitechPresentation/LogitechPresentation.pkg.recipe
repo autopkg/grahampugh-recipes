@@ -140,7 +140,7 @@ DIR=$(dirname "$0")
 /bin/chmod 644 "/Library/LaunchAgents/com.logitech.presenter.plist"
 
 # make a shortcut to the Presentation app
-/bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation.app"
+/bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation"
 </string>
 				<key>file_mode</key>
 				<string>0755</string>
