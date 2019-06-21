@@ -153,6 +153,8 @@ DIR=$(dirname "$0")
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>force_pkg_build</key>
+				<true/>
 				<key>pkg_request</key>
 				<dict>
 					<key>chown</key>

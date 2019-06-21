@@ -78,6 +78,7 @@ Process:
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
   Processor: FileCreator
 - Arguments:
+    force_pkg_build: True
     pkg_request:
       chown: []
       id: com.logitech.logipresentation.pkg
