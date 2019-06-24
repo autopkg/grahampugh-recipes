@@ -3,7 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.</string>
+	<string>Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+
+Note that the "hotspot" versions have been removed from AdoptOpenJDK's GitHub, so this recipe has now switched to the remaining Eclipse OpenJ9 version of Adopt OpenJDK 11.
+</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.download.AdoptOpenJDK11</string>
 	<key>Input</key>
@@ -21,7 +24,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>asset_regex</key>
-				<string>^OpenJDK11U-jdk_x64_mac_hotspot_.*?.tar.gz$</string>
+				<string>^OpenJDK11U-jdk_x64_mac_openj9_.*?.tar.gz$</string>
 				<key>github_repo</key>
 				<string>AdoptOpenJDK/openjdk11-binaries</string>
 			</dict>

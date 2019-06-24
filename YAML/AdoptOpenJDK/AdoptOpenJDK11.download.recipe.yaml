@@ -1,4 +1,7 @@
-Description: Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+Description: |
+    Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+
+    Note that the "hotspot" versions have been removed from AdoptOpenJDK's GitHub, so this recipe has now switched to the remaining Eclipse OpenJ9 version of Adopt OpenJDK 11.
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11
 Input:
   NAME: AdoptOpenJDK 11
@@ -6,7 +9,7 @@ Input:
 MinimumVersion: 1.0.0
 Process:
 - Arguments:
-    asset_regex: ^OpenJDK11U-jdk_x64_mac_hotspot_.*?.tar.gz$
+    asset_regex: ^OpenJDK11U-jdk_x64_mac_openj9_.*?.tar.gz$
     github_repo: AdoptOpenJDK/openjdk11-binaries
   Processor: GitHubReleasesInfoProvider
 - Processor: URLDownloader
