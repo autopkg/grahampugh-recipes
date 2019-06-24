@@ -12,7 +12,7 @@
 		<string>TeXLive Utility</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>0.2.9</string>
+	<string>1.0.0</string>
 	<key>ParentRecipe</key>
 	<string>com.github.grahampugh.recipes.download.TeXLiveUtility</string>
 	<key>Process</key>
