@@ -74,7 +74,7 @@
 				<key>archive_path</key>
 				<string>%RECIPE_CACHE_DIR%/tarball.tar.bz2</string>
 				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/LibreOffice.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>Unarchiver</string>

@@ -48,7 +48,7 @@
 				<key>source_path</key>
 				<string>%pathname%/*.app</string>
 				<key>destination_path</key>
-				<string>%pkgroot%/Applications/%NAME%.app</string>
+				<string>%pkgroot%/Applications/GIMP.app</string>
 			</dict>
 		</dict>
 		<dict>
@@ -57,7 +57,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>gimp_app_path</key>
-				<string>%pkgroot%/Applications/%NAME%.app</string>
+				<string>%pkgroot%/Applications/GIMP.app</string>
 			</dict>
 		</dict>
 		<dict>
