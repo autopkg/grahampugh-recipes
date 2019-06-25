@@ -29,7 +29,7 @@
 				<key>version</key>
 				<string>%webversion%</string>
 				<key>app_path</key>
-				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/downloads/DataWarrior.app</string>
                 <key>pkg_path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg</string>
                 <key>overwrite</key>
