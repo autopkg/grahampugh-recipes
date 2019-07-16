@@ -1,0 +1,24 @@
+Description: |
+    Downloads the current script of erase-install 11.
+Identifier: com.github.grahampugh.recipes.download.eraseinstall
+Input:
+  NAME: erase-install
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
+MinimumVersion: 1.0.0
+Process:
+- Arguments:
+    asset_regex: ^v.*?.zip$
+    github_repo: grahampugh/erase-install
+    include_prereleases: True
+  Processor: GitHubReleasesInfoProvider
+- Processor: URLDownloader
+- Processor: EndOfCheckPhase
+- Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
+- Arguments:
+    archive_path: '%pathname%'
+    purge_destination: true
+    archive_format: tar
+  Processor: Unarchiver
