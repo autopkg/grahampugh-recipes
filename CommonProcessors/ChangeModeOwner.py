@@ -58,4 +58,7 @@ class ChangeModeOwner(Processor):
     		if retcode:
     			raise ProcessorError('Error setting group ownership (chgrp -R {}) for {}'.format(group, resource_path))
 
-		return
+
+if __name__ == '__main__':
+    PROCESSOR = ChangeModeOwner()
+    PROCESSOR.execute_shell()
