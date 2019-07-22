@@ -26,7 +26,6 @@ Process:
     group: wheel
   Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
 
-
 - Arguments:
     force_pkg_build: True
     pkg_request:
