@@ -10,7 +10,7 @@ Process:
     pkgdirs:
       Library: '0755'
       Library/Management: '0755'
-      Library/Management/erase-install: '0700'
+      Library/Management/erase-install: '0755'
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
   Processor: PkgRootCreator
 

@@ -27,7 +27,7 @@
 					<key>Library/Management</key>
 					<string>0755</string>
 					<key>Library/Management/erase-install</key>
-					<string>0700</string>
+					<string>0755</string>
 				</dict>
 				<key>pkgroot</key>
 				<string>%RECIPE_CACHE_DIR%/pkgroot</string>
