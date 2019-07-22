@@ -21,17 +21,17 @@ class ChangeModeOwner(Processor):
 		'mode': {
 			'required': False,
 			'description': 'chmod(1) mode string to apply to file/folder, e.g. "o-w", "755"',
-            default: '',
+            'default': '',
 		},
 		'owner': {
 			'required': False,
 			'description': 'chown(1) owner string to apply to file/folder, e.g. "root"',
-            default: '',
+            'default': '',
 		},
 		'group': {
 			'required': False,
 			'description': 'chown(1) group string to apply to file/folder, e.g. "wheel"',
-            default: '',
+            'default': '',
 		},
 	}
 	output_variables = {
