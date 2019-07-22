@@ -30,7 +30,7 @@ Process:
     force_pkg_build: True
     pkg_request:
       id: com.github.grahampugh.erase-install.pkg
-      pkgname: '%NAME%-%version%'
+      pkgname: 'erase-install-%version%'
       pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
       pkgtype: flat
       version: '%version%'
