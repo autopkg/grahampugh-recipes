@@ -20,6 +20,14 @@ Process:
   Processor: Copier
 
 - Arguments:
+    resource_path: '%RECIPE_CACHE_DIR%/pkgroot/Library/Management/erase-install/erase-install.sh'
+    mode: '755'
+    owner: root
+    group: wheel
+  Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+
+
+- Arguments:
     force_pkg_build: True
     pkg_request:
       id: com.github.grahampugh.erase-install.pkg

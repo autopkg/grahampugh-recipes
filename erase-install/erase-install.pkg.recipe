@@ -49,6 +49,21 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>group</key>
+				<string>wheel</string>
+				<key>mode</key>
+				<string>755</string>
+				<key>owner</key>
+				<string>root</string>
+				<key>resource_path</key>
+				<string>%RECIPE_CACHE_DIR%/pkgroot/Library/Management/erase-install/erase-install.sh</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>force_pkg_build</key>
 				<true/>
 				<key>pkg_request</key>
