@@ -31,7 +31,7 @@ __all__ = ["FilemakerProAdvancedUpdateURLProcessor"]
 
 # This was determined by reviewing the sources of the updates site at
 # http://www.filemaker.com/support/downloads/
-UPDATE_FEED = "http://www.filemaker.com/support/updaters/updater_json.txt?id=1231231231"
+UPDATE_FEED = "https://www.filemaker.com/support/updaters/product-updaters.txt"
 
 class FilemakerProAdvancedUpdateURLProcessor(Processor):
     """Provides a download URL for the most recent version of FileMaker Pro Advanced"""
