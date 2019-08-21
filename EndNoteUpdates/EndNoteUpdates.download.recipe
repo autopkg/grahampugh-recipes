@@ -75,7 +75,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>re_pattern</key>
-				<string>(updateTo\&gt;(?P&lt;version&gt;.*?)\&lt;\/updateTo)</string>
+				<string>(updateTo\&gt;(?P&lt;version&gt;%INT_VERSION%.*?)\&lt;\/updateTo)</string>
 				<key>url</key>
 				<string>http://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml</string>
 			</dict>

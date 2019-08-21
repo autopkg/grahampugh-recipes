@@ -26,6 +26,6 @@ Process:
     requirement: anchor trusted
   Processor: CodeSignatureVerifier
 - Arguments:
-    re_pattern: (updateTo\>(?P<version>.*?)\<\/updateTo)
+    re_pattern: (updateTo\>(?P<version>%INT_VERSION%.*?)\<\/updateTo)
     url: http://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml
   Processor: URLTextSearcher
