@@ -2,11 +2,11 @@ Description: Downloads latest FileMaker Pro Advanced updater disk image and extr
 Identifier: com.github.grahampugh.download.filemakerproadvancedupdater
 Input:
   NAME: FileMaker Pro Advanced
-  major_version: '16'
+  MAJOR_VERSION: '16'
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 Process:
 - Arguments:
-    major_version: '%major_version%'
+    major_version: '%MAJOR_VERSION%'
   Processor: FilemakerProAdvancedUpdateURLProcessor
 - Processor: URLDownloader
 - Arguments:
