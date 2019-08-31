@@ -4,6 +4,7 @@
 Adapted from com.github.jessepeterson.munki.PortfolioClient10/ModeChanger.py.
 """
 
+from __future__ import absolute_import
 from autopkglib import Processor, ProcessorError
 import subprocess
 import os

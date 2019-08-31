@@ -16,6 +16,7 @@
 """See docstring for SubDirectoryList class"""
 
 
+from __future__ import absolute_import
 import os, sys
 import subprocess
 from autopkglib import Processor, ProcessorError
