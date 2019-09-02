@@ -36,9 +36,6 @@ UPDATE_FEED = "https://www.filemaker.com/support/updaters/product-updaters.txt"
 
 class FilemakerProAdvancedUpdateURLProcessor(Processor):
     """Provides a download URL for the most recent version of FileMaker Pro Advanced"""
-    # an enum-like hash to enable the variant of FileMaker versioning to be taken
-    # into account when versioning
-    patch_levels = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
 
     description = __doc__
     input_variables = {
@@ -111,6 +108,10 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         return v1
 
     def findLatestUpdate(self, obj):
+        # an enum-like hash to enable the variant of FileMaker versioning to be taken
+        # into account when versioning
+        patch_levels = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+
         updates = []
         versions = []
         for pkg in obj:
