@@ -20,12 +20,14 @@
 """See docstring for FilemakerProAdvancedUpdateURLProcessor class"""
 
 from __future__ import absolute_import
+
 import json
-import re
 import os
+import re
 import urllib2
-from urllib2 import urlparse
 from operator import itemgetter
+from urllib2 import urlparse
+
 from autopkglib import Processor, ProcessorError
 
 __all__ = ["FilemakerProAdvancedUpdateURLProcessor"]

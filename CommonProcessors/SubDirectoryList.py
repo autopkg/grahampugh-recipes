@@ -17,7 +17,9 @@
 
 
 from __future__ import absolute_import
+
 import os
+
 from autopkglib import Processor, ProcessorError
 
 __all__ = ["SubDirectoryList"]

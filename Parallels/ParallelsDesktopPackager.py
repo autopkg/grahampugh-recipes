@@ -15,11 +15,10 @@
 # limitations under the License.
 
 from __future__ import absolute_import
-from autopkglib import Processor, ProcessorError
 
-import subprocess
-import os.path
 import plistlib
+
+from autopkglib import Processor, ProcessorError
 
 __all__ = ["ParallelsDesktopPackager"]
 
