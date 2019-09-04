@@ -42,17 +42,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>predicate</key>
-				<string>%STOP_IF%</string>
-			</dict>
-			<key>Comment</key>
-			<string>Checks if the file already exists in the cache</string>
-			<key>Processor</key>
-			<string>StopProcessingIf</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
 				<key>archive_path</key>
 				<string>%pathname%</string>
 				<key>purge_destination</key>
