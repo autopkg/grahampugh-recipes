@@ -2,65 +2,72 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Description</key>
-	<string>Downloads the current version of LogitechPresentation.</string>
-	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.download.LogitechPresentation</string>
-	<key>Input</key>
-	<dict>
-		<key>NAME</key>
-		<string>Logitech Presentation</string>
-		<key>STOPPROCESSINGIF_PREDICATE</key>
-		<string>download_changed == FALSE</string>
-	</dict>
-	<key>MinimumVersion</key>
-	<string>0.6.0</string>
-	<key>Process</key>
-	<array>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>re_pattern</key>
-				<string>(?P&lt;url&gt;https:\/\/download01\.logi\.com\/web\/ftp\/pub\/techsupport\/presentation\/LogiPresentation_(?P&lt;version&gt;.*?)\.dmg)</string>
-				<key>url</key>
-				<string>https://support.logitech.com/en_us/software/logi-presentation</string>
-			</dict>
-			<key>Processor</key>
-			<string>URLTextSearcher</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>url</key>
-				<string>%url%</string>
-			</dict>
-			<key>Processor</key>
-			<string>URLDownloader</string>
-		</dict>
-		<dict>
-			<key>Processor</key>
-			<string>EndOfCheckPhase</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>predicate</key>
-				<string>%STOPPROCESSINGIF_PREDICATE%</string>
-			</dict>
-			<key>Processor</key>
-			<string>StopProcessingIf</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>input_path</key>
-				<string>%pathname%/LogiPresentation Installer.app</string>
-				<key>requirement</key>
-				<string>identifier "com.logitech.presenter.installer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QED4VVPZWA</string>
-			</dict>
-			<key>Processor</key>
-			<string>CodeSignatureVerifier</string>
-		</dict>
-	</array>
+    <key>Description</key>
+    <string>Downloads the current version of LogitechPresentation.</string>
+    <key>Identifier</key>
+    <string>com.github.grahampugh.recipes.download.LogitechPresentation</string>
+    <key>Input</key>
+    <dict>
+        <key>NAME</key>
+        <string>Logitech Presentation</string>
+        <key>STOPPROCESSINGIF_PREDICATE</key>
+        <string>download_changed == FALSE</string>
+        <key>USER_AGENT</key>
+        <string>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36</string>
+    </dict>
+    <key>MinimumVersion</key>
+    <string>0.6.0</string>
+    <key>Process</key>
+    <array>
+        <dict>
+            <key>Processor</key>
+            <string>URLTextSearcher</string>
+            <key>Arguments</key>
+            <dict>
+                <key>re_pattern</key>
+                <string>https:\/\/download01\.logi\.com\/web\/ftp\/pub\/techsupport\/presentation\/LogiPresentation_[\S].*.dmg</string>
+                <key>request_headers</key>
+                <dict>
+                    <key>user-agent</key>
+                    <string>%USER_AGENT%</string>
+                </dict>
+                <key>url</key>
+                <string>https://www.logitech.com/en-gb/product/spotlight-presentation-remote/page/spotlight-features</string>
+            </dict>
+        </dict>
+        <dict>
+            <key>Processor</key>
+            <string>URLDownloader</string>
+            <key>Arguments</key>
+            <dict>
+                <key>url</key>
+                <string>%match%</string>
+            </dict>
+        </dict>
+        <dict>
+            <key>Processor</key>
+            <string>EndOfCheckPhase</string>
+        </dict>
+        <dict>
+            <key>Arguments</key>
+            <dict>
+                <key>predicate</key>
+                <string>%STOPPROCESSINGIF_PREDICATE%</string>
+            </dict>
+            <key>Processor</key>
+            <string>StopProcessingIf</string>
+        </dict>
+        <dict>
+            <key>Arguments</key>
+            <dict>
+                <key>input_path</key>
+                <string>%pathname%/LogiPresentation Installer.app</string>
+                <key>requirement</key>
+                <string>identifier "com.logitech.presenter.installer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QED4VVPZWA</string>
+            </dict>
+            <key>Processor</key>
+            <string>CodeSignatureVerifier</string>
+        </dict>
+    </array>
 </dict>
 </plist>
