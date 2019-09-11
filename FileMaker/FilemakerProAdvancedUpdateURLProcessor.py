@@ -19,12 +19,15 @@
 
 """See docstring for FilemakerProAdvancedUpdateURLProcessor class"""
 
+from __future__ import absolute_import
+
 import json
-import re
 import os
+import re
 import urllib2
-from urllib2 import urlparse
 from operator import itemgetter
+from urllib2 import urlparse
+
 from autopkglib import Processor, ProcessorError
 
 __all__ = ["FilemakerProAdvancedUpdateURLProcessor"]
@@ -35,9 +38,6 @@ UPDATE_FEED = "https://www.filemaker.com/support/updaters/product-updaters.txt"
 
 class FilemakerProAdvancedUpdateURLProcessor(Processor):
     """Provides a download URL for the most recent version of FileMaker Pro Advanced"""
-    # an enum-like hash to enable the variant of FileMaker versioning to be taken
-    # into account when versioning
-    patch_levels = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
 
     description = __doc__
     input_variables = {
@@ -92,7 +92,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
     def extractAdvancedUpdates(self, obj):
         updates = []
         for pkg in obj:
-            if re.search('Advanced', pkg["product"]):
+            if re.search(r'Advanced', pkg["product"]):
                 updates.append(pkg)
         return updates
 
@@ -110,6 +110,10 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         return v1
 
     def findLatestUpdate(self, obj):
+        # an enum-like hash to enable the variant of FileMaker versioning to be taken
+        # into account when versioning
+        patch_levels = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+
         updates = []
         versions = []
         for pkg in obj:
@@ -124,15 +128,15 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             if len(version) > 3:
                 build = version[3]
             # look for a letter in the patchlevel
-            mo = re.search('([0-9]*)([A-Za-z]*)', patch)
-            if mo != None:
+            mo = re.search(r'([0-9]*)([A-Za-z]*)', patch)
+            if mo is not None:
                 (patch, build) = mo.groups()
                 if build == '':
                     build = 0
                 else:
                     build = patch_levels[build]
-            mo = re.search('([0-9]*)v([0-9]*)', minor)
-            if mo != None:
+            mo = re.search(r'([0-9]*)v([0-9]*)', minor)
+            if mo is not None:
                 (minor, build) = mo.groups()
             versions.append((major, minor, patch, version_str))
         sorted_versions = sorted(versions, key=itemgetter(0,1,2,3), reverse=True)
@@ -149,7 +153,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             f = urllib2.urlopen(req)
             data = f.read()
             f.close()
-        except BaseException as e:
+        except Exception as e:
             raise ProcessorError("Can't get to Filemaker Updater feed: %s" % e)
 
         metadata = json.loads(data)
@@ -163,9 +167,9 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         return update
 
     def version_matcher(self, url):
-       	fname = os.path.basename(urlparse.urlsplit(url).path)
+        fname = os.path.basename(urlparse.urlsplit(url).path)
         version_match = re.search(r"([0-9]{2}.[0-9]{0,2}.[0-9]{0,2})", fname)
-        if version_match == None:
+        if version_match is None:
             raise ProcessorError("Something went wrong matching FMP update to full version.")
         else:
             return version_match.group(1)
@@ -183,7 +187,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             self.env["url"] = url
             self.env["package_name"] = update["name"]
             self.env["package_file"] = os.path.basename(urlparse.urlsplit(url).path)
-        except BaseException as err:
+        except Exception as err:
             # handle unexpected errors here
             raise ProcessorError(err)
 

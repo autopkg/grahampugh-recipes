@@ -15,8 +15,10 @@
 # limitations under the License.
 """See docstring for Java6Versioner class"""
 
-import subprocess
+from __future__ import absolute_import
+
 import plistlib
+
 from autopkglib import Processor, ProcessorError
 
 __all__ = ["Java6Versioner"]

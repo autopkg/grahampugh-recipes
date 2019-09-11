@@ -4,9 +4,11 @@
 Adapted from com.github.jessepeterson.munki.PortfolioClient10/ModeChanger.py.
 """
 
-from autopkglib import Processor, ProcessorError
+from __future__ import absolute_import
+
 import subprocess
-import os
+
+from autopkglib import Processor, ProcessorError
 
 __all__ = ["ChangeModeOwner"]
 

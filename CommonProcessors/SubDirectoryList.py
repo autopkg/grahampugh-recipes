@@ -16,7 +16,10 @@
 """See docstring for SubDirectoryList class"""
 
 
+from __future__ import absolute_import
+
 import os
+
 from autopkglib import Processor, ProcessorError
 
 __all__ = ["SubDirectoryList"]
@@ -130,7 +133,7 @@ class SubDirectoryList(Processor):
                 if relpath == ".":
                     # we want to avoid prepending './' to files at root dir
                     relpath = ''
-                # print "Real relative path: %s" % relpath
+                # print("Real relative path: %s" % relpath)
                 file_list.append(os.path.join(relpath, fname))
         self.env['found_directories'] = search_string.format(format_string.join(dir_list)).strip()
         self.env['found_filenames'] = search_string.format(format_string.join(file_list)).strip()

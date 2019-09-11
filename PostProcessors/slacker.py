@@ -14,12 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from autopkglib import Processor, ProcessorError
+from __future__ import absolute_import, print_function
 
-import subprocess
-import os.path
-import json
 import requests
+
+from autopkglib import Processor, ProcessorError
 
 # Set the webhook_url to the one provided by Slack when you create the webhook at https://my.slack.com/services/new/incoming-webhook/
 
@@ -78,13 +77,13 @@ class Slacker(Processor):
             jss_policy_name = "%s" % jss_importer_summary_result["data"]["Policy"]
             jss_policy_version = "%s" % jss_importer_summary_result["data"]["Version"]
             jss_uploaded_package = "%s" % jss_importer_summary_result["data"]["Package"]
-            print "JSS address: %s" % JSS_URL
-            print "Title: %s" % prod_name
-            print "Policy: %s" % jss_policy_name
-            print "Version: %s" % jss_policy_version
-            print "Category: %s" % category
-            print "Policy Category: %s" % policy_category
-            print "Package: %s" % jss_uploaded_package
+            print("JSS address: %s" % JSS_URL)
+            print("Title: %s" % prod_name)
+            print("Policy: %s" % jss_policy_name)
+            print("Version: %s" % jss_policy_version)
+            print("Category: %s" % category)
+            print("Policy Category: %s" % policy_category)
+            print("Package: %s" % jss_uploaded_package)
             if jss_uploaded_package:
                 slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nUploaded Package Name: *%s*" % (JSS_URL, prod_name, jss_policy_version, category, jss_policy_name, jss_uploaded_package)
             else:

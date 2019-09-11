@@ -20,13 +20,15 @@
 
 """See docstring for FilemakerProAdvancedUpdateDMGExtractor class"""
 
-import json
+from __future__ import absolute_import
+
+import fnmatch
 import os
 import shutil
 import zipfile
-import fnmatch
-from autopkglib.DmgMounter import DmgMounter
+
 from autopkglib import Processor, ProcessorError
+from autopkglib.DmgMounter import DmgMounter
 
 __all__ = ["FilemakerProAdvancedUpdateExtractor"]
 
@@ -68,7 +70,7 @@ class FilemakerProAdvancedUpdateExtractor(DmgMounter):
                     pkgs = [f for f in contents if fnmatch.fnmatch(f, '*.pkg')]
                     zf.extract(pkgs[0], self.env["RECIPE_CACHE_DIR"])
                     self.env["pkg_path"] = os.path.join(self.env["RECIPE_CACHE_DIR"], os.path.basename(pkgs[0]))
-            except BaseException, err:
+            except Exception as err:
                 raise ProcessorError(err)
         else:
             mount_point = self.mount(self.env["downloaded_file"])
@@ -78,7 +80,7 @@ class FilemakerProAdvancedUpdateExtractor(DmgMounter):
                 pkg = self.find_pkg(mount_point)
                 shutil.copy(pkg, self.env['RECIPE_CACHE_DIR'])
                 self.env["pkg_path"] = os.path.join(self.env['RECIPE_CACHE_DIR'], os.path.basename(pkg))
-            except BaseException, err:
+            except Exception as err:
                 raise ProcessorError(err)
             finally:
                 self.unmount(self.env["downloaded_file"])

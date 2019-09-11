@@ -16,8 +16,10 @@
 """See docstring for SubDirectoryList class"""
 
 
-import os, sys
+from __future__ import absolute_import
+
 import subprocess
+
 from autopkglib import Processor, ProcessorError
 from FoundationPlist import readPlistFromString, writePlist
 
