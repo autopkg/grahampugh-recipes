@@ -23,10 +23,10 @@ import subprocess
 from autopkglib import Processor, ProcessorError
 from FoundationPlist import readPlistFromString, writePlist
 
-__all__ = ["ChoicesXMLParser"]
+__all__ = ["ChoicesXMLGenerator"]
 
 
-class ChoicesXMLParser(Processor):
+class ChoicesXMLGenerator(Processor):
     """Generates a choices.xml file for use with an installer. A postinstall script is required to run the installer with the choices.xml"""
     input_variables = {
         'choices_pkg_path': {
@@ -112,5 +112,5 @@ class ChoicesXMLParser(Processor):
 
 
 if __name__ == '__main__':
-    PROCESSOR = ChoicesXMLParser()
+    PROCESSOR = ChoicesXMLGenerator()
     PROCESSOR.execute_shell()
