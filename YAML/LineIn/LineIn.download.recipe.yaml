@@ -2,7 +2,7 @@ Comment: Created with Recipe Robot v1.0.2 (https://github.com/homebysix/recipe-r
 Description: Downloads the latest version of LineIn.
 Identifier: com.github.grahampugh.download.LineIn
 Input:
-  DOWNLOAD_URL: http://www.rogueamoeba.com/freebies/download/LineIn.zip
+  DOWNLOAD_URL: https://www.rogueamoeba.com/freebies/download/LineIn.zip
   NAME: LineIn
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 0.6.1
