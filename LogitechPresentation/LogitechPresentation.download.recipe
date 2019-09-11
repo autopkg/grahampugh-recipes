@@ -23,7 +23,9 @@
 				<key>re_pattern</key>
 				<string>(?P&lt;url&gt;https:\/\/download01\.logi\.com\/web\/ftp\/pub\/techsupport\/presentation\/LogiPresentation_(?P&lt;version&gt;.*?)\.dmg)</string>
 				<key>url</key>
-				<string>https://support.logitech.com/en_us/software/logi-presentation</string>
+				<string>https://www.logitech.com/en-gb/product/spotlight-presentation-remote/page/spotlight-features</string>
+				<key>user-agent</key>
+				<string>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLTextSearcher</string>
