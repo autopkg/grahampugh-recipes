@@ -10,6 +10,8 @@
 	<dict>
 		<key>NAME</key>
 		<string>AdoptOpenJDK 8</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == False</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -18,17 +20,37 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>asset_regex</key>
-				<string>^OpenJDK8U-jdk_x64_mac_hotspot_.*?.tar.gz$</string>
-				<key>github_repo</key>
-				<string>AdoptOpenJDK/openjdk8-binaries</string>
+				<key>re_pattern</key>
+				<string>(?P&lt;match&gt;AdoptOpenJDK\/openjdk8-binaries\/releases\/download\/jdk8.*?\/OpenJDK8U-jdk_x64_mac_hotspot_.*\.tar\.gz)</string>
+				<key>url</key>
+				<string>https://github.com/AdoptOpenJDK/openjdk8-binaries/releases</string>
 			</dict>
 			<key>Processor</key>
-			<string>GitHubReleasesInfoProvider</string>
+			<string>URLTextSearcher</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://github.com/%match%</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
 		</dict>
 		<dict>
 			<key>Processor</key>
-			<string>URLDownloader</string>
+			<string>EndOfCheckPhase</string>
 		</dict>
 	</array>
 </dict>

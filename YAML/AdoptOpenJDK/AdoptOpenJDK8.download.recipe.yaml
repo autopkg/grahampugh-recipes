@@ -1,17 +1,24 @@
 Description: Downloads the current release version of AdoptOpenJDK 8. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK8
+MinimumVersion: 1.0.0
+
 Input:
   NAME: AdoptOpenJDK 8
   STOPPROCESSINGIF_PREDICATE: download_changed == False
-MinimumVersion: 1.0.0
+  
 Process:
 - Arguments:
-    asset_regex: ^OpenJDK8U-jdk_x64_mac_hotspot_.*?.tar.gz$
-    github_repo: AdoptOpenJDK/openjdk8-binaries
-  Processor: GitHubReleasesInfoProvider
-- Processor: URLDownloader
+    re_pattern: (?P<match>AdoptOpenJDK\/openjdk8-binaries\/releases\/download\/jdk8.*?\/OpenJDK8U-jdk_x64_mac_hotspot_.*\.tar\.gz)
+    url: https://github.com/AdoptOpenJDK/openjdk8-binaries/releases
+  Processor: URLTextSearcher
+
+- Arguments:
+    url: 'https://github.com/%match%'
+  Processor: URLDownloader
+
+- Processor: EndOfCheckPhase
+
 - Arguments:
     predicate: '%STOPPROCESSINGIF_PREDICATE%'
   Comment: Checks if the file already exists in the cache
   Processor: StopProcessingIf
-- Processor: EndOfCheckPhase

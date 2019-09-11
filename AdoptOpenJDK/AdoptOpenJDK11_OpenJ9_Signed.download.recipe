@@ -20,15 +20,20 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>asset_regex</key>
-				<string>^OpenJDK11U-jdk_x64_mac_openj9_.*?.pkg$</string>
-				<key>github_repo</key>
-				<string>AdoptOpenJDK/openjdk11-binaries</string>
+				<key>re_pattern</key>
+				<string>(?P&lt;match&gt;AdoptOpenJDK\/openjdk11-binaries\/releases\/download\/jdk11.*?\/OpenJDK11U-jdk_x64_mac_openj9_.*?\.pkg)</string>
+				<key>url</key>
+				<string>https://github.com/AdoptOpenJDK/openjdk11-binaries/releases</string>
 			</dict>
 			<key>Processor</key>
-			<string>GitHubReleasesInfoProvider</string>
+			<string>URLTextSearcher</string>
 		</dict>
 		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://github.com/%match%</string>
+			</dict>
 			<key>Processor</key>
 			<string>URLDownloader</string>
 		</dict>
