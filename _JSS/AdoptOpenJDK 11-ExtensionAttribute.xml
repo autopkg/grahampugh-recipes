@@ -1,0 +1,50 @@
+<computer_extension_attribute>
+    <name>%EXTENSION_ATTRIBUTE_NAME%</name>
+    <description />
+    <data_type>String</data_type>
+    <input_type>
+        <type>script</type>
+        <platform>Mac</platform>
+        <script>#!/usr/bin/python
+
+'''
+Open JDK Version Extension Attribute
+'''
+
+import subprocess
+import plistlib
+
+
+def get_jdk_version():
+    """Returns the latest installed jdk11 version"""
+    jdk_home_output = "/usr/libexec/java_home -X -v 11.*"
+    jvm_vendor = "AdoptOpenJDK"
+
+    process = subprocess.check_output(jdk_home_output.split())
+
+    jdk_version_plist = plistlib.readPlistFromString(process)
+
+    i = 0
+    while i &lt; len(jdk_version_plist):
+        if jdk_version_plist[i]["JVMVendor"] == jvm_vendor:
+            jdk_version = jdk_version_plist[i]["JVMVersion"]
+            break
+        i += 1
+
+    try:
+        jdk_version
+    except NameError:
+        jdk_version = ""
+
+    return jdk_version
+
+
+jdk_version = get_jdk_version()
+if not jdk_version:
+    jdk_version = "Not installed"
+print "&lt;result&gt;{}&lt;/result&gt;".format(jdk_version)
+</script>
+    </input_type>
+    <inventory_display>Extension Attributes</inventory_display>
+    <recon_display>Extension Attributes</recon_display>
+</computer_extension_attribute>

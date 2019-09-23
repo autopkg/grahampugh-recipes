@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <name>AdoptOpenJDK 11-preinstall.sh</name>
+    <category>Computer Science</category>
+    <filename>AdoptOpenJDK 11-preinstall.sh</filename>
+    <info/>
+    <notes/>
+    <priority>Before</priority>
+    <parameters/>
+    <os_requirements/>
+</script>

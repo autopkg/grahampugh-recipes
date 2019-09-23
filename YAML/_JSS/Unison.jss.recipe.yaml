@@ -1,0 +1,29 @@
+Description: Downloads the latest Unison release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss.unison
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.grahampugh.recipes.pkg.unison
+
+Input:
+  NAME: Unison
+  CATEGORY: Tools & Accessories
+  DESCRIPTION: Unison is a file-synchronization tool for OSX, Unix, and Windows. It allows two replicas of a collection of files and directories to be stored on different hosts (or different disks on the same host), modified separately, and then brought up to date by propagating the changes in each replica to the other.
+  GROUP_NAME: '%NAME%-update-smart'
+  GROUP_TEMPLATE: 'SmartGroupTemplate.xml'
+  ICON: '%RECIPE_DIR%/Unison.png'
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: 'Install Latest %NAME%'
+  POLICY_TEMPLATE: 'PolicyTemplate.xml'
+
+Process:
+- Arguments:
+    category: '%CATEGORY%'
+    groups:
+    - name: '%GROUP_NAME%'
+      smart: true
+      template_path: '%GROUP_TEMPLATE%'
+    policy_category: '%POLICY_CATEGORY%'
+    policy_template: '%POLICY_TEMPLATE%'
+    prod_name: '%NAME%'
+    self_service_description: '%DESCRIPTION%'
+    self_service_icon: '%ICON%'
+  Processor: JSSImporter

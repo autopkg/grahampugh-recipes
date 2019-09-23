@@ -2,16 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Comment</key>
-	<string>
-This AutoPkg recipe was created using JSSRecipeCreator: 
-https://github.com/jssimporter/JSSRecipeCreator
-
-It is meant to be used with JSSImporter: 
-https://github.com/jssimporter/JSSImporter
-
-For tips on integrating JSSImporter into your Jamf Pro environment, check out Auto Update Magic:
-https://github.com/homebysix/auto-update-magic</string>
 	<key>Description</key>
 	<string>Downloads the latest Unison release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.</string>
 	<key>Identifier</key>
@@ -25,15 +15,17 @@ https://github.com/homebysix/auto-update-magic</string>
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>%RECIPE_DIR%/SmartGroupTemplate.xml</string>
+		<string>SmartGroupTemplate.xml</string>
 		<key>ICON</key>
 		<string>%RECIPE_DIR%/Unison.png</string>
 		<key>NAME</key>
 		<string>Unison</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>%RECIPE_DIR%/PolicyTemplate.xml</string>
+		<string>PolicyTemplate.xml</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.9</string>

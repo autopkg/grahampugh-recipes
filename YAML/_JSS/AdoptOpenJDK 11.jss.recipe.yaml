@@ -1,0 +1,38 @@
+Description: Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss.AdoptOpenJDK11
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.pkg.AdoptOpenJDK11
+
+Input:
+  NAME: AdoptOpenJDK 11
+  CATEGORY: Computer Science
+  DESCRIPTION: The AdoptOpenJDK Java Development Toolkit, version 11.
+  GROUP_NAME: '%NAME%-update-smart'
+  GROUP_TEMPLATE: SmartGroupTemplate-ExtensionAttribute.xml
+  EXTENSION_ATTRIBUTE: '%RECIPE_DIR%/%NAME%-ExtensionAttribute.xml'
+  EXTENSION_ATTRIBUTE_NAME: AdoptOpenJDK11Versiomn
+  ICON: '%RECIPE_DIR%/AdoptOpenJDK.png'
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: 'Install Latest %NAME%'
+  POLICY_TEMPLATE: PolicyTemplate.xml
+  SCRIPT: '%RECIPE_DIR%/%NAME%-preinstall.sh'
+  SCRIPT_TEMPLATE: '%RECIPE_DIR%/%NAME%-preinstall-ScriptTemplate.xml'
+
+Process:
+- Arguments:
+    category: '%CATEGORY%'
+    groups:
+    - name: '%GROUP_NAME%'
+      smart: true
+      template_path: '%GROUP_TEMPLATE%'
+    extension_attributes:
+    - ext_attribute_path: '%EXTENSION_ATTRIBUTE%'
+    policy_category: '%POLICY_CATEGORY%'
+    policy_template: '%POLICY_TEMPLATE%'
+    prod_name: '%NAME%'
+    scripts:
+    - name: '%SCRIPT%'
+      template_path: '%SCRIPT_TEMPLATE%'
+    self_service_description: '%DESCRIPTION%'
+    self_service_icon: '%ICON%'
+  Processor: JSSImporter

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained. Then, uploads to the Jamf Pro Server.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jss.AdoptOpenJDK11</string>
+	<key>Input</key>
+	<dict>
+		<key>CATEGORY</key>
+		<string>Computer Science</string>
+		<key>DESCRIPTION</key>
+		<string>The AdoptOpenJDK Java Development Toolkit, version 11.</string>
+		<key>EXTENSION_ATTRIBUTE</key>
+		<string>%RECIPE_DIR%/%NAME%-ExtensionAttribute.xml</string>
+		<key>EXTENSION_ATTRIBUTE_NAME</key>
+		<string>AdoptOpenJDK11Versiomn</string>
+		<key>GROUP_NAME</key>
+		<string>%NAME%-update-smart</string>
+		<key>GROUP_TEMPLATE</key>
+		<string>SmartGroupTemplate-ExtensionAttribute.xml</string>
+		<key>ICON</key>
+		<string>%RECIPE_DIR%/AdoptOpenJDK.png</string>
+		<key>NAME</key>
+		<string>AdoptOpenJDK 11</string>
+		<key>POLICY_CATEGORY</key>
+		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Latest %NAME%</string>
+		<key>POLICY_TEMPLATE</key>
+		<string>PolicyTemplate.xml</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.pkg.AdoptOpenJDK11</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>category</key>
+				<string>%CATEGORY%</string>
+				<key>extension_attributes</key>
+				<array>
+					<dict>
+						<key>ext_attribute_path</key>
+						<string>%EXTENSION_ATTRIBUTE%</string>
+					</dict>
+				</array>
+				<key>groups</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%GROUP_NAME%</string>
+						<key>smart</key>
+						<true/>
+						<key>template_path</key>
+						<string>%GROUP_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>policy_category</key>
+				<string>%POLICY_CATEGORY%</string>
+				<key>policy_template</key>
+				<string>%POLICY_TEMPLATE%</string>
+				<key>prod_name</key>
+				<string>%NAME%</string>
+				<key>scripts</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%RECIPE_DIR%/%NAME%-preinstall.sh</string>
+						<key>template_path</key>
+						<string>%RECIPE_DIR%/%NAME%-preinstall-ScriptTemplate.xml</string>
+					</dict>
+				</array>
+				<key>self_service_description</key>
+				<string>%DESCRIPTION%</string>
+				<key>self_service_icon</key>
+				<string>%ICON%</string>
+			</dict>
+			<key>Processor</key>
+			<string>JSSImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
