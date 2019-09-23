@@ -1,13 +1,16 @@
 Description: Downloads the latest version of PyMOL and creates a package.
 Identifier: com.github.grahampugh.recipes.pkg.PyMOL
-Input:
-  NAME: PyMOL
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.its-unibas.download.PyMOL
+
+Input:
+  NAME: PyMOL
+
 Process:
 - Arguments:
     dmg_path: '%pathname%'
   Processor: AppDmgVersioner
+
 - Arguments:
     overwrite: false
     pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
