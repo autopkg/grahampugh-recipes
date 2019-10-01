@@ -1,5 +1,5 @@
 Description: Creates a script
-Identifier: ch.ethz.id.jss-script.UninstallApplication
+Identifier: com.github.grahampugh.recipes.jss-script.UninstallApplication
 MinimumVersion: 1.0.0
 
 Input:

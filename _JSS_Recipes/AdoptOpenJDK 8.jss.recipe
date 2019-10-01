@@ -10,26 +10,28 @@
 	<dict>
 		<key>CATEGORY</key>
 		<string>Computer Science</string>
-		<key>DESCRIPTION</key>
-		<string>The AdoptOpenJDK Java Development Toolkit, version 8.</string>
 		<key>EXTENSION_ATTRIBUTE</key>
-		<string>%RECIPE_DIR%/%NAME%-ExtensionAttribute.xml</string>
+		<string>%NAME%-ExtensionAttribute.xml</string>
 		<key>EXTENSION_ATTRIBUTE_NAME</key>
 		<string>AdoptOpenJDK8Versiomn</string>
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
 		<string>SmartGroupTemplate-ExtensionAttribute.xml</string>
-		<key>ICON</key>
-		<string>%RECIPE_DIR%/AdoptOpenJDK.png</string>
 		<key>NAME</key>
 		<string>AdoptOpenJDK 8</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
-		<key>POLICY_NAME</key>
-		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
 		<string>PolicyTemplate.xml</string>
+		<key>SCRIPT</key>
+		<string>%NAME%-preinstall.sh</string>
+		<key>SCRIPT_TEMPLATE</key>
+		<string>%NAME%-preinstall-ScriptTemplate.xml</string>
+		<key>SELF_SERVICE_DESCRIPTION</key>
+		<string>The AdoptOpenJDK Java Development Toolkit, version 8.</string>
+		<key>SELF_SERVICE_ICON</key>
+		<string>AdoptOpenJDK.png</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -70,15 +72,15 @@
 				<array>
 					<dict>
 						<key>name</key>
-						<string>%RECIPE_DIR%/%NAME%-preinstall.sh</string>
+						<string>%SCRIPT%</string>
 						<key>template_path</key>
-						<string>%RECIPE_DIR%/%NAME%-preinstall-ScriptTemplate.xml</string>
+						<string>%SCRIPT_TEMPLATE%</string>
 					</dict>
 				</array>
 				<key>self_service_description</key>
-				<string>%DESCRIPTION%</string>
+				<string>%SELF_SERVICE_DESCRIPTION%</string>
 				<key>self_service_icon</key>
-				<string>%ICON%</string>
+				<string>%SELF_SERVICE_ICON%</string>
 			</dict>
 			<key>Processor</key>
 			<string>JSSImporter</string>

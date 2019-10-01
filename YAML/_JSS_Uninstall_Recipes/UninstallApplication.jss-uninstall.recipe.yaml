@@ -1,9 +1,9 @@
 Description: Uploads a pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group.
 Comment: |
     For standard applications, only Identifier and PKG_ID need to be overridden. If more than one package was installed, use PKG_ID_2 up to PKG_ID_5.
-Identifier: ch.ethz.id.jss.uninstall.UninstallApplication
+Identifier: com.github.grahampugh.recipes.jss-uninstall.UninstallApplication
 MinimumVersion: 1.0.0
-ParentRecipe: ch.ethz.id.script.UninstallApplication
+ParentRecipe: com.github.grahampugh.recipes.jss-script.UninstallApplication
 
 Input:
   NAME: ++ADD APPLICATION NAME HERE++

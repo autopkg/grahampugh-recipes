@@ -13,7 +13,6 @@ Input:
   EXTENSION_ATTRIBUTE_NAME: AdoptOpenJDK8Versiomn
   SELF_SERVICE_ICON: 'AdoptOpenJDK.png'
   POLICY_CATEGORY: Testing
-  POLICY_NAME: 'Install Latest %NAME%'
   POLICY_TEMPLATE: PolicyTemplate.xml
   SCRIPT: '%NAME%-preinstall.sh'
   SCRIPT_TEMPLATE: '%NAME%-preinstall-ScriptTemplate.xml'

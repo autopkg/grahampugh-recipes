@@ -8,7 +8,7 @@
 	<key>Description</key>
 	<string>Uploads a pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group.</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.jss.uninstall.UninstallApplication</string>
+	<string>com.github.grahampugh.recipes.jss-uninstall.UninstallApplication</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
@@ -49,7 +49,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>ch.ethz.id.script.UninstallApplication</string>
+	<string>com.github.grahampugh.recipes.jss-script.UninstallApplication</string>
 	<key>Process</key>
 	<array>
 		<dict>

@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Creates a script</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.jss-script.UninstallApplication</string>
+	<string>com.github.grahampugh.recipes.jss-script.UninstallApplication</string>
 	<key>Input</key>
 	<dict>
 		<key>PKG_ID</key>

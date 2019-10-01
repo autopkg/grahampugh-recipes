@@ -6,13 +6,13 @@ ParentRecipe: com.github.grahampugh.recipes.jss-script.Disable802_1xAutoConnect
 Input:
   NAME: Disable 802.1x Auto-Connect
   CATEGORY: Administration
-  SELF_SERVICE_DESCRIPTION: A script that disables 802.1x auto-connect. Note that script policies do not have version increments, so should be once-only policies that need to be flushed if a change is made to the script.
+  SELF_SERVICE_DESCRIPTION: A script that disables 802.1x auto-connect if it is currently enabled.
   EXTENSION_ATTRIBUTE: '%SCRIPT_NAME%-ExtensionAttribute.xml'
   GROUP_NAME: '%NAME%-run-script'
   GROUP_TEMPLATE: '%SCRIPT_NAME%-SmartGroupTemplate.xml'
   POLICY_CATEGORY: Testing
-  POLICY_NAME: 'Install script %NAME%'
-  POLICY_TEMPLATE: 'PolicyTemplate.xml'
+  POLICY_NAME: 'Install Script %NAME%'
+  POLICY_TEMPLATE: PolicyTemplate-script.xml
   SCRIPT_NAME: Disable 802_1x Auto Connect
   SCRIPT_TEMPLATE: '%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml'
   STOP_IF_NO_JSS_UPLOAD: False

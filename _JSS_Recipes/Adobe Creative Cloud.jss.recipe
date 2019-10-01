@@ -3,40 +3,38 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained. Then, uploads to the Jamf Pro Server.</string>
+	<string>Downloads the latest version of Adobe's Creative Cloud Desktop App Installer and packages it for installation. Then, uploads to the Jamf Pro Server.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jss.AdoptOpenJDK11</string>
+	<string>com.github.grahampugh.recipes.jss.AdobeCreativeCloud</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
-		<string>Computer Science</string>
-		<key>EXTENSION_ATTRIBUTE</key>
-		<string>%NAME%-ExtensionAttribute.xml</string>
-		<key>EXTENSION_ATTRIBUTE_NAME</key>
-		<string>AdoptOpenJDK11Versiomn</string>
+		<string>Applications-prod</string>
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroupTemplate-ExtensionAttribute.xml</string>
+		<string>SmartGroupTemplate.xml</string>
+		<key>JSS_INVENTORY_NAME</key>
+		<string>Creative Cloud.app</string>
 		<key>NAME</key>
-		<string>AdoptOpenJDK 11</string>
+		<string>Adobe Creative Cloud</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
 		<key>POLICY_TEMPLATE</key>
 		<string>PolicyTemplate.xml</string>
 		<key>SCRIPT</key>
-		<string>%NAME%-preinstall.sh</string>
+		<string>%NAME%-postinstall.sh</string>
 		<key>SCRIPT_TEMPLATE</key>
-		<string>%NAME%-preinstall-ScriptTemplate.xml</string>
+		<string>%NAME%-postinstall-ScriptTemplate.xml</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>The AdoptOpenJDK Java Development Toolkit, version 11.</string>
+		<string>Access Adobe apps from the cloud using your federated Adobe ID.</string>
 		<key>SELF_SERVICE_ICON</key>
-		<string>AdoptOpenJDK.png</string>
+		<string>%NAME%.png</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.recipes.pkg.AdoptOpenJDK11</string>
+	<string>com.github.rtrouton.pkg.AdobeCreativeCloudInstaller</string>
 	<key>Process</key>
 	<array>
 		<dict>
@@ -44,13 +42,6 @@
 			<dict>
 				<key>category</key>
 				<string>%CATEGORY%</string>
-				<key>extension_attributes</key>
-				<array>
-					<dict>
-						<key>ext_attribute_path</key>
-						<string>%EXTENSION_ATTRIBUTE%</string>
-					</dict>
-				</array>
 				<key>groups</key>
 				<array>
 					<dict>
@@ -62,6 +53,8 @@
 						<string>%GROUP_TEMPLATE%</string>
 					</dict>
 				</array>
+				<key>jss_inventory_name</key>
+				<string>%JSS_INVENTORY_NAME%</string>
 				<key>policy_category</key>
 				<string>%POLICY_CATEGORY%</string>
 				<key>policy_template</key>

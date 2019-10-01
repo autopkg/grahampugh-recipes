@@ -21,15 +21,15 @@
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
 		<key>POLICY_NAME</key>
-		<string>Install script %NAME%</string>
+		<string>Install Script %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>PolicyTemplate.xml</string>
+		<string>PolicyTemplate-script.xml</string>
 		<key>SCRIPT_NAME</key>
 		<string>Disable 802_1x Auto Connect</string>
 		<key>SCRIPT_TEMPLATE</key>
 		<string>%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>A script that disables 802.1x auto-connect. Note that script policies do not have version increments, so should be once-only policies that need to be flushed if a change is made to the script.</string>
+		<string>A script that disables 802.1x auto-connect if it is currently enabled.</string>
 		<key>STOP_IF_NO_JSS_UPLOAD</key>
 		<false/>
 	</dict>
