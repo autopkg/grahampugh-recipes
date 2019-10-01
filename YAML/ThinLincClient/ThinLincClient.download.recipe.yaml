@@ -1,6 +1,6 @@
 Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
 Description: Downloads the latest version of ThinLinc Client.
-Identifier: com.github.grahampugh.download.ThinLincClient
+Identifier: com.github.grahampugh.recipes.download.ThinLincClient
 Input:
   SITE_URL: https://www.cendio.com
   DOWNLOAD_URL: '%SITE_URL%/thinlinc/download'

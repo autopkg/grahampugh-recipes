@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of ThinLinc Client.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.download.ThinLincClient</string>
+	<string>com.github.grahampugh.recipes.download.ThinLincClient</string>
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
