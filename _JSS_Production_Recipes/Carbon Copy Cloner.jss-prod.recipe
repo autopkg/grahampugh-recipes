@@ -5,15 +5,11 @@
 	<key>Description</key>
 	<string>Creates all production policies for Carbon Copy Cloner</string>
 	<key>Identifier</key>
-	<string>ch.ethz.id.jss.prod.CarbonCopyCloner</string>
+	<string>com.github.grahampugh.recipes.jss.prod.CarbonCopyCloner</string>
 	<key>Input</key>
 	<dict>
-		<key>CATEGORY</key>
-		<string>Utilities</string>
 		<key>NAME</key>
 		<string>Carbon Copy Cloner</string>
-		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>Powerful disk cloning and backup utility.</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.4</string>
