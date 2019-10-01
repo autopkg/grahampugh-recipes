@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Comment</key>
+	<string>For standard recipes, only Identifier, CATEGORY, NAME, SELF_SERVICE_DESCRIPTION, ParentRecipe need to be changed.
+</string>
+	<key>Description</key>
+	<string>Creates all production policies for a particular title.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jss-prod.prod-self-service</string>
+	<key>Input</key>
+	<dict>
+		<key>CATEGORY</key>
+		<string>++OVERRIDE_OR_INSERT_PROD_CATEGORY_HERE++</string>
+		<key>NAME</key>
+		<string>++OVERRIDE_OR_INSERT_SOFTWARE_NAME_HERE++</string>
+		<key>PROD_NAME</key>
+		<string>%NAME%</string>
+		<key>PROD_UPDATE_GROUP_NAME</key>
+		<string>%NAME%-prod-update-smart</string>
+		<key>PROD_UPDATE_GROUP_TEMPLATE</key>
+		<string>SmartGroupTemplate-prod.xml</string>
+		<key>PROD_UPDATE_POLICY_TEMPLATE</key>
+		<string>PolicyTemplate-prod-selfservice.xml</string>
+		<key>SELF_SERVICE_DESCRIPTION</key>
+		<string>++CHANGE DESCRIPTION++</string>
+		<key>SELF_SERVICE_DISPLAY_NAME</key>
+		<string>%NAME%</string>
+		<key>SELF_SERVICE_ICON</key>
+		<string>%NAME%.png</string>
+		<key>SELF_SERVICE_INSTALL_BUTTON</key>
+		<string>Install %version%</string>
+		<key>SELF_SERVICE_REINSTALL_BUTTON</key>
+		<string>Install %version%</string>
+		<key>STOP_IF_NO_JSS_UPLOAD</key>
+		<false/>
+		<key>TRIGGERONLY_POLICY_CATEGORY</key>
+		<string>Triggered Installers</string>
+		<key>TRIGGERONLY_POLICY_TEMPLATE</key>
+		<string>PolicyTemplate-prod-triggeronly.xml</string>
+		<key>TRIGGER_NAME</key>
+		<string>%NAME%-install</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.4</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>name</key>
+				<string>%NAME%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/JSSRecipeReceiptChecker</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>category</key>
+				<string>%CATEGORY%</string>
+				<key>pkg_path</key>
+				<string>%pkg_path%</string>
+				<key>policy_category</key>
+				<string>%TRIGGERONLY_POLICY_CATEGORY%</string>
+				<key>policy_template</key>
+				<string>%TRIGGERONLY_POLICY_TEMPLATE%</string>
+				<key>prod_name</key>
+				<string>%PROD_NAME%</string>
+				<key>version</key>
+				<string>%version%</string>
+			</dict>
+			<key>Comment</key>
+			<string>Trigger-only policy</string>
+			<key>Processor</key>
+			<string>JSSImporter</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>groups</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%PROD_UPDATE_GROUP_NAME%</string>
+						<key>smart</key>
+						<true/>
+						<key>template_path</key>
+						<string>%PROD_UPDATE_GROUP_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>pkg_path</key>
+				<string></string>
+				<key>policy_category</key>
+				<string>%CATEGORY%</string>
+				<key>policy_template</key>
+				<string>%PROD_UPDATE_POLICY_TEMPLATE%</string>
+				<key>prod_name</key>
+				<string>%PROD_NAME%</string>
+				<key>self_service_description</key>
+				<string>%SELF_SERVICE_DESCRIPTION%</string>
+				<key>self_service_icon</key>
+				<string>%SELF_SERVICE_ICON%</string>
+				<key>version</key>
+				<string>%version%</string>
+			</dict>
+			<key>Comment</key>
+			<string>Self Service install policy</string>
+			<key>Processor</key>
+			<string>JSSImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>

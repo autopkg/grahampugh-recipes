@@ -1,0 +1,43 @@
+Description: Uploads a pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group.
+Comment: |
+    For standard applications, only Identifier and PKG_ID need to be overridden. If more than one package was installed, use PKG_ID_2 up to PKG_ID_5.
+Identifier: ch.ethz.id.jss.uninstall.UninstallApplication
+MinimumVersion: 1.0.0
+ParentRecipe: ch.ethz.id.script.UninstallApplication
+
+Input:
+  NAME: ++ADD APPLICATION NAME HERE++
+  PKG_ID: ++ADD PACKAGE ID e.g. com.apple.something.pkg++
+  PROD_NAME: '%NAME%'
+  CATEGORY: Uninstallers
+  SELF_SERVICE_ICON: '%NAME%.png'
+  JSS_INVENTORY_NAME: '%NAME%.app'
+  INSTALLED_GROUP_NAME: '%POLICY_NAME% installed'
+  INSTALLED_GROUP_TEMPLATE: SmartGroupTemplate-installed.xml
+  UNINSTALL_POLICY_CATEGORY: Uninstallers
+  UNINSTALL_TRIGGERONLY_POLICY_CATEGORY: Triggered Uninstallers
+  UNINSTALL_POLICY_TEMPLATE: PolicyTemplate-uninstall.xml
+  UNINSTALL_SELF_SERVICE_DESCRIPTION: 'Uninstalls %POLICY_NAME%'
+  UNINSTALL_SELF_SERVICE_DISPLAY_NAME: 'Uninstall %POLICY_NAME%'
+  UNINSTALL_SELF_SERVICE_INSTALL_BUTTON: Uninstall
+  UNINSTALL_SELF_SERVICE_REINSTALL_BUTTON: Uninstall
+  UNINSTALL_TRIGGER_NAME: '%POLICY_NAME%-uninstall'
+  STOP_IF_NO_JSS_UPLOAD: False
+
+Process:
+- Arguments:
+    category: '%UNINSTALL_POLICY_CATEGORY%'
+    groups:
+    - name: '%INSTALLED_GROUP_NAME%'
+      smart: true
+      template_path: '%INSTALLED_GROUP_TEMPLATE%'
+    jss_inventory_name: '%JSS_INVENTORY_NAME%'
+    pkg_path: ''
+    policy_category: '%UNINSTALL_POLICY_CATEGORY%'
+    policy_template: '%UNINSTALL_POLICY_TEMPLATE%'
+    prod_name: '%PROD_NAME%'
+    scripts:
+    - name: '%NAME%-uninstall.sh'
+      template_path: '%RECIPE_DIR%/%NAME%-ScriptTemplate-uninstall.xml'
+    self_service_icon: '%SELF_SERVICE_ICON%'
+  Processor: JSSImporter

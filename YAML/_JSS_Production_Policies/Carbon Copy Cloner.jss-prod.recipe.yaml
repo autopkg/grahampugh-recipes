@@ -1,0 +1,7 @@
+Description: Creates all production policies for Carbon Copy Cloner
+Identifier: com.github.grahampugh.recipes.jss.prod.CarbonCopyCloner
+MinimumVersion: 1.0.4
+ParentRecipe: com.github.grahampugh.recipes.jss-prod.prod-self-service
+
+Input:
+  NAME: Carbon Copy Cloner

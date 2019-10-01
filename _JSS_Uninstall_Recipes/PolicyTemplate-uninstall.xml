@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policy>
+    <general>
+        <name>Uninstall %PROD_NAME%</name>
+        <enabled>true</enabled>
+        <trigger>EVENT</trigger>
+        <trigger_checkin>false</trigger_checkin>
+        <trigger_enrollment_complete>false</trigger_enrollment_complete>
+        <trigger_login>false</trigger_login>
+        <trigger_logout>false</trigger_logout>
+        <trigger_network_state_changed>false</trigger_network_state_changed>
+        <trigger_startup>false</trigger_startup>
+        <trigger_other>%UNINSTALL_TRIGGER_NAME%</trigger_other>
+        <frequency>Ongoing</frequency>
+        <category>
+            <name>%UNINSTALL_POLICY_CATEGORY%</name>
+        </category>
+    </general>
+    <scope>
+        <all_computers>false</all_computers>
+        <!--Scope added by JSSImporter-->
+    </scope>
+    <package_configuration>
+        <!--Package added by JSSImporter-->
+    </package_configuration>
+    <scripts>
+        <!--Scripts added by JSSImporter-->
+    </scripts>
+    <self_service>
+        <use_for_self_service>true</use_for_self_service>
+        <install_button_text>%UNINSTALL_SELF_SERVICE_INSTALL_BUTTON%</install_button_text>
+        <reinstall_button_text>%UNINSTALL_SELF_SERVICE_REINSTALL_BUTTON%</reinstall_button_text>
+        <self_service_display_name>%UNINSTALL_SELF_SERVICE_DISPLAY_NAME%</self_service_display_name>
+        <self_service_description>%UNINSTALL_SELF_SERVICE_DESCRIPTION%</self_service_description>
+    </self_service>
+    <maintenance>
+        <recon>true</recon>
+    </maintenance>
+</policy>

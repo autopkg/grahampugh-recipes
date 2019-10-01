@@ -1,0 +1,10 @@
+Description: Creates a script and a Self-Service uninstaller policy for Carbon Copy Cloner.
+Comment: This example recipe can simply be an override rather than a full recipe.
+Identifier: ch.ethz.id.jss.uninstall.CarbonCopyCloner
+MinimumVersion: 1.0.0
+ParentRecipe: ch.ethz.id.jss.uninstall.UninstallApplication
+
+Input:
+  NAME: Carbon Copy Cloner
+  PKG_ID: com.bombich.ccc
+Process: {}

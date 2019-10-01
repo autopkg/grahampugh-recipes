@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Creates a script</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jss-script.Disable802_1xAutoConnect</string>
+	<key>Input</key>
+	<dict>
+		<key>CATEGORY</key>
+		<string>Administration</string>
+		<key>SCRIPT_NAME</key>
+		<string>Disable 802_1x Auto Connect</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>&lt;script&gt;
+    &lt;name&gt;%SCRIPT_NAME%.sh&lt;/name&gt;
+    &lt;category&gt;%CATEGORY%&lt;/category&gt;
+    &lt;filename&gt;%SCRIPT_NAME%.sh&lt;/filename&gt;
+    &lt;info /&gt;
+    &lt;notes /&gt;
+    &lt;priority&gt;After&lt;/priority&gt;
+    &lt;parameters /&gt;
+    &lt;os_requirements /&gt;
+&lt;/script&gt;
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+	</array>
+</dict>
+</plist>

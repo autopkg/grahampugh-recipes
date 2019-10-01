@@ -1,0 +1,24 @@
+Description: Creates a script
+Identifier: com.github.grahampugh.recipes.jss-script.Disable802_1xAutoConnect
+MinimumVersion: 1.0.0
+
+Input:
+  SCRIPT_NAME: Disable 802_1x Auto Connect
+  CATEGORY: Administration
+
+Process:
+- Arguments:
+    file_content: |
+        <script>
+            <name>%SCRIPT_NAME%.sh</name>
+            <category>%CATEGORY%</category>
+            <filename>%SCRIPT_NAME%.sh</filename>
+            <info />
+            <notes />
+            <priority>After</priority>
+            <parameters />
+            <os_requirements />
+        </script>
+    file_mode: '0755'
+    file_path: '%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml'
+  Processor: FileCreator

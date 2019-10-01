@@ -1,22 +1,22 @@
 Description: Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained. Then, uploads to the Jamf Pro Server.
-Identifier: com.github.grahampugh.recipes.jss.AdoptOpenJDK11
+Identifier: com.github.grahampugh.recipes.jss.AdoptOpenJDK8
 MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.pkg.AdoptOpenJDK11
+ParentRecipe: com.github.grahampugh.recipes.pkg.AdoptOpenJDK8
 
 Input:
-  NAME: AdoptOpenJDK 11
+  NAME: AdoptOpenJDK 8
   CATEGORY: Computer Science
-  DESCRIPTION: The AdoptOpenJDK Java Development Toolkit, version 11.
+  SELF_SERVICE_DESCRIPTION: The AdoptOpenJDK Java Development Toolkit, version 8.
   GROUP_NAME: '%NAME%-update-smart'
   GROUP_TEMPLATE: SmartGroupTemplate-ExtensionAttribute.xml
-  EXTENSION_ATTRIBUTE: '%RECIPE_DIR%/%NAME%-ExtensionAttribute.xml'
-  EXTENSION_ATTRIBUTE_NAME: AdoptOpenJDK11Versiomn
-  ICON: '%RECIPE_DIR%/AdoptOpenJDK.png'
+  EXTENSION_ATTRIBUTE: '%NAME%-ExtensionAttribute.xml'
+  EXTENSION_ATTRIBUTE_NAME: AdoptOpenJDK8Versiomn
+  SELF_SERVICE_ICON: 'AdoptOpenJDK.png'
   POLICY_CATEGORY: Testing
   POLICY_NAME: 'Install Latest %NAME%'
   POLICY_TEMPLATE: PolicyTemplate.xml
-  SCRIPT: '%RECIPE_DIR%/%NAME%-preinstall.sh'
-  SCRIPT_TEMPLATE: '%RECIPE_DIR%/%NAME%-preinstall-ScriptTemplate.xml'
+  SCRIPT: '%NAME%-preinstall.sh'
+  SCRIPT_TEMPLATE: '%NAME%-preinstall-ScriptTemplate.xml'
 
 Process:
 - Arguments:
@@ -33,6 +33,6 @@ Process:
     scripts:
     - name: '%SCRIPT%'
       template_path: '%SCRIPT_TEMPLATE%'
-    self_service_description: '%DESCRIPTION%'
-    self_service_icon: '%ICON%'
+    self_service_description: '%SELF_SERVICE_DESCRIPTION%'
+    self_service_icon: '%SELF_SERVICE_ICON%'
   Processor: JSSImporter
