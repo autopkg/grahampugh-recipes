@@ -109,7 +109,7 @@
 					<key>options</key>
 					<string>purge_ds_store</string>
 					<key>pkgname</key>
-					<string>AmazonCorettoJDK11-%version%</string>
+					<string>AmazonCorrettoJDK11-%version%</string>
 					<key>scripts</key>
 					<string>Scripts</string>
 					<key>version</key>

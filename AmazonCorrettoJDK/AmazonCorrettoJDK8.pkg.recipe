@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of Amazon Coretto 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.</string>
+	<string>Downloads the current release version of Amazon Corretto 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.pkg.AmazonCorrettoJava8</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
-		<string>Amazon Coretto 8</string>
+		<string>Amazon Corretto 8</string>
 		<key>SEARCH_PATTERN</key>
 		<string>(?P&lt;url&gt;https://.*?amazon-corretto-8.*?-macosx-x64\.tar\.gz)</string>
 		<key>SEARCH_URL</key>
