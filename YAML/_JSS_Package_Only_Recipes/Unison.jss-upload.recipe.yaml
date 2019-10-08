@@ -1,0 +1,14 @@
+Description: Downloads the latest Unison release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss-upload.unison
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.pkg.unison
+
+Input:
+  NAME: Unison
+  CATEGORY: Tools & Accessories
+
+Process:
+- Arguments:
+    category: '%CATEGORY%'
+    prod_name: '%NAME%'
+  Processor: JSSImporter
