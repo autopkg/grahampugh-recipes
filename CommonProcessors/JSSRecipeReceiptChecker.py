@@ -19,7 +19,7 @@ import plistlib
 import sys
 
 from distutils.version import LooseVersion
-from os.path import expanduser, getctime, exists
+from os.path import expanduser, getmtime, exists
 from autopkglib import Processor, ProcessorError
 from glob import iglob
 
@@ -46,58 +46,67 @@ class JSSRecipeReceiptChecker(Processor):
             "description": ("The current package version."),
         },
         "CATEGORY": {
-            "description": ("The package category"),
+            "description": ("The package category."),
         },
         "SELF_SERVICE_DESCRIPTION": {
-            "description": ("The policy category"),
+            "description": ("The self-service description."),
         },
         "pkg_path": {
-            "description": ("the package path"),
+            "description": ("the package path."),
         },
     }
 
     description = __doc__
 
-    def get_latest_receipt(self, cache_dir, name):
+    def get_latest_receipt(self, cache_dir, name, n):
         """name of receipt with the highest version number"""
-        newest = max(iglob('{}/local.jss.{}/receipts/*.plist'.format(cache_dir, name)), key=getctime)
-        return newest
+        files = list(iglob('{}/local.jss.{}/receipts/*.plist'.format(cache_dir, name)))
+        files.sort(key=lambda x: getmtime(x), reverse=True)
+        return files[n]
 
     def main(self):
         name = self.env.get('name')
         cache_dir = expanduser(self.env.get('cache_dir'))
+        version_found = False
 
-        try:
-            receipt = self.get_latest_receipt(cache_dir, name)
-        except IOError:
-            raise ProcessorError('No receipt found!')
-
-        self.output('Receipt: {}'.format(receipt))
-
-        p = plistlib.readPlist(receipt)
-        i = 0
-        while i < len(p):
+        n = 0
+        while not version_found:
             try:
-                processor = p[i]['Processor']
-                if processor == 'JSSImporter':
-                    version = p[i]['Input']['version']
-                    pkg_path = p[i]['Input']['pkg_path']
-                    CATEGORY = p[i]['Input']['category']
-                    SELF_SERVICE_DESCRIPTION = (
-                                    p[i]['Input']['self_service_description'])
-            except KeyError:
-                pass
-            i = i + 1
+                receipt = self.get_latest_receipt(cache_dir, name, n)
+            except IOError:
+                raise ProcessorError('No receipt found!')
 
-        # make sure all the values were obtained from the receipt
-        try:
-            self.env['version'] = version
-            self.env['pkg_path'] = pkg_path
-            self.env['CATEGORY'] = CATEGORY
-            self.env['SELF_SERVICE_DESCRIPTION'] = (
-                     SELF_SERVICE_DESCRIPTION)
-        except ValueError:
-            raise ProcessorError('No JSSImporter process found in receipt')
+            self.output('Receipt: {}'.format(receipt))
+
+            p = plistlib.readPlist(receipt)
+            i = 0
+            while i < len(p):
+                try:
+                    processor = p[i]['Processor']
+                    if processor == 'JSSImporter':
+                        version = p[i]['Input']['version']
+                        pkg_path = p[i]['Input']['pkg_path']
+                        CATEGORY = p[i]['Input']['category']
+                        SELF_SERVICE_DESCRIPTION = (
+                                    p[i]['Input']['self_service_description'])
+                except KeyError:
+                    pass
+                i = i + 1
+
+            # make sure all the values were obtained from the receipt
+            try:
+                self.env['version'] = version
+                self.env['pkg_path'] = pkg_path
+                self.env['CATEGORY'] = CATEGORY
+                self.env['SELF_SERVICE_DESCRIPTION'] = (
+                         SELF_SERVICE_DESCRIPTION)
+                break
+            except:
+                # we should specify a specific error here but not sure which
+                # try UnboundLocalError
+                self.output('No JSSImporter process found in receipt')
+                n = n + 1
+                # raise ProcessorError('No JSSImporter process found in receipt')
 
         # make sure the package actually exists
         if not exists(pkg_path):
@@ -106,6 +115,8 @@ class JSSRecipeReceiptChecker(Processor):
         self.output('Package: {}'.format(pkg_path))
         self.output('Version: {}'.format(version))
         self.output('Category: {}'.format(CATEGORY))
+        self.output('Self Service Description: {}'.format(
+                    SELF_SERVICE_DESCRIPTION))
         # end
 
 if __name__ == '__main__':
