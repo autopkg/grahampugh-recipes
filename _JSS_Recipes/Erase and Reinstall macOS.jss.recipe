@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will erase the volume.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jss.erase-install</string>
+	<key>Input</key>
+	<dict>
+		<key>CATEGORY</key>
+		<string>Administration</string>
+		<key>EXTENSION_ATTRIBUTE</key>
+		<string>Boot Volume Type-ExtensionAttribute.xml</string>
+		<key>GROUP_NAME</key>
+		<string>Erase and Reinstall macOS test users</string>
+		<key>GROUP_TEMPLATE</key>
+		<string>Erase and Reinstall macOS-SmartGroupTemplate-untested-users.xml</string>
+		<key>NAME</key>
+		<string>Erase and Reinstall macOS</string>
+		<key>POLICY_CATEGORY</key>
+		<string>Testing</string>
+		<key>POLICY_TEMPLATE</key>
+		<string>Erase and Reinstall macOS-PolicyTemplate-untested.xml</string>
+		<key>PROD_NAME</key>
+		<string>%NAME%</string>
+		<key>RUN_COMMAND</key>
+		<string>/Library/Management/erase-install/erase-install.sh --erase</string>
+		<key>SELF_SERVICE_DESCRIPTION</key>
+		<string>WARNING! This will completely erase the device and reinstall macOS to the latest version.</string>
+		<key>SELF_SERVICE_ICON</key>
+		<string>erase-install.png</string>
+		<key>SELF_SERVICE_INSTALL_BUTTON</key>
+		<string>ERASE!</string>
+		<key>SELF_SERVICE_REINSTALL_BUTTON</key>
+		<string>ERASE!</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.pkg.erase-install</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>category</key>
+				<string>%CATEGORY%</string>
+				<key>extension_attributes</key>
+				<array>
+					<dict>
+						<key>ext_attribute_path</key>
+						<string>%EXTENSION_ATTRIBUTE%</string>
+					</dict>
+				</array>
+				<key>groups</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%GROUP_NAME%</string>
+						<key>smart</key>
+						<true/>
+						<key>template_path</key>
+						<string>%GROUP_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>pkg_path</key>
+				<string>%pkg_path%</string>
+				<key>policy_category</key>
+				<string>%POLICY_CATEGORY%</string>
+				<key>policy_template</key>
+				<string>%POLICY_TEMPLATE%</string>
+				<key>prod_name</key>
+				<string>%NAME%</string>
+				<key>self_service_description</key>
+				<string>%SELF_SERVICE_DESCRIPTION%</string>
+				<key>self_service_icon</key>
+				<string>%SELF_SERVICE_ICON%</string>
+				<key>version</key>
+				<string>%version%</string>
+			</dict>
+			<key>Processor</key>
+			<string>JSSImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
