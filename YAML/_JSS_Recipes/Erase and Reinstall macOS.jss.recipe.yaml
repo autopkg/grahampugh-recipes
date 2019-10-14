@@ -5,6 +5,7 @@ ParentRecipe: com.github.grahampugh.recipes.pkg.erase-install
 
 Input:
   CATEGORY: Administration
+  EXTENSION_ATTRIBUTE: Boot Volume Type-ExtensionAttribute.xml
   GROUP_NAME: Erase and Reinstall macOS test users
   GROUP_TEMPLATE: Erase and Reinstall macOS-SmartGroupTemplate-untested.xml
   NAME: Erase and Reinstall macOS
@@ -20,6 +21,8 @@ Input:
 Process:
 - Arguments:
     category: '%CATEGORY%'
+    extension_attributes:
+    - ext_attribute_path: '%EXTENSION_ATTRIBUTE%'
     groups:
     - name: '%GROUP_NAME%'
       smart: true

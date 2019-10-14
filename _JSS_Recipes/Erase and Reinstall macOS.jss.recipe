@@ -10,10 +10,12 @@
 	<dict>
 		<key>CATEGORY</key>
 		<string>Administration</string>
+		<key>EXTENSION_ATTRIBUTE</key>
+		<string>Boot Volume Type-ExtensionAttribute.xml</string>
 		<key>GROUP_NAME</key>
 		<string>Erase and Reinstall macOS test users</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>Erase and Reinstall macOS-SmartGroupTemplate-untested.xml</string>
+		<string>Erase and Reinstall macOS-SmartGroupTemplate-untested-users.xml</string>
 		<key>NAME</key>
 		<string>Erase and Reinstall macOS</string>
 		<key>POLICY_CATEGORY</key>
@@ -44,6 +46,13 @@
 			<dict>
 				<key>category</key>
 				<string>%CATEGORY%</string>
+				<key>extension_attributes</key>
+				<array>
+					<dict>
+						<key>ext_attribute_path</key>
+						<string>%EXTENSION_ATTRIBUTE%</string>
+					</dict>
+				</array>
 				<key>groups</key>
 				<array>
 					<dict>

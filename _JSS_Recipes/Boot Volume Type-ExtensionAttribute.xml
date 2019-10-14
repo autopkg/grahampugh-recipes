@@ -1,0 +1,20 @@
+<computer_extension_attribute>
+	<name>Boot Volume Type</name>
+	<description />
+	<data_type>String</data_type>
+	<input_type>
+		<type>script</type>
+		<platform>Mac</platform>
+		<script>#!/bin/sh
+
+# Boot Volume Type
+# Source: https://www.jamf.com/jamf-nation/feature-requests/6407/show-if-a-disk-is-apfs-or-hfs
+# Returns the volume format type for the current boot volume.
+
+echo "&lt;result&gt;$(diskutil info / | awk -F': ' '/File System/{print $NF}' | xargs)&lt;/result&gt;"
+
+exit 0</script>
+	</input_type>
+	<inventory_display>Extension Attributes</inventory_display>
+	<recon_display>Extension Attributes</recon_display>
+</computer_extension_attribute>
