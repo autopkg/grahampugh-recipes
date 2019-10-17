@@ -7,7 +7,7 @@ Input:
   CATEGORY: Administration
   EXTENSION_ATTRIBUTE: Boot Volume Type-ExtensionAttribute.xml
   GROUP_NAME: Erase and Reinstall macOS test users
-  GROUP_TEMPLATE: Erase and Reinstall macOS-SmartGroupTemplate-untested-users.xml
+  GROUP_TEMPLATE: Erase and Reinstall macOS-SmartGroupTemplate-untested.xml
   NAME: Erase and Reinstall macOS
   POLICY_CATEGORY: Testing
   PROD_NAME: '%NAME%'

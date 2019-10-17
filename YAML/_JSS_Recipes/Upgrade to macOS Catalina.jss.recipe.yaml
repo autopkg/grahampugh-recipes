@@ -6,7 +6,7 @@ ParentRecipe: com.github.grahampugh.recipes.pkg.erase-install
 Input:
   CATEGORY: Administration
   GROUP_NAME: '%NAME% test users'
-  GROUP_TEMPLATE: '%NAME%-SmartGroupTemplate-untested-users.xml'
+  GROUP_TEMPLATE: '%NAME%-SmartGroupTemplate-untested.xml'
   NAME: Upgrade to macOS Catalina
   POLICY_CATEGORY: Untested
   PROD_NAME: '%NAME%'
