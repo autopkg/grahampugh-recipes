@@ -1,0 +1,26 @@
+Description: Downloads the latest version of Adobe Shared Device Licensing Toolkit and makes a pkg of it then uploads it to the JSS. the tool is installed into /Library/Management/Adobe.
+Identifier: com.github.grahampugh.recipes.jss-triggeronly.AdobeLicensingToolkit
+ParentRecipe: com.github.grahampugh.recipes.pkg.AdobeLicensingToolkit
+MinimumVersion: 1.0.0
+
+Input:
+  NAME: Adobe Shared Device Licensing Toolkit
+  CATEGORY: Triggered Installers
+  POLICY_CATEGORY: Untested
+  POLICY_TEMPLATE: PolicyTemplate-triggeronly.xml
+  PROD_NAME: '%NAME%'
+  POSTINSTALL_SCRIPT: Adobe Licensing Toolkit-postinstall.sh
+  POSTINSTALL_SCRIPT_TEMPLATE: Adobe Licensing Toolkit-postinstall-ScriptTemplate.xml
+  TRIGGER_NAME: Run-AdobeLicensingToolkit
+
+Process:
+- Arguments:
+    category: '%CATEGORY%'
+    pkg_path: '%pkg_path%'
+    policy_category: '%POLICY_CATEGORY%'
+    policy_template: '%POLICY_TEMPLATE%'
+    prod_name: '%PROD_NAME%'
+    scripts:
+    - name: '%POSTINSTALL_SCRIPT%'
+      template_path: '%POSTINSTALL_SCRIPT_TEMPLATE%'
+  Processor: JSSImporter

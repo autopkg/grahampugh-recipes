@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the Adobe Shared Device Licensing Toolkit. This can be used to deactivate Adobe Shared Device Licenses on a client.
+</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.download.AdobeLicensingToolkit</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>Adobe Shared Device Licensing Toolkit</string>
+		<key>STOPPROCESSINGIF_PREDICATE</key>
+		<string>download_changed == False</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>filename</key>
+				<string>adobe-licensing-toolkit.zip</string>
+				<key>url</key>
+				<string>https://www.adobe.com/go/licensing_toolkit_mac</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>predicate</key>
+				<string>%STOPPROCESSINGIF_PREDICATE%</string>
+			</dict>
+			<key>Comment</key>
+			<string>Checks if the file already exists in the cache</string>
+			<key>Processor</key>
+			<string>StopProcessingIf</string>
+		</dict>
+	</array>
+</dict>
+</plist>

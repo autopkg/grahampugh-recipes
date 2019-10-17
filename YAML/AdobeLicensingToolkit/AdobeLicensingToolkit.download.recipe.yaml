@@ -1,0 +1,21 @@
+Description: |
+    Downloads the Adobe Shared Device Licensing Toolkit. This can be used to deactivate Adobe Shared Device Licenses on a client.
+Identifier: com.github.grahampugh.recipes.download.AdobeLicensingToolkit
+MinimumVersion: 1.0.0
+
+Input:
+  NAME: Adobe Shared Device Licensing Toolkit
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
+
+Process:
+- Arguments:
+    url: https://www.adobe.com/go/licensing_toolkit_mac
+    filename: adobe-licensing-toolkit.zip
+  Processor: URLDownloader
+
+- Processor: EndOfCheckPhase
+
+- Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  Comment: Checks if the file already exists in the cache
+  Processor: StopProcessingIf
