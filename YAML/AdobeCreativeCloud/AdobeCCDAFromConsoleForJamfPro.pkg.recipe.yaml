@@ -1,0 +1,57 @@
+Description: Downloads latest Adobe Creative Cloud installer and uses it to create a package.
+Identifier: com.github.grahampugh.recipes.pkg.AdobeCCDAFromConsoleForJamfPro
+MinimumVersion: 1.0.0
+
+Input:
+  NAME: Adobe Creative Cloud
+
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
+
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/Scripts/AdobeCCDA.zip'
+
+- Arguments:
+    file_content: |
+        #!/bin/bash
+
+        DIR=$(dirname "$0")
+
+        APPPATH="/tmp/CCDA"
+        mkdir -p "$APPPATH"
+        /usr/bin/unzip $DIR/AdobeCCDA.zip -d "$APPPATH"
+
+        /usr/sbin/installer -tgt / -pkg "$APPPATH"/*.pkg/Build/*.pkg
+
+        [[ -d "$APPPATH" ]] && /bin/rm -rf "$APPPATH"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
+  Processor: FileCreator
+
+- Processor: PkgCreator
+  Arguments:
+    force_pkg_build: True
+    pkg_request:
+      chown: []
+      id: com.adobe.AdobeCCDA.pkg.%version%
+      pkgname: 'AdobeCCDA-%version%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      scripts: Scripts
+      version: '%version%'
+
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Scripts'
+    - '%RECIPE_CACHE_DIR%/pkgroot'
