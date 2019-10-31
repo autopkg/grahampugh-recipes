@@ -1,0 +1,10 @@
+Description: Downloads the latest version of Affinity Photo and creates a pkg including version number.
+Identifier: com.github.grahampugh.recipes.pkg.AffinityPhoto
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.peterkelm.download.AffinityPhoto
+
+Input:
+  NAME: Affinity Photo
+
+Process:
+- Processor: AppPkgCreator
