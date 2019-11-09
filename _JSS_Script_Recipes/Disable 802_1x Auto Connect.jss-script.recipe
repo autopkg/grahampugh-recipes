@@ -3,15 +3,35 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Creates a script</string>
+	<string>Downloads the latest Unison release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.jss-script.Disable802_1xAutoConnect</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
 		<string>Administration</string>
+		<key>EXTENSION_ATTRIBUTE</key>
+		<string>%SCRIPT_NAME%-ExtensionAttribute.xml</string>
+		<key>GROUP_NAME</key>
+		<string>%NAME%-run-script</string>
+		<key>GROUP_TEMPLATE</key>
+		<string>%SCRIPT_NAME%-SmartGroupTemplate.xml</string>
+		<key>NAME</key>
+		<string>Disable 802.1x Auto-Connect</string>
+		<key>POLICY_CATEGORY</key>
+		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Script %NAME%</string>
+		<key>POLICY_TEMPLATE</key>
+		<string>PolicyTemplate-script.xml</string>
 		<key>SCRIPT_NAME</key>
 		<string>Disable 802_1x Auto Connect</string>
+		<key>SCRIPT_TEMPLATE</key>
+		<string>%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml</string>
+		<key>SELF_SERVICE_DESCRIPTION</key>
+		<string>A script that disables 802.1x auto-connect if it is currently enabled.</string>
+		<key>STOP_IF_NO_JSS_UPLOAD</key>
+		<false/>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -20,25 +40,48 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>file_content</key>
-				<string>&lt;script&gt;
-    &lt;name&gt;%SCRIPT_NAME%.sh&lt;/name&gt;
-    &lt;category&gt;%CATEGORY%&lt;/category&gt;
-    &lt;filename&gt;%SCRIPT_NAME%.sh&lt;/filename&gt;
-    &lt;info /&gt;
-    &lt;notes /&gt;
-    &lt;priority&gt;After&lt;/priority&gt;
-    &lt;parameters /&gt;
-    &lt;os_requirements /&gt;
-&lt;/script&gt;
-</string>
-				<key>file_mode</key>
-				<string>0755</string>
-				<key>file_path</key>
-				<string>%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml</string>
+				<key>category</key>
+				<string>%CATEGORY%</string>
+				<key>extension_attributes</key>
+				<array>
+					<dict>
+						<key>ext_attribute_path</key>
+						<string>%EXTENSION_ATTRIBUTE%</string>
+					</dict>
+				</array>
+				<key>groups</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%GROUP_NAME%</string>
+						<key>smart</key>
+						<true/>
+						<key>template_path</key>
+						<string>%GROUP_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>pkg_path</key>
+				<string></string>
+				<key>policy_category</key>
+				<string>%POLICY_CATEGORY%</string>
+				<key>policy_template</key>
+				<string>%POLICY_TEMPLATE%</string>
+				<key>prod_name</key>
+				<string>%NAME%</string>
+				<key>scripts</key>
+				<array>
+					<dict>
+						<key>name</key>
+						<string>%SCRIPT_NAME%.sh</string>
+						<key>template_path</key>
+						<string>%SCRIPT_TEMPLATE%</string>
+					</dict>
+				</array>
+				<key>self_service_description</key>
+				<string>%SELF_SERVICE_DESCRIPTION%</string>
 			</dict>
 			<key>Processor</key>
-			<string>FileCreator</string>
+			<string>JSSImporter</string>
 		</dict>
 	</array>
 </dict>

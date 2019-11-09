@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <name>Disable 802_1x Auto-Connect.sh</name>
+    <category>Computer Science</category>
+    <filename>Disable 802_1x Auto-Connect.sh</filename>
+    <info/>
+    <notes/>
+    <priority>After</priority>
+    <parameters/>
+    <os_requirements/>
+</script>
