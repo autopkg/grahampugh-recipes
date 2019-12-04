@@ -163,7 +163,7 @@ main()
 					<key>options</key>
 					<string>purge_ds_store</string>
 					<key>pkgname</key>
-					<string>%NAME%%MAJOR_VERSION%-%version%</string>
+					<string>%NAME%%MAJOR_VERSION%-updater-%version%</string>
 					<key>pkgroot</key>
 					<string>pkgroot</string>
 					<key>scripts</key>
