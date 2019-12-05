@@ -2,41 +2,41 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>Description</key>
-    <string>Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.</string>
-    <key>Identifier</key>
-    <string>com.github.grahampugh.pkg.filemakerproadvancedupdater</string>
-    <key>ParentRecipe</key>
+	<key>Description</key>
+	<string>Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.pkg.filemakerproadvancedupdater</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>FileMaker Pro Advanced</string>
+		<key>major_version</key>
+		<string>16</string>
+	</dict>
+	<key>ParentRecipe</key>
 	<string>com.github.grahampugh.download.filemakerproadvancedupdater</string>
-    <key>Input</key>
-    <dict>
-        <key>NAME</key>
-        <string>FileMaker Pro Advanced</string>
-        <key>major_version</key>
-        <string>16</string>
-    </dict>
-    <key>Process</key>
-    <array>
-        <dict>
-          <key>Processor</key>
-          <string>FilemakerProAdvancedUpdateExtractor</string>
-          <key>Arguments</key>
-          <dict>
-            <key>downloaded_file</key>
-            <string>%pathname%</string>
-          </dict>
-        </dict>
-        <dict>
-            <key>Processor</key>
-            <string>PkgCopier</string>
-            <key>Arguments</key>
-            <dict>
-                <key>source_pkg</key>
-                <string>%pkg_path%</string>
-                <key>pkg_path</key>
-                <string>%RECIPE_CACHE_DIR%/FileMakerProAdvancedUpdater_%version%.pkg</string>
-            </dict>
-        </dict>
-    </array>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>downloaded_file</key>
+				<string>%pathname%</string>
+			</dict>
+			<key>Processor</key>
+			<string>FilemakerProAdvancedUpdateExtractor</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/FileMakerProAdvancedUpdater_%version%.pkg</string>
+				<key>source_pkg</key>
+				<string>%extracted_pkg%</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgCopier</string>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -44,7 +44,7 @@ class FilemakerProAdvancedUpdateExtractor(DmgMounter):
         }
     }
     output_variables = {
-        "pkg_path": {
+        "extracted_pkg": {
             "description": "Outputs the extracted package path."
         }
     }
@@ -69,7 +69,7 @@ class FilemakerProAdvancedUpdateExtractor(DmgMounter):
                     contents = zf.namelist()
                     pkgs = [f for f in contents if fnmatch.fnmatch(f, '*.pkg')]
                     zf.extract(pkgs[0], self.env["RECIPE_CACHE_DIR"])
-                    self.env["pkg_path"] = os.path.join(self.env["RECIPE_CACHE_DIR"], os.path.basename(pkgs[0]))
+                    self.env["extracted_pkg"] = os.path.join(self.env["RECIPE_CACHE_DIR"], os.path.basename(pkgs[0]))
             except Exception as err:
                 raise ProcessorError(err)
         else:
@@ -79,7 +79,7 @@ class FilemakerProAdvancedUpdateExtractor(DmgMounter):
             try:
                 pkg = self.find_pkg(mount_point)
                 shutil.copy(pkg, self.env['RECIPE_CACHE_DIR'])
-                self.env["pkg_path"] = os.path.join(self.env['RECIPE_CACHE_DIR'], os.path.basename(pkg))
+                self.env["extracted_pkg"] = os.path.join(self.env['RECIPE_CACHE_DIR'], os.path.basename(pkg))
             except Exception as err:
                 raise ProcessorError(err)
             finally:
