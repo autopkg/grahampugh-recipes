@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.</string>
+	<string>Downloads the current release version of Adobe Licensing Toolkit and builds a package.</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.pkg.AdobeLicensingToolkit</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
-		<string>AdoptOpenJDK 8</string>
+		<string>Adobe Licensing Toolkit</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -38,15 +38,15 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>archive_path</key>
-				<string>%pathname%</string>
 				<key>destination_path</key>
-				<string>%pkgroot%/Library/Management/Adobe</string>
-				<key>purge_destination</key>
+				<string>%pkgroot%/Library/Management/Adobe/adobe-licensing-toolkit</string>
+				<key>overwrite</key>
 				<true/>
+				<key>source_path</key>
+				<string>%pathname%/adobe-licensing-toolkit</string>
 			</dict>
 			<key>Processor</key>
-			<string>Unarchiver</string>
+			<string>Copier</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>

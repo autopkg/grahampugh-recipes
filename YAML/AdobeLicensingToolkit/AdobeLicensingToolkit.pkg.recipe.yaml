@@ -1,7 +1,7 @@
-Description: Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+Description: Downloads the current release version of Adobe Licensing Toolkit and builds a package.
 Identifier: com.github.grahampugh.recipes.pkg.AdobeLicensingToolkit
 Input:
-  NAME: AdoptOpenJDK 8
+  NAME: Adobe Licensing Toolkit
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.download.AdobeLicensingToolkit
 
@@ -15,10 +15,10 @@ Process:
   Processor: PkgRootCreator
 
 - Arguments:
-    archive_path: '%pathname%'
-    destination_path: '%pkgroot%/Library/Management/Adobe'
-    purge_destination: true
-  Processor: Unarchiver
+    source_path: '%pathname%/adobe-licensing-toolkit'
+    destination_path: '%pkgroot%/Library/Management/Adobe/adobe-licensing-toolkit'
+    overwrite: True
+  Processor: Copier
 
 - Arguments:
     pkg_request:
