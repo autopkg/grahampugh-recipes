@@ -21,6 +21,14 @@ Process:
   Processor: Copier
 
 - Arguments:
+    resource_path: '%pkgroot%/Library/Management/Adobe/adobe-licensing-toolkit'
+    mode: '755'
+    owner: root
+    group: wheel
+  Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+
+
+- Arguments:
     pkg_request:
       chown:
       - group: wheel
