@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.recipes.ThinLincClient</string>
+	<string>com.github.grahampugh.recipes.download.ThinLincClient</string>
 	<key>Process</key>
 	<array>
 		<dict>

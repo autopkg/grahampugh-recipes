@@ -4,6 +4,6 @@ Input:
   BUNDLE_ID: se.cendio.tlclient
   NAME: ThinLinc Client
 MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.ThinLincClient
+ParentRecipe: com.github.grahampugh.recipes.download.ThinLincClient
 Process:
 - Processor: AppPkgCreator
