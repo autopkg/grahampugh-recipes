@@ -13,12 +13,18 @@ You must also override the keys LICENSE_KEY and LICENSED_ORG.
 	<key>Input</key>
 	<dict>
 		<key>LICENSED_ORG</key>
-		<string>Example</string>
-		<key>LICENSE_KEY</key>
-		<integer>1234567890</integer>
+		<string>Example Company</string>
+		<key>LICENSE_FILE_SOURCE</key>
+		<string>/path/to/license_file (LicenseCert.fmcert)</string>
+		<key>MAJOR_VERSION</key>
+		<string>18</string>
 		<key>NAME</key>
 		<string>FileMaker Pro Advanced</string>
+		<key>STOP_PREDICATE</key>
+		<string>file_exists == True</string>
 	</dict>
+	<key>ParentRecipe</key>
+	<string>ch.ethz.id.check.FilemakerProAdvanced</string>
 	<key>Process</key>
 	<array>
 		<dict>
@@ -119,7 +125,7 @@ You must also override the keys LICENSE_KEY and LICENSED_ORG.
 			<key>Arguments</key>
 			<dict>
 				<key>input_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/temp_unpack/FileMaker Pro Advanced.app/Contents/Info.plist</string>
+				<string>%RECIPE_CACHE_DIR%/temp_unpack/FileMaker Pro %MAJOR_VERSION% Advanced.app/Contents/Info.plist</string>
 			</dict>
 			<key>Processor</key>
 			<string>Versioner</string>
@@ -128,9 +134,9 @@ You must also override the keys LICENSE_KEY and LICENSED_ORG.
 			<key>Arguments</key>
 			<dict>
 				<key>file_content</key>
-				<string>AI_USERNAME=OS X Administrator
+				<string>AI_USERNAME=ETH Administrator
 AI_ORGANIZATION=%LICENSED_ORG%
-AI_LICENSEKEY=%LICENSE_KEY%
+AI_LICENSEKEY=
 AI_NONEWDATABASES=0
 AI_REGISTRATION=0
 AI_SKIPDIALOG=1
@@ -148,6 +154,17 @@ AI_LICENSE_ACCEPTED=1
 			</dict>
 			<key>Processor</key>
 			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/LicenseCert.fmcert</string>
+				<key>source_path</key>
+				<string>%LICENSE_FILE_SOURCE%</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -176,7 +193,7 @@ installer -tgt / -pkg FileMakerProAdvancedInstaller.pkg
 					<array>
 					</array>
 					<key>id</key>
-					<string>com.filemaker.pkg.FileMakerProAdvancedInstaller</string>
+					<string>com.filemaker.FileMakerPro%MAJOR_VERSION%AdvancedInstaller</string>
 					<key>pkgname</key>
 					<string>%LIST_NAME%-%version%</string>
 					<key>pkgroot</key>

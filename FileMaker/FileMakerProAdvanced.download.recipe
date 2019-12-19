@@ -5,11 +5,11 @@
 	<key>Description</key>
 	<string>Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.download.filemakerproadvancedupdater</string>
+	<string>com.github.grahampugh.recipes.download.filemakerproadvanced</string>
 	<key>Input</key>
 	<dict>
 		<key>MAJOR_VERSION</key>
-		<string>16</string>
+		<string>18</string>
 		<key>NAME</key>
 		<string>FileMaker Pro Advanced</string>
 		<key>STOPPROCESSINGIF_PREDICATE</key>
@@ -27,6 +27,11 @@
 			<string>FilemakerProAdvancedUpdateURLProcessor</string>
 		</dict>
 		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://fmdl.filemaker.com/esd/fmpa_%version%.dmg</string>
+			</dict>
 			<key>Processor</key>
 			<string>URLDownloader</string>
 		</dict>

@@ -168,7 +168,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
 
     def version_matcher(self, url):
         fname = os.path.basename(urlparse.urlsplit(url).path)
-        version_match = re.search(r"([0-9]{2}.[0-9]{0,2}.[0-9]{0,2})", fname)
+        version_match = re.search(r"([0-9]{2}.[0-9]{0,2}.[0-9]{0,2}.[0-9]{0,4})", fname)
         if version_match is None:
             raise ProcessorError("Something went wrong matching FMP update to full version.")
         else:
