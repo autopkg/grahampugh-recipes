@@ -14,7 +14,7 @@
 		<string>16</string>
 	</dict>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.download.filemakerproadvancedupdater</string>
+	<string>com.github.grahampugh.recipes.download.filemakerproadvancedupdater</string>
 	<key>Process</key>
 	<array>
 		<dict>
