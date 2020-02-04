@@ -18,7 +18,6 @@
 
 from __future__ import absolute_import
 
-from builtins import str
 import subprocess
 
 from autopkglib import Processor, ProcessorError
@@ -70,7 +69,7 @@ class ChoicesXMLGenerator(Processor):
         Other choices found are given the choice attribute '0' (not chosen). '''
         parsed_choices = []
         # read the showChoicesXML output file
-        for item_dict in choices_list.values():
+        for item_dict in choices_list.itervalues():
             try:
                 child_items = item_dict['childItems']
             except:
