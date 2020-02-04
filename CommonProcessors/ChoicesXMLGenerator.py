@@ -32,7 +32,9 @@ __all__ = ["ChoicesXMLGenerator"]
 
 
 class ChoicesXMLGenerator(Processor):
-    """Generates a choices.xml file for use with an installer. A postinstall script is required to run the installer with the choices.xml"""
+    """Generates a choices.xml file for use with an installer. A
+    postinstall script is required to run the installer with the
+    choices.xml"""
     input_variables = {
         'choices_pkg_path': {
             'description': 'Path to start looking for files.',
@@ -56,14 +58,18 @@ class ChoicesXMLGenerator(Processor):
 
 
     def output_showchoicesxml(self, choices_pkg_path):
-        '''Invoke the installer showChoicesXML command and return the contents'''
-        (choices_plist, error) = subprocess.Popen(['/usr/sbin/installer', '-showChoicesXML', '-pkg', choices_pkg_path], stdout=subprocess.PIPE).communicate()
+        '''Invoke the installer showChoicesXML command and return
+        the contents'''
+        (choices_plist, error) = subprocess.Popen(
+            ['/usr/sbin/installer', '-showChoicesXML', '-pkg',
+             choices_pkg_path], stdout=subprocess.PIPE).communicate()
         if choices_plist:
             try:
                 choices_list = readPlistFromString(choices_plist)
             except Exception as err:
                 raise ProcessorError(
-                    "Unexpected error parsing manifest as a plist: '%s'" % err
+                    "Unexpected error parsing manifest as a plist: "
+                    " '%s'" % err
                 )
             child_items = choices_list[0]["childItems"]
             return child_items
@@ -76,7 +82,8 @@ class ChoicesXMLGenerator(Processor):
     def parse_choices_list(self, child_items, desired_choices):
         '''Generates the python dictionary of choices.
         Desired choices are given the choice attribute '1' (chosen).
-        Other choices found are given the choice attribute '0' (not chosen). '''
+        Other choices found are given the choice attribute '0'
+        (not chosen). '''
         parsed_choices = []
         # read the showChoicesXML output file
         # for item_dict in choices_list.values():
@@ -88,11 +95,19 @@ class ChoicesXMLGenerator(Processor):
             try:
                 choice_identifier = child_dict['choiceIdentifier']
                 if choice_identifier in desired_choices:
-                    self.output('Selected choice: %s' % str(choice_identifier))
-                    parsed_choices.append({'choiceIdentifier': str(choice_identifier), 'choiceAttribute': 'selected', 'attributeSetting':1})
+                    self.output('Selected choice: %s'
+                                % str(choice_identifier))
+                    parsed_choices.append(
+                        {'choiceIdentifier': str(choice_identifier),
+                         'choiceAttribute': 'selected',
+                         'attributeSetting':1})
                 else:
-                    self.output('Deselected choice: %s' % str(choice_identifier))
-                    parsed_choices.append({'choiceIdentifier': str(choice_identifier), 'choiceAttribute': 'selected', 'attributeSetting':0})
+                    self.output('Deselected choice: %s'
+                                % str(choice_identifier))
+                    parsed_choices.append(
+                        {'choiceIdentifier': str(choice_identifier),
+                         'choiceAttribute': 'selected',
+                         'attributeSetting':0})
             except:
                 pass
         return parsed_choices
@@ -119,7 +134,8 @@ class ChoicesXMLGenerator(Processor):
 
 
         child_items = self.output_showchoicesxml(choices_pkg_path)
-        parsed_choices = self.parse_choices_list(child_items, desired_choices)
+        parsed_choices = self.parse_choices_list(
+                                    child_items, desired_choices)
         self.write_choices_xml(parsed_choices, choices_xml_dest)
 
 
