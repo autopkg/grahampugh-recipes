@@ -36,7 +36,7 @@ except:
     from urlparse import urlsplit  # Python 2
 
 
-__all__ = ["FilemakerUpdateURLProcessor"]
+__all__ = ["FilemakerProAdvancedUpdateURLProcessor"]
 
 # This was determined by reviewing the sources of the updates site at
 # http://www.filemaker.com/support/downloads/
@@ -58,7 +58,6 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
                 "Override the version to get",
             "default": None
         }
-    }
     }
     output_variables = {
         "url": {"description": "Outputs this updaters url."},
@@ -115,7 +114,6 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         # into account when versioning
         patch_levels = {"a": 1, "b": 2, "c": 3, "d": 4}
 
-        updates = []
         versions = []
         for pkg in obj:
             version = pkg["version"].split(".")
@@ -140,7 +138,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             if mo is not None:
                 (minor, build) = mo.groups()
             versions.append((major, minor, patch, version_str))
-        sorted_versions = sorted(versions, key=itemgetter(0, 1, 2, 3), reverse=True)
+        # sorted_versions = sorted(versions, key=itemgetter(0, 1, 2, 3), reverse=True)
         version_str = versions[0][3]
         for pkg in obj:
             if pkg["version"] == version_str:
@@ -148,7 +146,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         return None
 
     def getLatestFilemakerProAdvancedInstaller(self, defined_version=None):
-        version_str = self.env.get("major_version")
+        # version_str = self.env.get("major_version")
         try:
             data = self.download(UPDATE_FEED)
         except Exception as e:
