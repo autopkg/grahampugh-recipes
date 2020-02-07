@@ -1,0 +1,20 @@
+Description: Installs the latest version of Visual Studio Code.
+Identifier: com.github.grahampugh.install.VisualStudioCode
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.killahquam.download.visualstudiocode
+
+Input:
+  NAME: Visual Studio Code
+
+Process:
+- Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/VisualStudioCode.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/%NAME%'
+  Processor: DmgCreator
+
+- Arguments:
+    dmg_path: '%dmg_path%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: Visual Studio Code.app
+  Processor: InstallFromDMG
