@@ -40,10 +40,10 @@ __all__ = ["FilemakerProAdvancedUpdateURLProcessor"]
 
 # This was determined by reviewing the sources of the updates site at
 # http://www.filemaker.com/support/downloads/
-UPDATE_FEED = "http://www.filemaker.com/support/updaters/updater_json.txt?id=1231231231"
+UPDATE_FEED = "https://www.filemaker.com/support/updaters/product-updaters.txt"
 
 
-class FilemakerProAdvancedUpdateURLProcessor(Processor):
+class FilemakerProAdvancedUpdateURLProcessor(URLGetter):
     """Provides a download URL for the most recent version of FileMaker Pro Advanced"""
 
     description = __doc__
@@ -138,7 +138,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
             if mo is not None:
                 (minor, build) = mo.groups()
             versions.append((major, minor, patch, version_str))
-        # sorted_versions = sorted(versions, key=itemgetter(0, 1, 2, 3), reverse=True)
+        sorted_versions = sorted(versions, key=itemgetter(0, 1, 2, 3), reverse=True)
         version_str = versions[0][3]
         for pkg in obj:
             if pkg["version"] == version_str:
@@ -146,7 +146,7 @@ class FilemakerProAdvancedUpdateURLProcessor(Processor):
         return None
 
     def getLatestFilemakerProAdvancedInstaller(self, defined_version=None):
-        # version_str = self.env.get("major_version")
+        version_str = self.env.get("major_version")
         try:
             data = self.download(UPDATE_FEED)
         except Exception as e:
