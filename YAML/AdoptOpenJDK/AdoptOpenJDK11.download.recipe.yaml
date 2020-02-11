@@ -1,18 +1,25 @@
 Description: |
-    Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+    Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather 
+    than the signed pkg version, so that the true version number can be obtained.
 
-    Note that the "hotspot" versions have been removed from AdoptOpenJDK's GitHub, so this recipe has now switched to the remaining Eclipse OpenJ9 version of Adopt OpenJDK 11.
+    The default JVM implementation is "hotspot". To override to "openj9", change the value of JVM_IMPLEMENTATION.
+
+    The default Release Type is "releases", which is the stable build. To get the most recent build, select "nightly".
+
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11
 MinimumVersion: 1.0.0
 
 Input:
   NAME: AdoptOpenJDK 11
   STOPPROCESSINGIF_PREDICATE: download_changed == False
+  RELEASE_STREAM: releases
+  JVM_IMPLEMENTATION: hotspot
+
 
 Process:
 - Arguments:
-    re_pattern: (?P<match>AdoptOpenJDK\/openjdk11-binaries\/releases\/download\/jdk11.*?\/OpenJDK11U-jdk_x64_mac_openj9_.*?\.tar\.gz)
-    url: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases
+    re_pattern: binary_link.*?(?P<match>AdoptOpenJDK.*?\/OpenJDK11U-jdk_x64_mac_%JVM_IMPLEMENTATION%_.*?\.tar\.gz)
+    url: https://api.adoptopenjdk.net/v2/latestAssets/%RELEASE_STREAM%/openjdk11?os=mac&arch=x64&heap_size=normal&openjdk_impl=%JVM_IMPLEMENTATION%&type=jdk
   Processor: URLTextSearcher
 
 - Arguments:

@@ -6,23 +6,23 @@ Description: |
 
     The default Release Type is "releases", which is the stable build. To get the most recent build, select "nightly".
 
-Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11_Signed
+Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK13_Signed
 MinimumVersion: 1.0.0
 
 Input:
-  NAME: AdoptOpenJDK 11
+  NAME: AdoptOpenJDK 13
   STOPPROCESSINGIF_PREDICATE: download_changed == False
   RELEASE_STREAM: releases
   JVM_IMPLEMENTATION: hotspot
 
 Process:
 - Arguments:
-    re_pattern: installer_link.*?(?P<match>AdoptOpenJDK.*?\/OpenJDK11U-jdk_x64_mac_%JVM_IMPLEMENTATION%_.*?\.pkg)
-    url: https://api.adoptopenjdk.net/v2/latestAssets/%RELEASE_STREAM%/openjdk11?os=mac&arch=x64&heap_size=normal&openjdk_impl=%JVM_IMPLEMENTATION%&type=jdk
+    re_pattern: installer_link.*?(?P<match>AdoptOpenJDK.*?\/OpenJDK13U-jdk_x64_mac_%JVM_IMPLEMENTATION%_.*?\.pkg)
+    url: https://api.adoptopenjdk.net/v2/latestAssets/%RELEASE_STREAM%/openjdk13?os=mac&arch=x64&heap_size=normal&openjdk_impl=%JVM_IMPLEMENTATION%&type=jdk
   Processor: URLTextSearcher
 
 - Arguments:
-    url: 'https://github.com/%match%'
+    url: https://github.com/%match%
   Processor: URLDownloader
 
 - Processor: EndOfCheckPhase

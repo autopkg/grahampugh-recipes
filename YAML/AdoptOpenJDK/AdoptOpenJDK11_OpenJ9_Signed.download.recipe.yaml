@@ -1,15 +1,24 @@
-Description: Downloads the current release version of AdoptOpenJDK 11 Open J9. Recipe created by Charles Mission.
+Description: |
+    Downloads the current release version of AdoptOpenJDK 11. This is the signed pkg version rather 
+    than the tar version, for those that require a signed package rather than accurate version number.
+
+    The default JVM implementation is "openj9". To override to "hotspot", change the value of JVM_IMPLEMENTATION.
+
+    The default Release Type is "releases", which is the stable build. To get the most recent build, select "nightly".
+
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11_OpenJ9_Signed
 MinimumVersion: 1.0.0
 
 Input:
   NAME: AdoptOpenJDK 11 OpenJ9
   STOPPROCESSINGIF_PREDICATE: download_changed == False
+  RELEASE_STREAM: releases
+  JVM_IMPLEMENTATION: openj9
 
 Process:
 - Arguments:
-    re_pattern: (?P<match>AdoptOpenJDK\/openjdk11-binaries\/releases\/download\/jdk11.*?\/OpenJDK11U-jdk_x64_mac_openj9_.*?\.pkg)
-    url: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases
+    re_pattern: installer_link.*?(?P<match>AdoptOpenJDK.*?\/OpenJDK11U-jdk_x64_mac_%JVM_IMPLEMENTATION%_.*?\.pkg)
+    url: https://api.adoptopenjdk.net/v2/latestAssets/%RELEASE_STREAM%/openjdk11?os=mac&arch=x64&heap_size=normal&openjdk_impl=%JVM_IMPLEMENTATION%&type=jdk
   Processor: URLTextSearcher
 
 - Arguments:

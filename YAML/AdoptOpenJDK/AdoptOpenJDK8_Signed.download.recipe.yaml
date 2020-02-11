@@ -1,15 +1,24 @@
-Description: Downloads the current release version of AdoptOpenJDK 8 HotSpot. Recipe created by Charles Mission.
+Description: |
+    Downloads the current release version of AdoptOpenJDK 8. This is the signed pkg version rather 
+    than the tar version, for those that require a signed package rather than accurate version number.
+
+    The default JVM implementation is "hotspot". To override to "openj9", change the value of JVM_IMPLEMENTATION.
+
+    The default Release Type is "releases", which is the stable build. To get the most recent build, select "nightly".
+
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK8_Signed
 MinimumVersion: 1.0.0
 
 Input:
   NAME: AdoptOpenJDK 8
   STOPPROCESSINGIF_PREDICATE: download_changed == False
+  RELEASE_STREAM: releases
+  JVM_IMPLEMENTATION: hotspot
 
 Process:
 - Arguments:
-    re_pattern: (?P<match>AdoptOpenJDK\/openjdk8-binaries\/releases\/download\/jdk8.*?\/OpenJDK8U-jdk_x64_mac_hotspot_.*?\.pkg)
-    url: https://github.com/AdoptOpenJDK/openjdk8-binaries/releases
+    re_pattern: installer_link.*?(?P<match>AdoptOpenJDK.*?\/OpenJDK8U-jdk_x64_mac_%JVM_IMPLEMENTATION%_.*?\.pkg)
+    url: https://api.adoptopenjdk.net/v2/latestAssets/%RELEASE_STREAM%/openjdk8?os=mac&arch=x64&heap_size=normal&openjdk_impl=%JVM_IMPLEMENTATION%&type=jdk
   Processor: URLTextSearcher
 
 - Arguments:
