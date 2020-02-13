@@ -5,20 +5,21 @@ ParentRecipe: com.github.grahampugh.recipes.download.MicrosoftOffice365
 Input:
   NAME: Microsoft Office 365
   PKG_NAME: MicrosoftOffice365Suite
+  VERSIONING_STRING: OneNote
 Process:
 - Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/downloads/unpack'
     flat_pkg_path: '%pathname%'
   Processor: FlatPkgUnpacker
 - Arguments:
-    pattern: '%RECIPE_CACHE_DIR%/downloads/unpack/*OneNote*.pkg'
+    pattern: '%RECIPE_CACHE_DIR%/downloads/unpack/*%VERSIONING_STRING%*.pkg'
   Processor: FileFinder
 - Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/downloads/payload'
     pkg_payload_path: '%found_filename%/Payload'
   Processor: PkgPayloadUnpacker
 - Arguments:
-    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/payload/Microsoft OneNote.app/Contents/Info.plist'
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/payload/Microsoft %VERSIONING_STRING%.app/Contents/Info.plist'
     plist_version_key: CFBundleVersion
   Processor: Versioner
 - Arguments:

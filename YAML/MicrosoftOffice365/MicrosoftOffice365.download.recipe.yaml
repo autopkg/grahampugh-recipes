@@ -10,12 +10,13 @@ Identifier: com.github.grahampugh.recipes.download.MicrosoftOffice365
 Input:
   DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
   NAME: Microsoft Office Suite
+  PKG_NAME: MicrosoftOffice365Suite
   PRODUCTID: '532572'
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 MinimumVersion: 1.0.0
 Process:
 - Arguments:
-    filename: 'MicrosoftOffice365Suite.pkg'
+    filename: '%PKG_NAME%.pkg'
     url: '%DOWNLOADURL%'
   Processor: URLDownloader
 - Processor: StopProcessingIf
