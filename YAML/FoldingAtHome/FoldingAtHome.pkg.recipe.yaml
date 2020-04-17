@@ -1,0 +1,13 @@
+Description: Downloads the latest version of FoldingAtHome, works out the version number and copies the package.
+Identifier: com.github.grahampugh.recipes.pkg.FoldingAtHome
+MinimumVersion: 0.4.0
+ParentRecipe: com.github.grahampugh.recipes.download.FoldingAtHome
+
+Input:
+  Name: Folding@Home
+
+Process:
+- Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/FoldingAtHome-%version%.pkg'
+    source_pkg: '%RECIPE_CACHE_DIR%/unzip/fah-installer_%version%_x86_64.pkg'
+  Processor: PkgCopier
