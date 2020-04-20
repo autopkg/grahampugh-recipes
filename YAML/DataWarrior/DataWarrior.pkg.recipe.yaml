@@ -1,15 +1,37 @@
 Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
 Description: Downloads the latest version of DataWarrior and creates a package.
 Identifier: com.github.grahampugh.pkg.DataWarrior
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.DataWarrior
+
 Input:
   BUNDLE_ID: org.openmolecules.datawarrior
   NAME: DataWarrior
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.download.DataWarrior
+  DOWNLOAD_URL: http://www.openmolecules.org/datawarrior/download.html
+
 Process:
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: (.*Download DataWarrior V(?P<webversion>\d\.\d+\.\d+).*)
+    result_output_var_name: webversion
+    url: '%DOWNLOAD_URL%'
+
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
+    overwrite: true
+    source_path: '%pathname%/%NAME%.app'
+
+- Processor: PlistEditor
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist'
+    output_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist'
+    plist_data:
+      CFBundleShortVersionString: '%webversion%'
+
 - Processor: AppPkgCreator
   Arguments:
     app_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
     overwrite: false
-    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%webversion%.pkg'
     version: '%webversion%'

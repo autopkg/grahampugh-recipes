@@ -3,27 +3,27 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest version of DataWarrior.</string>
+	<string>Downloads the current version of SeqMonk.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.download.DataWarrior</string>
+	<string>com.github.grahampugh.recipes.download.SeqMonk</string>
 	<key>Input</key>
 	<dict>
-		<key>DOWNLOAD_URL</key>
-		<string>http://www.openmolecules.org/datawarrior/download.html</string>
 		<key>NAME</key>
-		<string>DataWarrior</string>
+		<string>SeqMonk</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.0.0</string>
+	<string>0.6.0</string>
 	<key>Process</key>
 	<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>re_pattern</key>
-				<string>(?P&lt;match&gt;http.*?dmg\?dl=1)</string>
+				<string>(?P&lt;match&gt;seqmonk/seqmonk_v(?P&lt;version&gt;.*?)_osx64\.dmg)</string>
 				<key>url</key>
-				<string>%DOWNLOAD_URL%</string>
+				<string>https://www.bioinformatics.babraham.ac.uk/projects/download.html</string>
+				<key>user-agent</key>
+				<string>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLTextSearcher</string>
@@ -31,10 +31,8 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>filename</key>
-				<string>%NAME%.dmg</string>
 				<key>url</key>
-				<string>%match%</string>
+				<string>https://www.bioinformatics.babraham.ac.uk/projects/%match%</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLDownloader</string>
