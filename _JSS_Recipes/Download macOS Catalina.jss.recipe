@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will reinstall macOS on the volume.</string>
+	<string>Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will reinstall macOS the volume.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jss.upgrade-to-macos-catalina</string>
+	<string>com.github.grahampugh.recipes.jss.download-macos-catalina</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
@@ -15,7 +15,7 @@
 		<key>GROUP_TEMPLATE</key>
 		<string>%NAME%-SmartGroupTemplate.xml</string>
 		<key>NAME</key>
-		<string>Upgrade to macOS Catalina</string>
+		<string>Download macOS Catalina</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Untested</string>
 		<key>POLICY_TEMPLATE</key>
@@ -23,15 +23,15 @@
 		<key>PROD_NAME</key>
 		<string>%NAME%</string>
 		<key>RUN_COMMAND</key>
-		<string>/Library/Management/erase-install/erase-install.sh --os=10.15 --overwrite --reinstall</string>
+		<string>/Library/Management/erase-install/erase-install.sh --os=10.15 --overwrite</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>WARNING! This will download the latest version of macOS Catalina Beta and install it on the system volume. All work should be saved and backed up before starting.</string>
+		<string>Downloads the currently available 'Install macOS Catalina' application to the Applications folder. It will replace any existing version of the application.</string>
 		<key>SELF_SERVICE_ICON</key>
 		<string>Install macOS Catalina.png</string>
 		<key>SELF_SERVICE_INSTALL_BUTTON</key>
-		<string>Upgrade macOS</string>
+		<string>Download</string>
 		<key>SELF_SERVICE_REINSTALL_BUTTON</key>
-		<string>Upgrade macOS</string>
+		<string>Download</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
