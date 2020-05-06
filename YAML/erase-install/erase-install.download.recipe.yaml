@@ -9,7 +9,7 @@ Process:
 - Arguments:
     asset_regex: ^erase-install-.*?.zip$
     github_repo: grahampugh/erase-install
-    include_prereleases: True
+    include_prereleases: False
   Processor: GitHubReleasesInfoProvider
 - Processor: URLDownloader
 - Processor: EndOfCheckPhase
