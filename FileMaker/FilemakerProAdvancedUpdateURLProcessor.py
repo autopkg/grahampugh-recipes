@@ -32,9 +32,8 @@ from autopkglib import Processor, ProcessorError, URLGetter
 
 try:
     from urllib.parse import urlsplit  # Python 3
-except:
-    from urlparse import urlsplit  # Python 2
-
+except ImportError:
+    from urllib2.urlparse import urlsplit  # Python 2
 
 __all__ = ["FilemakerProAdvancedUpdateURLProcessor"]
 
@@ -54,10 +53,9 @@ class FilemakerProAdvancedUpdateURLProcessor(URLGetter):
         },
         "version": {
             "required": False,
-            "description":
-                "Override the version to get",
-            "default": None
-        }
+            "description": "Override the version to get",
+            "default": None,
+        },
     }
     output_variables = {
         "url": {"description": "Outputs this updaters url."},
@@ -92,7 +90,7 @@ class FilemakerProAdvancedUpdateURLProcessor(URLGetter):
     def extractAdvancedUpdates(self, obj):
         updates = []
         for pkg in obj:
-            if re.search(r'Advanced', pkg["product"]):
+            if re.search(r"Advanced", pkg["product"]):
                 updates.append(pkg)
         return updates
 
