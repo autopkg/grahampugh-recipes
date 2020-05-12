@@ -31,13 +31,19 @@
 			<string>URLDownloader</string>
 		</dict>
 		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>predicate</key>
-				<string>%STOPPROCESSINGIF_PREDICATE%</string>
+				<key>input_path</key>
+				<string>%pathname%/TeX Live Utility.app</string>
+				<key>requirement</key>
+				<string>identifier "com.googlecode.mactlmgr.tlu" and certificate leaf = H"9762c300630034b23fe0eeb054acc8bc889f1346"</string>
 			</dict>
 			<key>Processor</key>
-			<string>StopProcessingIf</string>
+			<string>CodeSignatureVerifier</string>
 		</dict>
 	</array>
 </dict>

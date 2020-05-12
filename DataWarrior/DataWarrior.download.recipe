@@ -17,20 +17,18 @@
 	<string>1.0.0</string>
 	<key>Process</key>
 	<array>
-        <dict>
-            <key>Processor</key>
-			<string>URLTextSearcher</string>
+		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>re_pattern</key>
+				<string>(?P&lt;match&gt;http.*?dmg\?dl=1)</string>
 				<key>url</key>
 				<string>%DOWNLOAD_URL%</string>
-                <key>re_pattern</key>
-				<string>(?P&lt;match&gt;http.*?dmg\?dl=1)</string>
 			</dict>
+			<key>Processor</key>
+			<string>URLTextSearcher</string>
 		</dict>
 		<dict>
-            <key>Processor</key>
-			<string>URLDownloader</string>
 			<key>Arguments</key>
 			<dict>
 				<key>filename</key>
@@ -38,48 +36,8 @@
 				<key>url</key>
 				<string>%match%</string>
 			</dict>
-		</dict>
-        <dict>
-            <key>Processor</key>
-			<string>URLTextSearcher</string>
-			<key>Arguments</key>
-			<dict>
-				<key>url</key>
-				<string>%DOWNLOAD_URL%</string>
-                <key>result_output_var_name</key>
-				<string>webversion</string>
-                <key>re_pattern</key>
-				<string>(.*Download DataWarrior V(?P&lt;webversion&gt;\d\.\d+\.\d+).*)</string>
-			</dict>
-		</dict>
-        <dict>
-            <key>Processor</key>
-			<string>Copier</string>
-			<key>Arguments</key>
-			<dict>
-				<key>source_path</key>
-				<string>%pathname%/DataWarrior.app</string>
-				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/downloads/DataWarrior.app</string>
-                <key>overwrite</key>
-				<true/>
-			</dict>
-		</dict>
-        <dict>
 			<key>Processor</key>
-			<string>PlistEditor</string>
-            <key>Arguments</key>
-			<dict>
-				<key>input_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/downloads/DataWarrior.app/Contents/Info.plist</string>
-                <key>output_plist_path</key>
-				<string>%RECIPE_CACHE_DIR%/downloads/DataWarrior.app/Contents/Info.plist</string>
-                <key>plist_data</key>
-                <dict>
-                     <key>CFBundleShortVersionString</key>
-                     <string>%webversion%</string>
-                 </dict>
-			</dict>
+			<string>URLDownloader</string>
 		</dict>
 		<dict>
 			<key>Processor</key>

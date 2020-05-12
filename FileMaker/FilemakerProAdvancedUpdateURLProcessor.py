@@ -1,4 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# FilemakerProAdvancedUpdateURLProcessor.py
+# adapted to enable selection of particular updates, from:
 # FilemakerUpdateURLProcessor.py
 # Fetches information about the latest FileMaker Pro updater.
 #
@@ -17,7 +19,7 @@
 #
 
 
-"""See docstring for FilemakerProAdvancedUpdateURLProcessor class"""
+"""See docstring for FilemakerUpdateURLProcessor class"""
 
 from __future__ import absolute_import
 
@@ -110,7 +112,6 @@ class FilemakerProAdvancedUpdateURLProcessor(URLGetter):
         # into account when versioning
         patch_levels = {"a": 1, "b": 2, "c": 3, "d": 4}
 
-        updates = []
         versions = []
         for pkg in obj:
             version = pkg["version"].split(".")
@@ -177,6 +178,7 @@ class FilemakerProAdvancedUpdateURLProcessor(URLGetter):
             version_str = self.env.get("major_version")
             update["version"] = self.version_matcher(update["url"])
             url = update["url"]
+
             self.output("URL found '%s'" % url, verbose_level=2)
             self.env["version"] = update["version"]
             self.env["url"] = url

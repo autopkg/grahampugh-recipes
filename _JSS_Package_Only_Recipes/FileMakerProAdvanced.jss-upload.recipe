@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Creates a package for FileMaker Pro Advanced.
+There is no download recipe since FileMaker Pro Advanced is not publicly available.
+Requires running as: autopkg run --pkg /path/to/downloaded-fmpa.dmg "FilemakerProAdvanced.pkg"
+You must also override the keys LICENSE_KEY and LICENSED_ORG.
+ Then, uploads to the Jamf Pro Server.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jss-upload.FilemakerProAdvanced</string>
+	<key>Input</key>
+	<dict>
+		<key>CATEGORY</key>
+		<string>Productivity</string>
+		<key>NAME</key>
+		<string>FileMaker Pro Advanced</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.pkg.FilemakerProAdvanced</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>category</key>
+				<string>%CATEGORY%</string>
+				<key>prod_name</key>
+				<string>%NAME%</string>
+			</dict>
+			<key>Processor</key>
+			<string>JSSImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>

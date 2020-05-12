@@ -12,7 +12,7 @@
 		<string>TeXLive Utility</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.0.0</string>
+	<string>0.2.9</string>
 	<key>ParentRecipe</key>
 	<string>com.github.grahampugh.recipes.download.TeXLiveUtility</string>
 	<key>Process</key>
@@ -20,19 +20,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/unzip</string>
-				<key>purge_destination</key>
-				<true/>
-			</dict>
-			<key>Processor</key>
-			<string>Unarchiver</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>app_path</key>
-				<string>%RECIPE_CACHE_DIR%/unzip/*.app</string>
 				<key>force_pkg_build</key>
 				<true/>
 			</dict>

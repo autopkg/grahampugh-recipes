@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will reinstall macOS the volume.</string>
+	<string>Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will reinstall macOS on the volume.</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.jss.upgrade-to-macos-catalina</string>
 	<key>Input</key>
@@ -13,13 +13,13 @@
 		<key>GROUP_NAME</key>
 		<string>%NAME% test users</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>%NAME%-SmartGroupTemplate-untested.xml</string>
+		<string>%NAME%-SmartGroupTemplate.xml</string>
 		<key>NAME</key>
 		<string>Upgrade to macOS Catalina</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Untested</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>%NAME%-PolicyTemplate-untested.xml</string>
+		<string>%NAME%-PolicyTemplate.xml</string>
 		<key>PROD_NAME</key>
 		<string>%NAME%</string>
 		<key>RUN_COMMAND</key>

@@ -1,4 +1,4 @@
-Description: Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will reinstall macOS the volume.
+Description: Uploads the erase-install pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group. A run command is added to the policy which will reinstall macOS on the volume.
 Identifier: com.github.grahampugh.recipes.jss.upgrade-to-macos-catalina
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.pkg.erase-install
@@ -6,11 +6,11 @@ ParentRecipe: com.github.grahampugh.recipes.pkg.erase-install
 Input:
   CATEGORY: Administration
   GROUP_NAME: '%NAME% test users'
-  GROUP_TEMPLATE: '%NAME%-SmartGroupTemplate-untested.xml'
+  GROUP_TEMPLATE: '%NAME%-SmartGroupTemplate.xml'
   NAME: Upgrade to macOS Catalina
   POLICY_CATEGORY: Untested
   PROD_NAME: '%NAME%'
-  POLICY_TEMPLATE: '%NAME%-PolicyTemplate-untested.xml'
+  POLICY_TEMPLATE: '%NAME%-PolicyTemplate.xml'
   PROD_NAME: '%NAME%'
   RUN_COMMAND: /Library/Management/erase-install/erase-install.sh --os=10.15 --overwrite --reinstall
   SELF_SERVICE_DESCRIPTION: WARNING! This will download the latest version of macOS Catalina Beta and install it on the system volume. All work should be saved and backed up before starting.

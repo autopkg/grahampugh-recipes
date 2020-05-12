@@ -15,13 +15,13 @@
 		<key>GROUP_NAME</key>
 		<string>Erase and Reinstall macOS test users</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>Erase and Reinstall macOS-SmartGroupTemplate-untested-users.xml</string>
+		<string>Erase and Reinstall macOS-SmartGroupTemplate.xml</string>
 		<key>NAME</key>
 		<string>Erase and Reinstall macOS</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>Erase and Reinstall macOS-PolicyTemplate-untested.xml</string>
+		<string>Erase and Reinstall macOS-PolicyTemplate.xml</string>
 		<key>PROD_NAME</key>
 		<string>%NAME%</string>
 		<key>RUN_COMMAND</key>

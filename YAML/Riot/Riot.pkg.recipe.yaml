@@ -1,0 +1,9 @@
+Description: Downloads the latest version of Riot and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.Riot
+Input:
+  BUNDLE_ID: im.riot.app
+  NAME: Riot
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.Riot
+Process:
+- Processor: AppPkgCreator

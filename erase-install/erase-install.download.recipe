@@ -26,7 +26,7 @@
 				<key>github_repo</key>
 				<string>grahampugh/erase-install</string>
 				<key>include_prereleases</key>
-				<true/>
+				<false/>
 			</dict>
 			<key>Processor</key>
 			<string>GitHubReleasesInfoProvider</string>

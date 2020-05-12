@@ -19,6 +19,8 @@ Override the PRODUCTID key to:
 		<string>https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%</string>
 		<key>NAME</key>
 		<string>Microsoft Office Suite</string>
+		<key>PKG_NAME</key>
+		<string>MicrosoftOffice365Suite</string>
 		<key>PRODUCTID</key>
 		<string>532572</string>
 		<key>STOPPROCESSINGIF_PREDICATE</key>
@@ -32,7 +34,7 @@ Override the PRODUCTID key to:
 			<key>Arguments</key>
 			<dict>
 				<key>filename</key>
-				<string>MicrosoftOffice365Suite.pkg</string>
+				<string>%PKG_NAME%.pkg</string>
 				<key>url</key>
 				<string>%DOWNLOADURL%</string>
 			</dict>
