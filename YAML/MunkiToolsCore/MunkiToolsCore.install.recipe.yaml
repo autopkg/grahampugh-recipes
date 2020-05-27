@@ -1,0 +1,10 @@
+Description: Installs the current core Munki tools from Github.
+Identifier: com.github.grahampugh.recipes.install.MunkiToolsCore
+Input:
+  NAME: JSSImporter
+MinimumVersion: 0.5.0
+ParentRecipe: com.github.grahampugh.recipes.pkg.MunkiToolsCore
+Process:
+  - Arguments:
+      pkg_path: "%pkg_path%"
+    Processor: Installer

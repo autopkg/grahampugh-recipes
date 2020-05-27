@@ -1,0 +1,12 @@
+Description: Downloads latest Adobe Creative Cloud installer and uses it to create a package. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss-upload.AdobeCCDAFromConsoleForJamfPro
+Input:
+  CATEGORY: Productivity
+  NAME: Adobe Creative Cloud
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.pkg.AdobeCCDAFromConsoleForJamfPro
+Process:
+- Arguments:
+    category: '%CATEGORY%'
+    prod_name: '%NAME%'
+  Processor: JSSImporter

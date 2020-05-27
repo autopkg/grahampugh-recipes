@@ -3,16 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads version 3 of the Munki tools via the official releases listing on GitHub. You can set INCLUDE_PRERELEASES to any value to have this recipe pull prerelease versions.
+	<string>Note: munkitools does not include a code signature. If your organization requires code signature, it is recommended to internally sign the application.
 
-This recipe also extracts the core components of Munki, and repackages them for use in Jamf Pro.
+Downloads version 3 of the Munki tools via the official releases listing on GitHub. You can set INCLUDE_PRERELEASES to any value to have this recipe pull prerelease versions.
+
+This recipe also extracts the core components, and repackages them for use in Jamf Pro.
 Other parts of munkitools are not repackaged.
 
-This recipe cannot be overridden to pull a download from an alternate location such as munkibuilds.org - it will only download the official releases. For this, use the munkitools3-autobuild.munki recipe with a manually-provided DOWNLOAD_URL variable.
+This recipe cannot be overridden to pull a download from an alternate location such as munkibuilds.org - it will only download the official releases. For this, use the munkitools2-autobuild.munki recipe with a manually-provided DOWNLOAD_URL variable.
 
 The GitHubReleasesInfoProvider processor used by this recipe also respects an input variable: ''sort_by_highest_tag_names'', which, if set, will ignore the post dates of the releases and instead sort descending by tag names according to LooseVersion semantics.
-
-Note: munkitools does not include a code signature. If your organization requires code signature, it is recommended to internally sign the application.
 </string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.pkg.MunkiToolsCore</string>
@@ -20,6 +20,8 @@ Note: munkitools does not include a code signature. If your organization require
 	<dict>
 		<key>INCLUDE_PRERELEASES</key>
 		<string></string>
+		<key>MAJOR_VERSION</key>
+		<string>5</string>
 		<key>NAME</key>
 		<string>MunkiToolsCore</string>
 		<key>STOPPROCESSINGIF_PREDICATE</key>
@@ -33,7 +35,7 @@ Note: munkitools does not include a code signature. If your organization require
 			<key>Arguments</key>
 			<dict>
 				<key>asset_regex</key>
-				<string>^munkitools-3.*?pkg$</string>
+				<string>^munkitools-%MAJOR_VERSION%.*?pkg$</string>
 				<key>github_repo</key>
 				<string>munki/munki</string>
 				<key>include_prereleases</key>
@@ -64,13 +66,18 @@ Note: munkitools does not include a code signature. If your organization require
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/unpack</string>
-				<key>flat_pkg_path</key>
-				<string>%pathname%</string>
+				<key>pkgdirs</key>
+				<dict>
+					<key>Profiles</key>
+					<string>0755</string>
+					<key>Profiles/vpn</key>
+					<string>0755</string>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts</string>
 			</dict>
 			<key>Processor</key>
-			<string>FlatPkgUnpacker</string>
+			<string>PkgRootCreator</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -79,7 +86,7 @@ Note: munkitools does not include a code signature. If your organization require
 				<dict>
 				</dict>
 				<key>pkgroot</key>
-				<string>%RECIPE_CACHE_DIR%/repack</string>
+				<string>%RECIPE_CACHE_DIR%/pkgroot</string>
 			</dict>
 			<key>Processor</key>
 			<string>PkgRootCreator</string>
@@ -87,22 +94,80 @@ Note: munkitools does not include a code signature. If your organization require
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>pattern</key>
-				<string>%RECIPE_CACHE_DIR%/unpack/munkitools_core-*</string>
+				<key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/munkitools-%version%.pkg</string>
+				<key>source_pkg</key>
+				<string>%pathname%</string>
 			</dict>
 			<key>Processor</key>
-			<string>FileFinder</string>
+			<string>PkgCopier</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>destination_pkg</key>
-				<string>%RECIPE_CACHE_DIR%/repack/munkitools_core.pkg</string>
-				<key>source_flatpkg_dir</key>
-				<string>%found_filename%</string>
+				<key>choices_pkg_path</key>
+				<string>%pkg_path%</string>
+				<key>choices_xml_dest</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/choices.xml</string>
+				<key>desired_choices</key>
+				<array>
+					<string>core</string>
+					<string>python</string>
+				</array>
 			</dict>
 			<key>Processor</key>
-			<string>FlatPkgPacker</string>
+			<string>com.github.grahampugh.recipes.commonprocessors/ChoicesXMLGenerator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>file_content</key>
+				<string>#!/bin/bash
+## script to install Munki Core Tools and MunkiPython only
+
+DIR=$(dirname "$0")
+
+/usr/sbin/installer -applyChoiceChangesXML "$DIR/choices.xml" -pkg "$DIR/munkitools-%version%.pkg" -target /
+
+if (test $? = 0) then
+    echo "Munki Core Tools installed."
+else
+    echo "ERROR: Munki Core Tools installation failed."
+    exit 1
+fi
+</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts/postinstall</string>
+			</dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_request</key>
+				<dict>
+					<key>chown</key>
+					<array>
+					</array>
+					<key>id</key>
+					<string>com.github.grahampugh.recipes.pkg.MunkiToolsCore</string>
+					<key>pkgname</key>
+					<string>munkitools-core-plus-python-%version%</string>
+					<key>pkgroot</key>
+					<string>%RECIPE_CACHE_DIR%/pkgroot</string>
+					<key>pkgtype</key>
+					<string>flat</string>
+					<key>scripts</key>
+					<string>Scripts</string>
+					<key>version</key>
+					<string>%version%</string>
+				</dict>
+			</dict>
+			<key>Processor</key>
+			<string>PkgCreator</string>
 		</dict>
 	</array>
 </dict>
