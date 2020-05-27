@@ -1,0 +1,10 @@
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of CotEditor and creates a package.
+Identifier: com.github.grahampugh.pkg.CotEditor
+Input:
+  BUNDLE_ID: com.coteditor.CotEditor
+  NAME: CotEditor
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.download.CotEditor
+Process:
+- Processor: AppPkgCreator

@@ -1,0 +1,23 @@
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of CotEditor.
+Identifier: com.github.grahampugh.download.CotEditor
+Input:
+  GITHUB_REPO: coteditor/CotEditor
+  NAME: CotEditor
+MinimumVersion: 1.0.0
+Process:
+- Arguments:
+    github_repo: '%GITHUB_REPO%'
+  Processor: GitHubReleasesInfoProvider
+- Arguments:
+    filename: '%NAME%-%version%.dmg'
+  Processor: URLDownloader
+- Processor: EndOfCheckPhase
+- Arguments:
+    input_path: '%pathname%/CotEditor.app'
+    requirement: anchor apple generic and identifier "com.coteditor.CotEditor" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = HT3Z3A72WZ)
+  Processor: CodeSignatureVerifier
+- Arguments:
+    input_plist_path: '%pathname%/CotEditor.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+  Processor: Versioner

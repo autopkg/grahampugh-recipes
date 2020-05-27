@@ -1,0 +1,12 @@
+Description: Downloads the latest version of CotEditor and creates a package. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.jss-upload.CotEditor
+Input:
+  CATEGORY: Apps
+  NAME: CotEditor
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.pkg.CotEditor
+Process:
+- Arguments:
+    category: '%CATEGORY%'
+    prod_name: '%NAME%'
+  Processor: JSSImporter
