@@ -12,19 +12,18 @@ It is used to generate a list of all files in folders in a path. That list is th
 
 ### Inputs
 
-* `root_path`: Path to start looking for files. Required.
-* `suffix_string`: String to append to each found item name in dir. Defaults to `,`. Optional.
-* `max_depth`: Maximum depth of folders to iterate through. Default: `2`.
-* `LANGUAGE`: Language of the pkg or DMG containing PKG, one of `ML`, `DE`, `EN`. Basically acts as a string filter for the name of the DMG. Optional.
-* `LICENSE`: License of the pkg or DMG containing PKG, one of `Floating`, `Node`. Basically acts as a string filter for the name of the DMG. Optional.
-* `EXCEPTION`: A string variable to exclude from the search. Optional.
-* `LIMITATION`: A string variable to require in the search. Optional.
+- `root_path`: Path to start looking for files. Required.
+- `suffix_string`: String to append to each found item name in dir. Defaults to `,`. Optional.
+- `max_depth`: Maximum depth of folders to iterate through. Default: `2`.
+- `LANGUAGE`: Language of the pkg or DMG containing PKG, one of `ML`, `DE`, `EN`. Basically acts as a string filter for the name of the DMG. Optional.
+- `LICENSE`: License of the pkg or DMG containing PKG, one of `Floating`, `Node`. Basically acts as a string filter for the name of the DMG. Optional.
+- `EXCEPTION`: A string variable to exclude from the search. Optional.
+- `LIMITATION`: A string variable to require in the search. Optional.
 
 ### Outputs
 
-* `found_filenames`: String containing a list of all files found relative to `root_path`, separated by  `suffix_string`.
-* `relative_root`: Relative root path.
-
+- `found_filenames`: String containing a list of all files found relative to `root_path`, separated by `suffix_string`.
+- `relative_root`: Relative root path.
 
 # LocalRepoUpdateChecker
 
@@ -32,17 +31,16 @@ This processor assumes that a given folder contains sub-folders which are named 
 
 ### Inputs
 
-* `root_path`: Repo path. Used here for comparisons. Required.
-* `found_filenames`: Output of SubDirectoryList `found_filenames`. Required.
-* `RECIPE_CACHE_DIR`: AutoPkg Cache directory. Required.
+- `root_path`: Repo path. Used here for comparisons. Required.
+- `found_filenames`: Output of SubDirectoryList `found_filenames`. Required.
+- `RECIPE_CACHE_DIR`: AutoPkg Cache directory. Required.
 
 ### Outputs
 
-* `version`: The highest folder name according to LooseVersion logic.
-* `latest_file`: The filename of the highest version according to LooseVersion logic.
-* `file_exists`: Boolean to show whether the latest version is already present in the AutoPkg Cache
-* `cached_path`: Path to the existing file in the AutoPkg Cache including filename
-
+- `version`: The highest folder name according to LooseVersion logic.
+- `latest_file`: The filename of the highest version according to LooseVersion logic.
+- `file_exists`: Boolean to show whether the latest version is already present in the AutoPkg Cache
+- `cached_path`: Path to the existing file in the AutoPkg Cache including filename
 
 # JSSRecipeReceiptChecker
 
@@ -50,16 +48,15 @@ An AutoPkg processor which works out the latest receipt (by date) from a differe
 
 ### Inputs
 
-* `name`: This value should be the same as the NAME in the recipe from which we want to read the receipt. This is all we need to construct the override path. Required.
-* `cache_dir`: Path to the cache dir. Defaults to `~/Library/AutoPkg/Cache`. Optional.
+- `name`: This value should be the same as the NAME in the recipe from which we want to read the receipt. This is all we need to construct the override path. Required.
+- `cache_dir`: Path to the cache dir. Defaults to `~/Library/AutoPkg/Cache`. Optional.
 
 ### Outputs
 
-* `pkg_path`: Value obtained from the latest receipt.
-* `version`: Value obtained from the latest receipt.
-* `CATEGORY`: Value obtained from the latest receipt.
-* `SELF_SERVICE_DESCRIPTION`: Value obtained from the latest receipt.
-
+- `pkg_path`: Value obtained from the latest receipt.
+- `version`: Value obtained from the latest receipt.
+- `CATEGORY`: Value obtained from the latest receipt.
+- `SELF_SERVICE_DESCRIPTION`: Value obtained from the latest receipt.
 
 # ChangeModeOwner
 
@@ -67,15 +64,14 @@ Similar to the `ChangeMode` Processor, but also has the ability to change the ow
 
 ### Inputs
 
-* `resource_path`: Pathname of file/folder. Required.
-* `mode`: chmod(1) mode string to apply to file/folder, e.g. "o-w", "755". Optional.
-* `owner`: chown(1) owner string to apply to file/folder, e.g. "root". Optional.
-* `group`: chown(1) group string to apply to file/folder, e.g. "wheel". Optional.
+- `resource_path`: Pathname of file/folder. Required.
+- `mode`: chmod(1) mode string to apply to file/folder, e.g. "o-w", "755". Optional.
+- `owner`: chown(1) owner string to apply to file/folder, e.g. "root". Optional.
+- `group`: chown(1) group string to apply to file/folder, e.g. "wheel". Optional.
 
 ### Outputs
 
 None
-
 
 # ChoicesXMLGenerator
 
@@ -83,9 +79,39 @@ Generates a `choices.xml` file for use with an installer. A postinstall script i
 
 ### Inputs
 
-* `choices_pkg_path`: Path to start looking for files. Required.
-* `desired_choices`: A dictionary of choices. Defaults to empty. Optional.
-* `choices_xml_dest`: Path to save the choices.xml file. Optional, but the processor will not do anything if none is provided.
+- `choices_pkg_path`: Path to start looking for files. Required.
+- `desired_choices`: A dictionary of choices. Defaults to empty. Optional.
+- `choices_xml_dest`: Path to save the choices.xml file. Optional, but the processor will not do anything if none is provided.
+
+### Outputs
+
+None
+
+# SMBMounter
+
+Mounts an SMB directory. Expects a full SMB path as would be presented to `mount_smbfs`, because that's what it uses to mount. Valid examples:
+
+    //server/share
+    //server.com/share/subfolder/subsubfolder
+    //user:password@server.com:123/share
+    //DOMAIN;user:password@server/share
+
+### Inputs
+
+- `smb_path`: SMB path including pre-slashes but excluding `smb:`. Required.
+- `mount_point`: A mount point. Optional, defaults to `/tmp/tmp_autopkg_mount`. Would require overriding if using the processor to mount more than one share.
+
+### Outputs
+
+None
+
+# SMBUnmounter
+
+Unmounts an SMB directory. Will fail if not following the `SMBMounter` processor.
+
+### Inputs
+
+- `mount_point`: A mount point. Required, should be passed through from the `SMBMounter` processor.
 
 ### Outputs
 
