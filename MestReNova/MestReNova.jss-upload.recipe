@@ -3,20 +3,20 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of Adobe Licensing Toolkit and builds a package. Then, uploads to the Jamf Pro Server.</string>
+	<string>Downloads the latest MestReNova release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jss-upload.AdobeLicensingToolkit</string>
+	<string>com.github.grahampugh.recipes.jss-upload.MestReNova</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
-		<string>Productivity</string>
+		<string>Science &amp; Math</string>
 		<key>NAME</key>
-		<string>Adobe Licensing Toolkit</string>
+		<string>MestReNova</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.recipes.pkg.AdobeLicensingToolkit</string>
+	<string>com.github.grahampugh.recipes.pkg.MestReNova</string>
 	<key>Process</key>
 	<array>
 		<dict>

@@ -2,27 +2,29 @@ Description: Downloads the latest version of MathType and creates a pkg includin
 Identifier: com.github.grahampugh.pkg.MathType
 MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.download.MathType
+
 Input:
   NAME: MathType
+
 Process:
-- Processor: FlatPkgUnpacker
-  Arguments:
-    flat_pkg_path: '%pathname%'
-    destination_path: '%RECIPE_CACHE_DIR%/unpack'
-- Processor: PkgPayloadUnpacker
-  Arguments:
-    purge_destination: true
-    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/mathtype.pkg/Payload'
-    destination_path: '%RECIPE_CACHE_DIR%/root'
-- Processor: Versioner
-  Arguments:
-    input_plist_path: '%RECIPE_CACHE_DIR%/root/Applications/MathType/MathType.app/Contents/Info.plist'
-- Processor: PkgCopier
-  Arguments:
-    source_pkg: '%pathname%'
-    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
-- Processor: PathDeleter
-  Arguments:
-    path_list:
-    - '%RECIPE_CACHE_DIR%/root'
-    - '%RECIPE_CACHE_DIR%/unpack'
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      flat_pkg_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      purge_destination: true
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/mathtype.pkg/Payload"
+      destination_path: "%RECIPE_CACHE_DIR%/root"
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/root/Applications/MathType/MathType.app/Contents/Info.plist"
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%pathname%"
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/root"
+        - "%RECIPE_CACHE_DIR%/unpack"

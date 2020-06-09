@@ -1,40 +1,47 @@
 Identifier: com.github.grahampugh.recipes.pkg.LogitechPresentation
-Input:
-  NAME: Logitech Presentation
 ParentRecipe: com.github.grahampugh.recipes.download.LogitechPresentation
 MinimumVersion: 1.0.0
+
+Input:
+  NAME: Logitech Presentation
+
 Process:
-- Arguments:
-    pkgdirs: {}
-    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
-  Processor: PkgRootCreator
-- Arguments:
-    pkgdirs:
-      Applications: '0775'
-      Library: '0775'
-      Library/LaunchAgents: '0775'
-      'Library/Application Support': '0775'
-      'Library/Application Support/Logitech.localized': '0775'
-      'Library/Application Support/Logitech.localized/Logitech Presentation.localized': '0775'
-    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PkgRootCreator
-- Arguments:
-    destination_path: '%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app'
-    source_path: '%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app'
-    overwrite: True
-  Processor: Copier
-- Arguments:
-    destination_path: '%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app'
-    source_path: '%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app'
-    overwrite: True
-  Processor: Copier
-- Arguments:
-    destination_path: '%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Onboarding.app'
-    source_path: '%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Onboarding.app'
-    overwrite: True
-  Processor: Copier
-- Arguments:
-    file_content: |
+  - Arguments:
+      pkgdirs: {}
+      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
+    Processor: PkgRootCreator
+
+  - Arguments:
+      pkgdirs:
+        Applications: "0775"
+        Library: "0775"
+        Library/LaunchAgents: "0775"
+        "Library/Application Support": "0775"
+        "Library/Application Support/Logitech.localized": "0775"
+        "Library/Application Support/Logitech.localized/Logitech Presentation.localized": "0775"
+      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+    Processor: PkgRootCreator
+
+  - Arguments:
+      destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app"
+      source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app"
+      overwrite: True
+    Processor: Copier
+
+  - Arguments:
+      destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app"
+      source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app"
+      overwrite: True
+    Processor: Copier
+
+  - Arguments:
+      destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Onboarding.app"
+      source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Onboarding.app"
+      overwrite: True
+    Processor: Copier
+
+  - Arguments:
+      file_content: |
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
@@ -58,11 +65,12 @@ Process:
             <true/>
         </dict>
         </plist>
-    file_mode: '0755'
-    file_path: '%RECIPE_CACHE_DIR%/Scripts/com.logitech.presenter.plist'
-  Processor: FileCreator
-- Arguments:
-    file_content: |
+      file_mode: "0755"
+      file_path: "%RECIPE_CACHE_DIR%/Scripts/com.logitech.presenter.plist"
+    Processor: FileCreator
+
+  - Arguments:
+      file_content: |
         #!/bin/bash
 
         DIR=$(dirname "$0")
@@ -74,18 +82,19 @@ Process:
 
         # make a shortcut to the Presentation app
         /bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation"
-    file_mode: '0755'
-    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
-  Processor: FileCreator
-- Arguments:
-    force_pkg_build: True
-    pkg_request:
-      chown: []
-      id: com.logitech.logipresentation.pkg
-      options: purge_ds_store
-      scripts: Scripts
-      pkgdir: '%RECIPE_CACHE_DIR%'
-      pkgtype: flat
-      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
-    pkgname: '%NAME%-%version%'
-  Processor: PkgCreator
+      file_mode: "0755"
+      file_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
+    Processor: FileCreator
+
+  - Arguments:
+      force_pkg_build: True
+      pkg_request:
+        chown: []
+        id: com.logitech.logipresentation.pkg
+        options: purge_ds_store
+        scripts: Scripts
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgtype: flat
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+      pkgname: "%NAME%-%version%"
+    Processor: PkgCreator

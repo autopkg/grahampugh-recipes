@@ -1,0 +1,33 @@
+Description: Downloads the latest version of MestReNova and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.MestReNova
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.andrewvalentine.download.MestReNova
+
+Input:
+  NAME: MestReNova
+
+Process:
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      overwrite: true
+      source_path: "%pathname%/%NAME%.app"
+
+  - Processor: PlistReader
+    Arguments:
+      info_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      plist_keys:
+        CFBundleVersion: version
+
+  - Processor: PlistEditor
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist"
+      output_plist_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist"
+      plist_data:
+        CFBundleShortVersionString: "%version%"
+
+  - Processor: AppPkgCreator
+    Arguments:
+      app_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      overwrite: false
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
