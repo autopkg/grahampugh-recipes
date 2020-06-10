@@ -43,14 +43,24 @@ class LastRecipeRunResult(Processor):
             "required": False,
             "default": "latest_version.json",
         },
-        "pkg_path": {"description": ("the package path."), "required": False,},
+        "pkg_path": {
+            "description": ("The path where the package is stored."),
+            "required": False,
+        },
+        "pathname": {
+            "description": ("The path to the downloaded installer."),
+            "required": False,
+        },
         "version": {
             "description": ("The current package version."),
             "required": False,
         },
-        "CATEGORY": {"description": ("The package category."), "required": False,},
+        "CATEGORY": {
+            "description": ("The package category in Jamf Pro."),
+            "required": False,
+        },
         "SELF_SERVICE_DESCRIPTION": {
-            "description": ("The self-service description."),
+            "description": ("The self-service description in Jamf Pro."),
             "required": False,
         },
         "url": {"description": ("the download URL."), "required": False,},
@@ -71,12 +81,14 @@ class LastRecipeRunResult(Processor):
 
         output_file_path = self.env.get("output_file_path")
         output_file_name = self.env.get("output_file_name")
+        pathname = self.env.get("pathname")
         pkg_path = self.env.get("pkg_path")
         url = self.env.get("url")
         version = self.env.get("version")
         category = self.env.get("CATEGORY")
         self_service_description = self.env.get("SELF_SERVICE_DESCRIPTION")
 
+        self.output("Download: {}".format(pathname))
         self.output("Package: {}".format(pkg_path))
         self.output("URL: {}".format(url))
         self.output("Version: {}".format(version))
@@ -84,6 +96,7 @@ class LastRecipeRunResult(Processor):
         self.output("Self Service Description: {}".format(self_service_description))
 
         data = {}
+        data["pathname"] = pathname
         data["pkg_path"] = pkg_path
         data["url"] = url
         data["version"] = version
@@ -95,6 +108,12 @@ class LastRecipeRunResult(Processor):
 
         with open(os.path.join(output_file_path, output_file_name), "w") as outfile:
             json.dump(data, outfile)
+
+        self.output(
+            "Results written to: {}".format(
+                os.path.join(output_file_path, output_file_name)
+            )
+        )
 
 
 if __name__ == "__main__":
