@@ -9,5 +9,3 @@ ParentRecipe: com.github.grahampugh.recipes.download.MestReNova-tmp
 
 Process:
   - Processor: AppPkgCreator
-    Arguments:
-      version: "%version%"

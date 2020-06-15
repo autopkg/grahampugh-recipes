@@ -12,7 +12,3 @@ Process:
     Processor: URLDownloader
 
   - Processor: EndOfCheckPhase
-
-  - Arguments:
-      dmg_path: "%pathname%"
-    Processor: AppDmgVersioner
