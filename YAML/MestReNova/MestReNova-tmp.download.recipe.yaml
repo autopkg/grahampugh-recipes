@@ -7,18 +7,12 @@ Input:
   NAME: MestReNova
 
 Process:
-- Arguments:
-    url: '%DOWNLOAD_URL%'
-  Processor: URLDownloader
+  - Arguments:
+      url: "%DOWNLOAD_URL%"
+    Processor: URLDownloader
 
-- Processor: EndOfCheckPhase
+  - Processor: EndOfCheckPhase
 
-- Arguments:
-    dmg_path: '%pathname%'
-  Processor: AppDmgVersioner
-
-- Arguments:
-    split_on: "-"
-  Processor: com.github.homebysix.VersionSplitter/VersionSplitter
-
-  
+  - Arguments:
+      dmg_path: "%pathname%"
+    Processor: AppDmgVersioner

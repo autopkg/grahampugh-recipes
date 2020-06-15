@@ -39,15 +39,6 @@
 			<key>Processor</key>
 			<string>AppDmgVersioner</string>
 		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>split_on</key>
-				<string>-</string>
-			</dict>
-			<key>Processor</key>
-			<string>com.github.homebysix.VersionSplitter/VersionSplitter</string>
-		</dict>
 	</array>
 </dict>
 </plist>

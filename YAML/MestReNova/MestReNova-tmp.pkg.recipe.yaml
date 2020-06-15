@@ -8,6 +8,6 @@ MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.download.MestReNova-tmp
 
 Process:
-- Processor: AppPkgCreator
-  Arguments:
-    version: '%version%'
+  - Processor: AppPkgCreator
+    Arguments:
+      version: "%version%"
