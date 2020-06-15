@@ -1,0 +1,13 @@
+Description: Downloads the latest version of MestReNova and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.MestReNova-tmp
+
+Input:
+  NAME: MestReNova
+
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.MestReNova-tmp
+
+Process:
+- Processor: AppPkgCreator
+  Arguments:
+    version: '%version%'

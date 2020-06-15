@@ -1,0 +1,24 @@
+Description: Downloads the latest version of MestReNova
+Identifier: com.github.grahampugh.recipes.download.MestReNova-tmp
+MinimumVersion: 1.0.0
+
+Input:
+  DOWNLOAD_URL: https://www.mestrelab.com/downloads/tmp/mac/MestReNova-14.1.2-25024.dmg
+  NAME: MestReNova
+
+Process:
+- Arguments:
+    url: '%DOWNLOAD_URL%'
+  Processor: URLDownloader
+
+- Processor: EndOfCheckPhase
+
+- Arguments:
+    dmg_path: '%pathname%'
+  Processor: AppDmgVersioner
+
+- Arguments:
+    split_on: "-"
+  Processor: com.github.homebysix.VersionSplitter/VersionSplitter
+
+  
