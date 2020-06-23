@@ -138,7 +138,7 @@ class JamfCloudPackageUploader(Processor):
             pkg_name, self.pkg_path, self.jamf_url, enc_creds, self.replace_pkg
         )
 
-        # print various outputs from the request
+        # print result from the request
         if r:
             if r.status_code == 200 or r.status_code == 201:
                 self.output("Package uploaded successfully")
