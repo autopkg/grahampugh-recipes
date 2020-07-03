@@ -15,7 +15,7 @@ import sys
 import os
 import json
 import base64
-from xml.dom import minidom
+from zipfile import ZipFile, ZIP_DEFLATED
 import requests
 import plistlib
 from autopkglib import Processor, ProcessorError
@@ -28,8 +28,14 @@ class JamfCloudPackageUploader(Processor):
 
     input_variables = {
         "pkg_path": {
-            "required": True,
+            "required": False,
             "description": "Path to a pkg or dmg to import - provided by "
+            "previous pkg recipe/processor.",
+            "default": "",
+        },
+        "version": {
+            "required": False,
+            "description": "Version string - provided by "
             "previous pkg recipe/processor.",
             "default": "",
         },
@@ -58,7 +64,10 @@ class JamfCloudPackageUploader(Processor):
     }
 
     output_variables = {
-        "pkg_name": {"description": ("The name of a newly uploaded package."),},
+        "pkg_path": {"description": "The created package.",},
+        "jamfcloudpackageuploader_summary_result": {
+            "description": "Description of interesting results.",
+        },
     }
 
     description = __doc__
@@ -94,6 +103,31 @@ class JamfCloudPackageUploader(Processor):
             obj_id = "-1"
         return obj_id
 
+    def zip_pkg_path(self, path):
+        """Add files from path to a zip file handle.
+
+        Args:
+            path (str): Path to folder to zip.
+
+        Returns:
+            (str) name of resulting zip file.
+        """
+        zip_name = f"{path}.zip"
+
+        if os.path.exists(zip_name):
+            self.output("Package object is a bundle. Zipped version already exists.")
+            return zip_name
+
+        self.output("Package object is a bundle. Converting to zip...")
+        with ZipFile(zip_name, "w", ZIP_DEFLATED, allowZip64=True) as zip_handle:
+            for root, _, files in os.walk(path):
+                for member in files:
+                    zip_handle.write(os.path.join(root, member))
+            self.output(
+                f"Closing: {zip_name}", verbose_level=2,
+            )
+        return zip_name
+
     def post_pkg(self, pkg_name, pkg_path, jamf_url, enc_creds, replace_pkg):
         """sends the package"""
         # check for existing
@@ -118,18 +152,27 @@ class JamfCloudPackageUploader(Processor):
         """Do the main thing here"""
 
         self.pkg_path = self.env.get("pkg_path")
+        self.version = self.env.get("version")
         self.replace_pkg = self.env.get("replace_pkg")
         self.jamf_url = self.env.get("JSS_URL")
         self.jamf_user = self.env.get("API_USERNAME")
         self.jamf_password = self.env.get("API_PASSWORD")
+        # clear any pre-existing summary result
+        if "jamfcloudpackageuploader_summary_result" in self.env:
+            del self.env["jamfcloudpackageuploader_summary_result"]
 
         # encode the username and password into a basic auth b64 encoded string
         credentials = "%s:%s" % (self.jamf_user, self.jamf_password)
         enc_creds_bytes = base64.b64encode(credentials.encode("utf-8"))
         enc_creds = str(enc_creds_bytes, "utf-8")
 
-        # now upload the package
         pkg_name = os.path.basename(self.pkg_path)
+        # See if the package is non-flat (requires zipping prior to upload).
+        if os.path.isdir(self.pkg_path):
+            self.pkg_path = self.zip_pkg_path(self.pkg_path)
+            pkg_name += ".zip"
+
+        # now upload the package
         self.output(f"Checking '{pkg_name}' on {self.jamf_url}")
         r = self.post_pkg(
             pkg_name, self.pkg_path, self.jamf_url, enc_creds, self.replace_pkg
@@ -160,6 +203,18 @@ class JamfCloudPackageUploader(Processor):
                 self.output(
                     "None", verbose_level=2,
                 )
+
+            # output the summary
+            self.env["pkg_path"] = self.pkg_path
+            self.env["jamfcloudpackageuploader_summary_result"] = {
+                "summary_text": "The following packages were uploaded:",
+                "report_fields": ["pkg_path", "pkg_name", "version"],
+                "data": {
+                    "pkg_path": self.pkg_path,
+                    "pkg_name": pkg_name,
+                    "version": self.version,
+                },
+            }
 
 
 if __name__ == "__main__":
