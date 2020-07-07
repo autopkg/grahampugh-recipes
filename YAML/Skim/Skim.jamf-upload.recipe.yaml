@@ -1,0 +1,10 @@
+Identifier: com.github.grahampugh.recipes.jamf-upload.Skim
+Input:
+  CATEGORY: Applications
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.homebysix.pkg.Skim
+Process:
+  - Arguments:
+      category: "%CATEGORY%"
+      replace_pkg: True
+    Processor: com.github.grahampugh.recipes.postprocessors/JamfCloudPackageUploader
