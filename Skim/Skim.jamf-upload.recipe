@@ -20,11 +20,9 @@
 			<dict>
 				<key>category</key>
 				<string>%CATEGORY%</string>
-				<key>replace_pkg</key>
-				<true/>
 			</dict>
 			<key>Processor</key>
-			<string>com.github.grahampugh.recipes.postprocessors/JamfCloudPackageUploader</string>
+			<string>com.github.grahampugh.recipes.postprocessors/JamfPackageUploader</string>
 		</dict>
 	</array>
 </dict>

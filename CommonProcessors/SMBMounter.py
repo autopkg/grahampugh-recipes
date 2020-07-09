@@ -43,7 +43,7 @@ class SMBMounter(Processor):
     }
 
     output_variables = {
-        "mount_point": {"description": "Path to the downloaded file."},
+        "mount_point": {"description": "Mount Point."},
     }
 
     description = __doc__

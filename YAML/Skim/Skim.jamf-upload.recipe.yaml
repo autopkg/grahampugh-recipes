@@ -6,5 +6,4 @@ ParentRecipe: com.github.homebysix.pkg.Skim
 Process:
   - Arguments:
       category: "%CATEGORY%"
-      replace_pkg: True
-    Processor: com.github.grahampugh.recipes.postprocessors/JamfCloudPackageUploader
+    Processor: com.github.grahampugh.recipes.postprocessors/JamfPackageUploader
