@@ -38,8 +38,8 @@ except ImportError:
 __all__ = ["FilemakerProAdvancedUpdateURLProcessor"]
 
 # This was determined by reviewing the sources of the updates site at
-# http://www.filemaker.com/support/downloads/
-UPDATE_FEED = "https://www.filemaker.com/support/updaters/product-updaters.txt"
+# https://www.claris.com/resources/downloads/
+UPDATE_FEED = "https://www.claris.com/resources/downloads/updaters/product-updaters.txt"
 
 
 class FilemakerProAdvancedUpdateURLProcessor(URLGetter):
