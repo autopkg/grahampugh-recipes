@@ -152,12 +152,12 @@ class JamfPackageUploader(Processor):
         if os.path.isfile(pkg_path):
             path = "/Volumes{}".format(urlparse(mount_share).path)
             destination_pkg_path = os.path.join(path, "Packages", pkg_name)
-            self.output("Uploading {} to {}".format(pkg_name, destination_pkg_path))
+            self.output("Copying {} to {}".format(pkg_name, destination_pkg_path))
             copyfile(pkg_path, destination_pkg_path)
         if os.path.isfile(destination_pkg_path):
-            self.output("Upload successful")
+            self.output("Package copy successful")
         else:
-            self.output("Upload failed")
+            self.output("Package copy failed")
 
     def zip_pkg_path(self, path):
         """Add files from path to a zip file handle.
