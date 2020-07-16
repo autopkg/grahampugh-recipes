@@ -66,7 +66,10 @@ class SMBMounter(Processor):
         if cmd_out:
             self.output("Result:\n%s" % (cmd_out.decode("ascii")))
         elif cmd_err:
-            raise ProcessorError(cmd_err.decode("ascii"))
+            self.output(
+                "Share is probably already mounted. Result:\n%s"
+                % (cmd_err.decode("ascii"))
+            )
         else:
             self.output("%s mounted" % mount_point)
 
