@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest version of Riot.im.</string>
+	<string>Downloads the latest version of Riot.im. Note that this recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.recipes.download.Riot</string>
 	<key>Input</key>
@@ -17,6 +17,15 @@
 	<string>1.0.0</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>warning_message</key>
+				<string>This recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.</string>
+			</dict>
+			<key>Processor</key>
+			<string>DeprecationWarning</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>

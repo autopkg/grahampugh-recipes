@@ -1,9 +1,15 @@
-Description: Downloads the latest version of Riot and creates a package.
+Description: Downloads the latest version of Riot and creates a package. Note that this recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.
 Identifier: com.github.grahampugh.recipes.pkg.Riot
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.Riot
+
 Input:
   BUNDLE_ID: im.riot.app
   NAME: Riot
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.download.Riot
+
 Process:
-- Processor: AppPkgCreator
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: This recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.
+
+  - Processor: AppPkgCreator
