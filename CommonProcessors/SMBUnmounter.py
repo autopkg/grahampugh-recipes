@@ -19,7 +19,7 @@ See docstring for SMBUnmounter class
 """
 
 from __future__ import absolute_import
-import os
+import os.path
 import subprocess
 from autopkglib import Processor, ProcessorError
 
@@ -39,20 +39,20 @@ class SMBUnmounter(Processor):
 
     def unmount_smb_share(self, mount_point):
         """Unmount the smb share"""
-        cmd = [
-            "/sbin/umount",
-            mount_point,
-        ]
+        if os.path.exists(mount_point):
+            cmd = [
+                "/sbin/umount",
+                mount_point,
+            ]
 
-        # unmount the share
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (cmd_out, cmd_err) = proc.communicate()
-        if cmd_out:
-            self.output("Result:\n%s" % (cmd_out.decode("ascii")))
-        elif cmd_err:
-            raise ProcessorError(cmd_err.decode("ascii"))
-        else:
-            self.output("%s unmounted" % mount_point)
+            # unmount the share
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (cmd_out, cmd_err) = proc.communicate()
+            if cmd_out:
+                self.output("Result:\n%s" % (cmd_out.decode("ascii")))
+                self.output("%s unmounted" % mount_point)
+            elif cmd_err:
+                raise ProcessorError(cmd_err.decode("ascii"))
 
         # delete the mount folder
         cmd = [
@@ -61,18 +61,17 @@ class SMBUnmounter(Processor):
             mount_point,
         ]
 
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (cmd_out, cmd_err) = proc.communicate()
-        if cmd_out:
-            self.output("Result:\n%s" % (cmd_out.decode("ascii")))
-        elif cmd_err:
-            raise ProcessorError(cmd_err.decode("ascii"))
+        if os.path.exists(mount_point):
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (cmd_out, cmd_err) = proc.communicate()
+            if cmd_out:
+                self.output("Result:\n%s" % (cmd_out.decode("ascii")))
+            elif cmd_err:
+                raise ProcessorError(cmd_err.decode("ascii"))
 
     def main(self):
         """do the main thing"""
         self.unmount_smb_share(self.env.get("mount_point"))
-
-        # end
 
 
 if __name__ == "__main__":
