@@ -1,0 +1,31 @@
+Description: Downloads the latest version of Riot.im.
+Identifier: com.github.grahampugh.recipes.download.Element
+
+Input:
+  DOWNLOAD_URL: https://element.io/get-started
+  NAME: Element (Riot)
+
+MinimumVersion: 1.0.0
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      re_pattern: '"(?P<match>https://packages\.riot\.im/desktop/install/macos/Element.*\.dmg)"'
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%match%"
+      filename: Element.dmg
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/Element (Riot).app"
+      requirement: identifier "im.riot.app" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7J4U792NQT"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%pathname%/Element (Riot).app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString

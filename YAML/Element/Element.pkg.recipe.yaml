@@ -1,0 +1,12 @@
+Description: Downloads the latest version of Riot and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.Element
+Input:
+  BUNDLE_ID: im.riot.app
+  NAME: Element (Riot)
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.Element
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/Element-%version%.pkg"
+      force_pkg_build: True
