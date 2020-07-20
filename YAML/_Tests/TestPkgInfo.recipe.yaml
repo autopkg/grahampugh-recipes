@@ -1,0 +1,11 @@
+Identifier: test.recipes.TestPkgInfo
+
+Input:
+  PKG_ITEM: ""
+
+MinimumVersion: 1.0.0
+
+Process:
+  - Arguments:
+      pkgitem: "%PKG_ITEM%"
+    Processor: com.github.grahampugh.recipes.commonprocessors/PkgInfoReader
