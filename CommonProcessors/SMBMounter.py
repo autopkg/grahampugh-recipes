@@ -21,7 +21,7 @@ See docstring for SMBMounter class
 from __future__ import absolute_import
 import os
 import subprocess
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["SMBMounter"]
 
@@ -64,14 +64,13 @@ class SMBMounter(Processor):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (cmd_out, cmd_err) = proc.communicate()
         if cmd_out:
-            self.output("Result:\n%s" % (cmd_out.decode("ascii")))
+            self.output(f"Result:\n{cmd_out.decode('ascii')}")
         elif cmd_err:
             self.output(
-                "Share is probably already mounted. Result:\n%s"
-                % (cmd_err.decode("ascii"))
+                f"Share is probably already mounted. Result:\n{cmd_err.decode('ascii')}"
             )
         else:
-            self.output("%s mounted" % mount_point)
+            self.output(f"{mount_point} mounted")
 
     def main(self):
         """do the main thing"""

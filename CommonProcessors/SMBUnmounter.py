@@ -21,7 +21,7 @@ See docstring for SMBUnmounter class
 from __future__ import absolute_import
 import os.path
 import subprocess
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["SMBUnmounter"]
 
@@ -49,8 +49,8 @@ class SMBUnmounter(Processor):
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (cmd_out, cmd_err) = proc.communicate()
             if cmd_out:
-                self.output("Result:\n%s" % (cmd_out.decode("ascii")))
-                self.output("%s unmounted" % mount_point)
+                self.output(f"Result:\n{cmd_out.decode('ascii')}")
+                self.output(f"{mount_point} unmounted")
             elif cmd_err:
                 raise ProcessorError(cmd_err.decode("ascii"))
 
@@ -65,7 +65,7 @@ class SMBUnmounter(Processor):
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (cmd_out, cmd_err) = proc.communicate()
             if cmd_out:
-                self.output("Result:\n%s" % (cmd_out.decode("ascii")))
+                self.output(f"Result:\n{cmd_out.decode('ascii')}")
             elif cmd_err:
                 raise ProcessorError(cmd_err.decode("ascii"))
 

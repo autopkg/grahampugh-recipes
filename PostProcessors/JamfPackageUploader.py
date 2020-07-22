@@ -23,7 +23,7 @@ import subprocess
 import xml.etree.ElementTree as ElementTree
 from shutil import copyfile
 from urllib.parse import urlparse
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
 class JamfPackageUploader(Processor):
@@ -107,9 +107,7 @@ class JamfPackageUploader(Processor):
         mount_cmd = [
             "/usr/bin/osascript",
             "-e",
-            'mount volume "{}" as user name "{}" with password "{}"'.format(
-                mount_share, mount_user, mount_pass
-            ),
+            f'mount volume "{mount_share}" as user name "{mount_user}" with password "{mount_pass}"',
         ]
         self.output(
             mount_cmd, verbose_level=2,
@@ -122,7 +120,7 @@ class JamfPackageUploader(Processor):
 
     def umount_smb(self, mount_share):
         """Unmount distribution point."""
-        path = "/Volumes{}".format(urlparse(mount_share).path)
+        path = f"/Volumes{urlparse(mount_share).path}"
         cmd = ["/usr/sbin/diskutil", "unmount", path]
         try:
             subprocess.check_call(cmd)
@@ -131,28 +129,28 @@ class JamfPackageUploader(Processor):
 
     def check_local_pkg(self, mount_share, pkg_name):
         """Check local DP or mounted share for existing package"""
-        path = "/Volumes{}".format(urlparse(mount_share).path)
+        path = f"/Volumes{urlparse(mount_share).path}"
         if os.path.isdir(path):
             existing_pkg_path = os.path.join(path, "Packages", pkg_name)
             if os.path.isfile(existing_pkg_path):
-                self.output("Existing package found: {}".format(existing_pkg_path))
+                self.output(f"Existing package found: {existing_pkg_path}")
                 return existing_pkg_path
             else:
                 self.output("No existing package found")
                 self.output(
-                    "Expected path: {}".format(existing_pkg_path), verbose_level=2,
+                    f"Expected path: {existing_pkg_path}", verbose_level=2,
                 )
         else:
             self.output(
-                "Expected path not found!: {}".format(path), verbose_level=2,
+                f"Expected path not found!: {path}", verbose_level=2,
             )
 
     def copy_pkg(self, mount_share, pkg_path, pkg_name):
         """Copy package from AutoPkg Cache to local or mounted Distribution Point"""
         if os.path.isfile(pkg_path):
-            path = "/Volumes{}".format(urlparse(mount_share).path)
+            path = f"/Volumes{urlparse(mount_share).path}"
             destination_pkg_path = os.path.join(path, "Packages", pkg_name)
-            self.output("Copying {} to {}".format(pkg_name, destination_pkg_path))
+            self.output(f"Copying {pkg_name} to {destination_pkg_path}")
             copyfile(pkg_path, destination_pkg_path)
         if os.path.isfile(destination_pkg_path):
             self.output("Package copy successful")
@@ -227,22 +225,22 @@ class JamfPackageUploader(Processor):
         # build the package record XML
         pkg_data = (
             "<package>"
-            + "<name>{}</name>".format(pkg_name)
-            + "<filename>{}</filename>".format(pkg_name)
-            + "<category>{}</category>".format(category)
+            + f"<name>{pkg_name}</name>"
+            + f"<filename>{pkg_name}</filename>"
+            + f"<category>{category}</category>"
             + "</package>"
         )
         headers = {
-            "authorization": "Basic {}".format(enc_creds),
+            "authorization": f"Basic {enc_creds}",
             "Accept": "application/xml",
             "Content-type": "application/xml",
         }
         #  ideally we upload to the package ID but if we didn't get a good response
         #  we fall back to the package name
         if pkg_id:
-            url = "{}/JSSResource/packages/id/{}".format(jamf_url, pkg_id)
+            url = f"{jamf_url}/JSSResource/packages/id/{pkg_id}"
         else:
-            url = "{}/JSSResource/packages/name/{}".format(jamf_url, pkg_name)
+            url = f"{jamf_url}/JSSResource/packages/name/{pkg_name}"
 
         http = requests.Session()
 
@@ -272,7 +270,7 @@ class JamfPackageUploader(Processor):
                 self.output(
                     f"HTTP POST Response Code: {r.status_code}", verbose_level=2,
                 )
-            break
+                break
             sleep(30)
 
     def main(self):
@@ -296,7 +294,7 @@ class JamfPackageUploader(Processor):
             del self.env["jamfpackageuploader_summary_result"]
 
         # encode the username and password into a basic auth b64 encoded string
-        credentials = "%s:%s" % (self.jamf_user, self.jamf_password)
+        credentials = f"{self.jamf_user}:{self.jamf_password}"
         enc_creds_bytes = base64.b64encode(credentials.encode("utf-8"))
         enc_creds = str(enc_creds_bytes, "utf-8")
 

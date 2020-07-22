@@ -22,7 +22,7 @@ import json
 
 from distutils.version import LooseVersion
 from os.path import expanduser, getmtime, exists
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 from glob import iglob
 
 
@@ -110,9 +110,7 @@ class LastRecipeRunResult(Processor):
             json.dump(data, outfile)
 
         self.output(
-            "Results written to: {}".format(
-                os.path.join(output_file_path, output_file_name)
-            )
+            f"Results written to: {os.path.join(output_file_path, output_file_name)}"
         )
 
 

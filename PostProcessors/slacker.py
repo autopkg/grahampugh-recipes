@@ -18,49 +18,37 @@ from __future__ import absolute_import, print_function
 
 import requests
 
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 # Set the webhook_url to the one provided by Slack when you create the webhook at https://my.slack.com/services/new/incoming-webhook/
 
 __all__ = ["Slacker"]
 
+
 class Slacker(Processor):
-    description = ("Posts to Slack via webhook based on output of a JSSImporter run. "
-                    "Takes elements from " "https://gist.github.com/devStepsize/b1b795309a217d24566dcc0ad136f784"
-                    "and "
-                    "https://github.com/autopkg/nmcspadden-recipes/blob/master/PostProcessors/Yo.py")
+    description = (
+        "Posts to Slack via webhook based on output of a JSSImporter run. "
+        "Takes elements from "
+        "https://gist.github.com/devStepsize/b1b795309a217d24566dcc0ad136f784"
+        "and "
+        "https://github.com/autopkg/nmcspadden-recipes/blob/master/PostProcessors/Yo.py"
+    )
     input_variables = {
-        "JSS_URL": {
-            "required": False,
-            "description": ("JSS_URL.")
-        },
-        "policy_category": {
-            "required": False,
-            "description": ("Policy Category.")
-        },
-        "category": {
-            "required": False,
-            "description": ("Package Category.")
-        },
-        "prod_name": {
-            "required": False,
-            "description": ("Title (NAME)")
-        },
+        "JSS_URL": {"required": False, "description": ("JSS_URL.")},
+        "policy_category": {"required": False, "description": ("Policy Category.")},
+        "category": {"required": False, "description": ("Package Category.")},
+        "prod_name": {"required": False, "description": ("Title (NAME)")},
         "jss_changed_objects": {
             "required": False,
-            "description": ("Dictionary of added or changed values.")
+            "description": ("Dictionary of added or changed values."),
         },
         "jss_importer_summary_result": {
             "required": False,
-            "description": ("Description of interesting results.")
+            "description": ("Description of interesting results."),
         },
-        "webhook_url": {
-            "required": False,
-            "description": ("Slack webhook.")
-        }
+        "webhook_url": {"required": False, "description": ("Slack webhook.")},
     }
-    output_variables = {
-    }
+    output_variables = {}
 
     __doc__ = description
 
@@ -74,29 +62,47 @@ class Slacker(Processor):
         webhook_url = self.env.get("webhook_url")
 
         if jss_changed_objects:
-            jss_policy_name = "%s" % jss_importer_summary_result["data"]["Policy"]
-            jss_policy_version = "%s" % jss_importer_summary_result["data"]["Version"]
-            jss_uploaded_package = "%s" % jss_importer_summary_result["data"]["Package"]
-            print("JSS address: %s" % JSS_URL)
-            print("Title: %s" % prod_name)
-            print("Policy: %s" % jss_policy_name)
-            print("Version: %s" % jss_policy_version)
-            print("Category: %s" % category)
-            print("Policy Category: %s" % policy_category)
-            print("Package: %s" % jss_uploaded_package)
+            jss_policy_name = jss_importer_summary_result["data"]["Policy"]
+            jss_policy_version = jss_importer_summary_result["data"]["Version"]
+            jss_uploaded_package = jss_importer_summary_result["data"]["Package"]
+            self.output(f"JSS address: {JSS_URL}")
+            self.output(f"Title: {prod_name}")
+            self.output(f"Policy: {jss_policy_name}")
+            self.output(f"Version: {jss_policy_version}")
+            self.output(f"Package Category: {category}")
+            self.output(f"Policy Category: {policy_category}")
+            self.output(f"Package: {jss_uploaded_package}")
             if jss_uploaded_package:
-                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nUploaded Package Name: *%s*" % (JSS_URL, prod_name, jss_policy_version, category, jss_policy_name, jss_uploaded_package)
+                slack_text = (
+                    f"*New Item added to JSS:*\n"
+                    "URL: {JSS_URL}\n"
+                    "Title: *{prod_name}*\n"
+                    "Version: *{jss_policy_version}*\n"
+                    "Policy Name: *{jss_policy_name}*\n"
+                    "Policy Category: *{policy_category}*\n"
+                    "Package Category: *{category}*\n"
+                    "Uploaded Package Name: *{jss_uploaded_package}*"
+                )
             else:
-                slack_text = "*New Item added to JSS:*\nURL: %s\nTitle: *%s*\nVersion: *%s*\nCategory: *%s*\nPolicy Name: *%s*\nNo new package uploaded" % (JSS_URL, prod_name, jss_policy_version, category, jss_policy_name)
+                slack_text = (
+                    f"*New Item added to JSS:*\n"
+                    "URL: {JSS_URL}\n"
+                    "Title: *{prod_name}*\n"
+                    "Version: *{jss_policy_version}*\n"
+                    "Policy Name: *{jss_policy_name}*\n"
+                    "Policy Category: *{policy_category}*\n"
+                    "Package Category: *{category}*\n"
+                    "No new package uploaded"
+                )
 
-            slack_data = {'text': slack_text}
+            slack_data = {"text": slack_text}
 
             response = requests.post(webhook_url, json=slack_data)
             if response.status_code != 200:
                 raise ValueError(
-                                'Request to slack returned an error %s, the response is:\n%s'
-                                % (response.status_code, response.text)
-                                )
+                    f"Request to slack returned an error {response.status_code}, "
+                    "the response is:\n{response.text}"
+                )
 
 
 if __name__ == "__main__":

@@ -28,8 +28,9 @@ import tempfile
 from xml.dom import minidom
 from urllib.parse import unquote
 
-from autopkglib import APLooseVersion, Processor, ProcessorError  # noqa: F401
-from autopkglib.Copier import Copier
+from autopkglib import APLooseVersion  # pylint: disable=import-error
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
+from autopkglib.Copier import Copier  # pylint: disable=import-error
 
 import plistlib
 
@@ -137,7 +138,7 @@ class PkgInfoReader(Copier):
         """Get receipt info from a package"""
         info = []
         if self.hasValidPackageExt(pkgname):
-            self.output("Examining %s" % pkgname)
+            self.output(f"Examining {pkgname}")
             if os.path.isfile(pkgname):  # new flat package
                 info = self.getFlatPackageInfo(pkgname)
 
@@ -186,8 +187,7 @@ class PkgInfoReader(Copier):
                         break
                     else:
                         self.output(
-                            "An error occurred while extracting %s: %s"
-                            % (toc_entry, err)
+                            f"An error occurred while extracting {toc_entry}: {err}"
                         )
                 # If there are PackageInfo files elsewhere, gather them up
                 elif toc_entry.endswith(".pkg/PackageInfo"):
@@ -200,8 +200,7 @@ class PkgInfoReader(Copier):
                         infoarray.extend(self.parsePkgRefs(packageinfoabspath))
                     else:
                         self.output(
-                            "An error occurred while extracting %s: %s"
-                            % (toc_entry, err)
+                            f"An error occurred while extracting {toc_entry}: {err}"
                         )
             if not infoarray:
                 for toc_entry in [
@@ -220,8 +219,7 @@ class PkgInfoReader(Copier):
                         break
                     else:
                         self.output(
-                            "An error occurred while extracting %s: %s"
-                            % (toc_entry, err)
+                            f"An error occurred while extracting {toc_entry}: {err}"
                         )
 
             if not infoarray:
@@ -283,7 +281,7 @@ class PkgInfoReader(Copier):
 
                 pkginfo["version"] = self.getBundleVersion(pkgpath)
             except AttributeError:
-                pkginfo["packageid"] = "BAD PLIST in %s" % os.path.basename(pkgpath)
+                pkginfo["packageid"] = f"BAD PLIST in {os.path.basename(pkgpath)}"
                 pkginfo["version"] = "0.0"
             ## now look for applications to suggest for blocking_applications
             # bomlist = getBomList(pkgpath)
@@ -395,7 +393,7 @@ class PkgInfoReader(Copier):
         out = out.decode("UTF-8")
         err = err.decode("UTF-8")
         if proc.returncode:
-            self.output("installer -query failed: %s %s" % (out, err))
+            self.output(f"installer -query failed: {out} {err}")
             return {}
 
         if out:

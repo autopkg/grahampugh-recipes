@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from autopkglib import Processor, ProcessorError  # noqa: F401
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["StringReplacer"]
 
