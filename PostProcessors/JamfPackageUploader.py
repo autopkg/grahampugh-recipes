@@ -216,7 +216,7 @@ class JamfPackageUploader(Processor):
         url = f"{jamf_url}/dbfileupload"
 
         http = requests.Session()
-        r = http.post(url, files=files, headers=headers, timeout=3600)
+        r = http.post(url, data=files, headers=headers, timeout=3600)
         return r
 
     def update_pkg_metadata(self, jamf_url, enc_creds, pkg_name, category, pkg_id=None):
