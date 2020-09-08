@@ -30,7 +30,7 @@ __all__ = ["LastRecipeRunResult"]
 
 
 class LastRecipeRunResult(Processor):
-    """An AutoPkg processor which works out the latest receipt from a different AutoPkg recipe, and provides useful values from its contents, which can be used to run a different recipe based on those values."""
+    """An AutoPkg processor which writes useful results of a recipe to a JSON file, which can be used to run a different recipe based on those values."""
 
     input_variables = {
         "RECIPE_CACHE_DIR": {"required": False, "description": ("RECIPE_CACHE_DIR."),},
