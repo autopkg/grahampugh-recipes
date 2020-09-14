@@ -3,44 +3,38 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained. Then, uploads to the Jamf Pro Server.</string>
+	<string>Downloads the latest version of Element and creates a package. Then, uploads to the Jamf Pro Server.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jss.AdoptOpenJDK8</string>
+	<string>com.github.grahampugh.recipes.jss.Element</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
-		<string>Computer Science</string>
-		<key>EXTENSION_ATTRIBUTE</key>
-		<string>%NAME%-ExtensionAttribute.xml</string>
-		<key>EXTENSION_ATTRIBUTE_NAME</key>
-		<string>AdoptOpenJDK8Versiomn</string>
+		<string>Connect and Remote</string>
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroup-update-smart-EA-regex.xml</string>
+		<string>SmartGroup-update-smart-regex.xml</string>
+		<key>JSS_INVENTORY_NAME</key>
+		<string>Element (Riot).app</string>
 		<key>NAME</key>
-		<string>AdoptOpenJDK 8</string>
+		<string>Element</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
 		<key>POLICY_NAME</key>
 		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
 		<string>Policy-install-latest.xml</string>
-		<key>SCRIPT</key>
-		<string>%NAME%-preinstall.sh</string>
-		<key>SCRIPT_TEMPLATE</key>
-		<string>%NAME%-preinstall-ScriptTemplate.xml</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>The AdoptOpenJDK Java Development Toolkit, version 8.</string>
+		<string>Element (formerly Riot) is an open source instant messaging client built on the Matrix protocol.</string>
 		<key>SELF_SERVICE_ICON</key>
-		<string>AdoptOpenJDK.png</string>
+		<string>Element.png</string>
 		<key>TESTING_GROUP_NAME</key>
 		<string>Testing</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.recipes.pkg.AdoptOpenJDK8</string>
+	<string>com.github.grahampugh.recipes.pkg.Element</string>
 	<key>Process</key>
 	<array>
 		<dict>
@@ -52,13 +46,6 @@
 			<dict>
 				<key>category</key>
 				<string>%CATEGORY%</string>
-				<key>extension_attributes</key>
-				<array>
-					<dict>
-						<key>ext_attribute_path</key>
-						<string>%EXTENSION_ATTRIBUTE%</string>
-					</dict>
-				</array>
 				<key>groups</key>
 				<array>
 					<dict>
@@ -70,21 +57,14 @@
 						<string>%GROUP_TEMPLATE%</string>
 					</dict>
 				</array>
+				<key>jss_inventory_name</key>
+				<string>%JSS_INVENTORY_NAME%</string>
 				<key>policy_category</key>
 				<string>%POLICY_CATEGORY%</string>
 				<key>policy_template</key>
 				<string>%POLICY_TEMPLATE%</string>
 				<key>prod_name</key>
 				<string>%NAME%</string>
-				<key>scripts</key>
-				<array>
-					<dict>
-						<key>name</key>
-						<string>%SCRIPT%</string>
-						<key>template_path</key>
-						<string>%SCRIPT_TEMPLATE%</string>
-					</dict>
-				</array>
 				<key>self_service_description</key>
 				<string>%SELF_SERVICE_DESCRIPTION%</string>
 				<key>self_service_icon</key>

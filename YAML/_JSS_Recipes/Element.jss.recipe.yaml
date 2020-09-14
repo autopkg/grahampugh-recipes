@@ -1,22 +1,21 @@
-Description: Downloads the latest version of Adobe's Creative Cloud Desktop App Installer and packages it for installation. Then, uploads to the Jamf Pro Server.
-Identifier: com.github.grahampugh.recipes.jss.AdobeCreativeCloud
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.rtrouton.pkg.AdobeCreativeCloudInstaller
+Description: Downloads the latest version of Element and creates a package. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss.Element
 
 Input:
-  NAME: Adobe Creative Cloud
-  CATEGORY: Applications
+  CATEGORY: Connect and Remote
   GROUP_NAME: "%NAME%-update-smart"
   GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
   TESTING_GROUP_NAME: Testing
-  JSS_INVENTORY_NAME: Creative Cloud.app
+  NAME: Element
+  JSS_INVENTORY_NAME: Element (Riot).app
   POLICY_CATEGORY: Testing
   POLICY_NAME: "Install Latest %NAME%"
   POLICY_TEMPLATE: Policy-install-latest.xml
-  SELF_SERVICE_DESCRIPTION: Access Adobe apps from the cloud using your federated Adobe ID.
-  SELF_SERVICE_ICON: "%NAME%.png"
-  SCRIPT: "%NAME%-postinstall.sh"
-  SCRIPT_TEMPLATE: "%NAME%-postinstall-ScriptTemplate.xml"
+  SELF_SERVICE_DESCRIPTION: Element (formerly Riot) is an open source instant messaging client built on the Matrix protocol.
+  SELF_SERVICE_ICON: Element.png
+
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.pkg.Element
 
 Process:
   - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
@@ -31,9 +30,6 @@ Process:
       policy_category: "%POLICY_CATEGORY%"
       policy_template: "%POLICY_TEMPLATE%"
       prod_name: "%NAME%"
-      scripts:
-        - name: "%SCRIPT%"
-          template_path: "%SCRIPT_TEMPLATE%"
       self_service_description: "%SELF_SERVICE_DESCRIPTION%"
       self_service_icon: "%SELF_SERVICE_ICON%"
     Processor: JSSImporter

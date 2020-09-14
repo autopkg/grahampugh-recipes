@@ -17,13 +17,15 @@
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroupTemplate-ExtensionAttribute.xml</string>
+		<string>SmartGroup-update-smart-EA-regex.xml</string>
 		<key>NAME</key>
 		<string>AdoptOpenJDK 11</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>PolicyTemplate.xml</string>
+		<string>Policy-install-latest.xml</string>
 		<key>SCRIPT</key>
 		<string>%NAME%-preinstall.sh</string>
 		<key>SCRIPT_TEMPLATE</key>
@@ -32,6 +34,8 @@
 		<string>The AdoptOpenJDK Java Development Toolkit, version 11.</string>
 		<key>SELF_SERVICE_ICON</key>
 		<string>AdoptOpenJDK.png</string>
+		<key>TESTING_GROUP_NAME</key>
+		<string>Testing</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -39,6 +43,10 @@
 	<string>com.github.grahampugh.recipes.pkg.AdoptOpenJDK11</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>

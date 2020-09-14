@@ -13,17 +13,21 @@
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroupTemplate.xml</string>
+		<string>SmartGroup-update-smart-regex.xml</string>
 		<key>NAME</key>
 		<string>TeXLive Utility</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>PolicyTemplate.xml</string>
+		<string>Policy-install-latest.xml</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
 		<string>TeX Live Utility is a Mac OS X graphical interface for TeX Live Manager, which is a tool provided with TeX Live 2008 and later, for updating, installing, and otherwise managing TeX Live. TeX Live Utility aims to provide a native Mac OS X interface for the most commonly used functions of the TeX Live Manager command-line tool.</string>
 		<key>SELF_SERVICE_ICON</key>
 		<string>TeXLive Utility.png</string>
+		<key>TESTING_GROUP_NAME</key>
+		<string>Testing</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.9</string>
@@ -31,6 +35,10 @@
 	<string>com.github.grahampugh.recipes.pkg.TeXLiveUtility</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>

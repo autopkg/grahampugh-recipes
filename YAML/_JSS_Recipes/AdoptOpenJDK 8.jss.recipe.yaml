@@ -7,31 +7,35 @@ Input:
   NAME: AdoptOpenJDK 8
   CATEGORY: Computer Science
   SELF_SERVICE_DESCRIPTION: The AdoptOpenJDK Java Development Toolkit, version 8.
-  GROUP_NAME: '%NAME%-update-smart'
-  GROUP_TEMPLATE: SmartGroupTemplate-ExtensionAttribute.xml
-  EXTENSION_ATTRIBUTE: '%NAME%-ExtensionAttribute.xml'
+  GROUP_NAME: "%NAME%-update-smart"
+  GROUP_TEMPLATE: SmartGroup-update-smart-EA-regex.xml
+  TESTING_GROUP_NAME: Testing
+  EXTENSION_ATTRIBUTE: "%NAME%-ExtensionAttribute.xml"
   EXTENSION_ATTRIBUTE_NAME: AdoptOpenJDK8Versiomn
-  SELF_SERVICE_ICON: 'AdoptOpenJDK.png'
+  SELF_SERVICE_ICON: "AdoptOpenJDK.png"
   POLICY_CATEGORY: Testing
-  POLICY_TEMPLATE: PolicyTemplate.xml
-  SCRIPT: '%NAME%-preinstall.sh'
-  SCRIPT_TEMPLATE: '%NAME%-preinstall-ScriptTemplate.xml'
+  POLICY_NAME: "Install Latest %NAME%"
+  POLICY_TEMPLATE: Policy-install-latest.xml
+  SCRIPT: "%NAME%-preinstall.sh"
+  SCRIPT_TEMPLATE: "%NAME%-preinstall-ScriptTemplate.xml"
 
 Process:
-- Arguments:
-    category: '%CATEGORY%'
-    groups:
-    - name: '%GROUP_NAME%'
-      smart: true
-      template_path: '%GROUP_TEMPLATE%'
-    extension_attributes:
-    - ext_attribute_path: '%EXTENSION_ATTRIBUTE%'
-    policy_category: '%POLICY_CATEGORY%'
-    policy_template: '%POLICY_TEMPLATE%'
-    prod_name: '%NAME%'
-    scripts:
-    - name: '%SCRIPT%'
-      template_path: '%SCRIPT_TEMPLATE%'
-    self_service_description: '%SELF_SERVICE_DESCRIPTION%'
-    self_service_icon: '%SELF_SERVICE_ICON%'
-  Processor: JSSImporter
+  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
+
+  - Arguments:
+      category: "%CATEGORY%"
+      groups:
+        - name: "%GROUP_NAME%"
+          smart: true
+          template_path: "%GROUP_TEMPLATE%"
+      extension_attributes:
+        - ext_attribute_path: "%EXTENSION_ATTRIBUTE%"
+      policy_category: "%POLICY_CATEGORY%"
+      policy_template: "%POLICY_TEMPLATE%"
+      prod_name: "%NAME%"
+      scripts:
+        - name: "%SCRIPT%"
+          template_path: "%SCRIPT_TEMPLATE%"
+      self_service_description: "%SELF_SERVICE_DESCRIPTION%"
+      self_service_icon: "%SELF_SERVICE_ICON%"
+    Processor: JSSImporter

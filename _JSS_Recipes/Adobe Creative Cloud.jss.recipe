@@ -9,19 +9,21 @@
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
-		<string>Applications-prod</string>
+		<string>Applications</string>
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroupTemplate.xml</string>
+		<string>SmartGroup-update-smart-regex.xml</string>
 		<key>JSS_INVENTORY_NAME</key>
 		<string>Creative Cloud.app</string>
 		<key>NAME</key>
 		<string>Adobe Creative Cloud</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>PolicyTemplate.xml</string>
+		<string>Policy-install-latest.xml</string>
 		<key>SCRIPT</key>
 		<string>%NAME%-postinstall.sh</string>
 		<key>SCRIPT_TEMPLATE</key>
@@ -30,6 +32,8 @@
 		<string>Access Adobe apps from the cloud using your federated Adobe ID.</string>
 		<key>SELF_SERVICE_ICON</key>
 		<string>%NAME%.png</string>
+		<key>TESTING_GROUP_NAME</key>
+		<string>Testing</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -37,6 +41,10 @@
 	<string>com.github.rtrouton.pkg.AdobeCreativeCloudInstaller</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>

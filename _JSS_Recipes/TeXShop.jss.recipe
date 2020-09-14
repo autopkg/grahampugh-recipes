@@ -13,17 +13,21 @@
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroupTemplate.xml</string>
+		<string>SmartGroup-update-smart-regex.xml</string>
 		<key>NAME</key>
 		<string>TeXShop</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
+		<key>POLICY_NAME</key>
+		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>PolicyTemplate.xml</string>
+		<string>Policy-install-latest.xml</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
 		<string>TeXShop is a free LaTeX and TeX editor and previewer for macOS. It is licensed under the GNU GPL. It was developed by the American mathematician Richard Koch. This version of TeXShop requires the MacTeX application bundle to be installed for all features to function.</string>
 		<key>SELF_SERVICE_ICON</key>
 		<string>TeXShop.png</string>
+		<key>TESTING_GROUP_NAME</key>
+		<string>Testing</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.0</string>
@@ -31,6 +35,10 @@
 	<string>com.github.grahampugh.recipes.pkg.TeXShop</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>

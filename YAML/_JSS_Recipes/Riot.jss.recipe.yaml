@@ -3,11 +3,13 @@ Identifier: com.github.grahampugh.recipes.jss.Riot
 
 Input:
   CATEGORY: Connect and Remote
-  GROUP_NAME: '%NAME%-update-smart'
-  GROUP_TEMPLATE: SmartGroupTemplate.xml
+  GROUP_NAME: "%NAME%-update-smart"
+  GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
+  TESTING_GROUP_NAME: Testing
   NAME: Riot
   POLICY_CATEGORY: Testing
-  POLICY_TEMPLATE: PolicyTemplate.xml
+  POLICY_NAME: "Install Latest %NAME%"
+  POLICY_TEMPLATE: Policy-install-latest.xml
   SELF_SERVICE_DESCRIPTION: Riot is an open source instant messaging client built on the Matrix protocol.
   SELF_SERVICE_ICON: Riot.png
 
@@ -15,15 +17,17 @@ MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.pkg.Riot
 
 Process:
-- Arguments:
-    category: '%CATEGORY%'
-    groups:
-    - name: '%GROUP_NAME%'
-      smart: true
-      template_path: '%GROUP_TEMPLATE%'
-    policy_category: '%POLICY_CATEGORY%'
-    policy_template: '%POLICY_TEMPLATE%'
-    prod_name: '%NAME%'
-    self_service_description: '%SELF_SERVICE_DESCRIPTION%'
-    self_service_icon: '%SELF_SERVICE_ICON%'
-  Processor: JSSImporter
+  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
+
+  - Arguments:
+      category: "%CATEGORY%"
+      groups:
+        - name: "%GROUP_NAME%"
+          smart: true
+          template_path: "%GROUP_TEMPLATE%"
+      policy_category: "%POLICY_CATEGORY%"
+      policy_template: "%POLICY_TEMPLATE%"
+      prod_name: "%NAME%"
+      self_service_description: "%SELF_SERVICE_DESCRIPTION%"
+      self_service_icon: "%SELF_SERVICE_ICON%"
+    Processor: JSSImporter

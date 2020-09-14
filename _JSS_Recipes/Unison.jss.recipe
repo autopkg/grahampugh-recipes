@@ -10,14 +10,10 @@
 	<dict>
 		<key>CATEGORY</key>
 		<string>Tools &amp; Accessories</string>
-		<key>DESCRIPTION</key>
-		<string>Unison is a file-synchronization tool for OSX, Unix, and Windows. It allows two replicas of a collection of files and directories to be stored on different hosts (or different disks on the same host), modified separately, and then brought up to date by propagating the changes in each replica to the other.</string>
 		<key>GROUP_NAME</key>
 		<string>%NAME%-update-smart</string>
 		<key>GROUP_TEMPLATE</key>
-		<string>SmartGroupTemplate.xml</string>
-		<key>ICON</key>
-		<string>%RECIPE_DIR%/Unison.png</string>
+		<string>SmartGroup-update-smart-regex.xml</string>
 		<key>NAME</key>
 		<string>Unison</string>
 		<key>POLICY_CATEGORY</key>
@@ -25,7 +21,13 @@
 		<key>POLICY_NAME</key>
 		<string>Install Latest %NAME%</string>
 		<key>POLICY_TEMPLATE</key>
-		<string>PolicyTemplate.xml</string>
+		<string>Policy-install-latest.xml</string>
+		<key>SELF_SERVICE_DESCRIPTION</key>
+		<string>Unison is a file-synchronization tool for OSX, Unix, and Windows. It allows two replicas of a collection of files and directories to be stored on different hosts (or different disks on the same host), modified separately, and then brought up to date by propagating the changes in each replica to the other.</string>
+		<key>SELF_SERVICE_ICON</key>
+		<string>Unison.png</string>
+		<key>TESTING_GROUP_NAME</key>
+		<string>Testing</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.9</string>
@@ -33,6 +35,10 @@
 	<string>com.github.grahampugh.recipes.pkg.unison</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>
@@ -56,9 +62,9 @@
 				<key>prod_name</key>
 				<string>%NAME%</string>
 				<key>self_service_description</key>
-				<string>%DESCRIPTION%</string>
+				<string>%SELF_SERVICE_DESCRIPTION%</string>
 				<key>self_service_icon</key>
-				<string>%ICON%</string>
+				<string>%SELF_SERVICE_ICON%</string>
 			</dict>
 			<key>Processor</key>
 			<string>JSSImporter</string>
