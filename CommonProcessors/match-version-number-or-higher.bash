@@ -84,11 +84,11 @@ Usage:
 *                   The version string, e.g. 10.12.2
 
 Note if using -q and -j and the regex exceeds 255 characters, the full regex is not shown.
-The output will be split into multiple lines beginning with the line number and two colons. 
+The output will be split into multiple lines. 
 e.g. for Version string \"5.0.3 (24978.0517)\" the output is:
 
-1::^(\d{2,}.*|[6-9].*|5\.\d{2,}.*|5\.[1-9].*|5\.0\.\d{2,}.*|5\.0\.[4-9].*|5\.0\.3 \(\d{6,}.*|5\.0\.3 \([3-9]\d{4,}.*)$
-2::^(5\.0\.3 \(2[5-9]\d{3,}.*|5\.0\.3 \(249[8-9]\d{1,}.*|5\.0\.3 \(24979.*|5\.0\.3 \(24978\.\d{5,}.*|5\.0\.3 \(24978\.[1-9]\d{3,}.*|5\.0\.3 \(24978\.0[6-9]\d{2,}.*|5\.0\.3 \(24978\.05[2-9]\d{1,}.*|5\.0\.3 \(24978\.051[8-9].*|5\.0\.3 \(24978\.0517\).*)$
+^(\d{2,}.*|[6-9].*|5\.\d{2,}.*|5\.[1-9].*|5\.0\.\d{2,}.*|5\.0\.[4-9].*|5\.0\.3 \(\d{6,}.*|5\.0\.3 \([3-9]\d{4,}.*)$
+^(5\.0\.3 \(2[5-9]\d{3,}.*|5\.0\.3 \(249[8-9]\d{1,}.*|5\.0\.3 \(24979.*|5\.0\.3 \(24978\.\d{5,}.*|5\.0\.3 \(24978\.[1-9]\d{3,}.*|5\.0\.3 \(24978\.0[6-9]\d{2,}.*|5\.0\.3 \(24978\.05[2-9]\d{1,}.*|5\.0\.3 \(24978\.051[8-9].*|5\.0\.3 \(24978\.0517\).*)$
 "
             exit 0
         ;;
@@ -395,7 +395,7 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
 		[[ "$quietMode" != "On" ]] && echo "Regex $((aBreak + 1)):"
 		[[ "$quietMode" != "On" ]] && echo "$regexString"
 		[[ "$quietMode" != "On" ]] && echo
-		[[ "$quietMode" == "On" ]] && echo "$((aBreak + 1))::$regexString"
+		[[ "$quietMode" == "On" ]] && echo "$regexString"
 	done
 fi
 
