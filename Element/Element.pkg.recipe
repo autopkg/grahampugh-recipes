@@ -11,7 +11,7 @@
 		<key>BUNDLE_ID</key>
 		<string>im.riot.app</string>
 		<key>NAME</key>
-		<string>Element (Riot)</string>
+		<string>Element</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
