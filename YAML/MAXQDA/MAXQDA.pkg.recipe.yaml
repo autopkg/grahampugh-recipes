@@ -1,0 +1,13 @@
+Description: Downloads the latest version of MAXQDA and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.MAXQDA
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.its-unibas.download.MAXQDA
+
+Input:
+  NAME: MAXQDA
+  VERSION: "2020"
+
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      force_pkg_build: True
