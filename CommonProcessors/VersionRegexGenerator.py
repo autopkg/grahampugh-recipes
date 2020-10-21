@@ -40,7 +40,7 @@ class VersionRegexGenerator(Processor):
         "version_regex": {
             "description": "Regex which matches or exceeds the inputted version string.",
         },
-        "version_regex_1": {
+        "version_regex_2": {
             "description": "Regex which matches or exceeds the inputted version string - second line for complex version numbers.",
         },
         "version_regex_3": {
