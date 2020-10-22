@@ -1,0 +1,25 @@
+Description: Downloads the latest version of Mendeley Reference Manager
+Identifier: com.github.grahampugh.recipes.download.MendeleyReferenceManager
+MinimumVersion: 1.0.0
+
+Input:
+  DOWNLOAD_URL: https://static.mendeley.com/bin/desktop
+  NAME: Mendeley Reference Manager
+  SEARCH_URL: https://www.mendeley.com/download-reference-manager
+
+Process:
+  - Arguments:
+      re_pattern: mendeley-reference-manager-(?P<version>.*?)\.dmg
+      url: "%SEARCH_URL%"
+    Processor: URLTextSearcher
+
+  - Arguments:
+      url: "%DOWNLOAD_URL%/mendeley-reference-manager-%version%.dmg"
+    Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
+
+  - Arguments:
+      input_path: "%pathname%/%NAME%.app"
+      requirement: identifier "com.elsevier.mendeley" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "45K89Y5X9B"
+    Processor: CodeSignatureVerifier

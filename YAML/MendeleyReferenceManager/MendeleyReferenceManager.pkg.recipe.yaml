@@ -1,0 +1,12 @@
+Description: Downloads the latest version of KNIME and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.MendeleyReferenceManager
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.download.MendeleyReferenceManager
+
+Input:
+  NAME: Mendeley Reference Manager
+
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/MendeleyReferenceManager-%version%.pkg"
