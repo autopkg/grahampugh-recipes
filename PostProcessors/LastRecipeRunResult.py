@@ -43,6 +43,7 @@ class LastRecipeRunResult(Processor):
             "required": False,
             "default": "latest_version.json",
         },
+        "url": {"description": ("the download URL."), "required": False,},
         "pkg_path": {
             "description": ("The path where the package is stored."),
             "required": False,
@@ -55,23 +56,23 @@ class LastRecipeRunResult(Processor):
             "description": ("The current package version."),
             "required": False,
         },
-        "CATEGORY": {
+        "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
         },
-        "SELF_SERVICE_DESCRIPTION": {
+        "SELFSERVICE_DESCRIPTION": {
             "description": ("The self-service description in Jamf Pro."),
             "required": False,
         },
-        "url": {"description": ("the download URL."), "required": False,},
     }
 
     output_variables = {
-        "version": {"description": ("The current package version."),},
-        "CATEGORY": {"description": ("The package category."),},
-        "SELF_SERVICE_DESCRIPTION": {"description": ("The self-service description."),},
-        "pkg_path": {"description": ("the package path."),},
         "url": {"description": ("the download URL."),},
+        "version": {"description": ("The current package version."),},
+        "pkg_path": {"description": ("the package path."),},
+        "pkg_name": {"description": ("the package name."),},
+        "PKG_CATEGORY": {"description": ("The package category."),},
+        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description."),},
     }
 
     description = __doc__
@@ -83,21 +84,24 @@ class LastRecipeRunResult(Processor):
         output_file_name = self.env.get("output_file_name")
         pathname = self.env.get("pathname")
         pkg_path = self.env.get("pkg_path")
+        pkg_name = self.env.get("pkg_name")
         url = self.env.get("url")
         version = self.env.get("version")
-        category = self.env.get("CATEGORY")
-        self_service_description = self.env.get("SELF_SERVICE_DESCRIPTION")
+        category = self.env.get("PKG_CATEGORY")
+        self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
 
         self.output("Download: {}".format(pathname))
-        self.output("Package: {}".format(pkg_path))
+        self.output("Package path: {}".format(pkg_path))
+        self.output("Package name: {}".format(pkg_name))
         self.output("URL: {}".format(url))
         self.output("Version: {}".format(version))
-        self.output("Category: {}".format(category))
+        self.output("Pkg Category: {}".format(category))
         self.output("Self Service Description: {}".format(self_service_description))
 
         data = {}
         data["pathname"] = pathname
         data["pkg_path"] = pkg_path
+        data["pkg_name"] = pkg_name
         data["url"] = url
         data["version"] = version
         data["category"] = category

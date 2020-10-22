@@ -47,10 +47,12 @@ class LastRecipeRunChecker(Processor):
     }
 
     output_variables = {
+        "url": {"description": ("the download URL."),},
         "version": {"description": ("The current package version."),},
-        "CATEGORY": {"description": ("The package category."),},
-        "SELF_SERVICE_DESCRIPTION": {"description": ("The self-service description."),},
         "pkg_path": {"description": ("the package path."),},
+        "pkg_name": {"description": ("the package name."),},
+        "PKG_CATEGORY": {"description": ("The package category."),},
+        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description."),},
     }
 
     description = __doc__
@@ -75,11 +77,14 @@ class LastRecipeRunChecker(Processor):
 
         # make sure all the values were obtained from the file
         data = self.get_latest_recipe_run_info(cache_dir, identifier, info_file)
-        try:
-            self.env["version"] = data["version"]
-            self.env["pkg_path"] = data["pkg_path"]
-        except ValueError:
+        self.env["version"] = data["version"]
+        self.env["pkg_name"] = data["pkg_name"]
+        if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
+        self.env["pkg_path"] = data["pkg_path"]
+        self.env["url"] = data["url"]
+        self.env["PKG_CATEGORY"] = data["category"]
+        self.env["SELFSERVICE_DESCRIPTION"] = data["self_service_description"]
 
         # make sure the package actually exists
         if not os.path.exists(self.env["pkg_path"]):
@@ -87,8 +92,12 @@ class LastRecipeRunChecker(Processor):
                 "Package does not exist: {}".format(self.env["pkg_path"])
             )
 
-        self.output("Package: {}".format(self.env["pkg_path"]))
-        self.output("Version: {}".format(self.env["version"]))
+        self.output(f"Package name: {data['pkg_name']}")
+        self.output(f"Package path: {data['pkg_path']}")
+        self.output(f"Version: {data['version']}")
+        self.output(f"URL: {data['url']}")
+        self.output(f"Pkg Category: {data['category']}")
+        self.output(f"Self Service Description: {data['self_service_description']}")
 
 
 if __name__ == "__main__":
