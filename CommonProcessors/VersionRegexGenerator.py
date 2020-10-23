@@ -94,9 +94,9 @@ class VersionRegexGenerator(Processor):
         regex_lines = subprocess.check_output(cmd).decode("ascii").splitlines()
         # complex version strings might output two or even three lines
         # so we have to account for this and have a second and third output variable
-        self.env["version_regex"] = ""
-        self.env["version_regex_2"] = ""
-        self.env["version_regex_3"] = ""
+        self.env["version_regex"] = "^$"
+        self.env["version_regex_2"] = "^$"
+        self.env["version_regex_3"] = "^$"
         for i in range(0, len(regex_lines)):
             self.output(
                 "Regex {} for version string {}: {}".format(
