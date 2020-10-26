@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of Adobe's Creative Cloud Desktop App Installer and packages it for installation. Then, uploads to the Jamf Pro Server.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jss.AdobeCreativeCloud</string>
+	<string>com.github.grahampugh.recipes.jss.AdobeCCDAFromConsoleForJamfPro</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
