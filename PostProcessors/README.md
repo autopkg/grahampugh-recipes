@@ -4,13 +4,13 @@ To use these processors, add the processor as so:
 
     com.github.grahampugh.recipes.postprocessors/NameOfProcessor
 
-## Note:
+## Note:
 
 [JamfPackageUploader](https://github.com/grahampugh/jamf-upload/blob/master/Processors/JamfPackageUploader.py) has been moved to the [grahampugh/jamf-upload](https://github.com/grahampugh/jamf-upload) repository.
 
 # LastRecipeRunResult
 
-## Description
+## Description
 
 Writes useful results of a recipe to a JSON file, which can be used to run a different recipe based on those values.
 
