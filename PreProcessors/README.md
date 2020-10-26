@@ -6,7 +6,7 @@ To use these processors, add the processor as so:
 
 # LastRecipeRunChecker
 
-## Description
+## Description
 
 An AutoPkg pre-processor which reads the output from the `LastRecipeRunResult` post-processor from a different AutoPkg recipe, so that they can be used in the foillowing processes.
 
