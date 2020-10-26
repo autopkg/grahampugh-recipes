@@ -40,7 +40,7 @@ class LastRecipeRunChecker(Processor):
             "default": "~/Library/AutoPkg/Cache",
         },
         "info_file": {
-            "description": ("Name of inmput file."),
+            "description": ("Name of input file."),
             "required": False,
             "default": "latest_version.json",
         },
