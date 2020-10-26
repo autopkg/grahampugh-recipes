@@ -18,7 +18,7 @@ To use these processors, add the processor as so:
 
 # ChangeModeOwner
 
-## Description
+## Description
 
 Similar to the `ChangeMode` Processor, but also has the ability to change the owner.
 
@@ -49,7 +49,7 @@ Similar to the `ChangeMode` Processor, but also has the ability to change the ow
 
 # ChoicesXMLGenerator
 
-## Description
+## Description
 
 Generates a `choices.xml` file for use with an installer. A postinstall script is required to run the installer with the `choices.xml.`
 
@@ -78,7 +78,7 @@ Generates a `choices.xml` file for use with an installer. A postinstall script i
 
 An AutoPkg processor which works out the latest receipt (by date) from a different AutoPkg recipe, and provides useful values from its contents, which can be used to run a different recipe based on those values.
 
-## Description
+## Description
 
 ## Input variables
 
@@ -111,7 +111,7 @@ An AutoPkg processor which works out the latest receipt (by date) from a differe
 
 # LocalRepoUpdateChecker
 
-## Description
+## Description
 
 This processor assumes that a given folder contains sub-folders which are named after the version of their contents. The idea is that there is a single package, DMG or other installer inside the folder. The list of full paths to files in folders is generated using the `SubDirectoryList` processor, so this processor won't work unless `SubDirectoryList` is earlier in the list of procvesses.
 
@@ -152,7 +152,7 @@ If the subfolders have multiple contents, for example due to different language 
 
 # SMBMounter
 
-## Description
+## Description
 
 Mounts an SMB directory. Expects a full SMB path as would be presented to `mount_smbfs`, because that's what it uses to mount. Valid examples:
 
@@ -179,7 +179,7 @@ Mounts an SMB directory. Expects a full SMB path as would be presented to `mount
 
 # SMBUnmounter
 
-## Description
+## Description
 
 Unmounts an SMB directory. Will fail if not following the `SMBMounter` processor.
 
@@ -199,7 +199,7 @@ Unmounts an SMB directory. Will fail if not following the `SMBMounter` processor
 
 # StringReplacer
 
-## Description
+## Description
 
 This processor replaces a string within a variable with another string, rather like using `sed`.
 An example would be to remove a file suffix from a string.
@@ -229,7 +229,7 @@ An example would be to remove a file suffix from a string.
 
 # SubDirectoryList
 
-## Description
+## Description
 
 This processor is used to generate a list of all files in folders in a path. That list is then processed by other processors such as `LocalRepoUpdateChecker`.
 
@@ -290,7 +290,7 @@ This processor is adapted from one written by Jesse Peterson. A newer version of
 
 # VersionRegexGenerator
 
-## Description
+## Description
 
 A processor for generating a regex which matches the inputted version string or any possible higher version. Useful for generating a string which can be added to the criterion of Jamf Pro Smart Groups so that only older versions of an application cause a computer to go in or out of scope.
 
