@@ -1,0 +1,12 @@
+Description: Placeholder pkg recipe - just moves the pkg to create the pkg_path variable. 
+Identifier: com.github.grahampugh.recipes.pkg.rosetta
+Input:
+  NAME: Rosetta 2
+ParentRecipe: com.github.grahampugh.recipes.download.rosetta
+MinimumVersion: 1.0.0
+
+Process:
+- Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/Rosetta-2-install-%version%.signed.pkg'
+    source_pkg: '%pathname%'
+  Processor: PkgCopier
