@@ -3,7 +3,7 @@ Identifier: com.github.grahampugh.recipes.download.MestReNova-tmp
 MinimumVersion: 1.0.0
 
 Input:
-  DOWNLOAD_URL: https://www.mestrelab.com/downloads/tmp/mac/MestReNova-14.1.2-25024.dmg
+  DOWNLOAD_URL: https://mestrelab.com/downloads/mnova/mac/MestReNova-14.2.0-26256.dmg
   NAME: MestReNova
 
 Process:
