@@ -49,6 +49,7 @@ class LastRecipeRunChecker(Processor):
     output_variables = {
         "url": {"description": ("the download URL."),},
         "version": {"description": ("The current package version."),},
+        "license_key": {"description": ("The outputted value for license_key."),},
         "pkg_path": {"description": ("the package path."),},
         "pkg_name": {"description": ("the package name."),},
         "PKG_CATEGORY": {"description": ("The package category."),},
@@ -78,6 +79,7 @@ class LastRecipeRunChecker(Processor):
         # make sure all the values were obtained from the file
         data = self.get_latest_recipe_run_info(cache_dir, identifier, info_file)
         self.env["version"] = data["version"]
+        self.env["license_key"] = data["license_key"]
         self.env["pkg_name"] = data["pkg_name"]
         if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
@@ -98,6 +100,7 @@ class LastRecipeRunChecker(Processor):
         self.output(f"URL: {data['url']}")
         self.output(f"Pkg Category: {data['category']}")
         self.output(f"Self Service Description: {data['self_service_description']}")
+        self.output(f"License Key: {data['license_key']}")
 
 
 if __name__ == "__main__":
