@@ -56,6 +56,10 @@ class LastRecipeRunResult(Processor):
             "description": ("The current package version."),
             "required": False,
         },
+        "license_key": {
+            "description": ("The outputted value for license_key."),
+            "required": False,
+        },
         "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
@@ -69,6 +73,7 @@ class LastRecipeRunResult(Processor):
     output_variables = {
         "url": {"description": ("the download URL."),},
         "version": {"description": ("The current package version."),},
+        "license_key": {"description": ("The outputted value for license_key."),},
         "pkg_path": {"description": ("the package path."),},
         "pkg_name": {"description": ("the package name."),},
         "PKG_CATEGORY": {"description": ("The package category."),},
@@ -87,16 +92,26 @@ class LastRecipeRunResult(Processor):
         pkg_name = self.env.get("pkg_name")
         url = self.env.get("url")
         version = self.env.get("version")
+        license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
         self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
 
-        self.output("Download: {}".format(pathname))
-        self.output("Package path: {}".format(pkg_path))
-        self.output("Package name: {}".format(pkg_name))
-        self.output("URL: {}".format(url))
-        self.output("Version: {}".format(version))
-        self.output("Pkg Category: {}".format(category))
-        self.output("Self Service Description: {}".format(self_service_description))
+        if pathname:
+            self.output("Download: {}".format(pathname))
+        if pkg_path:
+            self.output("Package path: {}".format(pkg_path))
+        if pkg_name:
+            self.output("Package name: {}".format(pkg_name))
+        if url:
+            self.output("URL: {}".format(url))
+        if version:
+            self.output("Version: {}".format(version))
+        if license_key:
+            self.output("License Key: {}".format(license_key))
+        if category:
+            self.output("Pkg Category: {}".format(category))
+        if self_service_description:
+            self.output("Self Service Description: {}".format(self_service_description))
 
         data = {}
         data["pathname"] = pathname
@@ -104,6 +119,7 @@ class LastRecipeRunResult(Processor):
         data["pkg_name"] = pkg_name
         data["url"] = url
         data["version"] = version
+        data["license_key"] = license_key
         data["category"] = category
         data["self_service_description"] = self_service_description
 
