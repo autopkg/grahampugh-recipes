@@ -16,10 +16,8 @@
 """See docstring for LastRecipeRunChecker class"""
 
 import json
-import os
-import sys
-
 import os.path
+
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
@@ -27,7 +25,8 @@ __all__ = ["LastRecipeRunChecker"]
 
 
 class LastRecipeRunChecker(Processor):
-    """An AutoPkg pre-processor which reads the output from the LastRecipeRunResult processor from a different AutoPkg recipe, so that they can be used in the foillowing processes."""
+    """An AutoPkg pre-processor which reads the output from the LastRecipeRunResult processor from
+    a different AutoPkg recipe, so that they can be used in the foillowing processes."""
 
     input_variables = {
         "recipeoverride_identifier": {
@@ -47,13 +46,14 @@ class LastRecipeRunChecker(Processor):
     }
 
     output_variables = {
-        "url": {"description": ("the download URL."),},
-        "version": {"description": ("The current package version."),},
-        "license_key": {"description": ("The outputted value for license_key."),},
-        "pkg_path": {"description": ("the package path."),},
-        "pkg_name": {"description": ("the package name."),},
-        "PKG_CATEGORY": {"description": ("The package category."),},
-        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description."),},
+        "url": {"description": ("the download URL.")},
+        "version": {"description": ("The current package version.")},
+        "license_key": {"description": ("The outputted value for license_key.")},
+        "pkg_path": {"description": ("the package path.")},
+        "pkg_name": {"description": ("the package name.")},
+        "PKG_CATEGORY": {"description": ("The package category.")},
+        "LAST_RUN_POLICY_NAME": {"description": ("The policy_name.")},
+        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
     }
 
     description = __doc__
@@ -74,8 +74,6 @@ class LastRecipeRunChecker(Processor):
         cache_dir = os.path.expanduser(self.env.get("cache_dir"))
         info_file = self.env.get("info_file")
 
-        version_found = False
-
         # make sure all the values were obtained from the file
         data = self.get_latest_recipe_run_info(cache_dir, identifier, info_file)
         self.env["version"] = data["version"]
@@ -86,6 +84,7 @@ class LastRecipeRunChecker(Processor):
         self.env["pkg_path"] = data["pkg_path"]
         self.env["url"] = data["url"]
         self.env["PKG_CATEGORY"] = data["category"]
+        self.env["LAST_RUN_POLICY_NAME"] = data["policy_name"]
         self.env["SELFSERVICE_DESCRIPTION"] = data["self_service_description"]
 
         # make sure the package actually exists
@@ -98,7 +97,8 @@ class LastRecipeRunChecker(Processor):
         self.output(f"Package path: {data['pkg_path']}")
         self.output(f"Version: {data['version']}")
         self.output(f"URL: {data['url']}")
-        self.output(f"Pkg Category: {data['category']}")
+        self.output(f"Pkg category: {data['category']}")
+        self.output(f"Policy name: {data['policy_name']}")
         self.output(f"Self Service Description: {data['self_service_description']}")
         self.output(f"License Key: {data['license_key']}")
 

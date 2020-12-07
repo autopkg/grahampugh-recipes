@@ -15,25 +15,21 @@
 # limitations under the License.
 """See docstring for LastRecipeRunResult class"""
 
-import plistlib
 import os.path
-import sys
 import json
 
-from distutils.version import LooseVersion
-from os.path import expanduser, getmtime, exists
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
-from glob import iglob
+from autopkglib import Processor  # pylint: disable=import-error
 
 
 __all__ = ["LastRecipeRunResult"]
 
 
 class LastRecipeRunResult(Processor):
-    """An AutoPkg processor which writes useful results of a recipe to a JSON file, which can be used to run a different recipe based on those values."""
+    """An AutoPkg processor which writes useful results of a recipe to a JSON file, which can be
+    used to run a different recipe based on those values."""
 
     input_variables = {
-        "RECIPE_CACHE_DIR": {"required": False, "description": ("RECIPE_CACHE_DIR."),},
+        "RECIPE_CACHE_DIR": {"required": False, "description": ("RECIPE_CACHE_DIR.")},
         "output_file_path": {
             "description": ("Path to output file."),
             "required": False,
@@ -43,7 +39,7 @@ class LastRecipeRunResult(Processor):
             "required": False,
             "default": "latest_version.json",
         },
-        "url": {"description": ("the download URL."), "required": False,},
+        "url": {"description": ("the download URL."), "required": False},
         "pkg_path": {
             "description": ("The path where the package is stored."),
             "required": False,
@@ -64,6 +60,10 @@ class LastRecipeRunResult(Processor):
             "description": ("The package category in Jamf Pro."),
             "required": False,
         },
+        "POLICY_NAME": {
+            "description": ("The policy name in Jamf Pro."),
+            "required": False,
+        },
         "SELFSERVICE_DESCRIPTION": {
             "description": ("The self-service description in Jamf Pro."),
             "required": False,
@@ -71,13 +71,14 @@ class LastRecipeRunResult(Processor):
     }
 
     output_variables = {
-        "url": {"description": ("the download URL."),},
-        "version": {"description": ("The current package version."),},
-        "license_key": {"description": ("The outputted value for license_key."),},
-        "pkg_path": {"description": ("the package path."),},
-        "pkg_name": {"description": ("the package name."),},
-        "PKG_CATEGORY": {"description": ("The package category."),},
-        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description."),},
+        "url": {"description": ("the download URL.")},
+        "version": {"description": ("The current package version.")},
+        "license_key": {"description": ("The outputted value for license_key.")},
+        "pkg_path": {"description": ("the package path.")},
+        "pkg_name": {"description": ("the package name.")},
+        "PKG_CATEGORY": {"description": ("The package category.")},
+        "POLICY_NAME": {"description": ("The policy name.")},
+        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
     }
 
     description = __doc__
@@ -94,6 +95,7 @@ class LastRecipeRunResult(Processor):
         version = self.env.get("version")
         license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
+        policy_name = self.env.get("POLICY_NAME")
         self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
 
         if pathname:
@@ -110,6 +112,8 @@ class LastRecipeRunResult(Processor):
             self.output("License Key: {}".format(license_key))
         if category:
             self.output("Pkg Category: {}".format(category))
+        if policy_name:
+            self.output("Policy name: {}".format(policy_name))
         if self_service_description:
             self.output("Self Service Description: {}".format(self_service_description))
 
@@ -121,6 +125,7 @@ class LastRecipeRunResult(Processor):
         data["version"] = version
         data["license_key"] = license_key
         data["category"] = category
+        data["policy_name"] = policy_name
         data["self_service_description"] = self_service_description
 
         if not output_file_path:
