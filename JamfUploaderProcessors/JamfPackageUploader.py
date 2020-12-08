@@ -602,15 +602,20 @@ class JamfPackageUploader(Processor):
                 self.umount_smb(self.smb_url)
             else:
                 self.output(
-                    f"Not updating existing '{self.pkg_name}' on {self.jamf_url}"
+                    f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
+                    f"{self.replace}. Use replace_pkg='True' to enforce."
                 )
                 # unmount the share
                 self.umount_smb(self.smb_url)
+                self.output(
+                    f"Setting for pkg metadata replacement: {self.replace_metadata}"
+                )  # TEMP
                 if not self.replace_metadata:
                     # even if we don't upload a package, we still need to pass it on so that a
                     # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
                     self.env["pkg_uploaded"] = False
+                    return
 
         # otherwise process for cloud DP
         else:
@@ -644,14 +649,11 @@ class JamfPackageUploader(Processor):
             else:
                 self.output(
                     (
-                        "Not replacing existing package as 'replace_pkg' is set to "
+                        f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
                         f"{self.replace}. Use replace_pkg='True' to enforce."
                     ),
                     verbose_level=1,
                 )
-                self.output(
-                    f"Setting for pkg metadata replacement: {self.replace_metadata}"
-                )  # TEMP
                 if not self.replace_metadata:
                     # even if we don't upload a package, we still need to pass it on so that a
                     # policy processor can use it
