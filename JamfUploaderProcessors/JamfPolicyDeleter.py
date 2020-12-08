@@ -332,7 +332,7 @@ class JamfPolicyDeleter(Processor):
         )
 
         if obj_id:
-            self.output("Policy '{}' exists: ID {}".format(self.policy_name, obj_id))
+            self.output(f"Policy '{self.policy_name}' exists: ID {obj_id}")
             self.output(
                 "Deleting existing policy", verbose_level=1,
             )
@@ -341,7 +341,8 @@ class JamfPolicyDeleter(Processor):
             )
         else:
             self.output(
-                f"Policy '{self.policy_name}' not found.", verbose_level=1,
+                f"Policy '{self.policy_name}' not found on {self.jamf_url}.",
+                verbose_level=1,
             )
             return
 
