@@ -357,7 +357,9 @@ class JamfPolicyUploader(Processor):
 
         # substitute user-assignable keys
         policy_name = self.substitute_assignable_keys(policy_name)
-        template_contents = self.substitute_assignable_keys(template_contents)
+        template_contents = self.substitute_assignable_keys(
+            template_contents, xml_escape=True
+        )
 
         self.output("Policy data:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
