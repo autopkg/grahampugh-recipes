@@ -168,19 +168,19 @@ class JamfPolicyDeleter(Processor):
     def status_check(self, r, endpoint_type, obj_name):
         """Return a message dependent on the HTTP response"""
         if r.status_code == 200 or r.status_code == 201:
-            self.output(f"{endpoint_type} '{obj_name}' uploaded successfully")
+            self.output(f"{endpoint_type} '{obj_name}' was deleted successfully")
             return "break"
         elif r.status_code == 409:
             self.output(r.output, verbose_level=2)
             raise ProcessorError(
-                f"WARNING: {endpoint_type} '{obj_name}' upload failed due to a conflict"
+                f"WARNING: {endpoint_type} '{obj_name}' deletion failed due to a conflict"
             )
         elif r.status_code == 401:
             raise ProcessorError(
-                f"ERROR: {endpoint_type} '{obj_name}' upload failed due to permissions error"
+                f"ERROR: {endpoint_type} '{obj_name}' deletion failed due to permissions error"
             )
         else:
-            self.output(f"WARNING: {endpoint_type} '{obj_name}' upload failed")
+            self.output(f"WARNING: {endpoint_type} '{obj_name}' deletion failed")
             self.output(r.output, verbose_level=2)
 
     def substitute_assignable_keys(self, data):
