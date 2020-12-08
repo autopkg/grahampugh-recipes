@@ -649,6 +649,9 @@ class JamfPackageUploader(Processor):
                     ),
                     verbose_level=1,
                 )
+                self.output(
+                    f"Setting for pkg metadata replacement: {self.replace_metadata}"
+                )  # TEMP
                 if not self.replace_metadata:
                     # even if we don't upload a package, we still need to pass it on so that a
                     # policy processor can use it
