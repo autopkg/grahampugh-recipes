@@ -476,6 +476,7 @@ class JamfPolicyUploader(Processor):
         # handle setting replace in overrides
         if not self.replace_icon or self.replace_icon == "False":
             self.replace_icon = False
+        self.policy_updated = False
 
         # clear any pre-existing summary result
         if "jamfpolicyuploader_summary_result" in self.env:
@@ -525,6 +526,7 @@ class JamfPolicyUploader(Processor):
                 r = self.upload_policy(
                     self.jamf_url, enc_creds, self.policy_name, template_xml, obj_id,
                 )
+                self.policy_updated = True
             else:
                 self.output(
                     "Not replacing existing policy. Use replace_policy='True' to enforce.",
@@ -536,6 +538,7 @@ class JamfPolicyUploader(Processor):
             r = self.upload_policy(
                 self.jamf_url, enc_creds, self.policy_name, template_xml,
             )
+            self.policy_updated = True
 
         # now upload the icon to the policy if specified in the args
         policy_icon_name = ""
@@ -571,6 +574,8 @@ class JamfPolicyUploader(Processor):
                 )
 
         # output the summary
+        self.env["policy_name"] = self.policy_name
+        self.env["policy_updated"] = self.policy_updated
         self.env["jamfpolicyuploader_summary_result"] = {
             "summary_text": "The following policies were created or updated in Jamf Pro:",
             "report_fields": ["policy", "template", "icon"],
