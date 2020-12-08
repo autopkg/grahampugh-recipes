@@ -223,7 +223,7 @@ class JamfPolicyUploader(Processor):
             self.output(f"WARNING: {endpoint_type} '{obj_name}' upload failed")
             self.output(r.output, verbose_level=2)
 
-    def substitute_assignable_keys(self, data):
+    def substitute_assignable_keys(self, data, xml_escape=False):
         """substitutes any key in the inputted text using the %MY_KEY% nomenclature"""
         # whenever %MY_KEY% is found in a template, it is replaced with the assigned value of MY_KEY
         # do a triple-pass to ensure that all keys are substituted
@@ -243,7 +243,11 @@ class JamfPolicyUploader(Processor):
                         ),
                         verbose_level=2,
                     )
-                    data = data.replace(f"%{found_key}%", self.env.get(found_key))
+                    if xml_escape:
+                        replacement_key = escape(self.env.get(found_key))
+                    else:
+                        replacement_key = self.env.get(found_key)
+                    data = data.replace(f"%{found_key}%", replacement_key)
                 else:
                     self.output(f"WARNING: '{found_key}' has no replacement object!",)
                     raise ProcessorError("Unsubstituable key in template found")
@@ -357,9 +361,6 @@ class JamfPolicyUploader(Processor):
 
         self.output("Policy data:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
-
-        #  all template processing has now been done so escape it for xml special characters
-        template_contents = escape(template_contents)
 
         # write the template to temp file
         template_xml = self.write_temp_file(template_contents)
