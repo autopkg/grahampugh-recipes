@@ -9,14 +9,12 @@ Developed from an idea posted at
 """
 
 
-import sys
 import os
 import hashlib
 import json
 import base64
 import subprocess
 import uuid
-import plistlib
 import xml.etree.ElementTree as ElementTree
 
 from collections import namedtuple
@@ -29,9 +27,9 @@ from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
 class JamfPackageUploader(Processor):
-    """A processor for AutoPkg that will upload a package to a JCDS or 
+    """A processor for AutoPkg that will upload a package to a JCDS or
     File Share Distribution Point.
-    Can be run as a post-processor for a pkg recipe or in a child recipe. 
+    Can be run as a post-processor for a pkg recipe or in a child recipe.
     The pkg recipe must output pkg_path or this will fail."""
 
     input_variables = {
@@ -75,7 +73,10 @@ class JamfPackageUploader(Processor):
         },
         "reboot_required": {
             "required": False,
-            "description": "Whether a package requires a reboot after installation. Default='False'",
+            "description": (
+                "Whether a package requires a reboot after installation. "
+                "Default='False'"
+            ),
             "default": "",
         },
         "os_requirement": {
@@ -90,7 +91,10 @@ class JamfPackageUploader(Processor):
         },
         "send_notification": {
             "required": False,
-            "description": "Whether to send a notification when a package is installed. Default='False'",
+            "description": (
+                "Whether to send a notification when a package is installed. "
+                "Default='False'"
+            ),
             "default": "",
         },
         "replace_pkg": {
@@ -147,7 +151,7 @@ class JamfPackageUploader(Processor):
         "pkg_path": {
             "description": "The path of the package as provided from the parent recipe.",
         },
-        "pkg_name": {"description": "The name of the uploaded package.",},
+        "pkg_name": {"description": "The name of the uploaded package."},
         "pkg_uploaded": {
             "description": "True/False depending if a package was uploaded or not.",
         },
@@ -189,7 +193,7 @@ class JamfPackageUploader(Processor):
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
-        If the URL contains 'uapi' then token should be passed to the auth variable, 
+        If the URL contains 'uapi' then token should be passed to the auth variable,
         otherwise the enc_creds variable should be passed to the auth variable
         """
         tmp_dir = self.make_tmp_dir()
@@ -288,13 +292,13 @@ class JamfPackageUploader(Processor):
             raise ProcessorError(f"WARNING: {headers_file} not found")
 
     def sha512sum(self, filename):
-        """calculate the SHA512 hash of the package 
+        """calculate the SHA512 hash of the package
         (see https://stackoverflow.com/a/44873382)"""
         h = hashlib.sha512()
-        b = bytearray(128*1024)
+        b = bytearray(128 * 1024)
         mv = memoryview(b)
-        with open(filename, 'rb', buffering=0) as f:
-            for n in iter(lambda : f.readinto(mv), 0):
+        with open(filename, "rb", buffering=0) as f:
+            for n in iter(lambda: f.readinto(mv), 0):
                 h.update(mv[:n])
         return h.hexdigest()
 
@@ -321,7 +325,10 @@ class JamfPackageUploader(Processor):
         mount_cmd = [
             "/usr/bin/osascript",
             "-e",
-            f'mount volume "{mount_share}" as user name "{mount_user}" with password "{mount_pass}"',
+            (
+                f'mount volume "{mount_share}" as user name "{mount_user}" '
+                f'with password "{mount_pass}"'
+            ),
         ]
         self.output(
             mount_cmd, verbose_level=2,
@@ -431,13 +438,15 @@ class JamfPackageUploader(Processor):
         self.output(f"HTTP response: {r.status_code}", verbose_level=1)
         return r.output
 
-    def update_pkg_metadata(self, jamf_url, enc_creds, pkg_name, pkg_metadata, hash_value, pkg_id=None):
+    def update_pkg_metadata(
+        self, jamf_url, enc_creds, pkg_name, pkg_metadata, hash_value, pkg_id=None
+    ):
         """Update package metadata. Currently only serves category"""
 
         if hash_value:
-            hash_type = 'SHA_512'
+            hash_type = "SHA_512"
         else:
-            hash_type = 'MD5'
+            hash_type = "MD5"
 
         # build the package record XML
         pkg_data = (
@@ -523,7 +532,7 @@ class JamfPackageUploader(Processor):
         self.smb_user = self.env.get("SMB_USERNAME")
         self.smb_password = self.env.get("SMB_PASSWORD")
 
-        # create a dictionary of package metadata from the inputs
+        #  create a dictionary of package metadata from the inputs
         self.pkg_category = self.env.get("pkg_category")
         self.reboot_required = self.env.get("reboot_required")
         if not self.reboot_required or self.reboot_required == "False":
@@ -557,7 +566,7 @@ class JamfPackageUploader(Processor):
             self.pkg_path = self.zip_pkg_path(self.pkg_path)
             self.pkg_name += ".zip"
 
-        # calculate the SHA-512 hash of the package
+        #  calculate the SHA-512 hash of the package
         self.sha512string = self.sha512sum(self.pkg_path)
 
         # now start the process of uploading the package
@@ -598,7 +607,8 @@ class JamfPackageUploader(Processor):
                 # unmount the share
                 self.umount_smb(self.smb_url)
                 if not self.replace_metadata:
-                    # even if we don't upload a package, we still need to pass it on so that a policy processor can use it
+                    # even if we don't upload a package, we still need to pass it on so that a
+                    # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
                     self.env["pkg_uploaded"] = False
 
@@ -633,13 +643,15 @@ class JamfPackageUploader(Processor):
                         self.output("No HTTP response", verbose_level=2)
             else:
                 self.output(
-                    "Not replacing existing package as 'replace_pkg' is set to {}. Use replace_pkg='True' to enforce.".format(
-                        self.replace
+                    (
+                        "Not replacing existing package as 'replace_pkg' is set to "
+                        f"{self.replace}. Use replace_pkg='True' to enforce."
                     ),
                     verbose_level=1,
                 )
                 if not self.replace_metadata:
-                    # even if we don't upload a package, we still need to pass it on so that a policy processor can use it
+                    # even if we don't upload a package, we still need to pass it on so that a
+                    # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
                     self.env["pkg_uploaded"] = False
 
@@ -650,14 +662,23 @@ class JamfPackageUploader(Processor):
                     "Updating package metadata for {}".format(pkg_id), verbose_level=1,
                 )
                 self.update_pkg_metadata(
-                    self.jamf_url, enc_creds, self.pkg_name, self.pkg_metadata, self.sha512string, pkg_id
+                    self.jamf_url,
+                    enc_creds,
+                    self.pkg_name,
+                    self.pkg_metadata,
+                    self.sha512string,
+                    pkg_id,
                 )
             else:
                 self.output(
                     "Creating package metadata", verbose_level=1,
                 )
                 self.update_pkg_metadata(
-                    self.jamf_url, enc_creds, self.pkg_name, self.pkg_metadata, self.sha512string
+                    self.jamf_url,
+                    enc_creds,
+                    self.pkg_name,
+                    self.pkg_metadata,
+                    self.sha512string,
                 )
         else:
             self.output(

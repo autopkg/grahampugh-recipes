@@ -17,7 +17,7 @@ from time import sleep
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
-class JamfPolicyUploader(Processor):
+class JamfPolicyDeleter(Processor):
     """A processor for AutoPkg that will upload an item to a Jamf Cloud or on-prem server."""
 
     input_variables = {
@@ -341,5 +341,5 @@ class JamfPolicyUploader(Processor):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfPolicyUploader()
+    PROCESSOR = JamfPolicyDeleter()
     PROCESSOR.execute_shell()
