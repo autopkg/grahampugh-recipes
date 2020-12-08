@@ -13,6 +13,7 @@ import subprocess
 
 from collections import namedtuple
 from base64 import b64encode
+from shutil import rmtree
 from time import sleep
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
@@ -50,6 +51,18 @@ class JamfPolicyDeleter(Processor):
             "description": "Description of interesting results.",
         },
     }
+
+    def make_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
+        """make the tmp directory"""
+        if not os.path.exists(tmp_dir):
+            os.mkdir(tmp_dir)
+        return tmp_dir
+
+    def clear_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
+        """remove the tmp directory"""
+        if os.path.exists(tmp_dir):
+            rmtree(tmp_dir)
+        return tmp_dir
 
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
