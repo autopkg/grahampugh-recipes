@@ -18,6 +18,8 @@ from base64 import b64encode
 from pathlib import Path
 from shutil import rmtree
 from time import sleep
+from xml.sax.saxutils import escape
+
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
@@ -355,6 +357,9 @@ class JamfPolicyUploader(Processor):
 
         self.output("Policy data:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
+
+        #  all template processing has now been done so escape it for xml special characters
+        template_contents = escape(template_contents)
 
         # write the template to temp file
         template_xml = self.write_temp_file(template_contents)
