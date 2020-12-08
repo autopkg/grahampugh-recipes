@@ -654,6 +654,7 @@ class JamfPackageUploader(Processor):
                     # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
                     self.env["pkg_uploaded"] = False
+                    return
 
         # now process the package metadata if specified
         if self.pkg_category or self.smb_url:
