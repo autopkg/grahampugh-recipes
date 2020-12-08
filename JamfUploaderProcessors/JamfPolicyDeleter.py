@@ -341,7 +341,7 @@ class JamfPolicyDeleter(Processor):
             )
         else:
             self.output(
-                "Policy '{}' not found.", verbose_level=1,
+                f"Policy '{self.policy_name}' not found.", verbose_level=1,
             )
             return
 
