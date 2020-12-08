@@ -60,7 +60,7 @@ class LastRecipeRunResult(Processor):
             "description": ("The package category in Jamf Pro."),
             "required": False,
         },
-        "POLICY_NAME": {
+        "policy_name": {
             "description": ("The policy name in Jamf Pro."),
             "required": False,
         },
@@ -77,7 +77,7 @@ class LastRecipeRunResult(Processor):
         "pkg_path": {"description": ("the package path.")},
         "pkg_name": {"description": ("the package name.")},
         "PKG_CATEGORY": {"description": ("The package category.")},
-        "POLICY_NAME": {"description": ("The policy name.")},
+        "policy_name": {"description": ("The policy name.")},
         "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
     }
 
@@ -95,7 +95,7 @@ class LastRecipeRunResult(Processor):
         version = self.env.get("version")
         license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
-        policy_name = self.env.get("POLICY_NAME")
+        policy_name = self.env.get("policy_name")
         self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
 
         if pathname:
