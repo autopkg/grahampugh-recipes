@@ -1,28 +1,25 @@
 Description: Downloads the latest version and makes a pkg. Then, uploads the package to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
-Identifier: com.github.grahampugh.recipes.jamf.MicrosoftEdge
+Identifier: com.github.grahampugh.recipes.jamf.Rectangle
 MinimumVersion: 2.0.0
-ParentRecipe: com.github.rtrouton.pkg.microsoftedge
+ParentRecipe: com.github.dataJAR-recipes.pkg.Rectangle
 
 Input:
-  NAME: Microsoft Edge
+  NAME: Rectangle
   CATEGORY: Productivity
   GROUP_NAME: "%NAME%-update-smart"
-  GROUP_TEMPLATE: SmartGroup-update-smart-EA-regex.xml
-  EXTENSION_ATTRIBUTE_NAME: "%NAME% Version"
-  EXTENSION_ATTRIBUTE_SCRIPT: ExtensionAttribute-CFBundleShortVersionString.sh
+  GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
   TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
   POLICY_TEMPLATE: Policy-install-latest.xml
   POLICY_NAME: "Install Latest %NAME%"
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
-  SELF_SERVICE_DESCRIPTION: Microsoft Edge is a fast, simple, and secure web browser, built for the modern web.
+  SELF_SERVICE_DESCRIPTION: Rectangle is an Open Source application that allows you to easily rearrange your open application windows with shortcut key combinations.
   SELF_SERVICE_ICON: "%NAME%.png"
   INSTALL_BUTTON_TEXT: "Install %version%"
   REINSTALL_BUTTON_TEXT: "Install %version%"
   UPDATE_PREDICATE: "pkg_uploaded == False"
   replace_policy: "True"
   replace_group: "True"
-  replace_ea: "True"
 
 Process:
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
@@ -36,11 +33,6 @@ Process:
       predicate: "%UPDATE_PREDICATE%"
 
   - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
-
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfExtensionAttributeUploader
-    Arguments:
-      ea_script_path: "%EXTENSION_ATTRIBUTE_SCRIPT%"
-      ea_name: "%EXTENSION_ATTRIBUTE_NAME%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
     Arguments:

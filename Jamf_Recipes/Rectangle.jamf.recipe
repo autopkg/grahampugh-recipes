@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version and makes a pkg. Then, uploads the package to the Jamf Pro Server and creates a Self Service Policy and Smart Group.</string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jamf.VisualStudioCode</string>
+	<string>com.github.grahampugh.recipes.jamf.Rectangle</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
@@ -17,7 +17,7 @@
 		<key>INSTALL_BUTTON_TEXT</key>
 		<string>Install %version%</string>
 		<key>NAME</key>
-		<string>Visual Studio Code</string>
+		<string>Rectangle</string>
 		<key>POLICY_CATEGORY</key>
 		<string>Testing</string>
 		<key>POLICY_NAME</key>
@@ -27,7 +27,7 @@
 		<key>REINSTALL_BUTTON_TEXT</key>
 		<string>Install %version%</string>
 		<key>SELF_SERVICE_DESCRIPTION</key>
-		<string>Visual Studio Code is a source code editor which includes support for debugging, embedded Git control, syntax highlighting, intelligent code completion, snippets, and code refactoring.</string>
+		<string>Rectangle is an Open Source application that allows you to easily rearrange your open application windows with shortcut key combinations.</string>
 		<key>SELF_SERVICE_DISPLAY_NAME</key>
 		<string>Install Latest %NAME%</string>
 		<key>SELF_SERVICE_ICON</key>
@@ -44,7 +44,7 @@
 	<key>MinimumVersion</key>
 	<string>2.0.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.killahquam.pkg.visualstudioscode</string>
+	<string>com.github.dataJAR-recipes.pkg.Rectangle</string>
 	<key>Process</key>
 	<array>
 		<dict>
