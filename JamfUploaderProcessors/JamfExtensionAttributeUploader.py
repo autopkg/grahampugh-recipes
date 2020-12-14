@@ -1,10 +1,9 @@
 #!/usr/local/autopkg/python
 
 """
-JamfExtensionAttributeUploader processor for uploading extension attributes 
+JamfExtensionAttributeUploader processor for uploading extension attributes
 to Jamf Pro using AutoPkg
     by G Pugh
-
 """
 
 import json
@@ -96,7 +95,7 @@ class JamfExtensionAttributeUploader(Processor):
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
-        If the URL contains 'uapi' then token should be passed to the auth variable, 
+        If the URL contains 'uapi' then token should be passed to the auth variable,
         otherwise the enc_creds variable should be passed to the auth variable
         """
         tmp_dir = self.make_tmp_dir()
@@ -213,8 +212,8 @@ class JamfExtensionAttributeUploader(Processor):
             self.output(r.output, verbose_level=2)
 
     def get_path_to_file(self, filename):
-        """AutoPkg is not very good at finding dependent files. This function will look 
-        inside the search directories for any supplied file """
+        """AutoPkg is not very good at finding dependent files. This function will
+        look inside the search directories for any supplied file """
         # if the supplied file is not a path, use the override directory or
         # ercipe dir if no override
         recipe_dir = self.env.get("RECIPE_DIR")
@@ -437,9 +436,12 @@ class JamfExtensionAttributeUploader(Processor):
         # output the summary
         self.env["extension_attribute"] = self.ea_name
         self.env["jamfextensionattributeuploader_summary_result"] = {
-            "summary_text": "The following extension attributes were created or updated in Jamf Pro:",
+            "summary_text": (
+                "The following extension attributes were created or "
+                "updated in Jamf Pro:"
+            ),
             "report_fields": ["name", "path"],
-            "data": {"name": self.ea_name, "path": self.ea_script_path,},
+            "data": {"name": self.ea_name, "path": self.ea_script_path},
         }
 
 

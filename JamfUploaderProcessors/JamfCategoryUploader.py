@@ -3,7 +3,6 @@
 """
 JamfCategoryUploader processor for uploading a category to Jamf Pro using AutoPkg
     by G Pugh
-
 """
 
 import json
@@ -40,7 +39,7 @@ class JamfCategoryUploader(Processor):
             "description": "Password of api user, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "category_name": {"required": False, "description": "Category", "default": "",},
+        "category_name": {"required": False, "description": "Category", "default": ""},
         "category_priority": {
             "required": False,
             "description": "Category priority",
@@ -54,7 +53,7 @@ class JamfCategoryUploader(Processor):
     }
 
     output_variables = {
-        "category": {"description": "The created/updated category.",},
+        "category": {"description": "The created/updated category."},
         "jamfcategoryuploader_summary_result": {
             "description": "Description of interesting results.",
         },
@@ -91,7 +90,7 @@ class JamfCategoryUploader(Processor):
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
-        If the URL contains 'uapi' then token should be passed to the auth variable, 
+        If the URL contains 'uapi' then token should be passed to the auth variable,
         otherwise the enc_creds variable should be passed to the auth variable
         """
         tmp_dir = self.make_tmp_dir()
@@ -276,7 +275,8 @@ class JamfCategoryUploader(Processor):
                     raise ProcessorError("ERROR: Category upload failed ")
                 sleep(10)
 
-        # write the category. If updating an existing category, this reverts the name to its original.
+        # write the category. If updating an existing category, this reverts the name
+        # to its original.
         category_json = self.write_json_file(category_data)
         while True:
             count += 1

@@ -1,9 +1,8 @@
 #!/usr/local/autopkg/python
 
 """
-JamfPolicyUploader processor for uploading items to Jamf Pro using AutoPkg
+JamfPolicyUploader processor for uploading policies to Jamf Pro using AutoPkg
     by G Pugh
-
 """
 
 import json
@@ -24,7 +23,8 @@ from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
 class JamfPolicyUploader(Processor):
-    """A processor for AutoPkg that will upload an item to a Jamf Cloud or on-prem server."""
+    """A processor for AutoPkg that will upload a policy to a Jamf Cloud or on-prem
+    server. Optionally, an icon can be uploaded and associated with the policy."""
 
     input_variables = {
         "JSS_URL": {

@@ -3,7 +3,6 @@
 """
 JamfScriptUploader processor for uploading items to Jamf Pro using AutoPkg
     by G Pugh
-
 """
 
 import json
@@ -163,7 +162,7 @@ class JamfScriptUploader(Processor):
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
-        If the URL contains 'uapi' then token should be passed to the auth variable, 
+        If the URL contains 'uapi' then token should be passed to the auth variable,
         otherwise the enc_creds variable should be passed to the auth variable
         """
         tmp_dir = self.make_tmp_dir()
@@ -337,7 +336,7 @@ class JamfScriptUploader(Processor):
         return data
 
     def get_path_to_file(self, filename):
-        """AutoPkg is not very good at finding dependent files. This function will look 
+        """AutoPkg is not very good at finding dependent files. This function will look
         inside the search directories for any supplied file """
         # if the supplied file is not a path, use the override directory or
         # ercipe dir if no override

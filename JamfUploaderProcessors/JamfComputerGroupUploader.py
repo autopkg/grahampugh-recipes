@@ -3,7 +3,6 @@
 """
 JamfComputerGroupUploader processor for uploading items to Jamf Pro using AutoPkg
     by G Pugh
-
 """
 
 import json
@@ -94,7 +93,7 @@ class JamfComputerGroupUploader(Processor):
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
-        If the URL contains 'uapi' then token should be passed to the auth variable, 
+        If the URL contains 'uapi' then token should be passed to the auth variable,
         otherwise the enc_creds variable should be passed to the auth variable
         """
         tmp_dir = self.make_tmp_dir()
@@ -237,8 +236,8 @@ class JamfComputerGroupUploader(Processor):
         return data
 
     def get_path_to_file(self, filename):
-        """AutoPkg is not very good at finding dependent files. This function will look 
-        inside the search directories for any supplied file """
+        """AutoPkg is not very good at finding dependent files. This function will
+        look inside the search directories for any supplied file """
         # if the supplied file is not a path, use the override directory or
         # ercipe dir if no override
         recipe_dir = self.env.get("RECIPE_DIR")
@@ -403,7 +402,8 @@ class JamfComputerGroupUploader(Processor):
             )
             if self.replace:
                 self.output(
-                    f"Replacing existing Computer Group as 'replace_group' is set to {self.replace}",
+                    "Replacing existing Computer Group as 'replace_group' is set "
+                    f"to {self.replace}",
                     verbose_level=1,
                 )
                 self.upload_computergroup(

@@ -3,7 +3,6 @@
 """
 JamfPolicyDeleter processor for deleting policies from Jamf Pro using AutoPkg
     by G Pugh
-
 """
 
 import json
@@ -19,7 +18,8 @@ from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
 class JamfPolicyDeleter(Processor):
-    """A processor for AutoPkg that will upload an item to a Jamf Cloud or on-prem server."""
+    """A processor for AutoPkg that will delete a policy from a Jamf Cloud or
+    on-prem server."""
 
     input_variables = {
         "JSS_URL": {
