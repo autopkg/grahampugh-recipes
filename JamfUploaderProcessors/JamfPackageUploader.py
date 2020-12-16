@@ -331,12 +331,12 @@ class JamfPackageUploader(Processor):
             ),
         ]
         self.output(
-            mount_cmd, verbose_level=2,
+            f"Mount command: {' '.join(mount_cmd)}", verbose_level=3,
         )
 
         r = subprocess.check_output(mount_cmd)
         self.output(
-            r, verbose_level=2,
+            r.decode("ascii"), verbose_level=2,
         )
 
     def umount_smb(self, mount_share):
@@ -346,7 +346,7 @@ class JamfPackageUploader(Processor):
         try:
             r = subprocess.check_output(cmd)
             self.output(
-                r, verbose_level=2,
+                r.decode("ascii"), verbose_level=2,
             )
         except subprocess.CalledProcessError:
             self.output("WARNING! Unmount failed.")
