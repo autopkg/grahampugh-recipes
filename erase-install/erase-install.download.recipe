@@ -22,7 +22,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>asset_regex</key>
-				<string>^erase-install-.*?.zip$</string>
+				<string>^erase-install-.*?.pkg$</string>
 				<key>github_repo</key>
 				<string>grahampugh/erase-install</string>
 				<key>include_prereleases</key>
@@ -38,17 +38,6 @@
 		<dict>
 			<key>Processor</key>
 			<string>EndOfCheckPhase</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>archive_path</key>
-				<string>%pathname%</string>
-				<key>purge_destination</key>
-				<true/>
-			</dict>
-			<key>Processor</key>
-			<string>Unarchiver</string>
 		</dict>
 	</array>
 </dict>
