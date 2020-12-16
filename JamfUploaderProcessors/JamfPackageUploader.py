@@ -344,7 +344,10 @@ class JamfPackageUploader(Processor):
         path = f"/Volumes{urlparse(mount_share).path}"
         cmd = ["/usr/sbin/diskutil", "unmount", path]
         try:
-            subprocess.check_call(cmd)
+            r = subprocess.check_output(cmd)
+            self.output(
+                r, verbose_level=2,
+            )
         except subprocess.CalledProcessError:
             self.output("WARNING! Unmount failed.")
 
