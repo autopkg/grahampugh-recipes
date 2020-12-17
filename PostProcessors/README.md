@@ -4,10 +4,6 @@ To use these processors, add the processor as so:
 
     com.github.grahampugh.recipes.postprocessors/NameOfProcessor
 
-## Note:
-
-[JamfPackageUploader](https://github.com/grahampugh/jamf-upload/blob/master/Processors/JamfPackageUploader.py) has been moved to the [grahampugh/jamf-upload](https://github.com/grahampugh/jamf-upload) repository.
-
 # LastRecipeRunResult
 
 ## Description
