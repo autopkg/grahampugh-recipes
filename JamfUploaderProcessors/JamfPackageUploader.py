@@ -691,7 +691,7 @@ class JamfPackageUploader(Processor):
             self.output(
                 "Not updating package metadata", verbose_level=1,
             )
-            self.pkg_metadata_updated = True
+            self.pkg_metadata_updated = False
 
         # output the summary
         self.env["pkg_name"] = self.pkg_name
