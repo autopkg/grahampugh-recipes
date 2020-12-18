@@ -603,6 +603,7 @@ class JamfPackageUploader(Processor):
                 self.copy_pkg(self.smb_url, self.pkg_path, self.pkg_name)
                 # unmount the share
                 self.umount_smb(self.smb_url)
+                self.env["pkg_uploaded"] = True
             else:
                 self.output(
                     f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
@@ -610,15 +611,11 @@ class JamfPackageUploader(Processor):
                 )
                 # unmount the share
                 self.umount_smb(self.smb_url)
-                self.output(
-                    f"Setting for pkg metadata replacement: {self.replace_metadata}"
-                )  # TEMP
                 if not self.replace_metadata:
                     # even if we don't upload a package, we still need to pass it on so that a
                     # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
                     self.env["pkg_uploaded"] = False
-                    return
 
         # otherwise process for cloud DP
         else:
@@ -640,15 +637,18 @@ class JamfPackageUploader(Processor):
                         self.output(
                             "Package uploaded successfully, ID={}".format(pkg_id)
                         )
+                        self.env["pkg_uploaded"] = True
                 except ElementTree.ParseError:
                     self.output("Could not parse XML. Raw output:", verbose_level=2)
                     self.output(r.decode("ascii"), verbose_level=2)
+                    raise ProcessorError(
+                        "WARNING: Could not read HTTP response. The package was probably not "
+                        "uploaded successfully"
+                    )
                 else:
-                    if r:
-                        self.output("\nResponse:\n", verbose_level=2)
-                        self.output(r.decode("ascii"), verbose_level=2)
-                    else:
-                        self.output("No HTTP response", verbose_level=2)
+                    # check HTTP response
+                    if not self.status_check(r, "Package", self.pkg_name) == "break":
+                        raise ProcessorError("ERROR: Package upload failed.")
             else:
                 self.output(
                     (
@@ -657,46 +657,47 @@ class JamfPackageUploader(Processor):
                     ),
                     verbose_level=1,
                 )
+                self.env["pkg_uploaded"] = False
                 if not self.replace_metadata:
                     # even if we don't upload a package, we still need to pass it on so that a
                     # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
-                    self.env["pkg_uploaded"] = False
                     return
 
         # now process the package metadata if specified
-        if self.pkg_category or self.smb_url:
-            if pkg_id:
-                self.output(
-                    "Updating package metadata for {}".format(pkg_id), verbose_level=1,
-                )
-                self.update_pkg_metadata(
-                    self.jamf_url,
-                    enc_creds,
-                    self.pkg_name,
-                    self.pkg_metadata,
-                    self.sha512string,
-                    pkg_id,
-                )
-            else:
-                self.output(
-                    "Creating package metadata", verbose_level=1,
-                )
-                self.update_pkg_metadata(
-                    self.jamf_url,
-                    enc_creds,
-                    self.pkg_name,
-                    self.pkg_metadata,
-                    self.sha512string,
-                )
+        if pkg_id and (self.env["pkg_uploaded"] or self.replace_metadata):
+            self.output(
+                "Updating package metadata for {}".format(pkg_id), verbose_level=1,
+            )
+            self.update_pkg_metadata(
+                self.jamf_url,
+                enc_creds,
+                self.pkg_name,
+                self.pkg_metadata,
+                self.sha512string,
+                pkg_id,
+            )
+            self.env["pkg_metadata_updated"] = True
+        elif self.smb_url and not pkg_id:
+            self.output(
+                "Creating package metadata", verbose_level=1,
+            )
+            self.update_pkg_metadata(
+                self.jamf_url,
+                enc_creds,
+                self.pkg_name,
+                self.pkg_metadata,
+                self.sha512string,
+            )
+            self.env["pkg_metadata_updated"] = True
         else:
             self.output(
                 "Not updating package metadata", verbose_level=1,
             )
+            self.env["pkg_metadata_updated"] = False
 
         # output the summary
         self.env["pkg_name"] = self.pkg_name
-        self.env["pkg_uploaded"] = True
         self.env["jamfpackageuploader_summary_result"] = {
             "summary_text": "The following packages were uploaded to or updated in Jamf Pro:",
             "report_fields": ["pkg_path", "pkg_name", "version", "category"],
