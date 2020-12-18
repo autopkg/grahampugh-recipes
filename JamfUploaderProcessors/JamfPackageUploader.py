@@ -281,7 +281,7 @@ class JamfPackageUploader(Processor):
             r.headers = [x.strip() for x in headers]
             for header in r.headers:
                 if "HTTP/1.1" in header and "Continue" not in header:
-                    r.status_code = int(header.split()[1])
+                    r.status_code = int(header.split(" ")[1])
             with open(output_file, "rb") as file:
                 if "uapi" in url:
                     r.output = json.load(file)
@@ -439,7 +439,7 @@ class JamfPackageUploader(Processor):
         ]
         r = self.curl("POST", url, enc_creds, pkg_path, additional_headers)
         self.output(f"HTTP response: {r.status_code}", verbose_level=1)
-        return r.output
+        return r
 
     def update_pkg_metadata(
         self, jamf_url, enc_creds, pkg_name, pkg_metadata, hash_value, pkg_id=None
@@ -634,7 +634,7 @@ class JamfPackageUploader(Processor):
                     self.pkg_name, self.pkg_path, self.jamf_url, enc_creds, obj_id
                 )
                 try:
-                    pkg_id = ElementTree.fromstring(r).findtext("id")
+                    pkg_id = ElementTree.fromstring(r.output).findtext("id")
                     if pkg_id:
                         self.output(
                             "Package uploaded successfully, ID={}".format(pkg_id)
@@ -642,7 +642,7 @@ class JamfPackageUploader(Processor):
                     self.pkg_uploaded = True
                 except ElementTree.ParseError:
                     self.output("Could not parse XML. Raw output:", verbose_level=2)
-                    self.output(r.decode("ascii"), verbose_level=2)
+                    self.output(r.output.decode("ascii"), verbose_level=2)
                     raise ProcessorError(
                         "WARNING: Could not read HTTP response. The package was probably not "
                         "uploaded successfully"
