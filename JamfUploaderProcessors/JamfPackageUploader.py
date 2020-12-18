@@ -665,7 +665,7 @@ class JamfPackageUploader(Processor):
                     return
 
         # now process the package metadata if specified
-        if pkg_id and (self.env["pkg_uploaded"] or self.replace_metadata):
+        if pkg_id and (self.env["pkg_uploaded"] is True or self.replace_metadata):
             self.output(
                 "Updating package metadata for {}".format(pkg_id), verbose_level=1,
             )
