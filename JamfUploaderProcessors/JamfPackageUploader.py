@@ -617,7 +617,7 @@ class JamfPackageUploader(Processor):
                     # even if we don't upload a package, we still need to pass it on so that a
                     # policy processor can use it
                     self.env["pkg_name"] = self.pkg_name
-                    self.pkg_uploaded = True
+                    self.pkg_uploaded = False
 
         # otherwise process for cloud DP
         else:
