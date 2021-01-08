@@ -21,10 +21,10 @@ import json
 from autopkglib import Processor  # pylint: disable=import-error
 
 
-__all__ = ["LastRecipeRunResult"]
+__all__ = ["LastPkgResult"]
 
 
-class LastRecipeRunResult(Processor):
+class LastPkgResult(Processor):
     """An AutoPkg processor which writes useful results of a recipe to a JSON file, which can be
     used to run a different recipe based on those values."""
 
@@ -108,5 +108,5 @@ class LastRecipeRunResult(Processor):
 
 
 if __name__ == "__main__":
-    PROCESSOR = LastRecipeRunResult()
+    PROCESSOR = LastPkgResult()
     PROCESSOR.execute_shell()
