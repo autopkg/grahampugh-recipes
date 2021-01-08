@@ -45,16 +45,6 @@ class LastRecipeRunResult(Processor):
             "required": False,
         },
         "pkg_name": {"description": ("The name of the package."), "required": False},
-        "pkg_uploaded": {
-            "description": ("Boolean."),
-            "required": False,
-            "default": False,
-        },
-        "pkg_metadata_uploaded": {
-            "description": ("Boolean."),
-            "required": False,
-            "default": False,
-        },
         "pathname": {
             "description": ("The path to the downloaded installer."),
             "required": False,
@@ -102,8 +92,6 @@ class LastRecipeRunResult(Processor):
         pathname = self.env.get("pathname")
         pkg_path = self.env.get("pkg_path")
         pkg_name = self.env.get("pkg_name")
-        pkg_uploaded = self.env.get("pkg_uploaded")
-        pkg_metadata_uploaded = self.env.get("pkg_metadata_uploaded")
         url = self.env.get("url")
         version = self.env.get("version")
         license_key = self.env.get("license_key")
@@ -129,15 +117,11 @@ class LastRecipeRunResult(Processor):
             self.output("Policy name: {}".format(policy_name))
         if self_service_description:
             self.output("Self Service Description: {}".format(self_service_description))
-        self.output("Package updated: {}".format(str(pkg_uploaded)))
-        self.output("Package metadata updated: {}".format(str(pkg_metadata_uploaded)))
 
         data = {}
         data["pathname"] = pathname
         data["pkg_path"] = pkg_path
         data["pkg_name"] = pkg_name
-        data["pkg_uploaded"] = pkg_uploaded
-        data["pkg_metadata_uploaded"] = pkg_metadata_uploaded
         data["url"] = url
         data["version"] = version
         data["license_key"] = license_key
@@ -147,8 +131,6 @@ class LastRecipeRunResult(Processor):
 
         if not output_file_path:
             output_file_path = self.env.get("RECIPE_CACHE_DIR")
-
-        # find out if the package has changed
 
         with open(os.path.join(output_file_path, output_file_name), "w") as outfile:
             json.dump(data, outfile)
