@@ -54,7 +54,7 @@ class LastRecipeRunChecker(Processor):
         "pkg_uploaded": {
             "description": ("whether a package was uploaded on the last run or not.")
         },
-        "pkg_metadata_uploaded": {
+        "pkg_metadata_updated": {
             "description": (
                 "whether package metadata was updated on the last run or not."
             )
@@ -88,7 +88,7 @@ class LastRecipeRunChecker(Processor):
         self.env["license_key"] = data["license_key"]
         self.env["pkg_name"] = data["pkg_name"]
         self.env["pkg_uploaded"] = data["pkg_uploaded"]
-        self.env["pkg_metadata_uploaded"] = data["pkg_metadata_uploaded"]
+        self.env["pkg_metadata_updated"] = data["pkg_metadata_updated"]
         if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
         self.env["pkg_path"] = data["pkg_path"]
@@ -112,7 +112,7 @@ class LastRecipeRunChecker(Processor):
         self.output(f"Self Service Description: {data['self_service_description']}")
         self.output(f"License Key: {data['license_key']}")
         self.output(f"Package uploaded: {data['pkg_uploaded']}")
-        self.output(f"Package metadata updated: {data['pkg_metadata_uploaded']}")
+        self.output(f"Package metadata updated: {data['pkg_metadata_updated']}")
 
 
 if __name__ == "__main__":
