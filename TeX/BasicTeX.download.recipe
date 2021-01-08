@@ -9,7 +9,7 @@
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
-		<string>http://tug.org/cgi-bin/mactex-download/%NAME%.pkg</string>
+		<string>https://tug.org/cgi-bin/mactex-download/%NAME%.pkg</string>
 		<key>NAME</key>
 		<string>BasicTeX</string>
 		<key>STOPPROCESSINGIF_PREDICATE</key>
@@ -25,7 +25,7 @@
 				<key>re_pattern</key>
 				<string>The full MacTeX-(?P&lt;version&gt;.*) install</string>
 				<key>url</key>
-				<string>http://www.tug.org/mactex/morepackages.html</string>
+				<string>https://www.tug.org/mactex/morepackages.html</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLTextSearcher</string>
