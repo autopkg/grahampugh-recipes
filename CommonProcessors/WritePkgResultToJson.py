@@ -21,10 +21,10 @@ import json
 from autopkglib import Processor  # pylint: disable=import-error
 
 
-__all__ = ["LastPkgResult"]
+__all__ = ["WritePkgResultToJson"]
 
 
-class LastPkgResult(Processor):
+class WritePkgResultToJson(Processor):
     """An AutoPkg processor which writes useful results of a recipe to a JSON file, which can be
     used to run a different recipe based on those values."""
 
@@ -108,5 +108,5 @@ class LastPkgResult(Processor):
 
 
 if __name__ == "__main__":
-    PROCESSOR = LastPkgResult()
+    PROCESSOR = WritePkgResultToJson()
     PROCESSOR.execute_shell()
