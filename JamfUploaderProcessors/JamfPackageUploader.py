@@ -145,19 +145,6 @@ class JamfPackageUploader(Processor):
             "the com.github.autopkg preference file.",
             "default": "",
         },
-        "output_file_path": {
-            "description": (
-                "Path to output file which stores whether the pkg and pkg metadata was updated."
-            ),
-            "required": False,
-        },
-        "output_file_name": {
-            "description": (
-                "Name of output file which stores whether the pkg and pkg metadata was updated."
-            ),
-            "required": False,
-            "default": "latest_version.json",
-        },
     }
 
     output_variables = {
@@ -720,24 +707,6 @@ class JamfPackageUploader(Processor):
                 "category": self.pkg_category,
             },
         }
-
-        # also output whether the package was updated or not to the permanent output file
-        output_file_path = self.env.get("output_file_path")
-        output_file_name = self.env.get("output_file_name")
-
-        data = {}
-        data["pkg_uploaded"] = self.pkg_uploaded
-        data["pkg_metadata_updated"] = self.pkg_metadata_updated
-
-        if not output_file_path:
-            output_file_path = self.env.get("RECIPE_CACHE_DIR")
-
-        with open(os.path.join(output_file_path, output_file_name), "w") as outfile:
-            json.dump(data, outfile)
-
-        self.output(
-            f"Package status written to: {os.path.join(output_file_path, output_file_name)}"
-        )
 
 
 if __name__ == "__main__":

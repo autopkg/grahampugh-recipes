@@ -39,48 +39,32 @@ class LastRecipeRunResult(Processor):
             "required": False,
             "default": "latest_version.json",
         },
-        "url": {"description": ("the download URL."), "required": False},
         "pkg_path": {
             "description": ("The path where the package is stored."),
             "required": False,
         },
         "pkg_name": {"description": ("The name of the package."), "required": False},
-        "pathname": {
-            "description": ("The path to the downloaded installer."),
+        "pkg_uploaded": {
+            "description": ("Was a new package uploaded?."),
             "required": False,
+            "default": False,
+        },
+        "pkg_metadata_updated": {
+            "description": ("Was the package metadata updated?."),
+            "required": False,
+            "default": False,
         },
         "version": {
             "description": ("The current package version."),
-            "required": False,
-        },
-        "license_key": {
-            "description": ("The outputted value for license_key."),
             "required": False,
         },
         "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
         },
-        "policy_name": {
-            "description": ("The policy name in Jamf Pro."),
-            "required": False,
-        },
-        "SELFSERVICE_DESCRIPTION": {
-            "description": ("The self-service description in Jamf Pro."),
-            "required": False,
-        },
     }
 
-    output_variables = {
-        "url": {"description": ("the download URL.")},
-        "version": {"description": ("The current package version.")},
-        "license_key": {"description": ("The outputted value for license_key.")},
-        "pkg_path": {"description": ("the package path.")},
-        "pkg_name": {"description": ("the package name.")},
-        "PKG_CATEGORY": {"description": ("The package category.")},
-        "policy_name": {"description": ("The policy name.")},
-        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
-    }
+    output_variables = {}
 
     description = __doc__
 
@@ -98,49 +82,24 @@ class LastRecipeRunResult(Processor):
 
         output_file_path = self.env.get("output_file_path")
         output_file_name = self.env.get("output_file_name")
-        pathname = self.env.get("pathname")
         pkg_path = self.env.get("pkg_path")
         pkg_name = self.env.get("pkg_name")
-        url = self.env.get("url")
         version = self.env.get("version")
-        license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
-        policy_name = self.env.get("policy_name")
-        self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
-
-        if pathname:
-            self.output("Download: {}".format(pathname))
-        if pkg_path:
-            self.output("Package path: {}".format(pkg_path))
-        if pkg_name:
-            self.output("Package name: {}".format(pkg_name))
-        if url:
-            self.output("URL: {}".format(url))
-        if version:
-            self.output("Version: {}".format(version))
-        if license_key:
-            self.output("License Key: {}".format(license_key))
-        if category:
-            self.output("Pkg Category: {}".format(category))
-        if policy_name:
-            self.output("Policy name: {}".format(policy_name))
-        if self_service_description:
-            self.output("Self Service Description: {}".format(self_service_description))
+        pkg_uploaded = self.env.get("pkg_uploaded")
+        pkg_metadata_updated = self.env.get("pkg_metadata_updated")
 
         if not output_file_path:
             output_file_path = self.env.get("RECIPE_CACHE_DIR")
         output_file = os.path.join(output_file_path, output_file_name)
 
         data = self.get_latest_recipe_run_info(output_file)
-        data["pathname"] = pathname
         data["pkg_path"] = pkg_path
         data["pkg_name"] = pkg_name
-        data["url"] = url
         data["version"] = version
-        data["license_key"] = license_key
         data["category"] = category
-        data["policy_name"] = policy_name
-        data["self_service_description"] = self_service_description
+        data["pkg_uploaded"] = pkg_uploaded
+        data["pkg_metadata_updated"] = pkg_metadata_updated
 
         with open(output_file, "w") as outfile:
             json.dump(data, outfile)
