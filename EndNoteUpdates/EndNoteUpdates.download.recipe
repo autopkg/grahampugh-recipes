@@ -27,7 +27,7 @@
 				<key>re_pattern</key>
 				<string>(/updates/%INT_VERSION%.0/EndNote%MAJOR_VERSION%[0-9]*UpdateInstaller.zip)</string>
 				<key>url</key>
-				<string>http://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml</string>
+				<string>https://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLTextSearcher</string>
@@ -77,7 +77,7 @@
 				<key>re_pattern</key>
 				<string>(updateTo\&gt;(?P&lt;version&gt;%INT_VERSION%.*?)\&lt;\/updateTo)</string>
 				<key>url</key>
-				<string>http://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml</string>
+				<string>https://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLTextSearcher</string>
