@@ -8,22 +8,22 @@ Input:
   BUNDLE_ID: uk.ac.babraham.seqmonk
 
 Process:
-- Processor: Copier
-  Arguments:
-    destination_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
-    overwrite: true
-    source_path: '%pathname%/%NAME%.app'
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      overwrite: True
+      source_path: "%pathname%/%NAME%.app"
 
-- Processor: PlistEditor
-  Arguments:
-    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist'
-    output_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist'
-    plist_data:
-      CFBundleShortVersionString: '%version%'
-      CFBundleIdentifier: '%BUNDLE_ID%'
+  - Processor: PlistEditor
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist"
+      output_plist_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist"
+      plist_data:
+        CFBundleShortVersionString: "%version%"
+        CFBundleIdentifier: "%BUNDLE_ID%"
 
-- Processor: AppPkgCreator
-  Arguments:
-    app_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.app'
-    overwrite: false
-    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
+  - Processor: AppPkgCreator
+    Arguments:
+      app_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      force_pkg_build: False
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"

@@ -41,7 +41,7 @@
 			<dict>
 				<key>destination_path</key>
 				<string>%RECIPE_CACHE_DIR%/downloads/%NAME%.app</string>
-				<key>overwrite</key>
+				<key>force_pkg_build</key>
 				<true/>
 				<key>source_path</key>
 				<string>%pathname%/%NAME%.app</string>
