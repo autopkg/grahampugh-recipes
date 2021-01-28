@@ -177,7 +177,7 @@ class JamfCategoryUploader(Processor):
                 headers = file.readlines()
             r.headers = [x.strip() for x in headers]
             for header in r.headers:
-                if "HTTP/1.1" in header and "Continue" not in header:
+                if ("HTTP/1.1" in header or "HTTP/2" in header) and "Continue" not in header:
                     r.status_code = int(header.split()[1])
             with open(output_file, "rb") as file:
                 if "uapi" in url:
