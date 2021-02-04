@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <computer_group>
-    <name>%GROUP_NAME%</name>
-    <is_smart>true</is_smart>
-    <criteria>
+	<name>%GROUP_NAME%</name>
+	<is_smart>true</is_smart>
+	<criteria>
 		<criterion>
 			<name>Application Title</name>
 			<priority>0</priority>
@@ -12,15 +12,15 @@
 			<opening_paren>true</opening_paren>
 			<closing_paren>false</closing_paren>
 		</criterion>
-        <criterion>
-            <name>Application Version</name>
-            <priority>1</priority>
-            <and_or>and</and_or>
-            <search_type>matches regex</search_type>
-            <value>%INSTALLED_REGEX_MATCH%</value>
+		<criterion>
+			<name>Application Version</name>
+			<priority>1</priority>
+			<and_or>and</and_or>
+			<search_type>matches regex</search_type>
+			<value>%INSTALLED_REGEX_MATCH%</value>
 			<opening_paren>false</opening_paren>
 			<closing_paren>false</closing_paren>
-        </criterion>
+		</criterion>
 		<criterion>
 			<name>Application Version</name>
 			<priority>2</priority>
@@ -39,15 +39,15 @@
 			<opening_paren>true</opening_paren>
 			<closing_paren>false</closing_paren>
 		</criterion>
-        <criterion>
-            <name>Application Version</name>
-            <priority>4</priority>
-            <and_or>and</and_or>
-            <search_type>does not match regex</search_type>
-            <value>%INSTALLED_REGEX_MATCH%</value>
+		<criterion>
+			<name>Application Version</name>
+			<priority>4</priority>
+			<and_or>and</and_or>
+			<search_type>does not match regex</search_type>
+			<value>%INSTALLED_REGEX_MATCH%</value>
 			<opening_paren>false</opening_paren>
 			<closing_paren>true</closing_paren>
-        </criterion>
+		</criterion>
 		<criterion>
 			<name>Application Title</name>
 			<priority>5</priority>
@@ -66,5 +66,5 @@
 			<opening_paren>false</opening_paren>
 			<closing_paren>false</closing_paren>
 		</criterion>
-    </criteria>
+	</criteria>
 </computer_group>

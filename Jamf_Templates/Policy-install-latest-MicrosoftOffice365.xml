@@ -8,7 +8,7 @@
 			<name>%POLICY_CATEGORY%</name>
 		</category>
 	</general>
-    <scope>
+	<scope>
 		<computer_groups>
 			<computer_group>
 				<name>%GROUP_NAME%</name>
@@ -21,7 +21,7 @@
 				</computer_group>
 			</computer_groups>
 		</exclusions>
-    </scope>
+	</scope>
 	<package_configuration>
 		<packages>
 			<size>1</size>

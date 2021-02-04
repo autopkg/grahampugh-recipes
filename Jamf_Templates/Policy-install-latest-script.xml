@@ -8,13 +8,13 @@
 			<name>%POLICY_CATEGORY%</name>
 		</category>
 	</general>
-    <scope>
+	<scope>
 		<computer_groups>
 			<computer_group>
 				<name>%GROUP_NAME%</name>
 			</computer_group>
 		</computer_groups>
-    </scope>
+	</scope>
 	<package_configuration>
 		<packages>
 			<size>1</size>
@@ -25,7 +25,19 @@
 		</packages>
 	</package_configuration>
 	<scripts>
-		<size>0</size>
+		<size>1</size>
+		<script>
+			<name>%SCRIPT_NAME%</name>
+			<priority>%SCRIPT_PRIORITY%</priority>
+			<parameter4/>
+			<parameter5/>
+			<parameter6/>
+			<parameter7/>
+			<parameter8/>
+			<parameter9/>
+			<parameter10/>
+			<parameter11/>
+		</script>
 	</scripts>
 	<self_service>
 		<use_for_self_service>true</use_for_self_service>
