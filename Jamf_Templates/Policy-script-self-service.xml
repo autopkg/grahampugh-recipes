@@ -44,6 +44,6 @@
 		<force_users_to_view_description>true</force_users_to_view_description>
 	</self_service>
 	<maintenance>
-		<recon>false</recon>
+		<recon>true</recon>
 	</maintenance>
 </policy>
