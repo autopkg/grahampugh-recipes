@@ -8,8 +8,6 @@
 	<string>com.github.grahampugh.recipes.pkg.Element</string>
 	<key>Input</key>
 	<dict>
-		<key>BUNDLE_ID</key>
-		<string>im.riot.app</string>
 		<key>NAME</key>
 		<string>Element</string>
 	</dict>

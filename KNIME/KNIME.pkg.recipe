@@ -8,8 +8,6 @@
 	<string>com.github.grahampugh.recipes.pkg.KNIME</string>
 	<key>Input</key>
 	<dict>
-		<key>BUNDLE_ID</key>
-		<string>org.knime.product</string>
 		<key>NAME</key>
 		<string>KNIME</string>
 	</dict>
