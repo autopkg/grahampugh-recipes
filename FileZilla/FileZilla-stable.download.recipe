@@ -21,9 +21,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>re_pattern</key>
-				<string>\&lt;\p\&gt;The latest stable version of FileZilla Client is (?P&lt;dl_version&gt;.*)\&lt;\/p\&gt;</string>
-				<key>result_output_var_name</key>
-				<string>dl_version</string>
+				<string>&lt;p&gt;The latest stable version of FileZilla Client is (?P&lt;dl_version&gt;.*)&lt;\/p&gt;</string>
 				<key>url</key>
 				<string>%SEARCH_URL%</string>
 			</dict>
