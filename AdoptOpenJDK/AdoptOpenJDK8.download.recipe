@@ -20,8 +20,6 @@ The default Release Type is "releases", which is the stable build. To get the mo
 		<string>AdoptOpenJDK 8</string>
 		<key>RELEASE_STREAM</key>
 		<string>releases</string>
-		<key>STOPPROCESSINGIF_PREDICATE</key>
-		<string>download_changed == False</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.0</string>
@@ -50,17 +48,6 @@ The default Release Type is "releases", which is the stable build. To get the mo
 		<dict>
 			<key>Processor</key>
 			<string>EndOfCheckPhase</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>predicate</key>
-				<string>%STOPPROCESSINGIF_PREDICATE%</string>
-			</dict>
-			<key>Comment</key>
-			<string>Checks if the file already exists in the cache</string>
-			<key>Processor</key>
-			<string>StopProcessingIf</string>
 		</dict>
 	</array>
 </dict>
