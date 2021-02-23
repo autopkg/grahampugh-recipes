@@ -1,32 +1,32 @@
 Description: Downloads the current release version of TeXShop and builds a package with TeXShop in /Applications/TeX to match a MacTeX deistribution. Then, uploads to the Jamf Pro Server.
 Identifier: com.github.grahampugh.recipes.jss.TeXShop
-MinimumVersion: 0.2.0
 ParentRecipe: com.github.grahampugh.recipes.pkg.TeXShop
+MinimumVersion: 0.2.0
 
 Input:
-  CATEGORY: Productivity
-  GROUP_NAME: "%NAME%-update-smart"
-  GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
   NAME: TeXShop
+  CATEGORY: Productivity
+  GROUP_NAME: '%NAME%-update-smart'
+  GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
   TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
-  POLICY_NAME: "Install Latest %NAME%"
+  POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
   SELF_SERVICE_DESCRIPTION: TeXShop is a free LaTeX and TeX editor and previewer for macOS. It is licensed under the GNU GPL. It was developed by the American mathematician Richard Koch. This version of TeXShop requires the MacTeX application bundle to be installed for all features to function.
   SELF_SERVICE_ICON: TeXShop.png
 
 Process:
-  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
+- Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
 
-  - Arguments:
-      category: "%CATEGORY%"
-      groups:
-        - name: "%GROUP_NAME%"
-          smart: true
-          template_path: "%GROUP_TEMPLATE%"
-      policy_category: "%POLICY_CATEGORY%"
-      policy_template: "%POLICY_TEMPLATE%"
-      prod_name: "%NAME%"
-      self_service_description: "%SELF_SERVICE_DESCRIPTION%"
-      self_service_icon: "%SELF_SERVICE_ICON%"
-    Processor: JSSImporter
+- Processor: JSSImporter
+  Arguments:
+    category: '%CATEGORY%'
+    groups:
+    - name: '%GROUP_NAME%'
+      smart: true
+      template_path: '%GROUP_TEMPLATE%'
+    policy_category: '%POLICY_CATEGORY%'
+    policy_template: '%POLICY_TEMPLATE%'
+    prod_name: '%NAME%'
+    self_service_description: '%SELF_SERVICE_DESCRIPTION%'
+    self_service_icon: '%SELF_SERVICE_ICON%'

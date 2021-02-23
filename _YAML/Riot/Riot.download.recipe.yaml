@@ -1,35 +1,34 @@
 Description: Downloads the latest version of Riot.im. Note that this recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.
 Identifier: com.github.grahampugh.recipes.download.Riot
-
-Input:
-  DOWNLOAD_URL: https://riot.im/download/desktop/index.html
-  NAME: Riot
-
 MinimumVersion: 1.0.0
 
+Input:
+  NAME: Riot
+  DOWNLOAD_URL: https://riot.im/download/desktop/index.html
+
 Process:
-  - Processor: DeprecationWarning
-    Arguments:
-      warning_message: This recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.
+- Processor: DeprecationWarning
+  Arguments:
+    warning_message: This recipe has been deprecated, as Riot has been renamed to Element (Riot). Please use the Element recipes instead.
 
-  - Processor: URLTextSearcher
-    Arguments:
-      url: "%DOWNLOAD_URL%"
-      re_pattern: '"(?P<match>https://packages\.riot\.im/desktop/install/macos/Riot-.*\.dmg)"'
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: '"(?P<match>https://packages\.riot\.im/desktop/install/macos/Riot-.*\.dmg)"'
+    url: '%DOWNLOAD_URL%'
 
-  - Processor: URLDownloader
-    Arguments:
-      url: "%match%"
-      filename: Riot.dmg
+- Processor: URLDownloader
+  Arguments:
+    filename: Riot.dmg
+    url: '%match%'
 
-  - Processor: EndOfCheckPhase
+- Processor: EndOfCheckPhase
 
-  - Processor: CodeSignatureVerifier
-    Arguments:
-      input_path: "%pathname%/Riot.app"
-      requirement: identifier "im.riot.app" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7J4U792NQT"
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Riot.app'
+    requirement: identifier "im.riot.app" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7J4U792NQT"
 
-  - Processor: Versioner
-    Arguments:
-      input_plist_path: "%pathname%/Riot.app/Contents/Info.plist"
-      plist_version_key: CFBundleShortVersionString
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%pathname%/Riot.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString

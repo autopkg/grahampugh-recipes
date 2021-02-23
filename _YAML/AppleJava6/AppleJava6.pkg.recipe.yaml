@@ -1,31 +1,38 @@
 Description: Provides the version of Apple Java SE 6 Runtime for OS X, and copies the downloaded pkg so that it includes the version number.
 Identifier: com.github.grahampugh.recipes.pkg.AppleJava6
+ParentRecipe: com.github.n8felton.download.AppleJava6
+MinimumVersion: 0.4.0
+
 Input:
   NAME: AppleJava6
-MinimumVersion: 0.4.0
-ParentRecipe: com.github.n8felton.download.AppleJava6
+
 Process:
-- Arguments:
+- Processor: FlatPkgUnpacker
+  Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/unpack'
     flat_pkg_path: '%pathname%/JavaForOSX.pkg'
-  Processor: FlatPkgUnpacker
-- Arguments:
+
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs:
       pkgroot: '0755'
     pkgroot: '%RECIPE_CACHE_DIR%/unpack/root'
-  Processor: PkgRootCreator
-- Arguments:
+
+- Processor: PkgPayloadUnpacker
+  Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/unpack/root'
     pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/JavaForOSX.pkg/Payload'
-  Processor: PkgPayloadUnpacker
-- Arguments:
+
+- Processor: Java6Versioner
+  Arguments:
     info_path: '%RECIPE_CACHE_DIR%/unpack/root/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Info.plist'
-  Processor: Java6Versioner
-- Arguments:
+
+- Processor: PkgCopier
+  Arguments:
     pkg_path: '%RECIPE_CACHE_DIR%/Java_SE_6_Runtime_%version%.pkg'
     source_pkg: '%pathname%/JavaForOSX.pkg'
-  Processor: PkgCopier
-- Arguments:
+
+- Processor: PathDeleter
+  Arguments:
     path_list:
     - '%RECIPE_CACHE_DIR%/unpack'
-  Processor: PathDeleter

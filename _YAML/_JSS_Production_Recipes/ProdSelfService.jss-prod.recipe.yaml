@@ -1,6 +1,5 @@
+Comment: For standard recipes, only Identifier, CATEGORY, NAME, SELF_SERVICE_DESCRIPTION, ParentRecipe need to be changed.
 Description: Creates all production policies for a particular title.
-Comment: |
-    For standard recipes, only Identifier, CATEGORY, NAME, SELF_SERVICE_DESCRIPTION, ParentRecipe need to be changed.
 Identifier: com.github.grahampugh.recipes.jss-prod.prod-self-service
 MinimumVersion: 1.0.4
 
@@ -14,11 +13,11 @@ Input:
   TRIGGERONLY_POLICY_CATEGORY: Triggered Installers
   TRIGGERONLY_POLICY_TEMPLATE: PolicyTemplate-prod-triggeronly.xml
   PROD_NAME: '%NAME%'
-  STOP_IF_NO_JSS_UPLOAD: False
+  STOP_IF_NO_JSS_UPLOAD: false
   TRIGGER_NAME: '%NAME%-install'
   SELF_SERVICE_DISPLAY_NAME: '%NAME%'
-  SELF_SERVICE_INSTALL_BUTTON: 'Install %version%'
-  SELF_SERVICE_REINSTALL_BUTTON: 'Install %version%'
+  SELF_SERVICE_INSTALL_BUTTON: Install %version%
+  SELF_SERVICE_REINSTALL_BUTTON: Install %version%
   SELF_SERVICE_ICON: '%NAME%.png'
 
 Process:
@@ -26,17 +25,19 @@ Process:
   Arguments:
     name: '%NAME%'
 
-- Arguments:
+- Processor: JSSImporter
+  Comment: Trigger-only policy
+  Arguments:
     category: '%CATEGORY%'
     pkg_path: '%pkg_path%'
     policy_category: '%TRIGGERONLY_POLICY_CATEGORY%'
     policy_template: '%TRIGGERONLY_POLICY_TEMPLATE%'
     prod_name: '%PROD_NAME%'
     version: '%version%'
-  Comment: Trigger-only policy
-  Processor: JSSImporter
 
-- Arguments:
+- Processor: JSSImporter
+  Comment: Self Service install policy
+  Arguments:
     groups:
     - name: '%PROD_UPDATE_GROUP_NAME%'
       smart: true
@@ -48,5 +49,3 @@ Process:
     self_service_description: '%SELF_SERVICE_DESCRIPTION%'
     self_service_icon: '%SELF_SERVICE_ICON%'
     version: '%version%'
-  Comment: Self Service install policy
-  Processor: JSSImporter

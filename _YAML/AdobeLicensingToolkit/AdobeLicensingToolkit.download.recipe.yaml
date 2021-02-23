@@ -1,5 +1,4 @@
-Description: |
-    Downloads the Adobe Shared Device Licensing Toolkit. This can be used to deactivate Adobe Shared Device Licenses on a client.
+Description: "Downloads the Adobe Shared Device Licensing Toolkit. This can be used to deactivate Adobe Shared Device Licenses on a client.\n"
 Identifier: com.github.grahampugh.recipes.download.AdobeLicensingToolkit
 MinimumVersion: 1.0.0
 
@@ -7,9 +6,9 @@ Input:
   NAME: Adobe Licensing Toolkit
 
 Process:
-- Arguments:
-    url: https://www.adobe.com/go/licensing_toolkit_mac
+- Processor: URLDownloader
+  Arguments:
     filename: adobe-licensing-toolkit.dmg
-  Processor: URLDownloader
+    url: https://www.adobe.com/go/licensing_toolkit_mac
 
 - Processor: EndOfCheckPhase

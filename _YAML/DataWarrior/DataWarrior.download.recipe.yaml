@@ -3,8 +3,8 @@ Identifier: com.github.grahampugh.download.DataWarrior
 MinimumVersion: 1.0.0
 
 Input:
-  DOWNLOAD_URL: http://www.openmolecules.org/datawarrior/download.html
   NAME: DataWarrior
+  DOWNLOAD_URL: http://www.openmolecules.org/datawarrior/download.html
 
 Process:
 - Processor: URLTextSearcher
@@ -16,5 +16,5 @@ Process:
   Arguments:
     filename: '%NAME%.dmg'
     url: '%match%'
-      
+
 - Processor: EndOfCheckPhase

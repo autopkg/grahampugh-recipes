@@ -1,29 +1,35 @@
 Description: Downloads and package the latest LibreOffice with the right language. Set RELEASE to either "fresh" or "still"
 Identifier: com.github.grahampugh.recipes.download.LibreOfficeLangPack
+ParentRecipe: io.github.hjuutilainen.download.LibreOffice
+MinimumVersion: 1.0.0
+
 Input:
-  LANGUAGE_CODE: de
   NAME: LibreOffice
+  LANGUAGE_CODE: de
   RELEASE: still
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
-MinimumVersion: 1.0.0
-ParentRecipe: io.github.hjuutilainen.download.LibreOffice
+
 Process:
-- Arguments:
-    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+- Processor: StopProcessingIf
   Comment: Checks if the file already exists in the cache
-  Processor: StopProcessingIf
-- Arguments:
+  Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+
+- Processor: com.github.sebtomasi.SharedProcessors/RenameVar
+  Arguments:
     input_var: '%pathname%'
     rename_var: pathname_app
-  Processor: com.github.sebtomasi.SharedProcessors/RenameVar
-- Arguments:
+
+- Processor: com.github.sebtomasi.SharedProcessors/TextSubstituer
+  Arguments:
     input_string: '%url%'
     pattern_replace:
     - pattern: .dmg
       repl: _langpack_%LANGUAGE_CODE%.dmg
-  Processor: com.github.sebtomasi.SharedProcessors/TextSubstituer
-- Arguments:
+
+- Processor: URLDownloader
+  Arguments:
     filename: '%NAME%_langpack_%LANGUAGE_CODE%.dmg'
     url: '%parsed_string%'
-  Processor: URLDownloader
+
 - Processor: EndOfCheckPhase

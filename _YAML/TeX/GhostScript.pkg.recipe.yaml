@@ -1,16 +1,19 @@
 Description: Downloads the latest GhostScript release from the MacTeX site and renames the pkg to include the version number.
 Identifier: com.github.grahampugh.recipes.pkg.GhostScript
+ParentRecipe: com.github.dataJAR-recipes.download.MacTeX Ghostscript
+MinimumVersion: 0.2.9
+
 Input:
   NAME: GhostScript
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
-MinimumVersion: 0.2.9
-ParentRecipe: 'com.github.dataJAR-recipes.download.MacTeX Ghostscript'
+
 Process:
-- Arguments:
-    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+- Processor: StopProcessingIf
   Comment: Checks if the file already exists in the cache
-  Processor: StopProcessingIf
-- Arguments:
+  Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+
+- Processor: PkgCopier
+  Arguments:
     pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
     source_pkg: '%pathname%'
-  Processor: PkgCopier

@@ -1,14 +1,14 @@
 Description: Downloads the latest MestReNova release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.
 Identifier: com.github.grahampugh.recipes.jss-upload.MestReNova
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.pkg.MestReNova
+MinimumVersion: 1.0.0
 
 Input:
   NAME: MestReNova
   CATEGORY: Science & Math
 
 Process:
-  - Arguments:
-      category: "%CATEGORY%"
-      prod_name: "%NAME%"
-    Processor: JSSImporter
+- Processor: JSSImporter
+  Arguments:
+    category: '%CATEGORY%'
+    prod_name: '%NAME%'

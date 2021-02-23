@@ -1,11 +1,4 @@
-Description: |
-    Downloads the current release version of AdoptOpenJDK 13. This is the signed pkg version rather 
-    than the tar version, for those that require a signed package rather than accurate version number.
-
-    The default JVM implementation is "openj9". To override to "hotspot", change the value of JVM_IMPLEMENTATION.
-
-    The default Release Type is "releases", which is the stable build. To get the most recent build, select "nightly".
-
+Description: "Downloads the current release version of AdoptOpenJDK 13. This is the signed pkg version rather \nthan the tar version, for those that require a signed package rather than accurate version number.\n\nThe default JVM implementation is \"openj9\". To override to \"hotspot\", change the value of JVM_IMPLEMENTATION.\n\nThe default Release Type is \"releases\", which is the stable build. To get the most recent build, select \"nightly\".\n"
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK13_OpenJ9_Signed
 MinimumVersion: 1.0.0
 
@@ -16,26 +9,26 @@ Input:
   JVM_IMPLEMENTATION: openj9
 
 Process:
-- Arguments:
+- Processor: URLTextSearcher
+  Arguments:
     re_pattern: installer_link.*?(?P<match>AdoptOpenJDK.*?\/OpenJDK13U-jdk_x64_mac_%JVM_IMPLEMENTATION%_.*?\.pkg)
     url: https://api.adoptopenjdk.net/v2/latestAssets/%RELEASE_STREAM%/openjdk13?os=mac&arch=x64&heap_size=normal&openjdk_impl=%JVM_IMPLEMENTATION%&type=jdk
-  Processor: URLTextSearcher
 
-- Arguments:
+- Processor: URLDownloader
+  Arguments:
     url: https://github.com/%match%
-  Processor: URLDownloader
 
 - Processor: EndOfCheckPhase
 
-- Arguments:
-    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+- Processor: StopProcessingIf
   Comment: Checks if the file already exists in the cache
-  Processor: StopProcessingIf
+  Arguments:
+    predicate: '%STOPPROCESSINGIF_PREDICATE%'
 
-- Arguments:
+- Processor: CodeSignatureVerifier
+  Arguments:
     expected_authority_names:
     - 'Developer ID Installer: London Jamocha Community CIC (VDX7B37674)'
     - Developer ID Certification Authority
     - Apple Root CA
     input_path: '%pathname%'
-  Processor: CodeSignatureVerifier

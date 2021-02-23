@@ -1,9 +1,11 @@
 Description: Installs the latest version of DjView.
 Identifier: com.github.grahampugh.install.DjView
+ParentRecipe: com.github.grahampugh.download.DjView
+MinimumVersion: 1.0.0
+
 Input:
   NAME: DjView
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.download.DjView
+
 Process:
 - Processor: InstallFromDMG
   Arguments:

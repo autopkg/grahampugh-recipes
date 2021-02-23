@@ -1,9 +1,11 @@
 Description: Installs the latest version of CitrixWorkspace.
 Identifier: com.github.grahampugh.install.CitrixWorkspace
+ParentRecipe: com.github.grahampugh.download.CitrixWorkspace
+MinimumVersion: 1.0.0
+
 Input:
   NAME: CitrixWorkspace
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.download.CitrixWorkspace
+
 Process:
 - Processor: Installer
   Arguments:

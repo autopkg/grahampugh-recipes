@@ -1,8 +1,3 @@
-Comments: |
-  Requires a package from the --pkg argument. Also requires a configuration xml profile (VPN_XML) which should be added to the RECIPE_OVERRIDE_DIR before running the recipe. An example is provided in the recipe repo folder, named example.xml
-
-  If you need more packages installing, you should make a copy of this recipe and edit the ChoicesXMLGenerator choices list. This isn't overridable. Don't forget to change the Identifier if you do this.
-
 Description: Creates a Cisco AnyConnect VPN-only package.
 Identifier: com.github.grahampugh.recipes.pkg.CiscoAnyConnect
 MinimumVersion: 1.0.0
@@ -12,88 +7,75 @@ Input:
   VPN_XML: example.xml
 
 Process:
-  - Processor: PackageRequired
+- Processor: PackageRequired
 
-  - Arguments:
-      pkgdirs:
-        "Profiles": "0755"
-        "Profiles/vpn": "0755"
-      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
-    Processor: PkgRootCreator
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Profiles: '0755'
+      Profiles/vpn: '0755'
+    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
 
-  - Arguments:
-      pkgdirs: {}
-      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-    Processor: PkgRootCreator
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
 
-  - Arguments:
-      pkg_path: "%RECIPE_CACHE_DIR%/Scripts/AnyConnect.pkg"
-      source_pkg: "%PKG%/AnyConnect.pkg"
-    Processor: PkgCopier
+- Processor: PkgCopier
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/Scripts/AnyConnect.pkg'
+    source_pkg: '%PKG%/AnyConnect.pkg'
 
-  - Arguments:
-      destination_path: "%RECIPE_CACHE_DIR%/unpack"
-      flat_pkg_path: "%RECIPE_CACHE_DIR%/Scripts/AnyConnect.pkg"
-      purge_destination: True
-    Processor: FlatPkgUnpacker
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%RECIPE_CACHE_DIR%/Scripts/AnyConnect.pkg'
+    purge_destination: true
 
-  - Arguments:
-      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/vpn_module.pkg/Payload"
-      destination_path: "%RECIPE_CACHE_DIR%/Payload"
-      purge_destination: True
-    Processor: PkgPayloadUnpacker
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/vpn_module.pkg/Payload'
+    purge_destination: true
 
-  - Arguments:
-      input_plist_path: "%RECIPE_CACHE_DIR%/Payload/Applications/Cisco/Cisco AnyConnect Secure Mobility Client.app/Contents/Info.plist"
-    Processor: Versioner
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/Payload/Applications/Cisco/Cisco AnyConnect Secure Mobility Client.app/Contents/Info.plist'
 
-  - Processor: com.github.grahampugh.recipes.commonprocessors/ChoicesXMLGenerator
-    Arguments:
-      choices_pkg_path: "%pkg_path%"
-      choices_xml_dest: "%RECIPE_CACHE_DIR%/Scripts/choices.xml"
-      desired_choices:
-        - "choice_vpn"
+- Processor: com.github.grahampugh.recipes.commonprocessors/ChoicesXMLGenerator
+  Arguments:
+    choices_pkg_path: '%pkg_path%'
+    choices_xml_dest: '%RECIPE_CACHE_DIR%/Scripts/choices.xml'
+    desired_choices:
+    - choice_vpn
 
-  - Arguments:
-      destination_path: "%RECIPE_CACHE_DIR%/Scripts/Profiles/vpn/%VPN_XML%"
-      source_path: "%RECIPE_DIR%/%VPN_XML%"
-    Processor: Copier
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Scripts/Profiles/vpn/%VPN_XML%'
+    source_path: '%RECIPE_DIR%/%VPN_XML%'
 
-  - Arguments:
-      file_content: |
-        #!/bin/bash
-        ## script to install and activate Cisco AnyConnect
+- Processor: FileCreator
+  Arguments:
+    file_content: "#!/bin/bash\n## script to install and activate Cisco AnyConnect\n\nDIR=$(dirname \"$0\")\n\n/usr/sbin/installer -applyChoiceChangesXML \"$DIR/choices.xml\" -pkg \"$DIR/AnyConnect.pkg\" -target /\n\nif (test $? = 0) then\n    echo \"Cisco AnyConnect installed.\"\nelse\n    echo \"ERROR: Cisco AnyConnect installation failed.\"\n    exit 1\nfi\n"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 
-        DIR=$(dirname "$0")
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      chown: []
+      id: ch.ethz.id.pkg.CiscoAnyConnect
+      pkgname: CiscoAnyConnect-%version%
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      scripts: Scripts
+      version: '%version%'
 
-        /usr/sbin/installer -applyChoiceChangesXML "$DIR/choices.xml" -pkg "$DIR/AnyConnect.pkg" -target /
-
-        if (test $? = 0) then
-            echo "Cisco AnyConnect installed."
-        else
-            echo "ERROR: Cisco AnyConnect installation failed."
-            exit 1
-        fi
-      file_mode: "0755"
-      file_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
-    Processor: FileCreator
-
-  - Arguments:
-      pkg_request:
-        chown: []
-        id: ch.ethz.id.pkg.CiscoAnyConnect
-        pkgname: "CiscoAnyConnect-%version%"
-        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-        pkgtype: flat
-        scripts: Scripts
-        version: "%version%"
-    Processor: PkgCreator
-
-  - Processor: PathDeleter
-    Arguments:
-      path_list:
-        - "%RECIPE_CACHE_DIR%/AnyConnect.pkg"
-        - "%RECIPE_CACHE_DIR%/unpack"
-        - "%RECIPE_CACHE_DIR%/Payload"
-        - "%RECIPE_CACHE_DIR%/Scripts"
-        - "%RECIPE_CACHE_DIR%/pkgroot"
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/AnyConnect.pkg'
+    - '%RECIPE_CACHE_DIR%/unpack'
+    - '%RECIPE_CACHE_DIR%/Payload'
+    - '%RECIPE_CACHE_DIR%/Scripts'
+    - '%RECIPE_CACHE_DIR%/pkgroot'

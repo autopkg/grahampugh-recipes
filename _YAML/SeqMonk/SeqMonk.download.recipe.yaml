@@ -1,20 +1,19 @@
 Description: Downloads the current version of SeqMonk.
 Identifier: com.github.grahampugh.recipes.download.SeqMonk
+MinimumVersion: 0.6.0
 
 Input:
   NAME: SeqMonk
 
-MinimumVersion: 0.6.0
-
 Process:
 - Processor: URLTextSearcher
   Arguments:
-    url: https://www.bioinformatics.babraham.ac.uk/projects/download.html
     re_pattern: (?P<match>seqmonk/seqmonk_v(?P<version>.*?)_osx64\.dmg)
+    url: https://www.bioinformatics.babraham.ac.uk/projects/download.html
     user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15
 
 - Processor: URLDownloader
   Arguments:
-    url: 'https://www.bioinformatics.babraham.ac.uk/projects/%match%'
+    url: https://www.bioinformatics.babraham.ac.uk/projects/%match%
 
 - Processor: EndOfCheckPhase

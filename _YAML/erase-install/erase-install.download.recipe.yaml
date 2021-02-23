@@ -1,5 +1,4 @@
-Description: |
-  Downloads the current script of erase-install 11.
+Description: "Downloads the current script of erase-install 11.\n"
 Identifier: com.github.grahampugh.recipes.download.erase-install
 MinimumVersion: 1.0.0
 
@@ -8,12 +7,12 @@ Input:
   STOP_IF: download_changed == False
 
 Process:
-  - Arguments:
-      asset_regex: ^erase-install-.*?.pkg$
-      github_repo: grahampugh/erase-install
-      include_prereleases: False
-    Processor: GitHubReleasesInfoProvider
+- Processor: GitHubReleasesInfoProvider
+  Arguments:
+    asset_regex: ^erase-install-.*?.pkg$
+    github_repo: grahampugh/erase-install
+    include_prereleases: false
 
-  - Processor: URLDownloader
+- Processor: URLDownloader
 
-  - Processor: EndOfCheckPhase
+- Processor: EndOfCheckPhase

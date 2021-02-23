@@ -1,9 +1,11 @@
 Description: Downloads the latest version of ThinLinc Client and creates a package.
 Identifier: com.github.grahampugh.recipes.pkg.ThinLincClient
-Input:
-  BUNDLE_ID: se.cendio.tlclient
-  NAME: ThinLinc Client
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.download.ThinLincClient
+MinimumVersion: 1.0.0
+
+Input:
+  NAME: ThinLinc Client
+  BUNDLE_ID: se.cendio.tlclient
+
 Process:
 - Processor: AppPkgCreator

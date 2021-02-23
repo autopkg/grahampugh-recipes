@@ -3,23 +3,23 @@ Identifier: com.github.grahampugh.recipes.download.MestReNova
 MinimumVersion: 1.0.0
 
 Input:
-  DOWNLOAD_URL: https://mestrelab.com/downloads/mnova/mac
   NAME: MestReNova
+  DOWNLOAD_URL: https://mestrelab.com/downloads/mnova/mac
   SEARCH_URL: https://mestrelab.com/download/mnova/
 
 Process:
-  - Arguments:
-      re_pattern: MestReNova-(?P<version>(?P<pkgversion>.*?)-.*?)\.dmg
-      url: "%SEARCH_URL%"
-    Processor: URLTextSearcher
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: MestReNova-(?P<version>(?P<pkgversion>.*?)-.*?)\.dmg
+    url: '%SEARCH_URL%'
 
-  - Arguments:
-      url: "%DOWNLOAD_URL%/MestReNova-%version%.dmg"
-    Processor: URLDownloader
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%/MestReNova-%version%.dmg'
 
-  - Processor: EndOfCheckPhase
+- Processor: EndOfCheckPhase
 
-  - Arguments:
-      input_path: "%pathname%/%NAME%.app"
-      requirement: identifier "com.mestrelab.MestReNova" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = DH5EKRR34H
-    Processor: CodeSignatureVerifier
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/%NAME%.app'
+    requirement: identifier "com.mestrelab.MestReNova" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = DH5EKRR34H

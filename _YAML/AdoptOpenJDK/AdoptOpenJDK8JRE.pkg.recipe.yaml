@@ -1,63 +1,54 @@
 Description: Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
 Identifier: com.github.grahampugh.recipes.pkg.AdoptOpenJDK8JRE
+ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK8JRE
+MinimumVersion: 1.0.0
+
 Input:
   NAME: AdoptOpenJDK 8
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK8JRE
+
 Process:
-- Arguments:
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs:
       Library: '0755'
       Library/Java: '0755'
       Library/Java/JavaVirtualMachines: '0755'
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PkgRootCreator
-- Arguments:
+
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs: {}
     pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
-  Processor: PkgRootCreator
-- Arguments:
+
+- Processor: Unarchiver
+  Arguments:
     archive_path: '%pathname%'
     destination_path: '%pkgroot%/Library/Java/JavaVirtualMachines'
     purge_destination: true
-  Processor: Unarchiver
-- Arguments:
+
+- Processor: FileFinder
+  Arguments:
     pattern: '%pkgroot%/Library/Java/JavaVirtualMachines/jdk8*/Contents/Info.plist'
-  Processor: FileFinder
-- Arguments:
+
+- Processor: Versioner
+  Arguments:
     input_plist_path: '%found_filename%'
     plist_version_key: CFBundleVersion
-  Processor: Versioner
-- Arguments:
-    file_content: |
-        #!/bin/bash
-        ## script to remove any existing JRE
 
-        for i in /Library/Java/JavaVirtualMachines/*-jre; do
-            [[ -d $i ]] && rm -rf $i
-        done
-
-        # update path
-        sed '/-jre/d' /etc/paths > /tmp/paths
-        mv /tmp/paths /etc/paths
+- Processor: FileCreator
+  Arguments:
+    file_content: "#!/bin/bash\n## script to remove any existing JRE\n\nfor i in /Library/Java/JavaVirtualMachines/*-jre; do\n    [[ -d $i ]] && rm -rf $i\ndone\n\n# update path\nsed '/-jre/d' /etc/paths > /tmp/paths\nmv /tmp/paths /etc/paths\n"
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/preinstall'
-  Processor: FileCreator
-- Arguments:
-    file_content: |
-        #!/bin/bash
-        ## script to add the JRE to the path
 
-        for i in /Library/Java/JavaVirtualMachines/*-jre; do
-            [[ -d $i ]] && jre_path="$i/Contents/Home/bin"
-        done
-        echo $jre_path > /tmp/jre
-        cat /etc/paths >> /tmp/jre
-        /bin/mv /tmp/jre /etc/paths
+- Processor: FileCreator
+  Arguments:
+    file_content: "#!/bin/bash\n## script to add the JRE to the path\n\nfor i in /Library/Java/JavaVirtualMachines/*-jre; do\n    [[ -d $i ]] && jre_path=\"$i/Contents/Home/bin\"\ndone\necho $jre_path > /tmp/jre\ncat /etc/paths >> /tmp/jre\n/bin/mv /tmp/jre /etc/paths\n"
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
-  Processor: FileCreator
-- Arguments:
+
+- Processor: PkgCreator
+  Arguments:
     pkg_request:
       chown:
       - group: wheel
@@ -71,11 +62,11 @@ Process:
         user: root
       id: com.AdoptOpenJDK-8.jre
       options: purge_ds_store
-      pkgname: 'AdoptOpenJDK8-jre-%version%'
+      pkgname: AdoptOpenJDK8-jre-%version%
       scripts: Scripts
       version: '%version%'
-  Processor: PkgCreator
-- Arguments:
+
+- Processor: PathDeleter
+  Arguments:
     path_list:
     - '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PathDeleter

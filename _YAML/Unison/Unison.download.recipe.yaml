@@ -1,15 +1,20 @@
 Description: Downloads the latest release of Unison.
 Identifier: com.github.grahampugh.recipes.download.unison
+MinimumVersion: 1.0.0
+
 Input:
   NAME: Unison
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
-MinimumVersion: 1.0.0
+
 Process:
 - Processor: GitHubReleasesInfoProvider
   Arguments:
     github_repo: bcpierce00/unison
+
 - Processor: URLDownloader
+
 - Processor: EndOfCheckPhase
+
 - Processor: StopProcessingIf
   Arguments:
     predicate: '%STOPPROCESSINGIF_PREDICATE%'

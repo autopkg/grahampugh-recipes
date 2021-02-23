@@ -7,12 +7,12 @@ Input:
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
-- Arguments:
+- Processor: FilemakerProAdvancedUpdateURLProcessor
+  Arguments:
     major_version: '%MAJOR_VERSION%'
-  Processor: FilemakerProAdvancedUpdateURLProcessor
 
 - Processor: URLDownloader
 
-- Arguments:
+- Processor: StopProcessingIf
+  Arguments:
     predicate: '%STOPPROCESSINGIF_PREDICATE%'
-  Processor: StopProcessingIf

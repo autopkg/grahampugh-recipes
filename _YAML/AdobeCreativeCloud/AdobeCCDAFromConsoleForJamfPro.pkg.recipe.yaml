@@ -1,9 +1,4 @@
-Description: |
-  This recipe is designed to repackage the Adobe Creative Cloud Desktop Application installer package that is generated in the Adobe Admin Console. This is necessary to make the package installable via Jamf Pro.
-
-  This recipe has no parent '.download' recipe, since that is a manual process. You have to provide the path to a downloaded zip file from the Adobe admin console. You also need to provide a version number, as this is not extractable from the package. Therefore, to run this recipe, you need to run as follows:
-
-  autopkg run "AdobeCCDAFromConsoleForJamfPro.pkg" --key pathname=/path/to/Adobe_CCDA_downloaded.zip --key version=5.0.0.354
+Description: "This recipe is designed to repackage the Adobe Creative Cloud Desktop Application installer package that is generated in the Adobe Admin Console. This is necessary to make the package installable via Jamf Pro.\n\nThis recipe has no parent '.download' recipe, since that is a manual process. You have to provide the path to a downloaded zip file from the Adobe admin console. You also need to provide a version number, as this is not extractable from the package. Therefore, to run this recipe, you need to run as follows:\n\nautopkg run \"AdobeCCDAFromConsoleForJamfPro.pkg\" --key pathname=/path/to/Adobe_CCDA_downloaded.zip --key version=5.0.0.354\n"
 Identifier: com.github.grahampugh.recipes.pkg.AdobeCCDAFromConsoleForJamfPro
 MinimumVersion: 1.0.0
 
@@ -11,52 +6,41 @@ Input:
   NAME: Adobe Creative Cloud
 
 Process:
-  - Processor: PkgRootCreator
-    Arguments:
-      pkgdirs: {}
-      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
 
-  - Processor: PkgRootCreator
-    Arguments:
-      pkgdirs: {}
-      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
 
-  - Processor: Copier
-    Arguments:
-      source_path: "%pathname%"
-      destination_path: "%RECIPE_CACHE_DIR%/Scripts/AdobeCCDA.zip"
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Scripts/AdobeCCDA.zip'
+    source_path: '%pathname%'
 
-  - Arguments:
-      file_content: |
-        #!/bin/bash
+- Processor: FileCreator
+  Arguments:
+    file_content: "#!/bin/bash\n\nDIR=$(dirname \"$0\")\n\nAPPPATH=\"/tmp/CCDA\"\nmkdir -p \"$APPPATH\"\n/usr/bin/unzip $DIR/AdobeCCDA.zip -d \"$APPPATH\"\n\n/usr/sbin/installer -tgt / -pkg \"$APPPATH\"/*.pkg/Build/*.pkg\n\n[[ -d \"$APPPATH\" ]] && /bin/rm -rf \"$APPPATH\"\n"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 
-        DIR=$(dirname "$0")
+- Processor: PkgCreator
+  Arguments:
+    force_pkg_build: true
+    pkg_request:
+      chown: []
+      id: com.adobe.AdobeCCDA.pkg.%version%
+      pkgname: AdobeCCDA-%version%
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      scripts: Scripts
+      version: '%version%'
 
-        APPPATH="/tmp/CCDA"
-        mkdir -p "$APPPATH"
-        /usr/bin/unzip $DIR/AdobeCCDA.zip -d "$APPPATH"
-
-        /usr/sbin/installer -tgt / -pkg "$APPPATH"/*.pkg/Build/*.pkg
-
-        [[ -d "$APPPATH" ]] && /bin/rm -rf "$APPPATH"
-      file_mode: "0755"
-      file_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
-    Processor: FileCreator
-
-  - Processor: PkgCreator
-    Arguments:
-      force_pkg_build: True
-      pkg_request:
-        chown: []
-        id: com.adobe.AdobeCCDA.pkg.%version%
-        pkgname: "AdobeCCDA-%version%"
-        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-        pkgtype: flat
-        scripts: Scripts
-        version: "%version%"
-
-  - Processor: PathDeleter
-    Arguments:
-      path_list:
-        - "%RECIPE_CACHE_DIR%/Scripts"
-        - "%RECIPE_CACHE_DIR%/pkgroot"
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Scripts'
+    - '%RECIPE_CACHE_DIR%/pkgroot'

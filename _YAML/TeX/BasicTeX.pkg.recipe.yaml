@@ -1,9 +1,11 @@
 Description: Downloads the latest BasicTeX release and renames the pkg to include the version number.
 Identifier: com.github.grahampugh.recipes.pkg.BasicTeX
-MinimumVersion: 0.2.9
 ParentRecipe: com.github.grahampugh.recipes.download.BasicTeX
+MinimumVersion: 0.2.9
+
 Input:
   NAME: BasicTeX
+
 Process:
 - Processor: PkgCopier
   Arguments:

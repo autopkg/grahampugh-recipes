@@ -14,7 +14,8 @@ Input:
   TRIGGER_NAME: Run-AdobeLicensingToolkit
 
 Process:
-- Arguments:
+- Processor: JSSImporter
+  Arguments:
     category: '%CATEGORY%'
     pkg_path: '%pkg_path%'
     policy_category: '%POLICY_CATEGORY%'
@@ -23,4 +24,3 @@ Process:
     scripts:
     - name: '%POSTINSTALL_SCRIPT%'
       template_path: '%POSTINSTALL_SCRIPT_TEMPLATE%'
-  Processor: JSSImporter

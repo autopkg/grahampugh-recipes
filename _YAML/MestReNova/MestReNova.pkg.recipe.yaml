@@ -1,33 +1,33 @@
 Description: Downloads the latest version of MestReNova and creates a package.
 Identifier: com.github.grahampugh.recipes.pkg.MestReNova
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.download.MestReNova
+MinimumVersion: 1.0.0
 
 Input:
   NAME: MestReNova
 
 Process:
-  - Arguments:
-      pkgdirs:
-        Applications: "0775"
-      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-    Processor: PkgRootCreator
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
 
-  - Processor: Copier
-    Arguments:
-      destination_path: "%RECIPE_CACHE_DIR%/pkgroot/Applications/%NAME%.app"
-      overwrite: true
-      source_path: "%pathname%/%NAME%.app"
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/%NAME%.app'
+    overwrite: true
+    source_path: '%pathname%/%NAME%.app'
 
-  - Arguments:
-      force_pkg_build: True
-      pkg_request:
-        chown: []
-        id: com.mestrelabs.mnova.pkg
-        options: purge_ds_store
-        pkgdir: "%RECIPE_CACHE_DIR%"
-        pkgtype: flat
-        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-        version: "%pkgversion%"
-      pkgname: "%NAME%-%version%"
-    Processor: PkgCreator
+- Processor: PkgCreator
+  Arguments:
+    force_pkg_build: true
+    pkg_request:
+      chown: []
+      id: com.mestrelabs.mnova.pkg
+      options: purge_ds_store
+      pkgdir: '%RECIPE_CACHE_DIR%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      version: '%pkgversion%'
+    pkgname: '%NAME%-%version%'

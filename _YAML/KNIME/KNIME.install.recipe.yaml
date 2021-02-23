@@ -1,9 +1,11 @@
 Description: Installs the latest version of KNIME.
 Identifier: com.github.grahampugh.install.KNIME
+ParentRecipe: ch.ethz.id.download.KNIME
+MinimumVersion: 1.0.0
+
 Input:
   NAME: KNIME
-MinimumVersion: 1.0.0
-ParentRecipe: ch.ethz.id.download.KNIME
+
 Process:
 - Processor: InstallFromDMG
   Arguments:

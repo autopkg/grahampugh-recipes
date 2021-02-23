@@ -1,13 +1,13 @@
 Description: Downloads the latest version of KNIME and creates a package.
 Identifier: com.github.grahampugh.recipes.pkg.KNIME
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.download.KNIME
+MinimumVersion: 1.0.0
 
 Input:
-  BUNDLE_ID: org.knime.product
   NAME: KNIME
+  BUNDLE_ID: org.knime.product
 
 Process:
-  - Processor: AppPkgCreator
-    Arguments:
-      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
+- Processor: AppPkgCreator
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'

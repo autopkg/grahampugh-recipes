@@ -1,36 +1,39 @@
-Description: |
-    Creates a package for ChemDraw.
-    There is no download recipe since ChemDraw is not publicly available.
-    Requires running as: autopkg run --pkg /path/to/downloaded-chemdraw.dmg ChemDraw.pkg
-    Only works with ChemDraw 18+ as the name has changed - before it was "ChemDraw Professional"
+Description: "Creates a package for ChemDraw.\nThere is no download recipe since ChemDraw is not publicly available.\nRequires running as: autopkg run --pkg /path/to/downloaded-chemdraw.dmg ChemDraw.pkg\nOnly works with ChemDraw 18+ as the name has changed - before it was \"ChemDraw Professional\"\n"
 Identifier: com.github.grahampugh.recipes.pkg.ChemDraw
+MinimumVersion: 1.0.0
+
 Input:
   NAME: ChemDraw
   MAJOR_VERSION: '18'
-MinimumVersion: 1.0.0
+
 Process:
-- Arguments:
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs:
       Applications: '0775'
       Library: '0775'
       Library/QuickLook: '0775'
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PkgRootCreator
+
 - Processor: Copier
   Arguments:
-    source_path: '%pathname%/CDQuickLook.qlgenerator'
     destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Library/QuickLook/CDQuickLook.qlgenerator'
-    overwrite: True
+    overwrite: true
+    source_path: '%pathname%/CDQuickLook.qlgenerator'
+
 - Processor: Copier
   Arguments:
-    source_path: '%pathname%/ChemDraw*.app'
     destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/ChemDraw %MAJOR_VERSION%.0.app'
-    overwrite: True
+    overwrite: true
+    source_path: '%pathname%/ChemDraw*.app'
+
 - Processor: Versioner
   Arguments:
     input_plist_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/ChemDraw %MAJOR_VERSION%.0.app/Contents/Info.plist'
-- Arguments:
-    force_pkg_build: True
+
+- Processor: PkgCreator
+  Arguments:
+    force_pkg_build: true
     pkg_request:
       chown: []
       id: com.chemdraw.pkg.ChemDraw%MAJOR_VERSION%
@@ -38,4 +41,3 @@ Process:
       pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
       pkgtype: flat
       version: '%version%'
-  Processor: PkgCreator

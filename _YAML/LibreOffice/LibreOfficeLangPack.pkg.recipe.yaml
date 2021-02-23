@@ -1,34 +1,42 @@
 Description: Downloads and package the latest LibreOffice with the right language. Set RELEASE to either "fresh" or "still"
 Identifier: com.github.grahampugh.recipes.pkg.LibreOfficeLangPack
+ParentRecipe: com.github.grahampugh.recipes.download.LibreOfficeLangPack
+MinimumVersion: 1.0.0
+
 Input:
-  LANGUAGE_CODE: de
   NAME: LibreOffice
+  LANGUAGE_CODE: de
   RELEASE: still
   TYPE: mac-x86_64
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.download.LibreOfficeLangPack
+
 Process:
-- Arguments:
+- Processor: AppDmgVersioner
+  Arguments:
     dmg_path: '%pathname_app%'
-  Processor: AppDmgVersioner
-- Arguments:
+
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs:
       Applications: '0775'
     pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
-  Processor: PkgRootCreator
-- Arguments:
+
+- Processor: Copier
+  Arguments:
     destination_path: '%pkgroot%/Applications/LibreOffice.app'
     source_path: '%pathname_app%/LibreOffice.app'
-  Processor: Copier
-- Arguments:
+
+- Processor: Copier
+  Arguments:
     destination_path: '%RECIPE_CACHE_DIR%'
     source_path: '%pathname%/LibreOffice Language Pack.app/Contents/tarball.tar.bz2'
-  Processor: Copier
-- Arguments:
+
+- Processor: Unarchiver
+  Arguments:
     archive_path: '%RECIPE_CACHE_DIR%/tarball.tar.bz2'
     destination_path: '%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app'
-  Processor: Unarchiver
-- Arguments:
+
+- Processor: PkgCreator
+  Arguments:
     pkg_request:
       chown:
       - group: admin
@@ -38,4 +46,3 @@ Process:
       options: purge_ds_store
       pkgdir: '%RECIPE_CACHE_DIR%'
     pkgname: '%NAME%_%LANGUAGE_CODE%-%version%'
-  Processor: PkgCreator

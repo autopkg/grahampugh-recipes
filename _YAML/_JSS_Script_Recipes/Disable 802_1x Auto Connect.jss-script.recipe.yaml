@@ -1,7 +1,7 @@
 Description: Downloads the latest Unison release and copies it to the recipe cache root. Then, uploads to the Jamf Pro Server.
 Identifier: com.github.grahampugh.recipes.jss.Disable802_1xAutoConnect
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.jss-script.Disable802_1xAutoConnect
+MinimumVersion: 1.0.0
 
 Input:
   NAME: Disable 802.1x Auto-Connect
@@ -11,14 +11,15 @@ Input:
   GROUP_NAME: '%NAME%-run-script'
   GROUP_TEMPLATE: '%SCRIPT_NAME%-SmartGroupTemplate.xml'
   POLICY_CATEGORY: Testing
-  POLICY_NAME: 'Install Script %NAME%'
+  POLICY_NAME: Install Script %NAME%
   POLICY_TEMPLATE: PolicyTemplate-script.xml
   SCRIPT_NAME: Disable 802_1x Auto Connect
   SCRIPT_TEMPLATE: '%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml'
-  STOP_IF_NO_JSS_UPLOAD: False
+  STOP_IF_NO_JSS_UPLOAD: false
 
 Process:
-- Arguments:
+- Processor: JSSImporter
+  Arguments:
     category: '%CATEGORY%'
     extension_attributes:
     - ext_attribute_path: '%EXTENSION_ATTRIBUTE%'
@@ -34,4 +35,3 @@ Process:
     - name: '%SCRIPT_NAME%.sh'
       template_path: '%SCRIPT_TEMPLATE%'
     self_service_description: '%SELF_SERVICE_DESCRIPTION%'
-  Processor: JSSImporter

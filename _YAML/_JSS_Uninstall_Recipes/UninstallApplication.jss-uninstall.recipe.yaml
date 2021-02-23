@@ -1,9 +1,8 @@
+Comment: "For standard applications, only Identifier and PKG_ID need to be overridden. If more than one package was installed, use PKG_ID_2 up to PKG_ID_5.\n"
 Description: Uploads a pkg to the JSS, and creates a Self-Service Policy available to members of a Testing group.
-Comment: |
-    For standard applications, only Identifier and PKG_ID need to be overridden. If more than one package was installed, use PKG_ID_2 up to PKG_ID_5.
 Identifier: com.github.grahampugh.recipes.jss-uninstall.UninstallApplication
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.grahampugh.recipes.jss-script.UninstallApplication
+MinimumVersion: 1.0.0
 
 Input:
   NAME: ++ADD APPLICATION NAME HERE++
@@ -17,15 +16,16 @@ Input:
   UNINSTALL_POLICY_CATEGORY: Uninstallers
   UNINSTALL_TRIGGERONLY_POLICY_CATEGORY: Triggered Uninstallers
   UNINSTALL_POLICY_TEMPLATE: PolicyTemplate-uninstall.xml
-  UNINSTALL_SELF_SERVICE_DESCRIPTION: 'Uninstalls %POLICY_NAME%'
-  UNINSTALL_SELF_SERVICE_DISPLAY_NAME: 'Uninstall %POLICY_NAME%'
+  UNINSTALL_SELF_SERVICE_DESCRIPTION: Uninstalls %POLICY_NAME%
+  UNINSTALL_SELF_SERVICE_DISPLAY_NAME: Uninstall %POLICY_NAME%
   UNINSTALL_SELF_SERVICE_INSTALL_BUTTON: Uninstall
   UNINSTALL_SELF_SERVICE_REINSTALL_BUTTON: Uninstall
   UNINSTALL_TRIGGER_NAME: '%POLICY_NAME%-uninstall'
-  STOP_IF_NO_JSS_UPLOAD: False
+  STOP_IF_NO_JSS_UPLOAD: false
 
 Process:
-- Arguments:
+- Processor: JSSImporter
+  Arguments:
     category: '%UNINSTALL_POLICY_CATEGORY%'
     groups:
     - name: '%INSTALLED_GROUP_NAME%'
@@ -40,4 +40,3 @@ Process:
     - name: '%NAME%-uninstall.sh'
       template_path: '%RECIPE_DIR%/%NAME%-ScriptTemplate-uninstall.xml'
     self_service_icon: '%SELF_SERVICE_ICON%'
-  Processor: JSSImporter

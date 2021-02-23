@@ -1,7 +1,7 @@
 Description: Downloads the latest version of Affinity Designer and creates a pkg including version number.
 Identifier: com.github.grahampugh.recipes.pkg.AffinityDesigner
-MinimumVersion: 1.0.0
 ParentRecipe: com.github.peterkelm.download.AffinityDesigner
+MinimumVersion: 1.0.0
 
 Input:
   NAME: Affinity Designer

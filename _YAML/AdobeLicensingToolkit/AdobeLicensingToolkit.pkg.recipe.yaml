@@ -1,34 +1,36 @@
 Description: Downloads the current release version of Adobe Licensing Toolkit and builds a package.
 Identifier: com.github.grahampugh.recipes.pkg.AdobeLicensingToolkit
+ParentRecipe: com.github.grahampugh.recipes.download.AdobeLicensingToolkit
+MinimumVersion: 1.0.0
+
 Input:
   NAME: Adobe Licensing Toolkit
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.download.AdobeLicensingToolkit
 
 Process:
-- Arguments:
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs:
       Library: '0755'
       Library/Management: '0755'
       Library/Management/Adobe: '0755'
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PkgRootCreator
 
-- Arguments:
-    source_path: '%pathname%/adobe-licensing-toolkit'
+- Processor: Copier
+  Arguments:
     destination_path: '%pkgroot%/Library/Management/Adobe/adobe-licensing-toolkit'
-    overwrite: True
-  Processor: Copier
+    overwrite: true
+    source_path: '%pathname%/adobe-licensing-toolkit'
 
-- Arguments:
-    resource_path: '%pkgroot%/Library/Management/Adobe/adobe-licensing-toolkit'
+- Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+  Arguments:
+    group: wheel
     mode: '755'
     owner: root
-    group: wheel
-  Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+    resource_path: '%pkgroot%/Library/Management/Adobe/adobe-licensing-toolkit'
 
-
-- Arguments:
+- Processor: PkgCreator
+  Arguments:
+    force_pkg_build: true
     pkg_request:
       chown:
       - group: wheel
@@ -42,12 +44,10 @@ Process:
         user: root
       id: com.adobe.adobe-licensing-toolkit
       options: purge_ds_store
-      pkgname: 'adobe-licensing-toolkit'
+      pkgname: adobe-licensing-toolkit
       version: '1.0'
-    force_pkg_build: True
-  Processor: PkgCreator
 
-- Arguments:
+- Processor: PathDeleter
+  Arguments:
     path_list:
     - '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PathDeleter

@@ -1,30 +1,37 @@
 Description: Downloads the current release version of AdoptOpenJDK 8 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
 Identifier: com.github.grahampugh.recipes.pkg.AdoptOpenJDK8
+ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK8
+MinimumVersion: 1.0.0
+
 Input:
   NAME: AdoptOpenJDK 8
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK8
+
 Process:
-- Arguments:
+- Processor: PkgRootCreator
+  Arguments:
     pkgdirs:
       Library: '0755'
       Library/Java: '0755'
       Library/Java/JavaVirtualMachines: '0755'
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PkgRootCreator
-- Arguments:
+
+- Processor: Unarchiver
+  Arguments:
     archive_path: '%pathname%'
     destination_path: '%pkgroot%/Library/Java/JavaVirtualMachines'
     purge_destination: true
-  Processor: Unarchiver
-- Arguments:
+
+- Processor: FileFinder
+  Arguments:
     pattern: '%pkgroot%/Library/Java/JavaVirtualMachines/jdk8*/Contents/Info.plist'
-  Processor: FileFinder
-- Arguments:
+
+- Processor: Versioner
+  Arguments:
     input_plist_path: '%found_filename%'
     plist_version_key: CFBundleVersion
-  Processor: Versioner
-- Arguments:
+
+- Processor: PkgCreator
+  Arguments:
     pkg_request:
       chown:
       - group: wheel
@@ -38,10 +45,10 @@ Process:
         user: root
       id: com.AdoptOpenJDK-8.jdk
       options: purge_ds_store
-      pkgname: 'AdoptOpenJDK8-%version%'
+      pkgname: AdoptOpenJDK8-%version%
       version: '%version%'
-  Processor: PkgCreator
-- Arguments:
+
+- Processor: PathDeleter
+  Arguments:
     path_list:
     - '%RECIPE_CACHE_DIR%/pkgroot'
-  Processor: PathDeleter

@@ -1,23 +1,29 @@
 Description: Downloads the current version of LogitechPresentation.
 Identifier: com.github.grahampugh.recipes.download.LogitechPresentation
+MinimumVersion: 0.6.0
+
 Input:
   NAME: Logitech Presentation
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
-MinimumVersion: 0.6.0
+
 Process:
 - Processor: URLTextSearcher
   Arguments:
-    url: https://www.logitech.com/en-gb/product/spotlight-presentation-remote/page/spotlight-features
     re_pattern: (?P<url>https:\/\/download01\.logi\.com\/web\/ftp\/pub\/techsupport\/presentation\/LogiPresentation_(?P<version>.*?)\.dmg)
+    url: https://www.logitech.com/en-gb/product/spotlight-presentation-remote/page/spotlight-features
     user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36
+
 - Processor: URLDownloader
   Arguments:
     url: '%url%'
+
 - Processor: EndOfCheckPhase
+
 - Processor: StopProcessingIf
   Arguments:
     predicate: '%STOPPROCESSINGIF_PREDICATE%'
-- Arguments:
-    requirement: 'identifier "com.logitech.presenter.installer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QED4VVPZWA'
+
+- Processor: CodeSignatureVerifier
+  Arguments:
     input_path: '%pathname%/LogiPresentation Installer.app'
-  Processor: CodeSignatureVerifier
+    requirement: identifier "com.logitech.presenter.installer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QED4VVPZWA

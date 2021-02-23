@@ -1,14 +1,16 @@
 Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
 Description: Installs the latest version of CotEditor.
 Identifier: com.github.grahampugh.install.CotEditor
+ParentRecipe: com.github.grahampugh.download.CotEditor
+MinimumVersion: 1.0.0
+
 Input:
   NAME: CotEditor
-MinimumVersion: 1.0.0
-ParentRecipe: com.github.grahampugh.download.CotEditor
+
 Process:
-- Arguments:
+- Processor: InstallFromDMG
+  Arguments:
     dmg_path: '%pathname%'
     items_to_copy:
     - destination_path: /Applications
       source_item: CotEditor.app
-  Processor: InstallFromDMG

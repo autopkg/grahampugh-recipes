@@ -6,95 +6,61 @@ Input:
   NAME: Logitech Presentation
 
 Process:
-  - Arguments:
-      pkgdirs: {}
-      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
-    Processor: PkgRootCreator
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
 
-  - Arguments:
-      pkgdirs:
-        Applications: "0775"
-        Library: "0775"
-        Library/LaunchAgents: "0775"
-        "Library/Application Support": "0775"
-        "Library/Application Support/Logitech.localized": "0775"
-        "Library/Application Support/Logitech.localized/Logitech Presentation.localized": "0775"
-      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-    Processor: PkgRootCreator
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+      Library: '0775'
+      Library/Application Support: '0775'
+      Library/Application Support/Logitech.localized: '0775'
+      Library/Application Support/Logitech.localized/Logitech Presentation.localized: '0775'
+      Library/LaunchAgents: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
 
-  - Arguments:
-      destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app"
-      source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app"
-      overwrite: True
-    Processor: Copier
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app'
+    overwrite: true
+    source_path: '%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app'
 
-  - Arguments:
-      destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app"
-      source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app"
-      overwrite: True
-    Processor: Copier
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app'
+    overwrite: true
+    source_path: '%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app'
 
-  - Arguments:
-      destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Onboarding.app"
-      source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Onboarding.app"
-      overwrite: True
-    Processor: Copier
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Onboarding.app'
+    overwrite: true
+    source_path: '%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Onboarding.app'
 
-  - Arguments:
-      file_content: |
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>Disabled</key>
-            <false/>
-            <key>KeepAlive</key>
-            <false/>
-            <key>Label</key>
-            <string>com.logitech.presenter</string>
-            <key>LimitLoadToSessionType</key>
-            <string>Aqua</string>
-            <key>Nice</key>
-            <integer>0</integer>
-            <key>ProgramArguments</key>
-            <array>
-                <string>/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app/Contents/MacOS/Logitech Presentation</string>
-                <string>--launchd</string>
-            </array>
-            <key>RunAtLoad</key>
-            <true/>
-        </dict>
-        </plist>
-      file_mode: "0755"
-      file_path: "%RECIPE_CACHE_DIR%/Scripts/com.logitech.presenter.plist"
-    Processor: FileCreator
+- Processor: FileCreator
+  Arguments:
+    file_content: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n    <key>Disabled</key>\n    <false/>\n    <key>KeepAlive</key>\n    <false/>\n    <key>Label</key>\n    <string>com.logitech.presenter</string>\n    <key>LimitLoadToSessionType</key>\n    <string>Aqua</string>\n    <key>Nice</key>\n    <integer>0</integer>\n    <key>ProgramArguments</key>\n    <array>\n        <string>/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app/Contents/MacOS/Logitech Presentation</string>\n        <string>--launchd</string>\n    </array>\n    <key>RunAtLoad</key>\n    <true/>\n</dict>\n</plist>\n"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/com.logitech.presenter.plist'
 
-  - Arguments:
-      file_content: |
-        #!/bin/bash
+- Processor: FileCreator
+  Arguments:
+    file_content: "#!/bin/bash\n\nDIR=$(dirname \"$0\")\n\n# put the LaunchAgent into place\n/bin/cp \"$DIR/com.logitech.presenter.plist\" \"/Library/LaunchAgents/com.logitech.presenter.plist\"\n/usr/sbin/chown root:wheel \"/Library/LaunchAgents/com.logitech.presenter.plist\"\n/bin/chmod 644 \"/Library/LaunchAgents/com.logitech.presenter.plist\"\n\n# make a shortcut to the Presentation app\n/bin/ln -s \"/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app\" \"/Applications/Logitech Presentation\"\n"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 
-        DIR=$(dirname "$0")
-
-        # put the LaunchAgent into place
-        /bin/cp "$DIR/com.logitech.presenter.plist" "/Library/LaunchAgents/com.logitech.presenter.plist"
-        /usr/sbin/chown root:wheel "/Library/LaunchAgents/com.logitech.presenter.plist"
-        /bin/chmod 644 "/Library/LaunchAgents/com.logitech.presenter.plist"
-
-        # make a shortcut to the Presentation app
-        /bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation"
-      file_mode: "0755"
-      file_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
-    Processor: FileCreator
-
-  - Arguments:
-      force_pkg_build: True
-      pkg_request:
-        chown: []
-        id: com.logitech.logipresentation.pkg
-        options: purge_ds_store
-        scripts: Scripts
-        pkgdir: "%RECIPE_CACHE_DIR%"
-        pkgtype: flat
-        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
-      pkgname: "%NAME%-%version%"
-    Processor: PkgCreator
+- Processor: PkgCreator
+  Arguments:
+    force_pkg_build: true
+    pkg_request:
+      chown: []
+      id: com.logitech.logipresentation.pkg
+      options: purge_ds_store
+      pkgdir: '%RECIPE_CACHE_DIR%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      scripts: Scripts
+    pkgname: '%NAME%-%version%'

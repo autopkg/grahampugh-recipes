@@ -1,24 +1,29 @@
 Description: Downloads the latest Citrix Workspace version and extracts the package.
 Identifier: com.github.grahampugh.recipes.pkg.CitrixWorkspace
+ParentRecipe: com.github.grahampugh.recipes.download.CitrixWorkspace
+MinimumVersion: 0.4.0
+
 Input:
   NAME: Citrix Workspace
-MinimumVersion: 0.4.0
-ParentRecipe: com.github.grahampugh.recipes.download.CitrixWorkspace
+
 Process:
-- Arguments:
+- Processor: FlatPkgUnpacker
+  Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/unpack'
     flat_pkg_path: '%pathname%/*.pkg'
-  Processor: FlatPkgUnpacker
-- Arguments:
+
+- Processor: PkgPayloadUnpacker
+  Arguments:
     destination_path: '%RECIPE_CACHE_DIR%/payload'
     pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/com.citrix.ICAClient.pkg/Payload'
-  Processor: PkgPayloadUnpacker
-- Arguments:
+
+- Processor: Versioner
+  Comment: Get version from the pkg
+  Arguments:
     input_plist_path: '%RECIPE_CACHE_DIR%/payload/Applications/Citrix Workspace.app/Contents/Info.plist'
     plist_version_key: CFBundleShortVersionString
-  Comment: Get version from the pkg
-  Processor: Versioner
-- Arguments:
+
+- Processor: PkgCopier
+  Arguments:
     pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
     source_pkg: '%pathname%/*.pkg'
-  Processor: PkgCopier

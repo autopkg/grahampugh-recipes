@@ -3,8 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Comment</key>
-	<string>For standard recipes, only Identifier, CATEGORY, NAME, SELF_SERVICE_DESCRIPTION, ParentRecipe need to be changed.
-</string>
+	<string>For standard recipes, only Identifier, CATEGORY, NAME, SELF_SERVICE_DESCRIPTION, ParentRecipe need to be changed.</string>
 	<key>Description</key>
 	<string>Creates all production policies for a particular title.</string>
 	<key>Identifier</key>
@@ -12,7 +11,7 @@
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
-		<string>++OVERRIDE_OR_INSERT_PROD_CATEGORY_HERE++</string>
+		<string>Applications</string>
 		<key>NAME</key>
 		<string>++OVERRIDE_OR_INSERT_SOFTWARE_NAME_HERE++</string>
 		<key>PROD_NAME</key>

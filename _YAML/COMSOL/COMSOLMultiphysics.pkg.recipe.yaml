@@ -1,85 +1,42 @@
-Description: |
-    Creates a package for COMSOL Multiphysics.
-    There is no download recipe since COMSOL is not publicly available.
-    Requires running as: autopkg run --pkg /path/to/downloaded-comsol.dmg "COMSOLMultiphysics.pkg"
-    You must also override the keys COMSOL_LICENSE_SERVER, COMSOL_LICENSE_NAME, COMSOL_LICENSE_COMPANY and COMSOL_LICENSE_TYPE.
-    These values are part of your licensing setup.
+Description: "Creates a package for COMSOL Multiphysics.\nThere is no download recipe since COMSOL is not publicly available.\nRequires running as: autopkg run --pkg /path/to/downloaded-comsol.dmg \"COMSOLMultiphysics.pkg\"\nYou must also override the keys COMSOL_LICENSE_SERVER, COMSOL_LICENSE_NAME, COMSOL_LICENSE_COMPANY and COMSOL_LICENSE_TYPE.\nThese values are part of your licensing setup.\n"
 Identifier: com.github.grahampugh.recipes.pkg.COMSOLMultiphysics
+MinimumVersion: 1.0.0
+
 Input:
   NAME: COMSOL Multiphysics
   COMSOL_LICENSE_SERVER: 1234@example.com
   COMSOL_LICENSE_NAME: Example User
   COMSOL_LICENSE_COMPANY: EXAMPLE
   COMSOL_LICENSE_TYPE: mph
-MinimumVersion: 1.0.0
+
 Process:
 - Processor: PkgRootCreator
   Arguments:
     pkgdirs: {}
     pkgroot: '%RECIPE_CACHE_DIR%/Scripts'
+
 - Processor: PkgRootCreator
   Arguments:
     pkgdirs: {}
     pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+
 - Processor: Copier
   Arguments:
-    source_path: '%pathname%/*.app'
     destination_path: '%RECIPE_CACHE_DIR%/Scripts/COMSOL.app'
+    source_path: '%pathname%/*.app'
+
 - Processor: FileCreator
   Arguments:
-    file_path: '%RECIPE_CACHE_DIR%/Scripts/setupconfig.ini'
+    file_content: "installdir =\nuninstall = 0\nshowgui = 0\nautofinish = 0\nquiet = 0\n\nagree = 1\nlicense = %COMSOL_LICENSE_SERVER%\nname = %COMSOL_LICENSE_NAME%\ncompany = %COMSOL_LICENSE_COMPANY%\nlictype = %COMSOL_LICENSE_TYPE%\n\nmatlabdir =\nproedir =\ncreopdir =\nllexcelallusers = 0\n\ndoc = selected\napplications = selected\ncad = 1\nlicmanager = 1\n\nshortcuts = 0\nsymlinks = 0\nfileassoc = 1\ncheckupdate = 0\n\nsetsecuritypolicy = 0\nsecurity.comsol.allowbatch = 1\nsecurity.comsol.allowexternalprocess = 0\nsecurity.comsol.allowmethods = 1\nsecurity.comsol.allowapplications = 1\nsecurity.external.enable = 1\nsecurity.external.propertypermission = 0\nsecurity.external.runtimepermission = 0\nsecurity.external.filepermission = limited\nsecurity.external.socketpermission = 0\nsecurity.external.netpermission = 0\nsecurity.external.reflectpermission = 0\nsecurity.external.securitypermission = 0\n"
     file_mode: '0644'
-    file_content: |
-        installdir =
-        uninstall = 0
-        showgui = 0
-        autofinish = 0
-        quiet = 0
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/setupconfig.ini'
 
-        agree = 1
-        license = %COMSOL_LICENSE_SERVER%
-        name = %COMSOL_LICENSE_NAME%
-        company = %COMSOL_LICENSE_COMPANY%
-        lictype = %COMSOL_LICENSE_TYPE%
-
-        matlabdir =
-        proedir =
-        creopdir =
-        llexcelallusers = 0
-
-        doc = selected
-        applications = selected
-        cad = 1
-        licmanager = 1
-
-        shortcuts = 0
-        symlinks = 0
-        fileassoc = 1
-        checkupdate = 0
-
-        setsecuritypolicy = 0
-        security.comsol.allowbatch = 1
-        security.comsol.allowexternalprocess = 0
-        security.comsol.allowmethods = 1
-        security.comsol.allowapplications = 1
-        security.external.enable = 1
-        security.external.propertypermission = 0
-        security.external.runtimepermission = 0
-        security.external.filepermission = limited
-        security.external.socketpermission = 0
-        security.external.netpermission = 0
-        security.external.reflectpermission = 0
-        security.external.securitypermission = 0
 - Processor: FileCreator
   Arguments:
-    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
+    file_content: "#!/bin/bash\n\nDIR=$(dirname \"$0\")\n\n$DIR/COMSOL.app/Contents/Resources/setup -s $DIR/setupconfig.ini\n"
     file_mode: '0755'
-    file_content: |
-        #!/bin/bash
+    file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 
-        DIR=$(dirname "$0")
-
-        $DIR/COMSOL.app/Contents/Resources/setup -s $DIR/setupconfig.ini
 - Processor: PkgCreator
   Arguments:
     pkg_request:
@@ -90,6 +47,7 @@ Process:
       pkgtype: flat
       scripts: Scripts
       version: '%version%'
+
 - Processor: PathDeleter
   Arguments:
     path_list:

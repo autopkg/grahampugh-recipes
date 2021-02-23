@@ -15,7 +15,7 @@ Process:
 
 - Processor: EndOfCheckPhase
 
-- Arguments:
-    requirement: 'identifier "com.googlecode.mactlmgr.tlu" and certificate leaf = H"9762c300630034b23fe0eeb054acc8bc889f1346"'
+- Processor: CodeSignatureVerifier
+  Arguments:
     input_path: '%pathname%/TeX Live Utility.app'
-  Processor: CodeSignatureVerifier
+    requirement: identifier "com.googlecode.mactlmgr.tlu" and certificate leaf = H"9762c300630034b23fe0eeb054acc8bc889f1346"

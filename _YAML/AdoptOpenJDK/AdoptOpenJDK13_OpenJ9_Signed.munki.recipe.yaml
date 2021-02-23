@@ -1,5 +1,7 @@
 Description: Downloads the current release version of AdoptOpenJDK 13 OpenJ9. Recipe created by Charles Mission.
 Identifier: com.github.grahampugh.recipes.munki.AdoptOpenJDK13_OpenJ9_Signed
+ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK13_OpenJ9_Signed
+
 Input:
   MUNKI_REPO_SUBDIR: apps/AdoptOpenJDK/13/
   pkginfo:
@@ -12,9 +14,9 @@ Input:
     unattended_install: true
     unattended_uninstall: true
     uninstall_method: removepackages
-ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK13_OpenJ9_Signed
+
 Process:
-- Arguments:
+- Processor: MunkiImporter
+  Arguments:
     pkg_path: '%pathname%'
     repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
-  Processor: MunkiImporter
