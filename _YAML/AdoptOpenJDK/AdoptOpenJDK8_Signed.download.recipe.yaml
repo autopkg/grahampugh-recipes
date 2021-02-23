@@ -4,9 +4,9 @@ MinimumVersion: 1.0.0
 
 Input:
   NAME: AdoptOpenJDK 8
-  STOPPROCESSINGIF_PREDICATE: download_changed == False
-  RELEASE_STREAM: releases
   JVM_IMPLEMENTATION: hotspot
+  RELEASE_STREAM: releases
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
 
 Process:
 - Processor: URLTextSearcher

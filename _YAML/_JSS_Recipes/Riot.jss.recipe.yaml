@@ -8,12 +8,12 @@ Input:
   CATEGORY: Connect and Remote
   GROUP_NAME: '%NAME%-update-smart'
   GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
-  TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
   POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
   SELF_SERVICE_DESCRIPTION: Riot is an open source instant messaging client built on the Matrix protocol.
   SELF_SERVICE_ICON: Riot.png
+  TESTING_GROUP_NAME: Testing
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator

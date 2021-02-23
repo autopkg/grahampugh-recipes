@@ -6,19 +6,19 @@ MinimumVersion: 1.0.4
 Input:
   NAME: ++OVERRIDE_OR_INSERT_SOFTWARE_NAME_HERE++
   CATEGORY: Applications
-  SELF_SERVICE_DESCRIPTION: ++CHANGE DESCRIPTION++
+  PROD_NAME: '%NAME%'
   PROD_UPDATE_GROUP_NAME: '%NAME%-prod-update-smart'
   PROD_UPDATE_GROUP_TEMPLATE: SmartGroupTemplate-prod.xml
   PROD_UPDATE_POLICY_TEMPLATE: PolicyTemplate-prod-selfservice.xml
-  TRIGGERONLY_POLICY_CATEGORY: Triggered Installers
-  TRIGGERONLY_POLICY_TEMPLATE: PolicyTemplate-prod-triggeronly.xml
-  PROD_NAME: '%NAME%'
-  STOP_IF_NO_JSS_UPLOAD: false
-  TRIGGER_NAME: '%NAME%-install'
+  SELF_SERVICE_DESCRIPTION: ++CHANGE DESCRIPTION++
   SELF_SERVICE_DISPLAY_NAME: '%NAME%'
+  SELF_SERVICE_ICON: '%NAME%.png'
   SELF_SERVICE_INSTALL_BUTTON: Install %version%
   SELF_SERVICE_REINSTALL_BUTTON: Install %version%
-  SELF_SERVICE_ICON: '%NAME%.png'
+  STOP_IF_NO_JSS_UPLOAD: false
+  TRIGGERONLY_POLICY_CATEGORY: Triggered Installers
+  TRIGGERONLY_POLICY_TEMPLATE: PolicyTemplate-prod-triggeronly.xml
+  TRIGGER_NAME: '%NAME%-install'
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/JSSRecipeReceiptChecker

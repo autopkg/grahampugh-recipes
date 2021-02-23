@@ -8,13 +8,13 @@ Input:
   CATEGORY: Connect and Remote
   GROUP_NAME: '%NAME%-update-smart'
   GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
-  TESTING_GROUP_NAME: Testing
   JSS_INVENTORY_NAME: Element (Riot).app
   POLICY_CATEGORY: Testing
   POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
   SELF_SERVICE_DESCRIPTION: Element (formerly Riot) is an open source instant messaging client built on the Matrix protocol.
   SELF_SERVICE_ICON: Element.png
+  TESTING_GROUP_NAME: Testing
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator

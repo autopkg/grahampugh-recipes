@@ -8,12 +8,12 @@ Input:
   CATEGORY: Productivity
   GROUP_NAME: '%NAME%-update-smart'
   GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
-  TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
   POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
   SELF_SERVICE_DESCRIPTION: TeXShop is a free LaTeX and TeX editor and previewer for macOS. It is licensed under the GNU GPL. It was developed by the American mathematician Richard Koch. This version of TeXShop requires the MacTeX application bundle to be installed for all features to function.
   SELF_SERVICE_ICON: TeXShop.png
+  TESTING_GROUP_NAME: Testing
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator

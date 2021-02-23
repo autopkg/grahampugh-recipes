@@ -4,9 +4,9 @@ MinimumVersion: 1.0.0
 
 Input:
   NAME: COMSOL Multiphysics
-  COMSOL_LICENSE_SERVER: 1234@example.com
-  COMSOL_LICENSE_NAME: Example User
   COMSOL_LICENSE_COMPANY: EXAMPLE
+  COMSOL_LICENSE_NAME: Example User
+  COMSOL_LICENSE_SERVER: 1234@example.com
   COMSOL_LICENSE_TYPE: mph
 
 Process:

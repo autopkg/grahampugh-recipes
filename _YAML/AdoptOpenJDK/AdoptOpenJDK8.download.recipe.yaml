@@ -4,8 +4,8 @@ MinimumVersion: 1.0.0
 
 Input:
   NAME: AdoptOpenJDK 8
-  RELEASE_STREAM: releases
   JVM_IMPLEMENTATION: hotspot
+  RELEASE_STREAM: releases
 
 Process:
 - Processor: URLTextSearcher

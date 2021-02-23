@@ -4,8 +4,8 @@ MinimumVersion: 0.5.0
 
 Input:
   NAME: EndNote
-  MAJOR_VERSION: X9
   INT_VERSION: '19'
+  MAJOR_VERSION: X9
   version: latest
 
 Process:

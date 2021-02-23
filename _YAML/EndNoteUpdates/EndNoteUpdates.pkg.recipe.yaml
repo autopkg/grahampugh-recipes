@@ -4,8 +4,8 @@ ParentRecipe: com.github.grahampugh.recipes.download.EndNoteUpdates
 
 Input:
   NAME: EndNote
-  MAJOR_VERSION: X9
   INT_VERSION: '19'
+  MAJOR_VERSION: X9
 
 Process:
 - Processor: PkgRootCreator

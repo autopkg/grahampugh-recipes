@@ -8,9 +8,9 @@ Input:
   CATEGORY: Triggered Installers
   POLICY_CATEGORY: Untested
   POLICY_TEMPLATE: PolicyTemplate-triggeronly.xml
-  PROD_NAME: '%NAME%'
   POSTINSTALL_SCRIPT: Adobe CC Cleaner-postinstall.sh
   POSTINSTALL_SCRIPT_TEMPLATE: Adobe CC Cleaner-postinstall-ScriptTemplate.xml
+  PROD_NAME: '%NAME%'
   TRIGGER_NAME: Run-AdobeCCCleaner
 
 Process:

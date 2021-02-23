@@ -6,14 +6,14 @@ MinimumVersion: 0.2.9
 Input:
   NAME: Unison
   CATEGORY: Tools & Accessories
-  SELF_SERVICE_DESCRIPTION: Unison is a file-synchronization tool for OSX, Unix, and Windows. It allows two replicas of a collection of files and directories to be stored on different hosts (or different disks on the same host), modified separately, and then brought up to date by propagating the changes in each replica to the other.
   GROUP_NAME: '%NAME%-update-smart'
   GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
-  TESTING_GROUP_NAME: Testing
-  SELF_SERVICE_ICON: Unison.png
   POLICY_CATEGORY: Testing
   POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
+  SELF_SERVICE_DESCRIPTION: Unison is a file-synchronization tool for OSX, Unix, and Windows. It allows two replicas of a collection of files and directories to be stored on different hosts (or different disks on the same host), modified separately, and then brought up to date by propagating the changes in each replica to the other.
+  SELF_SERVICE_ICON: Unison.png
+  TESTING_GROUP_NAME: Testing
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator

@@ -5,9 +5,9 @@ ParentRecipe: ch.ethz.id.check.FilemakerProAdvanced
 Input:
   NAME: FileMaker Pro Advanced
   LICENSED_ORG: Example Company
+  LICENSE_FILE_SOURCE: /path/to/license_file (LicenseCert.fmcert)
   MAJOR_VERSION: '18'
   STOP_PREDICATE: file_exists == True
-  LICENSE_FILE_SOURCE: /path/to/license_file (LicenseCert.fmcert)
 
 Process:
 - Processor: PkgRootCreator

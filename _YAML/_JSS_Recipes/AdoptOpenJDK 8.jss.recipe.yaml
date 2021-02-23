@@ -6,18 +6,18 @@ MinimumVersion: 1.0.0
 Input:
   NAME: AdoptOpenJDK 8
   CATEGORY: Computer Science
-  SELF_SERVICE_DESCRIPTION: The AdoptOpenJDK Java Development Toolkit, version 8.
-  GROUP_NAME: '%NAME%-update-smart'
-  GROUP_TEMPLATE: SmartGroup-update-smart-EA-regex.xml
-  TESTING_GROUP_NAME: Testing
   EXTENSION_ATTRIBUTE: '%NAME%-ExtensionAttribute.xml'
   EXTENSION_ATTRIBUTE_NAME: AdoptOpenJDK8Versiomn
-  SELF_SERVICE_ICON: AdoptOpenJDK.png
+  GROUP_NAME: '%NAME%-update-smart'
+  GROUP_TEMPLATE: SmartGroup-update-smart-EA-regex.xml
   POLICY_CATEGORY: Testing
   POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
   SCRIPT: '%NAME%-preinstall.sh'
   SCRIPT_TEMPLATE: '%NAME%-preinstall-ScriptTemplate.xml'
+  SELF_SERVICE_DESCRIPTION: The AdoptOpenJDK Java Development Toolkit, version 8.
+  SELF_SERVICE_ICON: AdoptOpenJDK.png
+  TESTING_GROUP_NAME: Testing
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator

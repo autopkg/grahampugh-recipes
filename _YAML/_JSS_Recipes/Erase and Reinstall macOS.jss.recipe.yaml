@@ -10,8 +10,8 @@ Input:
   GROUP_NAME: Erase and Reinstall macOS test users
   GROUP_TEMPLATE: Erase and Reinstall macOS-SmartGroupTemplate.xml
   POLICY_CATEGORY: Testing
-  PROD_NAME: '%NAME%'
   POLICY_TEMPLATE: Erase and Reinstall macOS-PolicyTemplate.xml
+  PROD_NAME: '%NAME%'
   RUN_COMMAND: /Library/Management/erase-install/erase-install.sh --erase
   SELF_SERVICE_DESCRIPTION: WARNING! This will completely erase the device and reinstall macOS to the latest version.
   SELF_SERVICE_ICON: erase-install.png

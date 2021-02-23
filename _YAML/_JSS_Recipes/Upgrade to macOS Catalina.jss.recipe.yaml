@@ -9,8 +9,8 @@ Input:
   GROUP_NAME: '%NAME% test users'
   GROUP_TEMPLATE: '%NAME%-SmartGroupTemplate.xml'
   POLICY_CATEGORY: Untested
-  PROD_NAME: '%NAME%'
   POLICY_TEMPLATE: '%NAME%-PolicyTemplate.xml'
+  PROD_NAME: '%NAME%'
   RUN_COMMAND: /Library/Management/erase-install/erase-install.sh --os=10.15 --overwrite --reinstall
   SELF_SERVICE_DESCRIPTION: WARNING! This will download the latest version of macOS Catalina Beta and install it on the system volume. All work should be saved and backed up before starting.
   SELF_SERVICE_ICON: Install macOS Catalina.png

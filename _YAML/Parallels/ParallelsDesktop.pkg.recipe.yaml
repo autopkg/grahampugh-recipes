@@ -5,8 +5,8 @@ MinimumVersion: 0.6.1
 Input:
   NAME: Parallels Desktop
   LICENSE_KEY: 1234567890
-  SOFTWARE_UPDATES_CHECK: 0
   SOFTWARE_UPDATES_AUTO_DOWNLOAD: off
+  SOFTWARE_UPDATES_CHECK: 0
 
 Process:
 - Processor: AppDmgVersioner

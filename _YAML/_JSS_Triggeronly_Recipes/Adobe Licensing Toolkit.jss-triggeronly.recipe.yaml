@@ -8,9 +8,9 @@ Input:
   CATEGORY: Triggered Installers
   POLICY_CATEGORY: Untested
   POLICY_TEMPLATE: PolicyTemplate-triggeronly.xml
-  PROD_NAME: '%NAME%'
   POSTINSTALL_SCRIPT: Adobe Licensing Toolkit-postinstall.sh
   POSTINSTALL_SCRIPT_TEMPLATE: Adobe Licensing Toolkit-postinstall-ScriptTemplate.xml
+  PROD_NAME: '%NAME%'
   TRIGGER_NAME: Run-AdobeLicensingToolkit
 
 Process:

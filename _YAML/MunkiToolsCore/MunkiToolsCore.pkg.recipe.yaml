@@ -5,8 +5,8 @@ MinimumVersion: 0.5.0
 Input:
   NAME: MunkiToolsCore
   INCLUDE_PRERELEASES: ''
-  STOPPROCESSINGIF_PREDICATE: download_changed == False
   MAJOR_VERSION: '5'
+  STOPPROCESSINGIF_PREDICATE: download_changed == False
 
 Process:
 - Processor: GitHubReleasesInfoProvider

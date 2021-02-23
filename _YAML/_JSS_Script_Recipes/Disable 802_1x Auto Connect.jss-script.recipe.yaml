@@ -6,7 +6,6 @@ MinimumVersion: 1.0.0
 Input:
   NAME: Disable 802.1x Auto-Connect
   CATEGORY: Administration
-  SELF_SERVICE_DESCRIPTION: A script that disables 802.1x auto-connect if it is currently enabled.
   EXTENSION_ATTRIBUTE: '%SCRIPT_NAME%-ExtensionAttribute.xml'
   GROUP_NAME: '%NAME%-run-script'
   GROUP_TEMPLATE: '%SCRIPT_NAME%-SmartGroupTemplate.xml'
@@ -15,6 +14,7 @@ Input:
   POLICY_TEMPLATE: PolicyTemplate-script.xml
   SCRIPT_NAME: Disable 802_1x Auto Connect
   SCRIPT_TEMPLATE: '%RECIPE_DIR%/%SCRIPT_NAME%-ScriptTemplate.xml'
+  SELF_SERVICE_DESCRIPTION: A script that disables 802.1x auto-connect if it is currently enabled.
   STOP_IF_NO_JSS_UPLOAD: false
 
 Process:

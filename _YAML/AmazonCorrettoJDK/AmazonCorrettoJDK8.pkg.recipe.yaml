@@ -5,8 +5,8 @@ MinimumVersion: 1.0.0
 
 Input:
   NAME: Amazon Coretto 8
-  SEARCH_URL: https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html
   SEARCH_PATTERN: (?P<url>https://.*?amazon-corretto-8.*?-macosx-x64\.tar\.gz)
+  SEARCH_URL: https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html
 
 Process:
 - Processor: PkgRootCreator

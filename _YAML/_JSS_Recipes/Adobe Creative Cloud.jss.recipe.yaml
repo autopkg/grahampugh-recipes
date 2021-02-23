@@ -8,15 +8,15 @@ Input:
   CATEGORY: Applications
   GROUP_NAME: '%NAME%-update-smart'
   GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
-  TESTING_GROUP_NAME: Testing
   JSS_INVENTORY_NAME: Creative Cloud.app
   POLICY_CATEGORY: Testing
   POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: Policy-install-latest.xml
-  SELF_SERVICE_DESCRIPTION: Access Adobe apps from the cloud using your federated Adobe ID.
-  SELF_SERVICE_ICON: '%NAME%.png'
   SCRIPT: '%NAME%-postinstall.sh'
   SCRIPT_TEMPLATE: '%NAME%-postinstall-ScriptTemplate.xml'
+  SELF_SERVICE_DESCRIPTION: Access Adobe apps from the cloud using your federated Adobe ID.
+  SELF_SERVICE_ICON: '%NAME%.png'
+  TESTING_GROUP_NAME: Testing
 
 Process:
 - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator

@@ -11,10 +11,10 @@ Input:
   JSS_INVENTORY_NAME: Creative Cloud.app
   POLICY_CATEGORY: Testing
   POLICY_TEMPLATE: PolicyTemplate.xml
-  SELF_SERVICE_DESCRIPTION: Access Adobe apps from the cloud using your federated Adobe ID.
-  SELF_SERVICE_ICON: '%NAME%.png'
   SCRIPT: '%NAME%-postinstall.sh'
   SCRIPT_TEMPLATE: '%NAME%-postinstall-ScriptTemplate.xml'
+  SELF_SERVICE_DESCRIPTION: Access Adobe apps from the cloud using your federated Adobe ID.
+  SELF_SERVICE_ICON: '%NAME%.png'
 
 Process:
 - Processor: JSSImporter

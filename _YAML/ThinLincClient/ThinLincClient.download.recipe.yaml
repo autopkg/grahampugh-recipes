@@ -5,8 +5,8 @@ MinimumVersion: 1.0.0
 
 Input:
   NAME: ThinLinc Client
-  SITE_URL: https://www.cendio.com
   DOWNLOAD_URL: '%SITE_URL%/thinlinc/download'
+  SITE_URL: https://www.cendio.com
   STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
