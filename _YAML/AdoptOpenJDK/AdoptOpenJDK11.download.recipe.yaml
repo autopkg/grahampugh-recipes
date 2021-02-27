@@ -1,4 +1,10 @@
-Description: "Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather \nthan the signed pkg version, so that the true version number can be obtained.\n\nThe default JVM implementation is \"hotspot\". To override to \"openj9\", change the value of JVM_IMPLEMENTATION.\n\nThe default Release Type is \"releases\", which is the stable build. To get the most recent build, select \"nightly\".\n"
+Description: |
+  Downloads the current release version of AdoptOpenJDK 11. This is based from the tar version rather 
+  than the signed pkg version, so that the true version number can be obtained.
+  
+  The default JVM implementation is "hotspot". To override to "openj9", change the value of JVM_IMPLEMENTATION.
+  
+  The default Release Type is "releases", which is the stable build. To get the most recent build, select "nightly".
 Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11
 MinimumVersion: 1.0.0
 

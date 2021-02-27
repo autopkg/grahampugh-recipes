@@ -3,7 +3,6 @@ Identifier: com.github.grahampugh.recipes.munki.AdoptOpenJDK12_OpenJ9_Signed
 ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK12_OpenJ9_Signed
 
 Input:
-  MUNKI_REPO_SUBDIR: apps/AdoptOpenJDK/12/
   pkginfo:
     catalogs:
     - testing
@@ -14,6 +13,7 @@ Input:
     unattended_install: true
     unattended_uninstall: true
     uninstall_method: removepackages
+  MUNKI_REPO_SUBDIR: apps/AdoptOpenJDK/12/
 
 Process:
 - Processor: MunkiImporter

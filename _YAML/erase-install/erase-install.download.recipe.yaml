@@ -1,4 +1,5 @@
-Description: "Downloads the current script of erase-install 11.\n"
+Description: |
+  Downloads the current script of erase-install 11.
 Identifier: com.github.grahampugh.recipes.download.erase-install
 MinimumVersion: 1.0.0
 

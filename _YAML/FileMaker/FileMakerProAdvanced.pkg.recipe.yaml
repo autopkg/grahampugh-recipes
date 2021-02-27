@@ -1,4 +1,8 @@
-Description: "Creates a package for FileMaker Pro Advanced.\nThere is no download recipe since FileMaker Pro Advanced is not publicly available.\nRequires running as: autopkg run --pkg /path/to/downloaded-fmpa.dmg \"FilemakerProAdvanced.pkg\"\nYou must also override the keys LICENSE_KEY and LICENSED_ORG.\n"
+Description: |
+  Creates a package for FileMaker Pro Advanced.
+  There is no download recipe since FileMaker Pro Advanced is not publicly available.
+  Requires running as: autopkg run --pkg /path/to/downloaded-fmpa.dmg "FilemakerProAdvanced.pkg"
+  You must also override the keys LICENSE_KEY and LICENSED_ORG.
 Identifier: com.github.grahampugh.recipes.pkg.FilemakerProAdvanced
 ParentRecipe: ch.ethz.id.check.FilemakerProAdvanced
 
@@ -57,7 +61,19 @@ Process:
 
 - Processor: FileCreator
   Arguments:
-    file_content: "AI_USERNAME=ETH Administrator\nAI_ORGANIZATION=%LICENSED_ORG%\nAI_LICENSEKEY=\nAI_NONEWDATABASES=0\nAI_REGISTRATION=0\nAI_SKIPDIALOG=1\nAI_DISABLEUPDATENOTIFY=1\nAI_DISABLEVERSIONNOTIFY=1\nAI_DISABLEPLUGINS=0\nAI_DISABLEXDBC=0\nAI_DISABLEIWP=0\nAI_LICENSE_ACCEPTED=1\n"
+    file_content: |
+      AI_USERNAME=ETH Administrator
+      AI_ORGANIZATION=%LICENSED_ORG%
+      AI_LICENSEKEY=
+      AI_NONEWDATABASES=0
+      AI_REGISTRATION=0
+      AI_SKIPDIALOG=1
+      AI_DISABLEUPDATENOTIFY=1
+      AI_DISABLEVERSIONNOTIFY=1
+      AI_DISABLEPLUGINS=0
+      AI_DISABLEXDBC=0
+      AI_DISABLEIWP=0
+      AI_LICENSE_ACCEPTED=1
     file_mode: '0644'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/Assisted Install.txt'
 
@@ -68,7 +84,10 @@ Process:
 
 - Processor: FileCreator
   Arguments:
-    file_content: "#!/bin/sh\n\ninstaller -tgt / -pkg FileMakerProAdvancedInstaller.pkg\n"
+    file_content: |
+      #!/bin/sh
+      
+      installer -tgt / -pkg FileMakerProAdvancedInstaller.pkg
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 

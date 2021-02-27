@@ -42,13 +42,47 @@ Process:
 
 - Processor: FileCreator
   Arguments:
-    file_content: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n    <key>Disabled</key>\n    <false/>\n    <key>KeepAlive</key>\n    <false/>\n    <key>Label</key>\n    <string>com.logitech.presenter</string>\n    <key>LimitLoadToSessionType</key>\n    <string>Aqua</string>\n    <key>Nice</key>\n    <integer>0</integer>\n    <key>ProgramArguments</key>\n    <array>\n        <string>/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app/Contents/MacOS/Logitech Presentation</string>\n        <string>--launchd</string>\n    </array>\n    <key>RunAtLoad</key>\n    <true/>\n</dict>\n</plist>\n"
+    file_content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>Disabled</key>
+          <false/>
+          <key>KeepAlive</key>
+          <false/>
+          <key>Label</key>
+          <string>com.logitech.presenter</string>
+          <key>LimitLoadToSessionType</key>
+          <string>Aqua</string>
+          <key>Nice</key>
+          <integer>0</integer>
+          <key>ProgramArguments</key>
+          <array>
+              <string>/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app/Contents/MacOS/Logitech Presentation</string>
+              <string>--launchd</string>
+          </array>
+          <key>RunAtLoad</key>
+          <true/>
+      </dict>
+      </plist>
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/com.logitech.presenter.plist'
 
 - Processor: FileCreator
   Arguments:
-    file_content: "#!/bin/bash\n\nDIR=$(dirname \"$0\")\n\n# put the LaunchAgent into place\n/bin/cp \"$DIR/com.logitech.presenter.plist\" \"/Library/LaunchAgents/com.logitech.presenter.plist\"\n/usr/sbin/chown root:wheel \"/Library/LaunchAgents/com.logitech.presenter.plist\"\n/bin/chmod 644 \"/Library/LaunchAgents/com.logitech.presenter.plist\"\n\n# make a shortcut to the Presentation app\n/bin/ln -s \"/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app\" \"/Applications/Logitech Presentation\"\n"
+    file_content: |
+      #!/bin/bash
+      
+      DIR=$(dirname "$0")
+      
+      # put the LaunchAgent into place
+      /bin/cp "$DIR/com.logitech.presenter.plist" "/Library/LaunchAgents/com.logitech.presenter.plist"
+      /usr/sbin/chown root:wheel "/Library/LaunchAgents/com.logitech.presenter.plist"
+      /bin/chmod 644 "/Library/LaunchAgents/com.logitech.presenter.plist"
+      
+      # make a shortcut to the Presentation app
+      /bin/ln -s "/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app" "/Applications/Logitech Presentation"
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 

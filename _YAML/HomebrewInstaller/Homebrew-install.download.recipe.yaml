@@ -1,4 +1,5 @@
-Description: "Downloads the current script of homebrew.sh.\n"
+Description: |
+  Downloads the current script of homebrew.sh.
 Identifier: com.github.grahampugh.recipes.download.homebrew-install
 MinimumVersion: 1.0.0
 

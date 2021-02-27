@@ -1,4 +1,5 @@
-Description: "Downloads the Rosetta 2 installer package.\n"
+Description: |
+  Downloads the Rosetta 2 installer package.
 Identifier: com.github.grahampugh.recipes.download.rosetta
 MinimumVersion: 1.0.0
 

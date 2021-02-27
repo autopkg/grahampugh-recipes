@@ -3,8 +3,8 @@ Identifier: com.github.grahampugh.download.MathType
 MinimumVersion: 1.0.0
 
 Input:
-  DOWNLOAD_URL: https://store.wiris.com/en/products/downloads/mathtype/installer/mac/en
   STOPPROCESSINGIF_PREDICATE: FALSEPREDICATE
+  DOWNLOAD_URL: https://store.wiris.com/en/products/downloads/mathtype/installer/mac/en
 
 Process:
 - Processor: URLDownloader

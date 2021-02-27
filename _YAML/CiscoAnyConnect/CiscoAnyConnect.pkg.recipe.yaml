@@ -56,7 +56,20 @@ Process:
 
 - Processor: FileCreator
   Arguments:
-    file_content: "#!/bin/bash\n## script to install and activate Cisco AnyConnect\n\nDIR=$(dirname \"$0\")\n\n/usr/sbin/installer -applyChoiceChangesXML \"$DIR/choices.xml\" -pkg \"$DIR/AnyConnect.pkg\" -target /\n\nif (test $? = 0) then\n    echo \"Cisco AnyConnect installed.\"\nelse\n    echo \"ERROR: Cisco AnyConnect installation failed.\"\n    exit 1\nfi\n"
+    file_content: |
+      #!/bin/bash
+      ## script to install and activate Cisco AnyConnect
+      
+      DIR=$(dirname "$0")
+      
+      /usr/sbin/installer -applyChoiceChangesXML "$DIR/choices.xml" -pkg "$DIR/AnyConnect.pkg" -target /
+      
+      if (test $? = 0) then
+          echo "Cisco AnyConnect installed."
+      else
+          echo "ERROR: Cisco AnyConnect installation failed."
+          exit 1
+      fi
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 

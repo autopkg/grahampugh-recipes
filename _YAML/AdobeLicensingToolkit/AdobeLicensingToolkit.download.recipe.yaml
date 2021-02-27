@@ -1,4 +1,5 @@
-Description: "Downloads the Adobe Shared Device Licensing Toolkit. This can be used to deactivate Adobe Shared Device Licenses on a client.\n"
+Description: |
+  Downloads the Adobe Shared Device Licensing Toolkit. This can be used to deactivate Adobe Shared Device Licenses on a client.
 Identifier: com.github.grahampugh.recipes.download.AdobeLicensingToolkit
 MinimumVersion: 1.0.0
 

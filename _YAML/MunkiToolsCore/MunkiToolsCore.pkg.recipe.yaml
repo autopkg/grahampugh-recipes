@@ -1,4 +1,14 @@
-Description: "Note: munkitools does not include a code signature. If your organization requires code signature, it is recommended to internally sign the application.\n\nDownloads version 3 of the Munki tools via the official releases listing on GitHub. You can set INCLUDE_PRERELEASES to any value to have this recipe pull prerelease versions.\n\nThis recipe also extracts the core components, and repackages them for use in Jamf Pro.\nOther parts of munkitools are not repackaged.\n\nThis recipe cannot be overridden to pull a download from an alternate location such as munkibuilds.org - it will only download the official releases. For this, use the munkitools2-autobuild.munki recipe with a manually-provided DOWNLOAD_URL variable.\n\nThe GitHubReleasesInfoProvider processor used by this recipe also respects an input variable: ''sort_by_highest_tag_names'', which, if set, will ignore the post dates of the releases and instead sort descending by tag names according to LooseVersion semantics.\n"
+Description: |
+  Note: munkitools does not include a code signature. If your organization requires code signature, it is recommended to internally sign the application.
+  
+  Downloads version 3 of the Munki tools via the official releases listing on GitHub. You can set INCLUDE_PRERELEASES to any value to have this recipe pull prerelease versions.
+  
+  This recipe also extracts the core components, and repackages them for use in Jamf Pro.
+  Other parts of munkitools are not repackaged.
+  
+  This recipe cannot be overridden to pull a download from an alternate location such as munkibuilds.org - it will only download the official releases. For this, use the munkitools2-autobuild.munki recipe with a manually-provided DOWNLOAD_URL variable.
+  
+  The GitHubReleasesInfoProvider processor used by this recipe also respects an input variable: ''sort_by_highest_tag_names'', which, if set, will ignore the post dates of the releases and instead sort descending by tag names according to LooseVersion semantics.
 Identifier: com.github.grahampugh.recipes.pkg.MunkiToolsCore
 MinimumVersion: 0.5.0
 
@@ -51,7 +61,20 @@ Process:
 
 - Processor: FileCreator
   Arguments:
-    file_content: "#!/bin/bash\n## script to install Munki Core Tools and MunkiPython only\n\nDIR=$(dirname \"$0\")\n\n/usr/sbin/installer -applyChoiceChangesXML \"$DIR/choices.xml\" -pkg \"$DIR/munkitools-%version%.pkg\" -target /\n\nif (test $? = 0) then\n    echo \"Munki Core Tools installed.\"\nelse\n    echo \"ERROR: Munki Core Tools installation failed.\"\n    exit 1\nfi\n"
+    file_content: |
+      #!/bin/bash
+      ## script to install Munki Core Tools and MunkiPython only
+      
+      DIR=$(dirname "$0")
+      
+      /usr/sbin/installer -applyChoiceChangesXML "$DIR/choices.xml" -pkg "$DIR/munkitools-%version%.pkg" -target /
+      
+      if (test $? = 0) then
+          echo "Munki Core Tools installed."
+      else
+          echo "ERROR: Munki Core Tools installation failed."
+          exit 1
+      fi
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 

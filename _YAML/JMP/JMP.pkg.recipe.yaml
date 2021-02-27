@@ -1,4 +1,6 @@
-Description: "Creates a package from a pre-downloaded JMP installer which has already been installed on a client, and the SIP file converted to a JMP.per file as per the instructions in the JMP Deployment Guide.\nYou need to manually supply the JMP version, since attempts to extract this from the installer have so far failed.\n"
+Description: |
+  Creates a package from a pre-downloaded JMP installer which has already been installed on a client, and the SIP file converted to a JMP.per file as per the instructions in the JMP Deployment Guide.
+  You need to manually supply the JMP version, since attempts to extract this from the installer have so far failed.
 Identifier: com.github.grahampugh.recipes.pkg.JMP
 MinimumVersion: 1.0.0
 
@@ -25,7 +27,51 @@ Process:
 
 - Processor: FileCreator
   Arguments:
-    file_content: "#!/bin/bash\nDIR=$(dirname \"$0\")\nMAJOR=$(echo \"%JMP_VERSION%\" | cut -d\".\" -f1)\nMINOR=$(echo \"%JMP_VERSION%\" | cut -d\".\" -f2)\n\n# attach main image\necho \"Mounting JMP image\"\nhdiutil attach ${DIR}/JMP_${MAJOR}.dmg -nobrowse\n\n# attach installer image, located inside main image\necho \"Mounting JMP installer image\"\nhdiutil attach /Volumes/JMP_${MAJOR}_${MINOR}/JMP/JMP/${MAJOR}_${MINOR}/Macintosh/JMP-Install.dmg -nobrowse\n\n# install JMP with Company License\ninstaller -target / -pkg \"/Volumes/JMP-${MAJOR}-Installer/JMP ${MAJOR}.pkg\"\n\n# eject mounted JMP volumes\nfor path in /Volumes/JMP*; do\n    [ -d \"${path}\" ] || continue # if not a directory, skip\n    dirname=\"$(basename \"${path}\")\"\n    hdiutil eject ${path}\ndone\n\n# relocate license\nif [[ -f \"$HOME/Library/Application Support/JMP/${MAJOR}/JMP.per\" ]]; then\n    /bin/mv \"$HOME/Library/Application Support/JMP/${MAJOR}/JMP.per\" \\\n    \"/Library/Application Support/JMP/${MAJOR}/JMP.per\"\nelif [[ -f \"/var/root/Library/Application Support/JMP/${MAJOR}/JMP.per\" ]]; then\n    /bin/mkdir -p \"/Library/Application Support/JMP/${MAJOR}\"\n    /bin/mv \"/var/root/Library/Application Support/JMP/${MAJOR}/JMP.per\" \\\n    \"/Library/Application Support/JMP/${MAJOR}/JMP.per\"\n    # change permissions\n    /bin/chmod 644 \"/Library/Application Support/JMP/${MAJOR}/JMP.per\"\nelse\n    echo \"ERROR: JMP.per not found\"\n    exit 1\nfi\nif [[ -f \"/Library/Application Support/JMP/${MAJOR}/JMP.per\" ]]; then\n    # define license location\n    /usr/bin/defaults write \"/Library/Preferences/com.sas.jmp.plist\" Setinit_${MAJOR}_Path \"/Library/Application Support/JMP/${MAJOR}/JMP.per\"\nelse\n    echo \"ERROR: JMP.per not found in Library folder\"\n    exit 1\nfi\n"
+    file_content: |
+      #!/bin/bash
+      DIR=$(dirname "$0")
+      MAJOR=$(echo "%JMP_VERSION%" | cut -d"." -f1)
+      MINOR=$(echo "%JMP_VERSION%" | cut -d"." -f2)
+      
+      # attach main image
+      echo "Mounting JMP image"
+      hdiutil attach ${DIR}/JMP_${MAJOR}.dmg -nobrowse
+      
+      # attach installer image, located inside main image
+      echo "Mounting JMP installer image"
+      hdiutil attach /Volumes/JMP_${MAJOR}_${MINOR}/JMP/JMP/${MAJOR}_${MINOR}/Macintosh/JMP-Install.dmg -nobrowse
+      
+      # install JMP with Company License
+      installer -target / -pkg "/Volumes/JMP-${MAJOR}-Installer/JMP ${MAJOR}.pkg"
+      
+      # eject mounted JMP volumes
+      for path in /Volumes/JMP*; do
+          [ -d "${path}" ] || continue # if not a directory, skip
+          dirname="$(basename "${path}")"
+          hdiutil eject ${path}
+      done
+      
+      # relocate license
+      if [[ -f "$HOME/Library/Application Support/JMP/${MAJOR}/JMP.per" ]]; then
+          /bin/mv "$HOME/Library/Application Support/JMP/${MAJOR}/JMP.per" \\
+          "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+      elif [[ -f "/var/root/Library/Application Support/JMP/${MAJOR}/JMP.per" ]]; then
+          /bin/mkdir -p "/Library/Application Support/JMP/${MAJOR}"
+          /bin/mv "/var/root/Library/Application Support/JMP/${MAJOR}/JMP.per" \\
+          "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+          # change permissions
+          /bin/chmod 644 "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+      else
+          echo "ERROR: JMP.per not found"
+          exit 1
+      fi
+      if [[ -f "/Library/Application Support/JMP/${MAJOR}/JMP.per" ]]; then
+          # define license location
+          /usr/bin/defaults write "/Library/Preferences/com.sas.jmp.plist" Setinit_${MAJOR}_Path "/Library/Application Support/JMP/${MAJOR}/JMP.per"
+      else
+          echo "ERROR: JMP.per not found in Library folder"
+          exit 1
+      fi
     file_mode: '0755'
     file_path: '%RECIPE_CACHE_DIR%/Scripts/postinstall'
 

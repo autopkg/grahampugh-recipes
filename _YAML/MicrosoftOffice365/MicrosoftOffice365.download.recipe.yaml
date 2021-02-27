@@ -1,4 +1,11 @@
-Description: "Downloads the latest Microsoft Office 365 SKU-less installer package.\nOverride the PRODUCTID key to:\n- 525133 for Americas\n- 532572 for Europe\n- 532577 for Asia\n- 871743 for Office 2016\n- 2009112 for Office365 Business Pro (includes Teams)\n"
+Description: |
+  Downloads the latest Microsoft Office 365 SKU-less installer package.
+  Override the PRODUCTID key to:
+  - 525133 for Americas
+  - 532572 for Europe
+  - 532577 for Asia
+  - 871743 for Office 2016
+  - 2009112 for Office365 Business Pro (includes Teams)
 Identifier: com.github.grahampugh.recipes.download.MicrosoftOffice365
 MinimumVersion: 1.0.0
 
