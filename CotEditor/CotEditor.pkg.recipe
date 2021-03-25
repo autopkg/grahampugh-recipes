@@ -10,8 +10,6 @@
 	<string>com.github.grahampugh.pkg.CotEditor</string>
 	<key>Input</key>
 	<dict>
-		<key>BUNDLE_ID</key>
-		<string>com.coteditor.CotEditor</string>
 		<key>NAME</key>
 		<string>CotEditor</string>
 	</dict>

@@ -8,8 +8,6 @@
 	<string>com.github.grahampugh.recipes.pkg.ThinLincClient</string>
 	<key>Input</key>
 	<dict>
-		<key>BUNDLE_ID</key>
-		<string>se.cendio.tlclient</string>
 		<key>NAME</key>
 		<string>ThinLinc Client</string>
 	</dict>

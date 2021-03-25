@@ -10,8 +10,6 @@
 	<string>com.github.grahampugh.pkg.DataWarrior</string>
 	<key>Input</key>
 	<dict>
-		<key>BUNDLE_ID</key>
-		<string>org.openmolecules.datawarrior</string>
 		<key>DOWNLOAD_URL</key>
 		<string>http://www.openmolecules.org/datawarrior/download.html</string>
 		<key>NAME</key>
