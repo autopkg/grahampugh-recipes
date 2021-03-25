@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the current stable macOS version of dupeGuru.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.download.dupeGuru</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>dupeGuru</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>2.3</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>re_pattern</key>
+				<string>(?P&lt;url&gt;https:\/\/github\.com\/arsenetar\/dupeguru\/releases\/download\/.*\/dupeguru_osx_.*\.dmg)</string>
+				<key>url</key>
+				<string>https://dupeguru.voltaicideas.net/2021/03/09/macOS_version_notes.html</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLTextSearcher</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>%url%</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+	</array>
+</dict>
+</plist>
