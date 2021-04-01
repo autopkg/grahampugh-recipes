@@ -537,7 +537,7 @@ class JamfPackageUploader(Processor):
         self.pkg_uploaded = False
         self.pkg_metadata_updated = False
 
-        #  create a dictionary of package metadata from the inputs
+        #  create a dictionary of package metadata from the inputs
         self.pkg_category = self.env.get("pkg_category")
         self.reboot_required = self.env.get("reboot_required")
         if not self.reboot_required or self.reboot_required == "False":
@@ -571,7 +571,7 @@ class JamfPackageUploader(Processor):
             self.pkg_path = self.zip_pkg_path(self.pkg_path)
             self.pkg_name += ".zip"
 
-        #  calculate the SHA-512 hash of the package
+        #  calculate the SHA-512 hash of the package
         self.sha512string = self.sha512sum(self.pkg_path)
 
         # now start the process of uploading the package
@@ -697,16 +697,17 @@ class JamfPackageUploader(Processor):
         self.env["pkg_name"] = self.pkg_name
         self.env["pkg_uploaded"] = self.pkg_uploaded
         self.env["pkg_metadata_updated"] = self.pkg_metadata_updated
-        self.env["jamfpackageuploader_summary_result"] = {
-            "summary_text": "The following packages were uploaded to or updated in Jamf Pro:",
-            "report_fields": ["pkg_path", "pkg_name", "version", "category"],
-            "data": {
-                "pkg_path": self.pkg_path,
-                "pkg_name": self.pkg_name,
-                "version": self.version,
-                "category": self.pkg_category,
-            },
-        }
+        if self.pkg_metadata_updated or self.pkg_uploaded:
+            self.env["jamfpackageuploader_summary_result"] = {
+                "summary_text": "The following packages were uploaded to or updated in Jamf Pro:",
+                "report_fields": ["pkg_path", "pkg_name", "version", "category"],
+                "data": {
+                    "pkg_path": self.pkg_path,
+                    "pkg_name": self.pkg_name,
+                    "version": self.version,
+                    "category": self.pkg_category,
+                },
+            }
 
 
 if __name__ == "__main__":
