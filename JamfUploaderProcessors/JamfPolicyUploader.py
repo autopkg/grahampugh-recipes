@@ -188,22 +188,29 @@ class JamfPolicyUploader(Processor):
         # headers, status code and outputted data
         subprocess.check_output(curl_cmd)
 
-        r = namedtuple("r", ["headers", "status_code", "output"])
+        r = namedtuple(
+            "r",
+            ["headers", "status_code", "output"],
+            defaults=(None, None, None)
+        )
         try:
             with open(headers_file, "r") as file:
                 headers = file.readlines()
             r.headers = [x.strip() for x in headers]
-            for header in r.headers:
-                if "HTTP/1.1" in header and "Continue" not in header:
+            for header in r.headers:  # pylint: disable=not-an-iterable
+                if re.match(r"HTTP/(1.1|2)", header) and "Continue" not in header:
                     r.status_code = int(header.split()[1])
+        except IOError:
+            raise ProcessorError(f"WARNING: {headers_file} not found")
+        if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             with open(output_file, "rb") as file:
                 if "uapi" in url:
                     r.output = json.load(file)
                 else:
                     r.output = file.read()
-            return r
-        except IOError:
-            raise ProcessorError(f"WARNING: {headers_file} not found")
+        else:
+            self.output(f"No output from request ({output_file} not found or empty)")
+        return r()
 
     def status_check(self, r, endpoint_type, obj_name):
         """Return a message dependent on the HTTP response"""
