@@ -739,7 +739,7 @@ class JamfComputerProfileUploader(Processor):
             else:
                 self.output(
                     "Not replacing existing Configuration Profile. "
-                    "Use --replace-profile to enforce."
+                    "Override the replace_profile key to True to enforce."
                 )
         else:
             self.output(
