@@ -244,9 +244,7 @@ class JamfScriptUploader(Processor):
         subprocess.check_output(curl_cmd)
 
         r = namedtuple(
-            "r",
-            ["headers", "status_code", "output"],
-            defaults=(None, None, None)
+            "r", ["headers", "status_code", "output"], defaults=(None, None, None)
         )
         try:
             with open(headers_file, "r") as file:
@@ -490,6 +488,7 @@ class JamfScriptUploader(Processor):
         # clear any pre-existing summary result
         if "jamfscriptuploader_summary_result" in self.env:
             del self.env["jamfscriptuploader_summary_result"]
+        script_uploaded = False
 
         # encode the username and password into a basic auth b64 encoded string
         credentials = f"{self.jamf_user}:{self.jamf_password}"
@@ -578,46 +577,49 @@ class JamfScriptUploader(Processor):
             token,
             obj_id,
         )
+        script_uploaded = True
 
         # output the summary
         self.env["script_name"] = self.script_name
-        self.env["jamfscriptuploader_summary_result"] = {
-            "summary_text": "The following scripts were created or updated in Jamf Pro:",
-            "report_fields": [
-                "script",
-                "path",
-                "category",
-                "priority",
-                "os_req",
-                "info",
-                "notes",
-                "P4",
-                "P5",
-                "P6",
-                "P7",
-                "P8",
-                "P9",
-                "P10",
-                "P11",
-            ],
-            "data": {
-                "script": self.script_name,
-                "path": self.script_path,
-                "category": self.script_category,
-                "priority": str(self.script_priority),
-                "info": self.script_info,
-                "os_req": self.osrequirements,
-                "notes": self.script_notes,
-                "P4": self.script_parameter4,
-                "P5": self.script_parameter5,
-                "P6": self.script_parameter6,
-                "P7": self.script_parameter7,
-                "P8": self.script_parameter8,
-                "P9": self.script_parameter9,
-                "P10": self.script_parameter10,
-                "P11": self.script_parameter11,
-            },
-        }
+        self.env["script_uploaded"] = script_uploaded
+        if script_uploaded:
+            self.env["jamfscriptuploader_summary_result"] = {
+                "summary_text": "The following scripts were created or updated in Jamf Pro:",
+                "report_fields": [
+                    "script",
+                    "path",
+                    "category",
+                    "priority",
+                    "os_req",
+                    "info",
+                    "notes",
+                    "P4",
+                    "P5",
+                    "P6",
+                    "P7",
+                    "P8",
+                    "P9",
+                    "P10",
+                    "P11",
+                ],
+                "data": {
+                    "script": self.script_name,
+                    "path": self.script_path,
+                    "category": self.script_category,
+                    "priority": str(self.script_priority),
+                    "info": self.script_info,
+                    "os_req": self.osrequirements,
+                    "notes": self.script_notes,
+                    "P4": self.script_parameter4,
+                    "P5": self.script_parameter5,
+                    "P6": self.script_parameter6,
+                    "P7": self.script_parameter7,
+                    "P8": self.script_parameter8,
+                    "P9": self.script_parameter9,
+                    "P10": self.script_parameter10,
+                    "P11": self.script_parameter11,
+                },
+            }
 
 
 if __name__ == "__main__":

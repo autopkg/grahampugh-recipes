@@ -177,9 +177,7 @@ class JamfExtensionAttributeUploader(Processor):
         subprocess.check_output(curl_cmd)
 
         r = namedtuple(
-            "r",
-            ["headers", "status_code", "output"],
-            defaults=(None, None, None)
+            "r", ["headers", "status_code", "output"], defaults=(None, None, None)
         )
         try:
             with open(headers_file, "r") as file:
@@ -389,6 +387,7 @@ class JamfExtensionAttributeUploader(Processor):
         # clear any pre-existing summary result
         if "jamfextensionattributeuploader_summary_result" in self.env:
             del self.env["jamfextensionattributeuploader_summary_result"]
+        ea_uploaded = False
 
         # encode the username and password into a basic auth b64 encoded string
         credentials = f"{self.jamf_user}:{self.jamf_password}"
@@ -428,6 +427,7 @@ class JamfExtensionAttributeUploader(Processor):
                 self.upload_ea(
                     self.jamf_url, enc_creds, self.ea_name, self.ea_script_path, obj_id,
                 )
+                ea_uploaded = True
             else:
                 self.output(
                     "Not replacing existing Extension Attribute. Use replace_ea='True' to enforce.",
@@ -439,17 +439,20 @@ class JamfExtensionAttributeUploader(Processor):
             self.upload_ea(
                 self.jamf_url, enc_creds, self.ea_name, self.ea_script_path,
             )
+            ea_uploaded = True
 
         # output the summary
         self.env["extension_attribute"] = self.ea_name
-        self.env["jamfextensionattributeuploader_summary_result"] = {
-            "summary_text": (
-                "The following extension attributes were created or "
-                "updated in Jamf Pro:"
-            ),
-            "report_fields": ["name", "path"],
-            "data": {"name": self.ea_name, "path": self.ea_script_path},
-        }
+        self.env["ea_uploaded"] = ea_uploaded
+        if ea_uploaded:
+            self.env["jamfextensionattributeuploader_summary_result"] = {
+                "summary_text": (
+                    "The following extension attributes were created or "
+                    "updated in Jamf Pro:"
+                ),
+                "report_fields": ["name", "path"],
+                "data": {"name": self.ea_name, "path": self.ea_script_path},
+            }
 
 
 if __name__ == "__main__":

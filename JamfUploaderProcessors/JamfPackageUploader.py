@@ -276,9 +276,7 @@ class JamfPackageUploader(Processor):
         subprocess.check_output(curl_cmd)
 
         r = namedtuple(
-            "r",
-            ["headers", "status_code", "output"],
-            defaults=(None, None, None)
+            "r", ["headers", "status_code", "output"], defaults=(None, None, None)
         )
         try:
             with open(headers_file, "r") as file:
@@ -667,7 +665,7 @@ class JamfPackageUploader(Processor):
                     ),
                     verbose_level=1,
                 )
-                self.pkg_uploaded = True
+                self.pkg_uploaded = False
 
         # now process the package metadata if specified
         if pkg_id and (self.pkg_uploaded or self.replace_metadata):

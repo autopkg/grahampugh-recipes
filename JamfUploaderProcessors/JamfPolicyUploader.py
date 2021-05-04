@@ -189,9 +189,7 @@ class JamfPolicyUploader(Processor):
         subprocess.check_output(curl_cmd)
 
         r = namedtuple(
-            "r",
-            ["headers", "status_code", "output"],
-            defaults=(None, None, None)
+            "r", ["headers", "status_code", "output"], defaults=(None, None, None)
         )
         try:
             with open(headers_file, "r") as file:
@@ -591,15 +589,16 @@ class JamfPolicyUploader(Processor):
         # output the summary
         self.env["policy_name"] = self.policy_name
         self.env["policy_updated"] = self.policy_updated
-        self.env["jamfpolicyuploader_summary_result"] = {
-            "summary_text": "The following policies were created or updated in Jamf Pro:",
-            "report_fields": ["policy", "template", "icon"],
-            "data": {
-                "policy": self.policy_name,
-                "template": self.policy_template,
-                "icon": policy_icon_name,
-            },
-        }
+        if self.policy_updated:
+            self.env["jamfpolicyuploader_summary_result"] = {
+                "summary_text": "The following policies were created or updated in Jamf Pro:",
+                "report_fields": ["policy", "template", "icon"],
+                "data": {
+                    "policy": self.policy_name,
+                    "template": self.policy_template,
+                    "icon": policy_icon_name,
+                },
+            }
 
 
 if __name__ == "__main__":

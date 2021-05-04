@@ -175,9 +175,7 @@ class JamfComputerGroupUploader(Processor):
         subprocess.check_output(curl_cmd)
 
         r = namedtuple(
-            "r",
-            ["headers", "status_code", "output"],
-            defaults=(None, None, None)
+            "r", ["headers", "status_code", "output"], defaults=(None, None, None)
         )
         try:
             with open(headers_file, "r") as file:
@@ -376,6 +374,7 @@ class JamfComputerGroupUploader(Processor):
         # clear any pre-existing summary result
         if "jamfcomputergroupuploader_summary_result" in self.env:
             del self.env["jamfcomputergroupuploader_summary_result"]
+        group_uploaded = False
 
         # encode the username and password into a basic auth b64 encoded string
         credentials = f"{self.jamf_user}:{self.jamf_password}"
@@ -420,6 +419,7 @@ class JamfComputerGroupUploader(Processor):
                     self.computergroup_template,
                     obj_id,
                 )
+                group_uploaded = True
             else:
                 self.output(
                     "Not replacing existing Computer Group. Use replace_group='True' to enforce.",
@@ -434,16 +434,22 @@ class JamfComputerGroupUploader(Processor):
                 self.computergroup_name,
                 self.computergroup_template,
             )
+            group_uploaded = True
 
         # output the summary
-        self.env["jamfcomputergroupuploader_summary_result"] = {
-            "summary_text": "The following computer groups were created or updated in Jamf Pro:",
-            "report_fields": ["group", "template"],
-            "data": {
-                "group": self.computergroup_name,
-                "template": self.computergroup_template,
-            },
-        }
+        self.env["group_uploaded"] = group_uploaded
+        if group_uploaded:
+            self.env["jamfcomputergroupuploader_summary_result"] = {
+                "summary_text": (
+                    "The following computer groups were created or updated "
+                    "in Jamf Pro:"
+                ),
+                "report_fields": ["group", "template"],
+                "data": {
+                    "group": self.computergroup_name,
+                    "template": self.computergroup_template,
+                },
+            }
 
 
 if __name__ == "__main__":
