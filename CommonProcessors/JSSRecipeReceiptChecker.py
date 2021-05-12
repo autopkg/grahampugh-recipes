@@ -78,7 +78,8 @@ class JSSRecipeReceiptChecker(Processor):
         """do the main thing"""
         name = self.env.get("name")
         recipe_name = self.env.get("RECIPE_NAME")
-        cache_dir = expanduser(self.env.get("cache_dir"))
+        cache_dir = expanduser(self.env.get(
+            "cache_dir", "~/Library/AutoPkg/Cache"))
         version_found = False
 
         if recipe_name:
