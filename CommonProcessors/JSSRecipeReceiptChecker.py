@@ -37,15 +37,17 @@ class JSSRecipeReceiptChecker(Processor):
                 "This value should be the same as the NAME in the recipe "
                 "from which we want to read the receipt. This is all we "
                 "need to construct the override path."
+                "Assumes the Recipe ID is in the format of:  "
+                "   local.jss.<name>"
             ),
             "required": False,
         },
-        "RECIPE_NAME": {
+        "recipe_id": {
             "description": (
                 "If the recipe name does not match the NAME variable, "
                 "this value can be used to override NAME."
             ),
-            "required": False,
+            "required": False
         },
         "cache_dir": {
             "description": "Path to the cache dir.",
@@ -68,26 +70,27 @@ class JSSRecipeReceiptChecker(Processor):
     def get_latest_receipt(self, cache_dir, name, receipt_number):
         """name of receipt with the highest version number"""
         self.output(
-            "Checking for receipts in folder {}/local.jss.{}".format(cache_dir, name)
-        )
-        files = list(iglob("{}/local.jss.{}/receipts/*.plist".format(cache_dir, name)))
+            "Checking for receipts in folder {}/{}".format(cache_dir, name))
+        files = list(iglob("{}/*{}/receipts/*.plist".format(cache_dir, name)))
         files.sort(key=lambda x: getmtime(x), reverse=True)
         return files[receipt_number]
 
     def main(self):
         """do the main thing"""
         name = self.env.get("name")
-        recipe_name = self.env.get("RECIPE_NAME")
+        recipe_id = self.env.get("recipe_id")
         cache_dir = expanduser(self.env.get(
             "cache_dir", "~/Library/AutoPkg/Cache"))
         version_found = False
 
         if not name:
-            if recipe_name:
-                name = recipe_name
+            if recipe_id:
+                name = recipe_id
             else:
                 raise ProcessorError(
                     "Either 'name' or 'recipe_name' must be provided.")
+        else:
+            name = "local.jss.{}".format(name)
 
         receipt_number = 0
         while not version_found:
