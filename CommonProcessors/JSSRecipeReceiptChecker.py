@@ -38,7 +38,7 @@ class JSSRecipeReceiptChecker(Processor):
                 "from which we want to read the receipt. This is all we "
                 "need to construct the override path."
             ),
-            "required": True,
+            "required": False,
         },
         "RECIPE_NAME": {
             "description": (
@@ -82,8 +82,12 @@ class JSSRecipeReceiptChecker(Processor):
             "cache_dir", "~/Library/AutoPkg/Cache"))
         version_found = False
 
-        if recipe_name:
-            name = recipe_name
+        if not name:
+            if recipe_name:
+                name = recipe_name
+            else:
+                raise ProcessorError(
+                    "Either 'name' or 'recipe_name' must be provided.")
 
         receipt_number = 0
         while not version_found:
