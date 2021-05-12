@@ -16,7 +16,11 @@
 """See docstring for JSSRecipeReceiptChecker class"""
 
 from __future__ import absolute_import
-import plistlib
+
+try:
+    from plistlib import load as plistReader # Python 3
+except:
+    from plistlib import readPlist as plistReader # Python 2
 
 from glob import iglob
 from os.path import expanduser, getmtime, exists
@@ -98,7 +102,9 @@ class JSSRecipeReceiptChecker(Processor):
 
             self.output("Receipt: {}".format(receipt))
 
-            plist = plistlib.readPlist(receipt)
+            with open(receipt, 'rb') as plist_receipt:
+                plist = plistReader(plist_receipt)
+
             i = 0
             while i < len(plist):
                 try:
