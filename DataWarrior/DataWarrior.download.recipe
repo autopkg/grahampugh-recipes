@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest version of DataWarrior.</string>
+	<string>Downloads the latest version of DataWarrior. Note that this app is not signed.</string>
 	<key>Identifier</key>
 	<string>com.github.grahampugh.download.DataWarrior</string>
 	<key>Input</key>
@@ -14,14 +14,14 @@
 		<string>DataWarrior</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.0.0</string>
+	<string>2.3</string>
 	<key>Process</key>
 	<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>re_pattern</key>
-				<string>(?P&lt;match&gt;http.*?dmg\?dl=1)</string>
+				<string>(?P&lt;match&gt;datawarrior\/datawarrior.*?dmg)</string>
 				<key>url</key>
 				<string>%DOWNLOAD_URL%</string>
 			</dict>
@@ -34,7 +34,7 @@
 				<key>filename</key>
 				<string>%NAME%.dmg</string>
 				<key>url</key>
-				<string>%match%</string>
+				<string>http://www.openmolecules.org/%match%</string>
 			</dict>
 			<key>Processor</key>
 			<string>URLDownloader</string>
