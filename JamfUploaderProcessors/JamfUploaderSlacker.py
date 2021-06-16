@@ -54,6 +54,14 @@ class JamfUploaderSlacker(Processor):
         "NAME": {"required": False, "description": ("Generic product name.")},
         "version": {"required": True, "description": ("Product version.")},
         "pkg_name": {"required": True, "description": ("Package in policy.")},
+        "jamfpackageuploader_summary_result": {
+            "required": False,
+            "description": ("Summary results of package processors."),
+        },
+        "jamfpolicyuploader_summary_result": {
+            "required": False,
+            "description": ("Summary results of policy processors."),
+        },
         "slack_webhook_url": {"required": True, "description": ("Slack webhook.")},
         "slack_username": {
             "required": False,
@@ -159,6 +167,12 @@ class JamfUploaderSlacker(Processor):
         name = self.env.get("NAME")
         version = self.env.get("version")
         pkg_name = self.env.get("pkg_name")
+        jamfpackageuploader_summary_result = self.env.get(
+            "jamfpackageuploader_summary_result"
+        )
+        jamfpolicyuploader_summary_result = self.env.get(
+            "jamfpolicyuploader_summary_result"
+        )
 
         slack_username = self.env.get("slack_username")
         slack_icon_url = self.env.get("slack_icon_url") or ""
@@ -175,7 +189,7 @@ class JamfUploaderSlacker(Processor):
         self.output(f"Package Category: {category}")
         self.output(f"Policy Category: {policy_category}")
 
-        if pkg_name:
+        if jamfpackageuploader_summary_result and jamfpolicyuploader_summary_result:
             slack_text = (
                 "*New Item uploaded to Jamf Pro:*\n"
                 + f"URL: {jss_url}\n"
@@ -185,16 +199,26 @@ class JamfUploaderSlacker(Processor):
                 + f"Policy Name: *{policy_name}*\n"
                 + f"Package: *{pkg_name}*"
             )
-        else:
+        elif jamfpolicyuploader_summary_result:
             slack_text = (
                 "*New Item uploaded to Jamf Pro:*\n"
                 + f"URL: {jss_url}\n"
                 + f"Title: *{selfservice_policy_name}*\n"
-                + f"Version: *{version}*\n"
                 + f"Category: *{category}*\n"
                 + f"Policy Name: *{policy_name}*\n"
                 + "No new package uploaded"
             )
+        elif jamfpackageuploader_summary_result:
+            slack_text = (
+                "*New Item uploaded to Jamf Pro:*\n"
+                + f"URL: {jss_url}\n"
+                + f"Version: *{version}*\n"
+                + f"Category: *{category}*\n"
+                + f"Package: *{pkg_name}*"
+            )
+        else:
+            self.output("Nothing to report to Slack")
+            return
 
         slack_data = {
             "text": slack_text,
@@ -213,7 +237,8 @@ class JamfUploaderSlacker(Processor):
         while True:
             count += 1
             self.output(
-                "Slack webhook post attempt {}".format(count), verbose_level=2,
+                "Slack webhook post attempt {}".format(count),
+                verbose_level=2,
             )
             r = self.curl(slack_webhook_url, slack_json)
             # check HTTP response
