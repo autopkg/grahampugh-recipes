@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the current release version of Eclipse Temurin 8. This is the signed pkg version rather than the tar version, for those that require a signed package rather than accurate version number.
+
+FEATURE_VERSION may be any valid whole number, e.g. 8, 11, 16, 17. See https://api.adoptium.net/v3/info/available_releases for available feature versions.
+
+RELEASE_TYPE can be 'ga' (general availablility) or 'ea' (early access).
+
+OS may be 'mac' or others.
+
+ARCH may be 'x64' (or 'arm' for some builds).
+
+IMAGE_TYPE may be 'jdk', 'jre', 'testimage', 'debugimage' or 'staticlibs'.
+
+JVM_IMPLEMENTATION may be "hotspot", "openj9" or "dragonwell".
+
+HEAP_SIZE may be 'normal' or 'large'.
+
+VENDOR may be 'adoptopenjdk', 'openjdk', 'adoptium', 'alibaba', 'ibm'.
+
+Note that not all options are available for all vendors, and not all listed vendors may be currently available.
+</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.pkg.EclipseTemurin-8-installer</string>
+	<key>Input</key>
+	<dict>
+		<key>ARCH</key>
+		<string>x64</string>
+		<key>FEATURE_VERSION</key>
+		<string>8</string>
+		<key>HEAP_SIZE</key>
+		<string>normal</string>
+		<key>IMAGE_TYPE</key>
+		<string>jdk</string>
+		<key>JVM_IMPLEMENTATION</key>
+		<string>hotspot</string>
+		<key>NAME</key>
+		<string>Eclipse Temurin 8</string>
+		<key>OS</key>
+		<string>mac</string>
+		<key>RELEASE_TYPE</key>
+		<string>ga</string>
+		<key>VENDOR</key>
+		<string>adoptium</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>2.3</string>
+	<key>ParentRecipe</key>
+	<string>com.github.grahampugh.recipes.download.EclipseTemurin-8-installer</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_path</key>
+				<string>%RECIPE_CACHE_DIR%/EclipseTemurin_%FEATURE_VERSION%_%IMAGE_TYPE%_%ARCH%_%JVM_IMPLEMENTATION%-%version%</string>
+				<key>source_pkg</key>
+				<string>%pathname%</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgCopier</string>
+		</dict>
+	</array>
+</dict>
+</plist>
