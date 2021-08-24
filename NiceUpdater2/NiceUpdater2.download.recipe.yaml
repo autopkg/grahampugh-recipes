@@ -1,0 +1,15 @@
+Description: Downloads the latest version of Nice Updater 2
+Identifier: com.github.grahampugh.recipes.download.NiceUpdater2
+
+Input:
+  INCLUDE_PRERELEASES: "True"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: grahampugh/nice-updater
+      include_prereleases: "%INCLUDE_PRERELEASES%"
+
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase

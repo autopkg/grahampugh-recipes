@@ -1,0 +1,38 @@
+Comment: Created with Recipe Robot v1.0.2 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of LineIn.
+Identifier: com.github.grahampugh.download.LineIn
+MinimumVersion: "2.3"
+
+Input:
+  NAME: LineIn
+  DOWNLOAD_URL: https://www.rogueamoeba.com/freebies/download/LineIn.zip
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.zip"
+      url: "%DOWNLOAD_URL%"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: StopProcessingIf
+    Comment: Checks if the file already exists in the cache
+    Arguments:
+      predicate: "%STOPPROCESSINGIF_PREDICATE%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications"
+      purge_destination: true
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app"
+      requirement: anchor apple generic and identifier "com.rogueamoeba.LineIn2" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7266XEXAPM")
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString

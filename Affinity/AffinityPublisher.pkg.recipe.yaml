@@ -1,0 +1,10 @@
+Description: Downloads the latest version of Affinity Publisher and creates a pkg including version number.
+Identifier: com.github.grahampugh.recipes.pkg.AffinityPublisher
+ParentRecipe: com.github.peterkelm.download.AffinityPublisher
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Affinity Publisher
+
+Process:
+  - Processor: AppPkgCreator

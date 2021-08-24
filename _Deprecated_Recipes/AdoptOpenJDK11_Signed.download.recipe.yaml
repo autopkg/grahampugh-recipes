@@ -1,0 +1,11 @@
+Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK11_Signed
+Description: Deprecated and no longer functional. Please remove from your recipe lists.
+MinimumVersion: "2.3"
+
+Input:
+  NAME: AdoptOpenJDK 11
+
+Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: AdoptOpenJDK has been replaced by Eclipse Temurin. Please switch to using an EclipseTemurin recipe from this repo.

@@ -1,0 +1,61 @@
+Description: |
+  Creates a package for Parallels Desktop.
+  This is done with the help of the pd-autodeploy file obtained from Parallels website.
+  There is no download recipe since Parallels Desktop is not publicly available.
+  Requires running as: autopkg run --pkg /path/to/downloaded-parallels.dmg "ParallelsDesktop.pkg"
+  You must override the LICENSE_KEY.
+  It is also possible to override the software update settings. See ParallelsDesktopPackager.py for details.
+Identifier: com.github.grahampugh.recipes.pkg.ParallelsDesktop
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Parallels Desktop
+  LICENSE_KEY: 1234567890
+  SOFTWARE_UPDATES_AUTO_DOWNLOAD: off
+  SOFTWARE_UPDATES_CHECK: 0
+
+Process:
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: "%pathname%"
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: pd-autodeploy.zip
+      url: http://download.parallels.com/desktop/tools/pd-autodeploy.zip
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%RECIPE_CACHE_DIR%/downloads/%filename%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%"
+      purge_destination: true
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: "%RECIPE_CACHE_DIR%/%NAME%/Parallels Desktop Business Edition mass deployment package*"
+
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg"
+      overwrite: true
+      source_path: "%found_filename%/Parallels Desktop Autodeploy.pkg"
+
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/Parallels Desktop DMG/%NAME%.dmg"
+      overwrite: true
+      source_path: "%RECIPE_CACHE_DIR%/downloads/%latest_file%"
+
+  - Processor: ParallelsDesktopPackager
+    Arguments:
+      CONFIG_FILE_PATH: "%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/License Key and Configuration/deploy.cfg"
+      INFO_PLIST_PATH: "%RECIPE_CACHE_DIR%/Parallels_Desktop_%version%.pkg/Contents/Info.plist"
+      license_key: "%LICENSE_KEY%"
+      software_updates_auto_download: "%SOFTWARE_UPDATES_AUTO_DOWNLOAD%"
+      software_updates_check: "%SOFTWARE_UPDATES_CHECK%"
+      version: "%version%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/%NAME%"

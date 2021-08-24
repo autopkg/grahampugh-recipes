@@ -1,0 +1,29 @@
+Description: Downloads the latest version of SeqMonk and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.SeqMonk
+ParentRecipe: com.github.grahampugh.recipes.download.SeqMonk
+MinimumVersion: "2.3"
+
+Input:
+  NAME: SeqMonk
+  BUNDLE_ID: uk.ac.babraham.seqmonk
+
+Process:
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      overwrite: true
+      source_path: "%pathname%/%NAME%.app"
+
+  - Processor: PlistEditor
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist"
+      output_plist_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app/Contents/Info.plist"
+      plist_data:
+        CFBundleIdentifier: "%BUNDLE_ID%"
+        CFBundleShortVersionString: "%version%"
+
+  - Processor: AppPkgCreator
+    Arguments:
+      app_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
+      force_pkg_build: false
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"

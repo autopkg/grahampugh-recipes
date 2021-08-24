@@ -1,0 +1,13 @@
+Description: Downloads the current version of The Microsoft Outlook Reset package.
+Identifier: com.github.grahampugh.recipes.pkg.MicrosoftOutlookReset
+ParentRecipe: com.github.grahampugh.recipes.download.MicrosoftOutlookReset
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Microsoft Outlook Reset
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/MicrosoftOutlookReset-%version%.pkg"
+      source_pkg: "%pathname%"

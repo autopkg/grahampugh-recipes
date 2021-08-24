@@ -1,0 +1,41 @@
+Description: Uploads a computer configuration to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.VLC-profile
+MinimumVersion: "2.3"
+
+Input:
+  NAME: VLC settings
+  IDENTIFIER: org.videolan.vlc
+  ORGANIZATION: AutoPkg
+  INSTALLED_GROUP_NAME: VLC installed
+  JSS_INVENTORY_NAME: "VLC.app"
+  PROFILE_GROUP_TEMPLATE: SmartGroup-application-installed.xml
+  PROFILE_CATEGORY: "Applications"
+  PROFILE_TEMPLATE: Profile-single-group.xml
+  PROFILE_NAME: "%NAME%"
+  PROFILE_PAYLOAD: "%IDENTIFIER%.plist"
+  PROFILE_DESCRIPTION: Disables automatic updates and prevents sending telemetry.
+  REPLACE_PROFILE: "True"
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%PROFILE_CATEGORY%"
+      replace_category: "False"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_template: "%PROFILE_GROUP_TEMPLATE%"
+      computergroup_name: "%INSTALLED_GROUP_NAME%"
+      replace_group: "False"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader
+    Arguments:
+      profile_name: "%PROFILE_NAME%"
+      profile_category: "%PROFILE_CATEGORY%"
+      profile_template: "%PROFILE_TEMPLATE%"
+      payload: "%PROFILE_PAYLOAD%"
+      identifier: "%IDENTIFIER%"
+      organization: "%ORGANIZATION%"
+      profile_description: "%PROFILE_DESCRIPTION%"
+      profile_computergroup: "%INSTALLED_GROUP_NAME%"
+      replace_profile: "%REPLACE_PROFILE%"

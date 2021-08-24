@@ -1,0 +1,11 @@
+Identifier: com.github.grahampugh.recipes.download.AdoptOpenJDK8
+MinimumVersion: "2.3"
+Description: Deprecated and no longer functional. Please remove from your recipe lists.
+
+Input:
+  NAME: AdoptOpenJDK 8
+
+Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: AdoptOpenJDK has been replaced by Eclipse Temurin. Please switch to using an EclipseTemurin recipe from this repo.

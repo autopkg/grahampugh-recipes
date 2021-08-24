@@ -1,0 +1,26 @@
+Description: |
+  Downloads the Rosetta 2 installer package.
+Identifier: com.github.grahampugh.recipes.download.rosetta
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Rosetta 2
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      asset_regex: ^Rosetta-2-install.*?.signed.pkg$
+      github_repo: grahampugh/Rosetta-2-install
+      include_prereleases: true
+
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: ETH Zurich (9Z623UDZ5L)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%"

@@ -1,0 +1,13 @@
+Description: Placeholder pkg recipe - just moves the pkg to create the pkg_path variable.
+Identifier: com.github.grahampugh.recipes.pkg.NiceUpdater2
+ParentRecipe: com.github.grahampugh.recipes.download.NiceUpdater2
+MinimumVersion: "2.3"
+
+Input:
+  NAME: NiceUpdater2
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/NiceUpdater2-%version%.pkg"
+      source_pkg: "%pathname%"

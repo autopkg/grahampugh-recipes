@@ -244,7 +244,7 @@ class JamfPackageUploader(Processor):
                 headers = file.readlines()
             existing_headers = [x.strip() for x in headers]
             for header in existing_headers:
-                if "APBALANCEID" in header:
+                if "APBALANCEID" in header or "AWSALB" in header:
                     with open(cookie_jar, "w") as fp:
                         fp.write(header)
         except IOError:
@@ -256,7 +256,7 @@ class JamfPackageUploader(Processor):
                 headers = file.readlines()
             existing_headers = [x.strip() for x in headers]
             for header in existing_headers:
-                if "APBALANCEID" in header:
+                if "APBALANCEID" in header or "AWSALB" in header:
                     cookie = header.split()[1].rstrip(";")
                     self.output(f"Existing cookie found: {cookie}", verbose_level=2)
                     curl_cmd.extend(["--cookie", cookie])
@@ -337,12 +337,15 @@ class JamfPackageUploader(Processor):
             ),
         ]
         self.output(
-            f"Mount command: {' '.join(mount_cmd)}", verbose_level=3,
+            f"Mount command: {' '.join(mount_cmd)}",
+            verbose_level=3,
         )
 
         r = subprocess.check_output(mount_cmd)
         self.output(
-            r.decode("ascii"), verbose_level=2,
+            # r.decode("ascii"), verbose_level=2,
+            r,
+            verbose_level=2,
         )
 
     def umount_smb(self, mount_share):
@@ -352,7 +355,8 @@ class JamfPackageUploader(Processor):
         try:
             r = subprocess.check_output(cmd)
             self.output(
-                r.decode("ascii"), verbose_level=2,
+                r.decode("ascii"),
+                verbose_level=2,
             )
         except subprocess.CalledProcessError:
             self.output("WARNING! Unmount failed.")
@@ -368,11 +372,13 @@ class JamfPackageUploader(Processor):
             else:
                 self.output("No existing package found")
                 self.output(
-                    f"Expected path: {existing_pkg_path}", verbose_level=2,
+                    f"Expected path: {existing_pkg_path}",
+                    verbose_level=2,
                 )
         else:
             self.output(
-                f"Expected path not found!: {path}", verbose_level=2,
+                f"Expected path not found!: {path}",
+                verbose_level=2,
             )
 
     def copy_pkg(self, mount_share, pkg_path, pkg_name):
@@ -408,7 +414,8 @@ class JamfPackageUploader(Processor):
                 for member in files:
                     zip_handle.write(os.path.join(root, member))
             self.output(
-                f"Closing: {zip_name}", verbose_level=2,
+                f"Closing: {zip_name}",
+                verbose_level=2,
             )
         return zip_name
 
@@ -483,14 +490,16 @@ class JamfPackageUploader(Processor):
             url = f"{jamf_url}/JSSResource/packages/id/0"
 
         self.output(
-            pkg_data, verbose_level=2,
+            pkg_data,
+            verbose_level=2,
         )
 
         count = 0
         while True:
             count += 1
             self.output(
-                f"Package metadata upload attempt {count}", verbose_level=2,
+                f"Package metadata upload attempt {count}",
+                verbose_level=2,
             )
 
             pkg_xml = self.write_temp_file(pkg_data)
@@ -503,7 +512,8 @@ class JamfPackageUploader(Processor):
                     "WARNING: Package metadata update did not succeed after 5 attempts"
                 )
                 self.output(
-                    f"HTTP POST Response Code: {r.status_code}", verbose_level=1,
+                    f"HTTP POST Response Code: {r.status_code}",
+                    verbose_level=1,
                 )
                 raise ProcessorError("ERROR: Package metadata upload failed ")
             sleep(30)
@@ -543,7 +553,7 @@ class JamfPackageUploader(Processor):
         self.pkg_uploaded = False
         self.pkg_metadata_updated = False
 
-        #  create a dictionary of package metadata from the inputs
+        # create a dictionary of package metadata from the inputs
         self.pkg_category = self.env.get("pkg_category")
         self.reboot_required = self.env.get("reboot_required")
         if not self.reboot_required or self.reboot_required == "False":
@@ -670,7 +680,8 @@ class JamfPackageUploader(Processor):
         # now process the package metadata if specified
         if pkg_id and (self.pkg_uploaded or self.replace_metadata):
             self.output(
-                "Updating package metadata for {}".format(pkg_id), verbose_level=1,
+                "Updating package metadata for {}".format(pkg_id),
+                verbose_level=1,
             )
             self.update_pkg_metadata(
                 self.jamf_url,
@@ -683,7 +694,8 @@ class JamfPackageUploader(Processor):
             self.pkg_metadata_updated = True
         elif self.smb_url and not pkg_id:
             self.output(
-                "Creating package metadata", verbose_level=1,
+                "Creating package metadata",
+                verbose_level=1,
             )
             self.update_pkg_metadata(
                 self.jamf_url,
@@ -695,7 +707,8 @@ class JamfPackageUploader(Processor):
             self.pkg_metadata_updated = True
         else:
             self.output(
-                "Not updating package metadata", verbose_level=1,
+                "Not updating package metadata",
+                verbose_level=1,
             )
             self.pkg_metadata_updated = False
 

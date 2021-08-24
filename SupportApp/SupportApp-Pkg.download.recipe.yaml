@@ -1,0 +1,24 @@
+Description: Downloads the latest packaged version of Support App developed by Root3.
+Identifier: com.github.grahampugh.recipes.download.SupportApp
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Support
+
+Process:
+  - Arguments:
+      asset_regex: .*\.pkg$
+      github_repo: root3nl/SupportApp
+    Processor: GitHubReleasesInfoProvider
+
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: Root3 B.V. (98LJ4XBGYK)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%"

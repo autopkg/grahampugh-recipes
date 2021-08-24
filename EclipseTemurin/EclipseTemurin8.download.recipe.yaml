@@ -1,0 +1,41 @@
+Description: |
+  Downloads the current release version of Eclipse Temurin 8. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+
+  FEATURE_VERSION may be any valid whole number, e.g. 8, 11, 16, 17. See https://api.adoptium.net/v3/info/available_releases for available feature versions.
+
+  RELEASE_TYPE can be 'ga' (general availablility) or 'ea' (early access).
+
+  OS may be 'mac' or others.
+
+  ARCH may be 'x64' (or 'arm' for some builds).
+
+  IMAGE_TYPE may be 'jdk', 'jre', 'testimage', 'debugimage' or 'staticlibs'.
+
+  JVM_IMPLEMENTATION may be "hotspot", "openj9" or "dragonwell".
+
+  HEAP_SIZE may be 'normal' or 'large'.
+
+  VENDOR may be 'adoptopenjdk', 'openjdk', 'adoptium', 'alibaba', 'ibm'.
+
+  Note that not all options are available for all vendors, and not all listed vendors may be currently available.
+Identifier: com.github.grahampugh.recipes.download.EclipseTemurin-8
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Eclipse Temurin 8
+  FEATURE_VERSION: "8"
+  OS: mac
+  RELEASE_TYPE: ga
+  ARCH: x64
+  IMAGE_TYPE: jdk
+  JVM_IMPLEMENTATION: hotspot
+  HEAP_SIZE: normal
+  VENDOR: adoptium
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://api.adoptium.net/v3/binary/latest/%FEATURE_VERSION%/%RELEASE_TYPE%/%OS%/%ARCH%/%IMAGE_TYPE%/%JVM_IMPLEMENTATION%/%HEAP_SIZE%/%VENDOR%"
+      filename: "%VENDOR%-%FEATURE_VERSION%_%IMAGE_TYPE%_%OS%_%ARCH%_%JVM_IMPLEMENTATION%.tar.gz"
+
+  - Processor: EndOfCheckPhase

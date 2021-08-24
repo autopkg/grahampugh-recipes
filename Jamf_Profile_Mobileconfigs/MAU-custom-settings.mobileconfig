@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1">
+    <dict>
+        <key>PayloadUUID</key>
+        <string>81B4CAF0-671F-4966-9347-620C8A3A4399</string>
+        <key>PayloadType</key>
+        <string>Configuration</string>
+        <key>PayloadOrganization</key>
+        <string>JSSImporter</string>
+        <key>PayloadIdentifier</key>
+        <string>81B4CAF0-671F-4966-9347-620C8A3A4399</string>
+        <key>PayloadDisplayName</key>
+        <string>Microsoft Auto-Update - Custom Settings</string>
+        <key>PayloadDescription</key>
+        <string/>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+        <key>PayloadEnabled</key>
+        <true/>
+        <key>PayloadRemovalDisallowed</key>
+        <true/>
+        <key>PayloadScope</key>
+        <string>System</string>
+        <key>PayloadContent</key>
+        <array>
+            <dict>
+                <key>PayloadDisplayName</key>
+                <string>Custom Settings</string>
+                <key>PayloadIdentifier</key>
+                <string>9A233B2E-07CE-4A07-8BE5-558DAC9DAC33</string>
+                <key>PayloadOrganization</key>
+                <string>JSSImporter</string>
+                <key>PayloadType</key>
+                <string>com.apple.ManagedClient.preferences</string>
+                <key>PayloadUUID</key>
+                <string>9A233B2E-07CE-4A07-8BE5-558DAC9DAC33</string>
+                <key>PayloadVersion</key>
+                <integer>1</integer>
+                <key>PayloadEnabled</key>
+                <true/>
+                <key>PayloadContent</key>
+                <dict>
+                    <key>com.microsoft.autoupdate2</key>
+                    <dict>
+                        <key>Forced</key>
+                        <array>
+                            <dict>
+                                <key>mcx_preference_settings</key>
+                                <dict>
+                                    <key>AcknowledgedDataCollectionPolicy</key>
+                                    <string>RequiredDataOnly</string>
+                                    <key>ChannelName</key>
+                                    <string>Custom</string>
+                                    <key>DisableInsiderCheckbox</key>
+                                    <true/>
+                                    <key>EnableCheckForUpdatesButton</key>
+                                    <true/>
+                                    <key>ExtendedLogging</key>
+                                    <true/>
+                                    <key>HowToCheck</key>
+                                    <string>AutomaticDownload</string>
+                                    <key>ManifestServer</key>
+                                    <string>https://example.com/mau/collateral/Production/</string>
+                                    <key>StartDaemonOnAppLaunch</key>
+                                    <true/>
+                                    <key>UpdateCheckFrequency</key>
+                                    <integer>720</integer>
+                                    <key>UpdateDeadline.DaysBeforeForcedQuit</key>
+                                    <integer>7</integer>
+                                    <key>Applications</key>
+                                    <dict>
+                                        <key>/Applications/Microsoft Edge.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>EDGE01</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft Excel.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>XCEL2019</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft OneNote.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>ONMC2019</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft Outlook.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>OPIM2019</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft PowerPoint.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>PPT32019</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft Remote Desktop.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>MSRD10</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft Teams.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>TEAM01</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Microsoft Word.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>MSWD2019</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/OneDrive.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>ONDR18</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Applications/Skype for Business.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>MSFB16</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                        <key>/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app</key>
+                                        <dict>
+                                            <key>Application ID</key>
+                                            <string>MSau04</string>
+                                            <key>LCID</key>
+                                            <integer>1033</integer>
+                                        </dict>
+                                    </dict>
+                                </dict>
+                            </dict>
+                        </array>
+                    </dict>
+                </dict>
+            </dict>
+        </array>
+    </dict>
+</plist>

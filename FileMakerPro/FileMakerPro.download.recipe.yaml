@@ -1,0 +1,21 @@
+Description: Downloads latest FileMaker Pro updater disk image and extracts the package from within. This will only work for versions 19 and above.
+Identifier: com.github.grahampugh.recipes.download.FileMakerPro
+
+Input:
+  NAME: FileMaker Pro
+  MAJOR_VERSION: "19"
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
+
+Process:
+  - Processor: FileMakerProURLProcessor
+    Arguments:
+      major_version: "%MAJOR_VERSION%"
+
+  - Processor: URLDownloader
+    Arguments:
+      url: https://downloads.claris.com/esd/fmp_%version%.dmg
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/FileMaker Pro.app"
+      requirement: identifier "com.filemaker.client.pro12" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = J6K4T76U7W

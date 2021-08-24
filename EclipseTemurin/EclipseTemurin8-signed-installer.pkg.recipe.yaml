@@ -1,0 +1,63 @@
+Description: |
+  Downloads the current release version of Eclipse Temurin 8. This is the signed pkg version rather than the tar version, for those that require a signed package rather than accurate version number.
+
+  FEATURE_VERSION may be any valid whole number, e.g. 8, 11, 16, 17. See https://api.adoptium.net/v3/info/available_releases for available feature versions.
+
+  RELEASE_TYPE can be 'ga' (general availablility) or 'ea' (early access).
+
+  OS may be 'mac' or others.
+
+  ARCH may be 'x64' (or 'arm' for some builds).
+
+  IMAGE_TYPE may be 'jdk', 'jre', 'testimage', 'debugimage' or 'staticlibs'.
+
+  JVM_IMPLEMENTATION may be "hotspot", "openj9" or "dragonwell".
+
+  HEAP_SIZE may be 'normal' or 'large'.
+
+  VENDOR may be 'adoptopenjdk', 'openjdk', 'adoptium', 'alibaba', 'ibm'.
+
+  Note that not all options are available for all vendors, and not all listed vendors may be currently available.
+Identifier: com.github.grahampugh.recipes.pkg.EclipseTemurin-8-installer
+ParentRecipe: com.github.grahampugh.recipes.download.EclipseTemurin-8-installer
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Eclipse Temurin 8
+  FEATURE_VERSION: "8"
+  OS: mac
+  RELEASE_TYPE: ga
+  ARCH: x64
+  IMAGE_TYPE: jdk
+  JVM_IMPLEMENTATION: hotspot
+  HEAP_SIZE: normal
+  VENDOR: adoptium
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      flat_pkg_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      purge_destination: True
+
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/net.temurin.8.jdk.pkg/Payload"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: False
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/payload/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Info.plist"
+      plist_version_key: CFBundleVersion
+
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/EclipseTemurin_%FEATURE_VERSION%_%IMAGE_TYPE%_%ARCH%_%JVM_IMPLEMENTATION%-%version%.pkg"
+      source_pkg: "%pathname%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unpack"
+        - "%RECIPE_CACHE_DIR%/payload"

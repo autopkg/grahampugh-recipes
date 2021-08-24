@@ -1,0 +1,20 @@
+Description: Downloads the latest version of DataWarrior. Note that this app is not signed.
+Identifier: com.github.grahampugh.download.DataWarrior
+MinimumVersion: "2.3"
+
+Input:
+  NAME: DataWarrior
+  DOWNLOAD_URL: http://www.openmolecules.org/datawarrior/download.html
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<match>datawarrior\/datawarrior.*?dmg)
+      url: "%DOWNLOAD_URL%"
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.dmg"
+      url: "http://www.openmolecules.org/%match%"
+
+  - Processor: EndOfCheckPhase

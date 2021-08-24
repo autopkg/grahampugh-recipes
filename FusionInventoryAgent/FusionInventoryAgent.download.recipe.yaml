@@ -1,0 +1,16 @@
+Description: Downloads the latest release of Unison.
+Identifier: com.github.grahampugh.recipes.download.FusionInventoryAgent
+MinimumVersion: "2.3"
+
+Input:
+  NAME: FusionInventory Agent
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: fusioninventory/fusioninventory-agent
+      asset_regex: ^FusionInventory-Agent-.*?.dmg$
+      sort_by_highest_tag_names: True
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase

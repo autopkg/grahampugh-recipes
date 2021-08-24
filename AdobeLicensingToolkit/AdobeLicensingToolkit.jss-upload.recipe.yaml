@@ -1,0 +1,14 @@
+Description: Downloads the current release version of Adobe Licensing Toolkit and builds a package. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss-upload.AdobeLicensingToolkit
+ParentRecipe: com.github.grahampugh.recipes.pkg.AdobeLicensingToolkit
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Adobe Licensing Toolkit
+  CATEGORY: Productivity
+
+Process:
+  - Processor: JSSImporter
+    Arguments:
+      category: "%CATEGORY%"
+      prod_name: "%NAME%"

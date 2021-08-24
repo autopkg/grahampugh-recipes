@@ -1,0 +1,10 @@
+Description: Downloads the latest version of ThinLinc Client and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.ThinLincClient
+ParentRecipe: com.github.grahampugh.recipes.download.ThinLincClient
+MinimumVersion: "2.3"
+
+Input:
+  NAME: ThinLinc Client
+
+Process:
+  - Processor: AppPkgCreator

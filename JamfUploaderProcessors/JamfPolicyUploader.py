@@ -157,7 +157,7 @@ class JamfPolicyUploader(Processor):
                 headers = file.readlines()
             existing_headers = [x.strip() for x in headers]
             for header in existing_headers:
-                if "APBALANCEID" in header:
+                if "APBALANCEID" in header or "AWSALB" in header:
                     with open(cookie_jar, "w") as fp:
                         fp.write(header)
         except IOError:
@@ -169,7 +169,7 @@ class JamfPolicyUploader(Processor):
                 headers = file.readlines()
             existing_headers = [x.strip() for x in headers]
             for header in existing_headers:
-                if "APBALANCEID" in header:
+                if "APBALANCEID" in header or "AWSALB" in header:
                     cookie = header.split()[1].rstrip(";")
                     self.output(f"Existing cookie found: {cookie}", verbose_level=2)
                     curl_cmd.extend(["--cookie", cookie])
@@ -294,7 +294,7 @@ class JamfPolicyUploader(Processor):
 
     def get_path_to_file(self, filename):
         """AutoPkg is not very good at finding dependent files. This function
-        will look inside the search directories for any supplied file """
+        will look inside the search directories for any supplied file"""
         # if the supplied file is not a path, use the override directory or
         # ercipe dir if no override
         recipe_dir = self.env.get("RECIPE_DIR")

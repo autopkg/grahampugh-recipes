@@ -1,0 +1,12 @@
+Description: Installs the current release of JSSImporter from Github.
+Identifier: com.github.grahampugh.install.JSSImporterBeta
+ParentRecipe: com.github.grahampugh.download.JSSImporterBeta
+MinimumVersion: "2.3"
+
+Input:
+  NAME: JSSImporter
+
+Process:
+  - Processor: Installer
+    Arguments:
+      pkg_path: "%pathname%"

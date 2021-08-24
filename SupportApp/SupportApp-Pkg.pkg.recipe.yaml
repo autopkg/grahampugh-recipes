@@ -1,0 +1,13 @@
+Description: Downloads the current version of The Microsoft License Reset package.
+Identifier: com.github.grahampugh.recipes.pkg.SupportApp
+ParentRecipe: com.github.grahampugh.recipes.download.SupportApp
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Support
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/SupportApp-%version%.pkg"
+      source_pkg: "%pathname%"

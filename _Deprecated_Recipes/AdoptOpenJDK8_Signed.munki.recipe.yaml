@@ -1,0 +1,12 @@
+Identifier: com.github.grahampugh.recipes.munki.AdoptOpenJDK8_Signed
+ParentRecipe: com.github.grahampugh.recipes.download.AdoptOpenJDK8_Signed
+Description: Deprecated and no longer functional. Please remove from your recipe lists.
+MinimumVersion: "2.3"
+
+Input:
+  NAME: AdoptOpenJDK 8
+
+Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: AdoptOpenJDK has been replaced by Eclipse Temurin. Please switch to using an EclipseTemurin recipe.

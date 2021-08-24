@@ -336,7 +336,9 @@ class JamfScriptUploader(Processor):
                     )
                     data = data.replace(f"%{found_key}%", self.env.get(found_key))
                 else:
-                    self.output(f"WARNING: '{found_key}' has no replacement object!",)
+                    self.output(
+                        f"WARNING: '{found_key}' has no replacement object!",
+                    )
                     raise ProcessorError("Unsubstituable key in template found")
         return data
 
@@ -429,10 +431,12 @@ class JamfScriptUploader(Processor):
             url = "{}/uapi/v1/scripts".format(jamf_url)
 
         self.output(
-            "Script data:", verbose_level=2,
+            "Script data:",
+            verbose_level=2,
         )
         self.output(
-            script_data, verbose_level=2,
+            script_data,
+            verbose_level=2,
         )
 
         self.output("Uploading script..")
@@ -442,7 +446,8 @@ class JamfScriptUploader(Processor):
         while True:
             count += 1
             self.output(
-                "Script upload attempt {}".format(count), verbose_level=2,
+                "Script upload attempt {}".format(count),
+                verbose_level=2,
             )
             method = "PUT" if obj_id else "POST"
             r = self.curl(method, url, token, script_json)
@@ -531,7 +536,8 @@ class JamfScriptUploader(Processor):
             "Checking for existing '{}' on {}".format(self.script_name, self.jamf_url)
         )
         self.output(
-            "Full path: {}".format(self.script_path), verbose_level=2,
+            "Full path: {}".format(self.script_path),
+            verbose_level=2,
         )
         obj_id = self.get_uapi_obj_id_from_name(
             self.jamf_url, "scripts", self.script_name, token

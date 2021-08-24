@@ -1,0 +1,13 @@
+Description: Downloads the latest release of Unison.
+Identifier: com.github.grahampugh.recipes.pkg.FusionInventoryAgent
+MinimumVersion: "2.3"
+ParentRecipe: com.github.grahampugh.recipes.download.FusionInventoryAgent
+
+Input:
+  NAME: FusionInventory Agent
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%pathname%/*.pkg"
+      pkg_path: "%RECIPE_CACHE_DIR%/FusionInventoryAgent-%version%.pkg"

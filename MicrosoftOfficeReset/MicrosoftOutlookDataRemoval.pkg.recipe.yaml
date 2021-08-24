@@ -1,0 +1,13 @@
+Description: Downloads the current version of The Microsoft Outlook Data Removal package.
+Identifier: com.github.grahampugh.recipes.pkg.MicrosoftOutlookDataRemoval
+ParentRecipe: com.github.grahampugh.recipes.download.MicrosoftOutlookDataRemoval
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Microsoft Outlook Data Removal
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/MicrosoftOutlookDataRemoval-%version%.pkg"
+      source_pkg: "%pathname%"
