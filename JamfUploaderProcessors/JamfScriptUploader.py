@@ -310,7 +310,7 @@ class JamfScriptUploader(Processor):
             obj_id = 0
             for obj in r.output["results"]:
                 self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
-                if obj["name"] == object_name:
+                if obj["name"].lower() == object_name.lower():
                     obj_id = obj["id"]
             return obj_id
 
