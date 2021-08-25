@@ -4,7 +4,7 @@ Identifier: com.github.grahampugh-recipes.jamf.XQuartz
 Input:
   CATEGORY: Productivity
   NAME: XQuartz
-MinimumVersion: 1.0.0
+MinimumVersion: "2.3"
 ParentRecipe: com.github.scriptingosx.pkg.XQuartz
 Process:
   - Arguments:
