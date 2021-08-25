@@ -56,18 +56,22 @@ class LastRecipeRunResult(Processor):
         "license_key": {
             "description": ("The outputted value for license_key."),
             "required": False,
+            "default": "",
         },
         "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
+            "default": "",
         },
         "policy_name": {
             "description": ("The policy name in Jamf Pro."),
             "required": False,
+            "default": "",
         },
         "SELFSERVICE_DESCRIPTION": {
             "description": ("The self-service description in Jamf Pro."),
             "required": False,
+            "default": "",
         },
     }
 

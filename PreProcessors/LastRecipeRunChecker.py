@@ -86,18 +86,20 @@ class LastRecipeRunChecker(Processor):
 
         # make sure all the values were obtained from the file
         data = self.get_latest_recipe_run_info(cache_dir, identifier, info_file)
-        self.env["version"] = data["version"]
-        self.env["license_key"] = data["license_key"]
-        self.env["pkg_name"] = data["pkg_name"]
-        self.env["pkg_uploaded"] = data["pkg_uploaded"]
-        self.env["pkg_metadata_updated"] = data["pkg_metadata_updated"]
+        self.env["version"] = data.get("version")
+        self.env["license_key"] = data.get("license_key")
+        self.env["pkg_name"] = data.get("pkg_name")
+        self.env["pkg_uploaded"] = data.get("pkg_uploaded")
+        self.env["pkg_metadata_updated"] = data.get("pkg_metadata_updated")
         if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
         self.env["pkg_path"] = data["pkg_path"]
-        self.env["url"] = data["url"]
-        self.env["PKG_CATEGORY"] = data["category"]
-        self.env["LAST_RUN_POLICY_NAME"] = data["policy_name"]
-        self.env["LAST_RUN_SELFSERVICE_DESCRIPTION"] = data["self_service_description"]
+        self.env["url"] = data.get("url")
+        self.env["PKG_CATEGORY"] = data.get("category")
+        self.env["LAST_RUN_POLICY_NAME"] = data.get("policy_name")
+        self.env["LAST_RUN_SELFSERVICE_DESCRIPTION"] = data.get(
+            "self_service_description"
+        )
 
         # make sure the package actually exists
         if not os.path.exists(self.env["pkg_path"]):
