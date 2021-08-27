@@ -7,7 +7,7 @@ Input:
   NAME: Adobe Licensing Toolkit
 
 Process:
-  - Processor: URLDownloader
+  - Processor: com.github.grahampugh.recipes.commonprocessors/NSCURLDownloader
     Arguments:
       filename: adobe-licensing-toolkit.dmg
       url: https://www.adobe.com/go/licensing_toolkit_mac
