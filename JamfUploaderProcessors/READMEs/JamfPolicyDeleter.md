@@ -2,7 +2,7 @@
 
 ## Description
 
-A processor for AutoPkg that will delete a policy from a Jamf Cloud or on-prem server.
+A processor for AutoPkg that will upload a policy to a Jamf Cloud or on-prem server. Optionally, an icon can be uploaded and associated with the policy.
 
 ## Input variables
 

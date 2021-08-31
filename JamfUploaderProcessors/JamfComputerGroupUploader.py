@@ -143,7 +143,7 @@ class JamfComputerGroupUploader(Processor):
                 headers = file.readlines()
             existing_headers = [x.strip() for x in headers]
             for header in existing_headers:
-                if "APBALANCEID" in header:
+                if "APBALANCEID" in header or "AWSALB" in header:
                     with open(cookie_jar, "w") as fp:
                         fp.write(header)
         except IOError:
@@ -155,7 +155,7 @@ class JamfComputerGroupUploader(Processor):
                 headers = file.readlines()
             existing_headers = [x.strip() for x in headers]
             for header in existing_headers:
-                if "APBALANCEID" in header:
+                if "APBALANCEID" in header or "AWSALB" in header:
                     cookie = header.split()[1].rstrip(";")
                     self.output(f"Existing cookie found: {cookie}", verbose_level=2)
                     curl_cmd.extend(["--cookie", cookie])

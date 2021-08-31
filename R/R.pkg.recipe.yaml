@@ -1,0 +1,34 @@
+Description: Downloads the latest version of R, works out the version number and names the package with the version number in it.
+Identifier: com.github.grahampugh.recipes.pkg.R
+ParentRecipe: io.github.hjuutilainen.download.R
+MinimumVersion: "2.3"
+
+Input:
+  Name: R
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      flat_pkg_path: "%pathname%"
+
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/R-fw.pkg/Payload"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/payload/R.framework/Versions/Current/Resources/Info.plist"
+      plist_version_key: CFBundleVersion
+
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
+      source_pkg: "%RECIPE_CACHE_DIR%/downloads/*.pkg"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unpack"
+        - "%RECIPE_CACHE_DIR%/payload"

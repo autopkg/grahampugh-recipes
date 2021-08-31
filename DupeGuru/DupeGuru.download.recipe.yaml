@@ -1,0 +1,18 @@
+Description: Downloads the current stable macOS version of dupeGuru.
+Identifier: com.github.grahampugh.recipes.download.dupeGuru
+MinimumVersion: "2.3"
+
+Input:
+  NAME: dupeGuru
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<url>https:\/\/github\.com\/arsenetar\/dupeguru\/releases\/download\/.*\/dupeguru_osx_.*\.dmg)
+      url: https://dupeguru.voltaicideas.net/2021/03/09/macOS_version_notes.html
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%url%"
+
+  - Processor: EndOfCheckPhase

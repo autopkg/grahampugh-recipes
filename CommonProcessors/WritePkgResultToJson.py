@@ -58,13 +58,25 @@ class WritePkgResultToJson(Processor):
             "description": ("The current package version."),
             "required": False,
         },
+        "license_key": {
+            "description": ("The outputted value for license_key."),
+            "required": False,
+            "default": "",
+        },
         "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
+            "default": "",
         },
     }
 
-    output_variables = {}
+    output_variables = {
+        "version": {"description": ("The current package version.")},
+        "license_key": {"description": ("The outputted value for license_key.")},
+        "pkg_path": {"description": ("the package path.")},
+        "pkg_name": {"description": ("the package name.")},
+        "PKG_CATEGORY": {"description": ("The package category.")},
+    }
 
     description = __doc__
 
@@ -85,9 +97,21 @@ class WritePkgResultToJson(Processor):
         pkg_path = self.env.get("pkg_path")
         pkg_name = self.env.get("pkg_name")
         version = self.env.get("version")
+        license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
         pkg_uploaded = self.env.get("pkg_uploaded")
         pkg_metadata_updated = self.env.get("pkg_metadata_updated")
+
+        if pkg_path:
+            self.output("Package path: {}".format(pkg_path))
+        if pkg_name:
+            self.output("Package name: {}".format(pkg_name))
+        if version:
+            self.output("Version: {}".format(version))
+        if license_key:
+            self.output("License Key: {}".format(license_key))
+        if category:
+            self.output("Pkg Category: {}".format(category))
 
         if not output_file_path:
             output_file_path = self.env.get("RECIPE_CACHE_DIR")
@@ -97,6 +121,7 @@ class WritePkgResultToJson(Processor):
         data["pkg_path"] = pkg_path
         data["pkg_name"] = pkg_name
         data["version"] = version
+        data["license_key"] = license_key
         data["category"] = category
         data["pkg_uploaded"] = pkg_uploaded
         data["pkg_metadata_updated"] = pkg_metadata_updated

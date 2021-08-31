@@ -1,0 +1,16 @@
+Description: Downloads the latest release of Unison.
+Identifier: com.github.grahampugh.recipes.download.unison
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Unison
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: bcpierce00/unison
+      asset_regex: (?s)Unison-v\d\.\d+\.\d(_rc\d)*\.ocaml-\d\.\d+\.\d\.macos-10\.15\.app\.tar\.gz.*(?!.*Unison-v\d\.\d+\.\d(_rc\d)*\.ocaml-\d\.\d+\.\d\.macos-10\.15\.app\.tar\.gz)
+      sort_by_highest_tag_names: True
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase

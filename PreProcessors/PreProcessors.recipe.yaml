@@ -1,0 +1,5 @@
+Description: "Recipe stub for any Processors in this directory.\n        "
+Identifier: com.github.grahampugh.recipes.preprocessors
+Input: {}
+MinimumVersion: 0.4.0
+Process: []

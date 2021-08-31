@@ -1,0 +1,26 @@
+Description: Downloads the current version of The Microsoft Office Removal package.
+Identifier: com.github.grahampugh.recipes.download.MicrosoftOfficeRemoval
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Microsoft Office Removal
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<url>\/download\/Microsoft_Office_Removal_(?P<version>.*?)\.pkg)
+      url: https://office-reset.com/macadmins/
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://office-reset.com/%url%"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: Paul Bowden (QGS93ZLCU7)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%"

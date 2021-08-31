@@ -1,0 +1,21 @@
+Description: Downloads the latest TeXLive Utility release and renames the pkg to include the version number.
+Identifier: com.github.grahampugh.recipes.download.TeXLiveUtility
+MinimumVersion: "2.3"
+
+Input:
+  NAME: TeXLive Utility
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: amaxwell/tlutility
+
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/TeX Live Utility.app"
+      requirement: identifier "com.googlecode.mactlmgr.tlu" and certificate leaf = H"9762c300630034b23fe0eeb054acc8bc889f1346"

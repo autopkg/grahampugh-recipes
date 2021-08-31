@@ -1,0 +1,14 @@
+Description: Downloads the latest version of FileZilla and creates a package. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jss-upload.FileZilla
+MinimumVersion: "2.3"
+ParentRecipe: com.github.grahampugh.recipes.pkg.FileZilla
+
+Input:
+  CATEGORY: Connect and Remote
+  NAME: FileZilla
+
+Process:
+  - Arguments:
+      category: "%CATEGORY%"
+      prod_name: "%NAME%"
+    Processor: JSSImporter

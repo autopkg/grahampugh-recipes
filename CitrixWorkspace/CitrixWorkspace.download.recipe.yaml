@@ -1,0 +1,32 @@
+Description: Downloads the latest Citrix Workspace disk image.
+Identifier: com.github.grahampugh.recipes.download.CitrixWorkspace
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Citrix Workspace
+  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<DYNAMIC_URL>//downloads.citrix.com/[\d]+/CitrixWorkspaceApp\.dmg\?__gda__\=[\w]+)
+      url: https://www.citrix.com/downloads/workspace-app/mac/workspace-app-for-mac-latest.html
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.dmg"
+      url: https:%DYNAMIC_URL%
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: "%STOPPROCESSINGIF_PREDICATE%"
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: Citrix Systems, Inc. (S272Y5R93J)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%/Install Citrix Workspace.pkg"

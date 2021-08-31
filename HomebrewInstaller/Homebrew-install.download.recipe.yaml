@@ -1,0 +1,19 @@
+Description: |
+  Downloads the current script of homebrew.sh.
+Identifier: com.github.grahampugh.recipes.download.homebrew-install
+MinimumVersion: "2.3"
+
+Input:
+  NAME: homebrew-install
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<url>\/Honestpuck\/homebrew\.sh\/blob\/master\/(?P<script_name>homebrew-(?P<version>.*?)\.sh))
+      url: https://github.com/Honestpuck/homebrew.sh
+
+  - Processor: URLDownloader
+    Arguments:
+      url: https://github.com/%url%
+
+  - Processor: EndOfCheckPhase

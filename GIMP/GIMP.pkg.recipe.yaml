@@ -1,0 +1,39 @@
+Description: Downloads the latest version of GIMP from gimp.org and builds a package.
+Identifier: com.github.grahampugh.pkg.GIMP
+ParentRecipe: io.github.hjuutilainen.download.GIMP
+MinimumVersion: "2.3"
+
+Input:
+  NAME: GIMP
+
+Process:
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: "%pathname%"
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgdirs:
+        Applications: "0775"
+      pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"
+
+  - Processor: Copier
+    Arguments:
+      destination_path: "%pkgroot%/Applications/%NAME%.app"
+      source_path: "%pathname%/*.app"
+
+  - Processor: GIMPPermissionsFixer
+    Arguments:
+      gimp_app_path: "%pkgroot%/Applications/%NAME%.app"
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        chown:
+          - group: admin
+            path: Applications
+            user: root
+        id: org.gimp.GIMP
+        options: purge_ds_store
+        pkgdir: "%RECIPE_CACHE_DIR%"
+      pkgname: "%NAME%-%version%"

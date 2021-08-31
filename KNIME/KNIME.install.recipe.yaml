@@ -1,0 +1,15 @@
+Description: Installs the latest version of KNIME.
+Identifier: com.github.grahampugh.install.KNIME
+ParentRecipe: ch.ethz.id.download.KNIME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: KNIME
+
+Process:
+  - Processor: InstallFromDMG
+    Arguments:
+      dmg_path: "%pathname%"
+      items_to_copy:
+        - destination_path: /Applications
+          source_item: KNIME 3.6.0.app

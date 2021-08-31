@@ -1,0 +1,82 @@
+Description: |
+  Downloads the current release version of AdoptOpenJDK 11 and builds a package. This is based from the tar version rather than the signed pkg version, so that the true version number can be obtained.
+
+  FEATURE_VERSION may be any valid whole number, e.g. 8, 11, 16, 17. See https://api.adoptium.net/v3/info/available_releases for available feature versions.
+
+  RELEASE_TYPE can be 'ga' (general availablility) or 'ea' (early access).
+
+  OS may be 'mac' or others.
+
+  ARCH may be 'x64' (or 'arm' for some builds).
+
+  IMAGE_TYPE may be 'jdk', 'jre', 'testimage', 'debugimage' or 'staticlibs'.
+
+  JVM_IMPLEMENTATION may be "hotspot", "openj9" or "dragonwell".
+
+  HEAP_SIZE may be 'normal' or 'large'.
+
+  VENDOR may be 'adoptopenjdk', 'openjdk', 'adoptium', 'alibaba', 'ibm'.
+
+  Note that not all options are available for all vendors, and not all listed vendors may be currently available.
+Identifier: com.github.grahampugh.recipes.pkg.EclipseTemurin-11
+ParentRecipe: com.github.grahampugh.recipes.download.EclipseTemurin-11
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Eclipse Temurin 11
+  FEATURE_VERSION: "11"
+  OS: mac
+  RELEASE_TYPE: ga
+  ARCH: x64
+  IMAGE_TYPE: jdk
+  JVM_IMPLEMENTATION: hotspot
+  HEAP_SIZE: normal
+  VENDOR: adoptium
+
+Process:
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgdirs:
+        Library: "0755"
+        Library/Java: "0755"
+        Library/Java/JavaVirtualMachines: "0755"
+      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%pkgroot%/Library/Java/JavaVirtualMachines"
+      purge_destination: true
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: "%pkgroot%/Library/Java/JavaVirtualMachines/jdk-11*/Contents/Info.plist"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%found_filename%"
+      plist_version_key: CFBundleVersion
+
+  - Processor: PkgCreator
+    Arguments:
+      force_pkg_build: true
+      pkg_request:
+        chown:
+          - group: wheel
+            path: Library
+            user: root
+          - group: wheel
+            path: Library/Java
+            user: root
+          - group: wheel
+            path: Library/Java/JavaVirtualMachines
+            user: root
+        id: "net.temurin-%FEATURE_VERSION%-%ARCH%-%JVM_IMPLEMENTATION%.%IMAGE_TYPE%"
+        options: purge_ds_store
+        pkgname: "EclipseTemurin_%FEATURE_VERSION%_%IMAGE_TYPE%_%ARCH%_%JVM_IMPLEMENTATION%-%version%"
+        version: "%version%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/pkgroot"

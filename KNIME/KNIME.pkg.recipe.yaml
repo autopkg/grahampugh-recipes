@@ -1,0 +1,12 @@
+Description: Downloads the latest version of KNIME and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.KNIME
+ParentRecipe: com.github.grahampugh.download.KNIME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: KNIME
+
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"

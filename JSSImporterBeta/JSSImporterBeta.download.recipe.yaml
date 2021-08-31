@@ -1,0 +1,18 @@
+Description: Downloads the current release of JSSImporter from Github.
+Identifier: com.github.grahampugh.download.JSSImporterBeta
+MinimumVersion: "2.3"
+
+Input:
+  NAME: JSSImporter
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: jssimporter/JSSImporter
+      include_prereleases: true
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.pkg"
+
+  - Processor: EndOfCheckPhase
