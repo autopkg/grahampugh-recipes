@@ -237,8 +237,7 @@ class JamfUploaderSlacker(Processor):
         while True:
             count += 1
             self.output(
-                "Slack webhook post attempt {}".format(count),
-                verbose_level=2,
+                "Slack webhook post attempt {}".format(count), verbose_level=2,
             )
             r = self.curl(slack_webhook_url, slack_json)
             # check HTTP response

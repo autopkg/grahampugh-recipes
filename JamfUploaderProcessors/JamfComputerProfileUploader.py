@@ -253,26 +253,35 @@ class JamfComputerProfileUploader(Processor):
             raise ProcessorError(f"ERROR: {endpoint_type} '{obj_name}' upload failed")
 
     def get_path_to_file(self, filename):
-        """AutoPkg is not very good at finding dependent files. This function will
-        look inside the search directories for any supplied file """
+        """AutoPkg is not very good at finding dependent files. This function
+        will look inside the search directories for any supplied file """
         # if the supplied file is not a path, use the override directory or
-        # ercipe dir if no override
+        # recipe dir if no override
         recipe_dir = self.env.get("RECIPE_DIR")
         filepath = os.path.join(recipe_dir, filename)
         if os.path.exists(filepath):
             self.output(f"File found at: {filepath}")
             return filepath
 
-        # if not found, search RECIPE_SEARCH_DIRS to look for it
-        search_dirs = self.env.get("RECIPE_SEARCH_DIRS")
-        matched_filepath = ""
-        for d in search_dirs:
-            for path in Path(d).rglob(filename):
-                matched_filepath = str(path)
-                break
-        if matched_filepath:
-            self.output(f"File found at: {matched_filepath}")
-            return matched_filepath
+        # if not found, search parent directories to look for it
+        if self.env.get("PARENT_RECIPES"):
+            # also look in the repos containing the parent recipes.
+            parent_recipe_dirs = list(
+                {os.path.dirname(item) for item in self.env["PARENT_RECIPES"]}
+            )
+            matched_filepath = ""
+            for d in parent_recipe_dirs:
+                # check if we are in the root of a parent repo, if not, ascend to the root
+                # note that if the parents are not in a git repo, only the same
+                # directory as the recipe will be searched for templates
+                if not os.path.isdir(os.path.join(d, ".git")):
+                    d = os.path.dirname(d)
+                for path in Path(d).rglob(filename):
+                    matched_filepath = str(path)
+                    break
+            if matched_filepath:
+                self.output(f"File found at: {matched_filepath}")
+                return matched_filepath
 
     def get_api_obj_id_from_name(self, jamf_url, object_name, enc_creds):
         """check if a Classic API object with the same name exists on the server"""
