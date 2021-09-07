@@ -53,31 +53,37 @@ class LastRecipeRunResult(Processor):
             "description": ("The current package version."),
             "required": False,
         },
+        "bundleid": {
+            "description": ("Bundle identifier of the app."),
+            "required": False,
+            "default": None,
+        },
         "license_key": {
             "description": ("The outputted value for license_key."),
             "required": False,
-            "default": "",
+            "default": None,
         },
         "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
-            "default": "",
+            "default": None,
         },
         "policy_name": {
             "description": ("The policy name in Jamf Pro."),
             "required": False,
-            "default": "",
+            "default": None,
         },
         "SELFSERVICE_DESCRIPTION": {
             "description": ("The self-service description in Jamf Pro."),
             "required": False,
-            "default": "",
+            "default": None,
         },
     }
 
     output_variables = {
         "url": {"description": ("the download URL.")},
         "version": {"description": ("The current package version.")},
+        "bundleid": {"description": ("Bundle identifier of the app.")},
         "license_key": {"description": ("The outputted value for license_key.")},
         "pkg_path": {"description": ("the package path.")},
         "pkg_name": {"description": ("the package name.")},
@@ -107,6 +113,7 @@ class LastRecipeRunResult(Processor):
         pkg_name = self.env.get("pkg_name")
         url = self.env.get("url")
         version = self.env.get("version")
+        bundleid = self.env.get("bundleid")
         license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
         policy_name = self.env.get("policy_name")
@@ -122,6 +129,8 @@ class LastRecipeRunResult(Processor):
             self.output("URL: {}".format(url))
         if version:
             self.output("Version: {}".format(version))
+        if bundleid:
+            self.output("Bundle identifier: {}".format(bundleid))
         if license_key:
             self.output("License Key: {}".format(license_key))
         if category:
@@ -141,6 +150,7 @@ class LastRecipeRunResult(Processor):
         data["pkg_name"] = pkg_name
         data["url"] = url
         data["version"] = version
+        data["bundleid"] = bundleid
         data["license_key"] = license_key
         data["category"] = category
         data["policy_name"] = policy_name
