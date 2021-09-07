@@ -361,9 +361,9 @@ class JamfPackageUploader(Processor):
 
     def check_local_pkg(self, mount_share, pkg_name):
         """Check local DP or mounted share for existing package"""
-        path = f"/Volumes{urlparse(mount_share).path}"
-        if os.path.isdir(path):
-            existing_pkg_path = os.path.join(path, "Packages", pkg_name)
+        dirname = f"/Volumes{urlparse(mount_share).path}"
+        if os.path.isdir(dirname):
+            existing_pkg_path = os.path.join(dirname, "Packages", pkg_name)
             if os.path.isfile(existing_pkg_path):
                 self.output(f"Existing package found: {existing_pkg_path}")
                 return existing_pkg_path
@@ -374,14 +374,14 @@ class JamfPackageUploader(Processor):
                 )
         else:
             self.output(
-                f"Expected path not found!: {path}", verbose_level=2,
+                f"Expected path not found!: {dirname}", verbose_level=2,
             )
 
     def copy_pkg(self, mount_share, pkg_path, pkg_name):
         """Copy package from AutoPkg Cache to local or mounted Distribution Point"""
         if os.path.isfile(pkg_path):
-            path = f"/Volumes{urlparse(mount_share).path}"
-            destination_pkg_path = os.path.join(path, "Packages", pkg_name)
+            dirname = f"/Volumes{urlparse(mount_share).path}"
+            destination_pkg_path = os.path.join(dirname, "Packages", pkg_name)
             self.output(f"Copying {pkg_name} to {destination_pkg_path}")
             copyfile(pkg_path, destination_pkg_path)
         if os.path.isfile(destination_pkg_path):
@@ -389,7 +389,7 @@ class JamfPackageUploader(Processor):
         else:
             self.output("Package copy failed")
 
-    def zip_pkg_path(self, path):
+    def zip_pkg_path(self, bundle_path):
         """Add files from path to a zip file handle.
 
         Args:
@@ -398,15 +398,15 @@ class JamfPackageUploader(Processor):
         Returns:
             (str) name of resulting zip file.
         """
-        zip_name = f"{path}.zip"
+        zip_name = f"{bundle_path}.zip"
 
         if os.path.exists(zip_name):
-            self.output("Package object is a bundle. Zipped version already exists.")
+            self.output("Package object is a bundle. Zipped archive already exists.")
             return zip_name
 
         self.output("Package object is a bundle. Converting to zip...")
         with ZipFile(zip_name, "w", ZIP_DEFLATED, allowZip64=True) as zip_handle:
-            for root, _, files in os.walk(path):
+            for root, _, files in os.walk(bundle_path):
                 for member in files:
                     zip_handle.write(os.path.join(root, member))
             self.output(
@@ -574,10 +574,14 @@ class JamfPackageUploader(Processor):
         enc_creds_bytes = base64.b64encode(credentials.encode("utf-8"))
         enc_creds = str(enc_creds_bytes, "utf-8")
 
-        # See if the package is non-flat (requires zipping prior to upload).
+        # See if the package is a bundle (directory).
+        # If so, zip_pkg_path will look for an existing .zip
+        # If that doesn't exist, it will create the zip and return the pkg_path with .zip added
+        # In that case, we need to add .zip to the pkg_name key too, if we don't already have it
         if os.path.isdir(self.pkg_path):
             self.pkg_path = self.zip_pkg_path(self.pkg_path)
-            self.pkg_name += ".zip"
+            if ".zip" not in self.pkg_name:
+                self.pkg_name += ".zip"
 
         #  calculate the SHA-512 hash of the package
         self.sha512string = self.sha512sum(self.pkg_path)
