@@ -1,16 +1,17 @@
 #!/usr/local/autopkg/python
 
 """
-VersionRegexGenerator processor for generating a regex which matches 
-the supplied version string or higher 
-    by G Pugh
+VersionRegexGenerator processor for generating a regex which matches the
+supplied version string or higher
+
+by G Pugh
 
 Acknowledgements:
-This processor uses an amended version of "Match Version Number Or Higher.bash" 
-by William Smith, a shell script which determines a regex string of the current 
-or any possible higher version number from an inputted version string. 
-The amended version is included in this repo as 
-"match-version-number-or-higher.bash" and must be available to this processor. 
+This processor uses an amended version of "Match Version Number Or Higher.bash"
+by William Smith, a shell script which determines a regex string of the current
+or any possible higher version number from an inputted version string.
+The amended version is included in this repo as
+"match-version-number-or-higher.bash" and must be available to this processor.
 See that file for full credits.
 """
 
@@ -22,13 +23,10 @@ from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
 class VersionRegexGenerator(Processor):
-    """A processor for AutoPkg that will generating a regex which matches the supplied version string or higher."""
+    """A processor for AutoPkg that will generating a regex which matches the supplied version
+    string or higher."""
 
     input_variables = {
-        "version": {
-            "required": True,
-            "description": "A version string from which to perform the regex generation.",
-        },
         "path_to_match_version_number_or_higher_script": {
             "required": False,
             "description": "A version string from which to perform the regex generation.",
@@ -41,15 +39,21 @@ class VersionRegexGenerator(Processor):
             "description": "Regex which matches or exceeds the inputted version string.",
         },
         "version_regex_2": {
-            "description": "Regex which matches or exceeds the inputted version string - second line for complex version numbers.",
+            "description": (
+                "Regex which matches or exceeds the inputted version string - ",
+                "second line for complex version numbers.",
+            ),
         },
         "version_regex_3": {
-            "description": "Regex which matches or exceeds the inputted version string - third line for complex version numbers.",
+            "description": (
+                "Regex which matches or exceeds the inputted version string - ",
+                "third line for complex version numbers.",
+            ),
         },
     }
 
     def get_path_to_file(self, filename):
-        """AutoPkg is not very good at finding dependent files. This function will look 
+        """AutoPkg is not very good at finding dependent files. This function will look
         inside the search directories for any supplied file """
         # if the supplied file is not a path, use the override directory or
         # recipe dir if no override
@@ -73,7 +77,7 @@ class VersionRegexGenerator(Processor):
         """Do the main thing here"""
         self.version = self.env.get("version")
         if not self.version:
-            raise ProcessorError("No version supplied!")
+            raise ProcessorError("No version found!")
 
         self.path_to_match_version_number_or_higher_script = self.env.get(
             "path_to_match_version_number_or_higher_script"

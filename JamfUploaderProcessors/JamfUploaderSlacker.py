@@ -52,8 +52,7 @@ class JamfUploaderSlacker(Processor):
             "description": ("Untested product name from a jamf recipe."),
         },
         "NAME": {"required": False, "description": ("Generic product name.")},
-        "version": {"required": True, "description": ("Product version.")},
-        "pkg_name": {"required": True, "description": ("Package in policy.")},
+        "pkg_name": {"required": False, "description": ("Package in policy.")},
         "jamfpackageuploader_summary_result": {
             "required": False,
             "description": ("Summary results of package processors."),
@@ -86,19 +85,22 @@ class JamfUploaderSlacker(Processor):
 
     __doc__ = description
 
+    # do not edit directly - copy from template
     def make_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
         """make the tmp directory"""
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
         return tmp_dir
 
+    # do not edit directly - copy from template
     def clear_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
         """remove the tmp directory"""
         if os.path.exists(tmp_dir):
             rmtree(tmp_dir)
         return tmp_dir
 
-    def curl(self, url, data):
+    # do not edit directly - copy from template
+    def curl(self, method, url, auth="", data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
         If the URL contains 'uapi' then token should be passed to the auth variable,
@@ -107,12 +109,15 @@ class JamfUploaderSlacker(Processor):
         tmp_dir = self.make_tmp_dir()
         headers_file = os.path.join(tmp_dir, "curl_headers_from_jamf_upload.txt")
         output_file = os.path.join(tmp_dir, "curl_output_from_jamf_upload.txt")
+        cookie_jar = os.path.join(tmp_dir, "curl_cookies_from_jamf_upload.txt")
 
         # build the curl command
         curl_cmd = [
             "/usr/bin/curl",
+            "--silent",
+            "--show-error",
             "-X",
-            "POST",
+            method,
             "-D",
             headers_file,
             "--output",
@@ -120,11 +125,70 @@ class JamfUploaderSlacker(Processor):
             url,
         ]
 
-        if data:
-            curl_cmd.extend(["--data", data])
-            curl_cmd.extend(["--header", "Content-type: application/json"])
+        # authorisation if using Jamf Pro API or Classic API
+        # if using uapi and we already have a token then we use the token for authorization
+        if "uapi" in url and "tokens" not in url:
+            curl_cmd.extend(["--header", f"authorization: Bearer {auth}"])
+        # basic auth to obtain a token, or for classic API
+        elif "uapi" in url or "JSSResource" in url:
+            curl_cmd.extend(["--header", f"authorization: Basic {auth}"])
 
-        self.output(f"curl command: {' '.join(curl_cmd)}", verbose_level=2)
+        # set either Accept or Content-Type depending on method
+        if method == "GET" or method == "DELETE":
+            curl_cmd.extend(["--header", "Accept: application/json"])
+        # icon upload requires special method
+        elif method == "POST" and "fileuploads" in url:
+            curl_cmd.extend(["--header", "Content-type: multipart/form-data"])
+            curl_cmd.extend(["--form", f"name=@{data}"])
+        elif method == "POST" or method == "PUT":
+            if data:
+                if "uapi" in url or "JSSResource" in url:
+                    # jamf data upload requires upload-file argument
+                    curl_cmd.extend(["--upload-file", data])
+                else:
+                    # slack requires data argument
+                    curl_cmd.extend(["--data", data])
+            # uapi and slack accepts json, classic API only accepts xml
+            if "JSSResource" in url:
+                curl_cmd.extend(["--header", "Content-type: application/xml"])
+            else:
+                curl_cmd.extend(["--header", "Content-type: application/json"])
+        else:
+            self.output(f"WARNING: HTTP method {method} not supported")
+
+        # write session for jamf requests
+        if "uapi" in url or "JSSResource" in url:
+            try:
+                with open(headers_file, "r") as file:
+                    headers = file.readlines()
+                existing_headers = [x.strip() for x in headers]
+                for header in existing_headers:
+                    if "APBALANCEID" in header or "AWSALB" in header:
+                        with open(cookie_jar, "w") as fp:
+                            fp.write(header)
+            except IOError:
+                pass
+
+            # look for existing session
+            try:
+                with open(cookie_jar, "r") as file:
+                    headers = file.readlines()
+                existing_headers = [x.strip() for x in headers]
+                for header in existing_headers:
+                    if "APBALANCEID" in header or "AWSALB" in header:
+                        cookie = header.split()[1].rstrip(";")
+                        self.output(f"Existing cookie found: {cookie}", verbose_level=2)
+                        curl_cmd.extend(["--cookie", cookie])
+            except IOError:
+                self.output(
+                    "No existing cookie found - starting new session", verbose_level=2
+                )
+
+        # additional headers for advanced requests
+        if additional_headers:
+            curl_cmd.extend(additional_headers)
+
+        self.output(f"curl command: {' '.join(curl_cmd)}", verbose_level=3)
 
         # now subprocess the curl command and build the r tuple which contains the
         # headers, status code and outputted data
@@ -144,12 +208,15 @@ class JamfUploaderSlacker(Processor):
             raise ProcessorError(f"WARNING: {headers_file} not found")
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             with open(output_file, "rb") as file:
-                r.output = file.read()
+                if "uapi" in url:
+                    r.output = json.load(file)
+                else:
+                    r.output = file.read()
         else:
             self.output(f"No output from request ({output_file} not found or empty)")
         return r()
 
-    def status_check(self, r):
+    def slack_status_check(self, r):
         """Return a message dependent on the HTTP response"""
         if r.status_code == 200 or r.status_code == 201:
             self.output("Slack webhook sent successfully")
@@ -239,9 +306,9 @@ class JamfUploaderSlacker(Processor):
             self.output(
                 "Slack webhook post attempt {}".format(count), verbose_level=2,
             )
-            r = self.curl(slack_webhook_url, slack_json)
+            r = self.curl(method="POST", url=slack_webhook_url, data=slack_json)
             # check HTTP response
-            if self.status_check(r) == "break":
+            if self.slack_status_check(r) == "break":
                 break
             if count > 5:
                 self.output("Slack webhook send did not succeed after 5 attempts")
