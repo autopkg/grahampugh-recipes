@@ -343,24 +343,21 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
 
 	# get count of characters in generated regex string
 	regexCharacters=${#regex}
-	
 	# determine number of regex strings needed, accounting for beginning ^ and ending $ characters
-	jamfStringCount="$((regexCharacters / 254 + 1))"
+	jamfStringCount="$((regexCharacters / 255 + 1))"
+	split_len=$((regexCharacters / jamfStringCount))
 	
-	# get number of sequences separated by | in regex
-	sequenceCount=$( /usr/bin/awk -F "|" '{ print NF }' <<< "$regex" )
-	
-	# divide the count of sequences in half
-	breakDelimiterPosition=$((sequenceCount / jamfStringCount))
-	
-	# replace middle | operator(s) with the letter "b"
-	dividedRegex="$regex"
-	
-	for (( aBreak=0; aBreak<$jamfStringCount; aBreak++ ))
+	dividedRegex=$regex
+
+	for (( aBreak=1; aBreak<$jamfStringCount; aBreak++ ))
 	do
-		breakDelimiterPosition=$((breakDelimiterPosition * aBreak + breakDelimiterPosition))	
-		dividedRegex=$( /usr/bin/sed "s/|/b/$breakDelimiterPosition" <<< "$dividedRegex" )
+		breakDelimiterPosition=$((split_len * aBreak ))
+		regex_beginning="${dividedRegex:0:$breakDelimiterPosition}"
+		regex_end="${dividedRegex:$breakDelimiterPosition}"
+		regex_end=$( /usr/bin/sed "s/|/b/" <<< ${regex_end} )
+		dividedRegex="${regex_beginning}${regex_end}"
 	done
+
 	if [[ "$quietMode" != "On" ]]; then
 		# print Jamf Pro instructions and both regex strings
 		echo "Jamf Pro has a field character limit of 255 characters."
@@ -380,7 +377,7 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
 	for (( aBreak=0; aBreak<$jamfStringCount; aBreak++ ))
 	do
 		regexString=$( /usr/bin/awk -F "b" -v divider=$(( aBreak + 1 )) '{ print $divider }' <<< "$dividedRegex" )
-		
+
 		# add beginning of line characters if needed
 		if [[ "$regexString" != "^("* ]]; then
 			regexString="^($regexString"
