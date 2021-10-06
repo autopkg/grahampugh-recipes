@@ -1,6 +1,6 @@
 Description: Downloads the latest Citrix Workspace version and extracts the package.
 Identifier: com.github.grahampugh.recipes.pkg.CitrixWorkspace
-ParentRecipe: com.github.grahampugh.recipes.download.CitrixWorkspace
+ParentRecipe: com.github.rtrouton.download.citrixworkspace
 MinimumVersion: "2.3"
 
 Input:
