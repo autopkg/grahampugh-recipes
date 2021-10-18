@@ -163,6 +163,7 @@ class JamfPackageUploader(Processor):
 
     description = __doc__
 
+    # do not edit directly - copy from template
     def write_json_file(self, data, tmp_dir="/tmp/jamf_upload"):
         """dump some json to a temporary file"""
         self.make_tmp_dir(tmp_dir)
@@ -171,6 +172,7 @@ class JamfPackageUploader(Processor):
             json.dump(data, fp)
         return tf
 
+    # do not edit directly - copy from template
     def write_temp_file(self, data, tmp_dir="/tmp/jamf_upload"):
         """dump some text to a temporary file"""
         self.make_tmp_dir(tmp_dir)
@@ -179,18 +181,21 @@ class JamfPackageUploader(Processor):
             fp.write(data)
         return tf
 
+    # do not edit directly - copy from template
     def make_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
         """make the tmp directory"""
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
         return tmp_dir
 
+    # do not edit directly - copy from template
     def clear_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
         """remove the tmp directory"""
         if os.path.exists(tmp_dir):
             rmtree(tmp_dir)
         return tmp_dir
 
+    # do not edit directly - copy from template
     def curl(self, method, url, auth, data="", additional_headers=""):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
@@ -205,6 +210,8 @@ class JamfPackageUploader(Processor):
         # build the curl command
         curl_cmd = [
             "/usr/bin/curl",
+            "--silent",
+            "--show-error",
             "-X",
             method,
             "-D",
@@ -214,10 +221,12 @@ class JamfPackageUploader(Processor):
             url,
         ]
 
-        # the authorisation is Basic unless we are using the uapi and already have a token
+        # authorisation if using Jamf Pro API or Classic API
+        # if using uapi and we already have a token then we use the token for authorization
         if "uapi" in url and "tokens" not in url:
             curl_cmd.extend(["--header", f"authorization: Bearer {auth}"])
-        else:
+        # basic auth to obtain a token, or for classic API
+        elif "uapi" in url or "JSSResource" in url:
             curl_cmd.extend(["--header", f"authorization: Basic {auth}"])
 
         # set either Accept or Content-Type depending on method
@@ -229,41 +238,47 @@ class JamfPackageUploader(Processor):
             curl_cmd.extend(["--form", f"name=@{data}"])
         elif method == "POST" or method == "PUT":
             if data:
-                curl_cmd.extend(["--upload-file", data])
-            # uapi sends json, classic API must send xml
-            if "uapi" in url:
-                curl_cmd.extend(["--header", "Content-type: application/json"])
-            else:
+                if "uapi" in url or "JSSResource" in url:
+                    # jamf data upload requires upload-file argument
+                    curl_cmd.extend(["--upload-file", data])
+                else:
+                    # slack requires data argument
+                    curl_cmd.extend(["--data", data])
+            # uapi and slack accepts json, classic API only accepts xml
+            if "JSSResource" in url:
                 curl_cmd.extend(["--header", "Content-type: application/xml"])
+            else:
+                curl_cmd.extend(["--header", "Content-type: application/json"])
         else:
             self.output(f"WARNING: HTTP method {method} not supported")
 
-        # write session
-        try:
-            with open(headers_file, "r") as file:
-                headers = file.readlines()
-            existing_headers = [x.strip() for x in headers]
-            for header in existing_headers:
-                if "APBALANCEID" in header or "AWSALB" in header:
-                    with open(cookie_jar, "w") as fp:
-                        fp.write(header)
-        except IOError:
-            pass
+        # write session for jamf requests
+        if "uapi" in url or "JSSResource" in url:
+            try:
+                with open(headers_file, "r") as file:
+                    headers = file.readlines()
+                existing_headers = [x.strip() for x in headers]
+                for header in existing_headers:
+                    if "APBALANCEID" in header or "AWSALB" in header:
+                        with open(cookie_jar, "w") as fp:
+                            fp.write(header)
+            except IOError:
+                pass
 
-        # look for existing session
-        try:
-            with open(cookie_jar, "r") as file:
-                headers = file.readlines()
-            existing_headers = [x.strip() for x in headers]
-            for header in existing_headers:
-                if "APBALANCEID" in header or "AWSALB" in header:
-                    cookie = header.split()[1].rstrip(";")
-                    self.output(f"Existing cookie found: {cookie}", verbose_level=2)
-                    curl_cmd.extend(["--cookie", cookie])
-        except IOError:
-            self.output(
-                "No existing cookie found - starting new session", verbose_level=2
-            )
+            # look for existing session
+            try:
+                with open(cookie_jar, "r") as file:
+                    headers = file.readlines()
+                existing_headers = [x.strip() for x in headers]
+                for header in existing_headers:
+                    if "APBALANCEID" in header or "AWSALB" in header:
+                        cookie = header.split()[1].rstrip(";")
+                        self.output(f"Existing cookie found: {cookie}", verbose_level=2)
+                        curl_cmd.extend(["--cookie", cookie])
+            except IOError:
+                self.output(
+                    "No existing cookie found - starting new session", verbose_level=2
+                )
 
         # additional headers for advanced requests
         if additional_headers:
@@ -297,17 +312,7 @@ class JamfPackageUploader(Processor):
             self.output(f"No output from request ({output_file} not found or empty)")
         return r()
 
-    def sha512sum(self, filename):
-        """calculate the SHA512 hash of the package
-        (see https://stackoverflow.com/a/44873382)"""
-        h = hashlib.sha512()
-        b = bytearray(128 * 1024)
-        mv = memoryview(b)
-        with open(filename, "rb", buffering=0) as f:
-            for n in iter(lambda: f.readinto(mv), 0):
-                h.update(mv[:n])
-        return h.hexdigest()
-
+    # do not edit directly - copy from template
     def status_check(self, r, endpoint_type, obj_name):
         """Return a message dependent on the HTTP response"""
         if r.status_code == 200 or r.status_code == 201:
@@ -325,6 +330,17 @@ class JamfPackageUploader(Processor):
         else:
             self.output(f"WARNING: {endpoint_type} '{obj_name}' upload failed")
             self.output(r.output, verbose_level=2)
+
+    def sha512sum(self, filename):
+        """calculate the SHA512 hash of the package
+        (see https://stackoverflow.com/a/44873382)"""
+        h = hashlib.sha512()
+        b = bytearray(128 * 1024)
+        mv = memoryview(b)
+        with open(filename, "rb", buffering=0) as f:
+            for n in iter(lambda: f.readinto(mv), 0):
+                h.update(mv[:n])
+        return h.hexdigest()
 
     def mount_smb(self, mount_share, mount_user, mount_pass):
         """Mount distribution point."""
@@ -363,9 +379,9 @@ class JamfPackageUploader(Processor):
 
     def check_local_pkg(self, mount_share, pkg_name):
         """Check local DP or mounted share for existing package"""
-        path = f"/Volumes{urlparse(mount_share).path}"
-        if os.path.isdir(path):
-            existing_pkg_path = os.path.join(path, "Packages", pkg_name)
+        dirname = f"/Volumes{urlparse(mount_share).path}"
+        if os.path.isdir(dirname):
+            existing_pkg_path = os.path.join(dirname, "Packages", pkg_name)
             if os.path.isfile(existing_pkg_path):
                 self.output(f"Existing package found: {existing_pkg_path}")
                 return existing_pkg_path
@@ -377,15 +393,15 @@ class JamfPackageUploader(Processor):
                 )
         else:
             self.output(
-                f"Expected path not found!: {path}",
+                f"Expected path not found!: {dirname}",
                 verbose_level=2,
             )
 
     def copy_pkg(self, mount_share, pkg_path, pkg_name):
         """Copy package from AutoPkg Cache to local or mounted Distribution Point"""
         if os.path.isfile(pkg_path):
-            path = f"/Volumes{urlparse(mount_share).path}"
-            destination_pkg_path = os.path.join(path, "Packages", pkg_name)
+            dirname = f"/Volumes{urlparse(mount_share).path}"
+            destination_pkg_path = os.path.join(dirname, "Packages", pkg_name)
             self.output(f"Copying {pkg_name} to {destination_pkg_path}")
             copyfile(pkg_path, destination_pkg_path)
         if os.path.isfile(destination_pkg_path):
@@ -393,7 +409,7 @@ class JamfPackageUploader(Processor):
         else:
             self.output("Package copy failed")
 
-    def zip_pkg_path(self, path):
+    def zip_pkg_path(self, bundle_path):
         """Add files from path to a zip file handle.
 
         Args:
@@ -402,15 +418,15 @@ class JamfPackageUploader(Processor):
         Returns:
             (str) name of resulting zip file.
         """
-        zip_name = f"{path}.zip"
+        zip_name = f"{bundle_path}.zip"
 
         if os.path.exists(zip_name):
-            self.output("Package object is a bundle. Zipped version already exists.")
+            self.output("Package object is a bundle. Zipped archive already exists.")
             return zip_name
 
         self.output("Package object is a bundle. Converting to zip...")
         with ZipFile(zip_name, "w", ZIP_DEFLATED, allowZip64=True) as zip_handle:
-            for root, _, files in os.walk(path):
+            for root, _, files in os.walk(bundle_path):
                 for member in files:
                     zip_handle.write(os.path.join(root, member))
             self.output(
@@ -582,10 +598,14 @@ class JamfPackageUploader(Processor):
         enc_creds_bytes = base64.b64encode(credentials.encode("utf-8"))
         enc_creds = str(enc_creds_bytes, "utf-8")
 
-        # See if the package is non-flat (requires zipping prior to upload).
+        # See if the package is a bundle (directory).
+        # If so, zip_pkg_path will look for an existing .zip
+        # If that doesn't exist, it will create the zip and return the pkg_path with .zip added
+        # In that case, we need to add .zip to the pkg_name key too, if we don't already have it
         if os.path.isdir(self.pkg_path):
             self.pkg_path = self.zip_pkg_path(self.pkg_path)
-            self.pkg_name += ".zip"
+            if ".zip" not in self.pkg_name:
+                self.pkg_name += ".zip"
 
         #  calculate the SHA-512 hash of the package
         self.sha512string = self.sha512sum(self.pkg_path)
