@@ -6,7 +6,6 @@ MinimumVersion: "2.3"
 Input:
   NAME: LineIn
   DOWNLOAD_URL: https://www.rogueamoeba.com/freebies/download/LineIn.zip
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Processor: URLDownloader
@@ -15,11 +14,6 @@ Process:
       url: "%DOWNLOAD_URL%"
 
   - Processor: EndOfCheckPhase
-
-  - Processor: StopProcessingIf
-    Comment: Checks if the file already exists in the cache
-    Arguments:
-      predicate: "%STOPPROCESSINGIF_PREDICATE%"
 
   - Processor: Unarchiver
     Arguments:

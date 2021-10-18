@@ -3,7 +3,6 @@ Identifier: com.github.grahampugh.download.MathType
 MinimumVersion: "2.3"
 
 Input:
-  STOPPROCESSINGIF_PREDICATE: FALSEPREDICATE
   DOWNLOAD_URL: https://store.wiris.com/en/products/downloads/mathtype/installer/mac/en
 
 Process:
@@ -13,10 +12,6 @@ Process:
       url: "%DOWNLOAD_URL%"
 
   - Processor: EndOfCheckPhase
-
-  - Processor: StopProcessingIf
-    Arguments:
-      predicate: "%STOPPROCESSINGIF_PREDICATE%"
 
   - Processor: CodeSignatureVerifier
     Arguments:

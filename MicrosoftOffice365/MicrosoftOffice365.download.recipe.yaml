@@ -14,17 +14,12 @@ Input:
   DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
   PKG_NAME: MicrosoftOffice365Suite
   PRODUCTID: "532572"
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Processor: URLDownloader
     Arguments:
       filename: "%PKG_NAME%.pkg"
       url: "%DOWNLOADURL%"
-
-  - Processor: StopProcessingIf
-    Arguments:
-      predicate: "%STOPPROCESSINGIF_PREDICATE%"
 
   - Processor: CodeSignatureVerifier
     Arguments:

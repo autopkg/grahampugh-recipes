@@ -4,7 +4,6 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: Citrix Workspace
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Processor: URLTextSearcher
@@ -18,10 +17,6 @@ Process:
       url: https:%DYNAMIC_URL%
 
   - Processor: EndOfCheckPhase
-
-  - Processor: StopProcessingIf
-    Arguments:
-      predicate: "%STOPPROCESSINGIF_PREDICATE%"
 
   - Processor: CodeSignatureVerifier
     Arguments:

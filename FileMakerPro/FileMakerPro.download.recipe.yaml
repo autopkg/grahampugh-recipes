@@ -4,7 +4,6 @@ Identifier: com.github.grahampugh.recipes.download.FileMakerPro
 Input:
   NAME: FileMaker Pro
   MAJOR_VERSION: "19"
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Processor: FileMakerProURLProcessor

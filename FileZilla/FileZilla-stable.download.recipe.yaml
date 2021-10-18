@@ -5,7 +5,6 @@ MinimumVersion: "2.3"
 Input:
   NAME: FileZilla
   SEARCH_URL: https://filezilla-project.org/download.php?show_all=1
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Arguments:
