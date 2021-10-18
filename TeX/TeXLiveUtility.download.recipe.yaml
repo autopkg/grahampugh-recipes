@@ -4,7 +4,6 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: TeXLive Utility
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Processor: GitHubReleasesInfoProvider

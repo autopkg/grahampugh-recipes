@@ -5,7 +5,6 @@ MinimumVersion: "2.3"
 Input:
   DEPRECATION_WARNING: This recipe is deprecated. Please use
   NAME: Citrix Workspace
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
   - Processor: DeprecationWarning
@@ -23,10 +22,6 @@ Process:
       url: https:%DYNAMIC_URL%
 
   - Processor: EndOfCheckPhase
-
-  - Processor: StopProcessingIf
-    Arguments:
-      predicate: "%STOPPROCESSINGIF_PREDICATE%"
 
   - Processor: CodeSignatureVerifier
     Arguments:

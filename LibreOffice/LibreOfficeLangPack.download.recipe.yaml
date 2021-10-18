@@ -7,14 +7,8 @@ Input:
   NAME: LibreOffice
   LANGUAGE_CODE: de
   RELEASE: still
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
 
 Process:
-  - Processor: StopProcessingIf
-    Comment: Checks if the file already exists in the cache
-    Arguments:
-      predicate: "%STOPPROCESSINGIF_PREDICATE%"
-
   - Processor: com.github.sebtomasi.SharedProcessors/RenameVar
     Arguments:
       input_var: "%pathname%"

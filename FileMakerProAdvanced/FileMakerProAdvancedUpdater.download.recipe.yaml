@@ -3,16 +3,11 @@ Identifier: com.github.grahampugh.recipes.download.filemakerproadvancedupdater
 
 Input:
   NAME: FileMaker Pro Advanced
-  MAJOR_VERSION: '16'
-  STOPPROCESSINGIF_PREDICATE: download_changed == FALSE
+  MAJOR_VERSION: "16"
 
 Process:
-- Processor: FilemakerProAdvancedUpdateURLProcessor
-  Arguments:
-    major_version: '%MAJOR_VERSION%'
+  - Processor: FilemakerProAdvancedUpdateURLProcessor
+    Arguments:
+      major_version: "%MAJOR_VERSION%"
 
-- Processor: URLDownloader
-
-- Processor: StopProcessingIf
-  Arguments:
-    predicate: '%STOPPROCESSINGIF_PREDICATE%'
+  - Processor: URLDownloader
