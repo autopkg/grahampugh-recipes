@@ -253,7 +253,7 @@ class JamfPackageUploader(Processor):
             self.output(f"WARNING: HTTP method {method} not supported")
 
         # write session for jamf requests
-        if "uapi" in url or "JSSResource" in url:
+        if "uapi" in url or "JSSResource" in url or "dbfileupload" in url:
             try:
                 with open(headers_file, "r") as file:
                     headers = file.readlines()
