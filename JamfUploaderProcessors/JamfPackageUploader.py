@@ -226,7 +226,7 @@ class JamfPackageUploader(Processor):
         if "uapi" in url and "tokens" not in url:
             curl_cmd.extend(["--header", f"authorization: Bearer {auth}"])
         # basic auth to obtain a token, or for classic API
-        elif "uapi" in url or "JSSResource" in url:
+        elif "uapi" in url or "JSSResource" in url or "dbfileupload" in url:
             curl_cmd.extend(["--header", f"authorization: Basic {auth}"])
 
         # set either Accept or Content-Type depending on method
