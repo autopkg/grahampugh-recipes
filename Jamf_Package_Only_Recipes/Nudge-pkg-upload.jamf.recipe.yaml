@@ -1,0 +1,15 @@
+Comment: Created with Recipe Robot v2.3.0 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Nudge and uploads the package to Jamf.
+Identifier: com.github.grahampugh.jamf.Nudge
+Input:
+  CATEGORY: Productivity
+  NAME: Nudge
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.pkg.Nudge
+Process:
+- Arguments:
+    category_name: '%CATEGORY%'
+  Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+- Arguments:
+    pkg_category: '%CATEGORY%'
+  Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
