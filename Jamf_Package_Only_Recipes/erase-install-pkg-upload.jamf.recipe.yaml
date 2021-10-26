@@ -1,5 +1,5 @@
 Comment: Options for INSTALLER are - erase-install, erase-install-nopython, erase-install-depnotify
-Description: Downloads the latest version of Nudge and uploads the package to Jamf.
+Description: Downloads the latest version of erase-install and uploads the package to Jamf.
 Identifier: com.github.grahampugh.recipes.jamf.erase-install
 Input:
   CATEGORY: Administration
