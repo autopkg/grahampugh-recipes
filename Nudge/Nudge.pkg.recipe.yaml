@@ -1,0 +1,25 @@
+Description: Downloads the latest release of Unison.
+Identifier: com.github.grahampugh.recipes.pkg.Nudge
+Input:
+  NAME: Nudge
+MinimumVersion: '2.3'
+ParentRecipe: com.github.erikng.download.Nudge
+Process:
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%'
+  Processor: FlatPkgUnpacker
+- Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/unpack/Nudge*.pkg'
+  Processor: FileFinder
+- Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%found_filename%/Payload'
+  Processor: PkgPayloadUnpacker
+- Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/payload/Applications/Utilities/Nudge.app/Contents/Info.plist'
+  Processor: Versioner
+- Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/Nudge-%version%.pkg'
+    source_pkg: '%pathname%'
+  Processor: PkgCopier

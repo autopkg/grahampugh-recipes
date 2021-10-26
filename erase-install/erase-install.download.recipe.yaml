@@ -4,13 +4,12 @@ Identifier: com.github.grahampugh.recipes.download.erase-install
 MinimumVersion: "2.3"
 
 Input:
-  NAME: erase-install
-  STOP_IF: download_changed == False
+  INSTALLER: erase-install
 
 Process:
   - Processor: GitHubReleasesInfoProvider
     Arguments:
-      asset_regex: ^erase-install-.*?.pkg$
+      asset_regex: "^%INSTALLER%-.*?.pkg$"
       github_repo: grahampugh/erase-install
       include_prereleases: false
 
