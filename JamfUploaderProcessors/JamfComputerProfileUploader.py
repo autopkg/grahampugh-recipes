@@ -448,8 +448,7 @@ class JamfComputerProfileUploader(Processor):
 
         # now extract the UUID from the existing payload
         existing_payload = plistlib.loads(existing_plist)
-        self.output("\nImported payload:", verbose_level=2)
-        self.output(existing_payload, verbose_level=2)
+        self.output("\nImported payload" + existing_payload, verbose_level=2)
         existing_uuid = existing_payload["PayloadUUID"]
         self.output(f"Existing UUID found: {existing_uuid}")
         return existing_uuid
@@ -473,7 +472,9 @@ class JamfComputerProfileUploader(Processor):
             mcx_preferences = plistlib.load(file)
 
         # substitute user-assignable keys
-        mcx_preferences = self.substitute_assignable_keys(mcx_preferences)
+        mcx_preferences = self.substitute_assignable_keys(
+            mcx_preferences, xml_escape=True
+        )
 
         self.output("Preferences contents:", verbose_level=2)
         self.output(mcx_preferences, verbose_level=2)
