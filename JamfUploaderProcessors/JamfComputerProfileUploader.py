@@ -356,6 +356,7 @@ class JamfComputerProfileUploader(Processor):
     def substitute_assignable_keys(self, data, xml_escape=False):
         """substitutes any key in the inputted text using the %MY_KEY% nomenclature"""
         # do a four-pass to ensure that all keys are substituted
+        print(data)  # TEMP
         loop = 5
         while loop > 0:
             loop = loop - 1
@@ -468,14 +469,15 @@ class JamfComputerProfileUploader(Processor):
         mobileconfig_uuid,
     ):
         """create a mobileconfig file using a payload file"""
-        # import plist and replace any substitutable keys
+        # import plist as text and replace any substitutable keys
         with open(payload_path, "rb") as file:
-            mcx_preferences = plistlib.load(file)
-
-        # substitute user-assignable keys
-        mcx_preferences = self.substitute_assignable_keys(
-            mcx_preferences, xml_escape=True
+            payload_text = file.read()
+        # substitute user-assignable keys (requires decode to string)
+        payload_text = self.substitute_assignable_keys(
+            (payload_text.decode()), xml_escape=True
         )
+        # now convert to data (requires encode back to bytes...)
+        mcx_preferences = plistlib.loads(str.encode(payload_text))
 
         self.output("Preferences contents:", verbose_level=2)
         self.output(mcx_preferences, verbose_level=2)
