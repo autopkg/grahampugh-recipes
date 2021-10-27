@@ -448,7 +448,8 @@ class JamfComputerProfileUploader(Processor):
 
         # now extract the UUID from the existing payload
         existing_payload = plistlib.loads(existing_plist)
-        self.output("\nImported payload" + existing_payload, verbose_level=2)
+        self.output("Imported payload", verbose_level=2)
+        self.output(existing_payload, verbose_level=2)
         existing_uuid = existing_payload["PayloadUUID"]
         self.output(f"Existing UUID found: {existing_uuid}")
         return existing_uuid
