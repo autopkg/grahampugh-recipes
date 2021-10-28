@@ -578,7 +578,7 @@ class JamfPolicyUploader(Processor):
                 )
                 return
             # Set the changed_policy_id to obj_id
-            self.env["changed_policy_id"] = obj_id
+            self.env["changed_policy_id"] = str(obj_id)
         else:
             # post the item
             r = self.upload_policy(
@@ -589,9 +589,9 @@ class JamfPolicyUploader(Processor):
             # if it can be determined
             try:
                 changed_policy_id = ElementTree.fromstring(r.output).findtext("id")
-                self.evn["changed_policy_id"] = changed_policy_id
+                self.env["changed_policy_id"] = str(changed_policy_id)
             except UnboundLocalError:
-                pass
+                self.env["changed_policy_id"] = "UNKNOWN_POLICY_ID"
 
         # now upload the icon to the policy if specified in the args
         policy_icon_name = ""
