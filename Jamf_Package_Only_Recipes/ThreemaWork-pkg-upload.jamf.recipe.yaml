@@ -1,0 +1,16 @@
+Description: Downloads the latest version of Threema Work and makes a pkg. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jamf.ThreemaWork-pkg-upload
+MinimumVersion: "2.3"
+ParentRecipe: com.github.grahampugh.recipes.pkg.ThreemaWork
+
+Input:
+  CATEGORY: Productivity
+
+Process:
+  - Arguments:
+      category_name: "%CATEGORY%"
+    Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+
+  - Arguments:
+      pkg_category: "%CATEGORY%"
+    Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
