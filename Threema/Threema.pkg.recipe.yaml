@@ -9,4 +9,4 @@ Input:
 Process:
   - Processor: AppPkgCreator
     Arguments:
-      bundleid: threema.desktop
+      bundleid: threema.consumer
