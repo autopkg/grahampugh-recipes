@@ -1,0 +1,12 @@
+Description: Downloads the latest version of Threema and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.Threema
+ParentRecipe: com.github.grahampugh.recipes.download.Threema
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Threema
+
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      bundleid: threema.desktop
