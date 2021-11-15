@@ -111,9 +111,11 @@ class LastRecipeRunChecker(Processor):
         self.output(f"Package path: {self.env['pkg_path']}")
         self.output(f"Version: {self.env['version']}")
         self.output(f"URL: {self.env['url']}")
-        self.output(f"Pkg category: {self.env['category']}")
-        self.output(f"Policy name: {self.env['policy_name']}")
-        self.output(f"Self Service Description: {self.env['self_service_description']}")
+        self.output(f"Pkg category: {self.env['PKG_CATEGORY']}")
+        self.output(f"Policy name: {self.env['LAST_RUN_POLICY_NAME']}")
+        self.output(
+            f"Self Service Description: {self.env['LAST_RUN_SELFSERVICE_DESCRIPTION']}"
+        )
         self.output(f"License Key: {self.env['license_key']}")
         self.output(f"Package uploaded: {self.env['pkg_uploaded']}")
         self.output(f"Package metadata updated: {self.env['pkg_metadata_updated']}")
