@@ -107,16 +107,16 @@ class LastRecipeRunChecker(Processor):
                 "Package does not exist: {}".format(self.env["pkg_path"])
             )
 
-        self.output(f"Package name: {data['pkg_name']}")
-        self.output(f"Package path: {data['pkg_path']}")
-        self.output(f"Version: {data['version']}")
-        self.output(f"URL: {data['url']}")
-        self.output(f"Pkg category: {data['category']}")
-        self.output(f"Policy name: {data['policy_name']}")
-        self.output(f"Self Service Description: {data['self_service_description']}")
-        self.output(f"License Key: {data['license_key']}")
-        self.output(f"Package uploaded: {data['pkg_uploaded']}")
-        self.output(f"Package metadata updated: {data['pkg_metadata_updated']}")
+        self.output(f"Package name: {self.env['pkg_name']}")
+        self.output(f"Package path: {self.env['pkg_path']}")
+        self.output(f"Version: {self.env['version']}")
+        self.output(f"URL: {self.env['url']}")
+        self.output(f"Pkg category: {self.env['category']}")
+        self.output(f"Policy name: {self.env['policy_name']}")
+        self.output(f"Self Service Description: {self.env['self_service_description']}")
+        self.output(f"License Key: {self.env['license_key']}")
+        self.output(f"Package uploaded: {self.env['pkg_uploaded']}")
+        self.output(f"Package metadata updated: {self.env['pkg_metadata_updated']}")
 
 
 if __name__ == "__main__":
