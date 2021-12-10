@@ -1,4 +1,4 @@
-Description: Downloads the latest release of Unison.
+Description: Downloads the latest release of FusionInventory Agent.
 Identifier: com.github.grahampugh.recipes.download.FusionInventoryAgent
 MinimumVersion: "2.3"
 

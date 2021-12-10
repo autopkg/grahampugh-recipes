@@ -1,0 +1,20 @@
+Description: Downloads the latest release of GLPI-Agent.
+Identifier: com.github.grahampugh.recipes.download.GLPIAgent
+MinimumVersion: "2.3"
+
+Comment: ARCHICTECTURE_STRING should be one of 'x86_64', 'arm64'.
+
+Input:
+  NAME: GLPI-Agent
+  ARCHICTECTURE_STRING: x86_64
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: glpi-project/glpi-agent
+      asset_regex: "^GLPI-Agent-.*?_%ARCHICTECTURE_STRING%.pkg$"
+      sort_by_highest_tag_names: True
+      include_prereleases: True
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
