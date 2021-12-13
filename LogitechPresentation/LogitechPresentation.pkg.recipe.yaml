@@ -28,6 +28,10 @@ Process:
       overwrite: true
       source_path: "%pathname%/LogiPresentation Installer.app/Contents/Resources/LogiPresentation Main Installer.app/Contents/Resources/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app"
 
+  - Processor: PlistReader
+    Arguments:
+      info_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/Logitech Presentation.app/Contents/Info.plist"
+
   - Processor: Copier
     Arguments:
       destination_path: "%pkgroot%/Library/Application Support/Logitech.localized/Logitech Presentation.localized/LogiPresentationUpdater.app"
