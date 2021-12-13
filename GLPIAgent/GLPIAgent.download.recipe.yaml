@@ -14,7 +14,6 @@ Process:
       github_repo: glpi-project/glpi-agent
       asset_regex: "^GLPI-Agent-.*?_%ARCHICTECTURE_STRING%.pkg$"
       sort_by_highest_tag_names: True
-      include_prereleases: True
   - Processor: URLDownloader
 
   - Processor: EndOfCheckPhase
