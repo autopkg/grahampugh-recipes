@@ -71,15 +71,6 @@ class JamfDockItemUploader(Processor):
         },
     }
 
-    # do not edit directly - copy from template
-    def write_json_file(self, data, tmp_dir="/tmp/jamf_upload"):
-        """dump some json to a temporary file"""
-        self.make_tmp_dir(tmp_dir)
-        tf = os.path.join(tmp_dir, f"jamf_upload_{str(uuid.uuid4())}.json")
-        with open(tf, "w") as fp:
-            json.dump(data, fp)
-        return tf
-
     # modified 'write_json_file'
     def write_xml_file(self, data, tmp_dir="/tmp/jamf_upload"):
         """dump some xml to a temporary file"""
