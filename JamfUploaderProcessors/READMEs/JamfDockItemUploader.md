@@ -33,7 +33,7 @@ A processor for AutoPkg that will upload a dock item to a Jamf Cloud or on-prem 
 
 - **dock_item:**
   - **description:** The created/updated dock item.
-- **jamfcategoryuploader_summary_result:**
+- **jamfdockitemuploader_summary_result:**
   - **description:** Summary of created dock items.
   - **example:**
     ```
