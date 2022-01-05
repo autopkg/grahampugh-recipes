@@ -6,15 +6,15 @@ A processor for AutoPkg that will upload a dock item to a Jamf Cloud or on-prem 
 
 ## Input variables
 
-- **JSS_URL:****
-  - **required:**** True
-  - **description:**** URL to a Jamf Pro server that the API user has write access to, optionally set as a key in the com.github.autopkg preference file.
-- **API_USERNAME:****
-  - **required:**** True
-  - **description:**** Username of account with appropriate access to jss, optionally set as a key in the com.github.autopkg preference file.
-- **API_PASSWORD:****
-  - **required:**** True
-  - **description:**** Password of api user, optionally set as a key in the com.github.autopkg preference file.
+- **JSS_URL:**
+  - **required:** True
+  - **description:** URL to a Jamf Pro server that the API user has write access to, optionally set as a key in the com.github.autopkg preference file.
+- **API_USERNAME:**
+  - **required:** True
+  - **description:** Username of account with appropriate access to jss, optionally set as a key in the com.github.autopkg preference file.
+- **API_PASSWORD:**
+  - **required:** True
+  - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file.
 - **dock_item_name:**
   - **required:** True
   - **description:** Name of the dock item e.g. 'Safari'.
