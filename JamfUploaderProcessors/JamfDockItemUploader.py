@@ -43,17 +43,17 @@ class JamfDockItemUploader(Processor):
             "the com.github.autopkg preference file.",
         },
         "dock_item_name": {
-            "required": False,
+            "required": True,
             "description": "Name of Dock Item",
             "default": ""
         },
         "dock_item_type": {
-            "required": False,
+            "required": True,
             "description": "Type of Dock Item - either 'App', 'File' or 'Folder'",
             "default": "App"
         },
         "dock_item_path": {
-            "required": False,
+            "required": True,
             "description": "Path of Dock Item - e.g. 'file:///Applications/Safari.app/'",
             "default": ""
         },
@@ -326,10 +326,6 @@ class JamfDockItemUploader(Processor):
         credentials = f"{self.jamf_user}:{self.jamf_password}"
         enc_creds_bytes = b64encode(credentials.encode("utf-8"))
         enc_creds = str(enc_creds_bytes, "utf-8")
-
-        # TODO: Check if Name is given?
-        # TODO: Check if Type is given
-        # TODO: Check if Path is given
 
         # Now process the dock item
         obj_id = 0
