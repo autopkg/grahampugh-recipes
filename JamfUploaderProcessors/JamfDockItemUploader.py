@@ -11,7 +11,7 @@ import re
 import subprocess
 import uuid
 
-import xml.etree.cElementTree as ET # Everybody loves working with the classic api
+import xml.etree.cElementTree as ET  # Everybody loves working with the classic api
 
 from collections import namedtuple
 from base64 import b64encode
@@ -45,17 +45,17 @@ class JamfDockItemUploader(Processor):
         "dock_item_name": {
             "required": True,
             "description": "Name of Dock Item",
-            "default": ""
+            "default": "",
         },
         "dock_item_type": {
             "required": True,
             "description": "Type of Dock Item - either 'App', 'File' or 'Folder'",
-            "default": "App"
+            "default": "App",
         },
         "dock_item_path": {
             "required": True,
             "description": "Path of Dock Item - e.g. 'file:///Applications/Safari.app/'",
-            "default": ""
+            "default": "",
         },
         "replace_dock_item": {
             "required": False,
@@ -239,17 +239,17 @@ class JamfDockItemUploader(Processor):
             self.output(f"WARNING: {endpoint_type} '{obj_name}' upload failed")
             self.output(r.output, verbose_level=2)
 
-    def get_api_obj_id_from_name(self, jamf_url, object_type, object_result_type, object_name, creds):
+    def get_api_obj_id_from_name(
+        self, jamf_url, object_type, object_result_type, object_name, creds
+    ):
         """Get the (classic) API object by name"""
-        url = (
-            f"{jamf_url}/JSSResource/{object_type}/name/{quote(object_name)}"
-        )
+        url = f"{jamf_url}/JSSResource/{object_type}/name/{quote(object_name)}"
         r = self.curl("GET", url, creds)
         if r.status_code == 200:
             obj_id = 0
             # Need to parse response, since curl function doesn't parse json on Classic API
             r_json = json.loads(r.output)
-            if r_json[object_result_type]['name'] == object_name:
+            if r_json[object_result_type]["name"] == object_name:
                 obj_id = r_json[object_result_type]["id"]
             return obj_id
 
@@ -257,26 +257,35 @@ class JamfDockItemUploader(Processor):
         """
         Finds free id of given object_type by querying for all objects and iterate over the results...
         """
-        url = (
-            f"{jamf_url}/JSSResource/{object_type}"
-        )
+        url = f"{jamf_url}/JSSResource/{object_type}"
         r = self.curl("GET", url, creds)
         if r.status_code == 200:
             obj_id_list = []
             for obj in json.loads(r.output)[object_result_type]:
-                obj_id_list.append(obj['id'])
+                obj_id_list.append(obj["id"])
             if not len(obj_id_list):
                 # List of objects is empty -> use id 1
                 return 1
             return max(obj_id_list) + 1
 
-    def upload_dock_item(self, jamf_url, dock_item_name, dock_item_type, dock_item_path, obj_root, creds, obj_id, method):
+    def upload_dock_item(
+        self,
+        jamf_url,
+        dock_item_name,
+        dock_item_type,
+        dock_item_path,
+        obj_root,
+        creds,
+        obj_id,
+        method,
+    ):
         """Update dock item metadata."""
 
         # Build the xml (!) object
         # The classic api only supports xml requests
         dock_item_xml_root = ET.Element(obj_root)
-        ET.SubElement(dock_item_xml_root, "id").text = str(obj_id) # Converted integer to text, to avoid TypeError while xml dumping
+        # Converted integer to text, to avoid TypeError while xml dumping
+        ET.SubElement(dock_item_xml_root, "id").text = str(obj_id)
         ET.SubElement(dock_item_xml_root, "name").text = dock_item_name
         ET.SubElement(dock_item_xml_root, "type").text = dock_item_type
         ET.SubElement(dock_item_xml_root, "path").text = dock_item_path
@@ -291,7 +300,8 @@ class JamfDockItemUploader(Processor):
         while True:
             count += 1
             self.output(
-                f"Dock Item upload attempt {count}", verbose_level=2,
+                f"Dock Item upload attempt {count}",
+                verbose_level=2,
             )
             r = self.curl(method, url, creds, dock_item_xml)
             # check HTTP response
@@ -329,7 +339,7 @@ class JamfDockItemUploader(Processor):
 
         # Now process the dock item
         obj_id = 0
-        method = 'POST'
+        method = "POST"
 
         # Check for existing dock item
         self.output(f"Checking for existing '{self.dock_item_name}' on {self.jamf_url}")
@@ -338,13 +348,15 @@ class JamfDockItemUploader(Processor):
         )
 
         if obj_id and not self.replace:
-            self.output(f"Dock Item '{self.dock_item_name}' already exists: ID {obj_id}")
+            self.output(
+                f"Dock Item '{self.dock_item_name}' already exists: ID {obj_id}"
+            )
             self.output(
                 "Not replacing existing dock item. Use replace_dock_item='True' to enforce."
             )
             return
         elif obj_id and self.replace:
-            method = 'PUT'
+            method = "PUT"
             self.output(
                 f"Replacing existing dock item as 'replace_dock_item' is set to {self.replace}"
             )
@@ -355,7 +367,9 @@ class JamfDockItemUploader(Processor):
                 Trying to find a free object id to create a new dock item...",
                 verbose_level=1,
             )
-            obj_id = self.get_api_free_obj_id(self.jamf_url, "dockitems", "dock_items", enc_creds)
+            obj_id = self.get_api_free_obj_id(
+                self.jamf_url, "dockitems", "dock_items", enc_creds
+            )
             self.output(
                 f"Found free id: {obj_id}",
                 verbose_level=1,
@@ -370,19 +384,24 @@ class JamfDockItemUploader(Processor):
             "dock_item",
             enc_creds,
             obj_id,
-            method
+            method,
         )
 
         # output the summary
         self.env["dock_item"] = self.dock_item_name
         self.env["jamfdockitemuploader_summary_result"] = {
             "summary_text": "The following dock items were created or updated in Jamf Pro:",
-            "report_fields": ["dock_item_id", "dock_item_name", "dock_item_type", "dock_item_path"],
+            "report_fields": [
+                "dock_item_id",
+                "dock_item_name",
+                "dock_item_type",
+                "dock_item_path",
+            ],
             "data": {
                 "dock_item_id": str(obj_id),
                 "dock_item_name": self.dock_item_name,
                 "dock_item_type": self.dock_item_type,
-                "dock_item_path": self.dock_item_path
+                "dock_item_path": self.dock_item_path,
             },
         }
 
