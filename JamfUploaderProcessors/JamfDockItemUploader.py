@@ -256,9 +256,10 @@ class JamfDockItemUploader(Processor):
         r = self.curl("GET", url, creds)
         if r.status_code == 200:
             obj_id = 0
-            self.output(f"ID: {r.output[object_result_type]['id']} NAME: {r.output[object_result_type]['name']}", verbose_level=2)
-            if r.output[object_result_type]['name'] == object_name:
-                obj_id = r.output[object_result_type]["id"]
+            # Need to parse response, since curl function doesn't parse json on Classic API
+            r_json = json.loads(r.output)
+            if r_json[object_result_type]['name'] == object_name:
+                obj_id = r_json[object_result_type]["id"]
             return obj_id
 
     def get_api_free_obj_id(self, jamf_url, object_type, object_result_type, creds):
@@ -335,12 +336,13 @@ class JamfDockItemUploader(Processor):
         enc_creds_bytes = b64encode(credentials.encode("utf-8"))
         enc_creds = str(enc_creds_bytes, "utf-8")
 
-        # Now process the dock item
-        obj_id = 0
-        method = 'POST'
         # TODO: Check if Name is given?
         # TODO: Check if Type is given
         # TODO: Check if Path is given
+
+        # Now process the dock item
+        obj_id = 0
+        method = 'POST'
 
         # Check for existing dock item
         self.output(f"Checking for existing '{self.dock_item_name}' on {self.jamf_url}")
@@ -389,8 +391,9 @@ class JamfDockItemUploader(Processor):
         self.env["dock_item"] = self.dock_item_name
         self.env["jamfdockitemuploader_summary_result"] = {
             "summary_text": "The following dock items were created or updated in Jamf Pro:",
-            "report_fields": ["dock_item_name", "dock_item_type", "dock_item_path"],
+            "report_fields": ["dock_item_id", "dock_item_name", "dock_item_type", "dock_item_path"],
             "data": {
+                "dock_item_id": str(obj_id),
                 "dock_item_name": self.dock_item_name,
                 "dock_item_type": self.dock_item_type,
                 "dock_item_path": self.dock_item_path
