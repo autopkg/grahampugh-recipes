@@ -2,7 +2,7 @@
 
 """
 JamfDockItemUploader processor for uploading a dock item to Jamf Pro using AutoPkg
-    by G Pugh
+    by Marcel Keßler based on G Pugh's great work
 """
 
 import json
@@ -340,20 +340,19 @@ class JamfDockItemUploader(Processor):
         if obj_id and not self.replace:
             self.output(f"Dock Item '{self.dock_item_name}' already exists: ID {obj_id}")
             self.output(
-                "Not replacing existing dock item. Use replace_dock_item='True' to enforce.",
-                verbose_level=1,
+                "Not replacing existing dock item. Use replace_dock_item='True' to enforce."
             )
             return
         elif obj_id and self.replace:
             method = 'PUT'
             self.output(
-                f"Replacing existing dock item as 'replace_dock_item' is set to {self.replace}",
-                verbose_level=1,
+                f"Replacing existing dock item as 'replace_dock_item' is set to {self.replace}"
             )
         else:
             # Find a free obj_id...
             self.output(
-                f"Found no existing dock item with given name '{self.dock_item_name}'. Trying to find a free object id to create a new dock item...",
+                f"Found no existing dock item with given name '{self.dock_item_name}'. \
+                Trying to find a free object id to create a new dock item...",
                 verbose_level=1,
             )
             obj_id = self.get_api_free_obj_id(self.jamf_url, "dockitems", "dock_items", enc_creds)
