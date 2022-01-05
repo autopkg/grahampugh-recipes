@@ -31,8 +31,8 @@ A processor for AutoPkg that will upload a dock item to a Jamf Cloud or on-prem 
 
 ## Output variables
 
-- **dock_item:****
-  - **description:**** The created/updated dock item.
+- **dock_item:**
+  - **description:** The created/updated dock item.
 - **jamfcategoryuploader_summary_result:**
   - **description:** Summary of created dock items.
   - **example:**
@@ -86,29 +86,29 @@ Process:
 ```yaml
 <?xml version="1.0"?>
 <policy>
-	<general>
-		<name>%POLICY_NAME%</name>
-		<enabled>true</enabled>
-		<frequency>Ongoing</frequency>
-		<category>
-			<name>%POLICY_CATEGORY%</name>
-		</category>
-		<trigger_other>%POLICY_NAME%</trigger_other>
-	</general>
-	<scope>
-		<all_computers>true</all_computers>
-	</scope>
-	<package_configuration>
-		<packages>
-			<size>1</size>
-			<package>
-				<name>%pkg_name%</name>
-				<action>Install</action>
-			</package>
-		</packages>
-	</package_configuration>
-	<scripts>
-	</scripts>
+  <general>
+    <name>%POLICY_NAME%</name>
+    <enabled>true</enabled>
+    <frequency>Ongoing</frequency>
+    <category>
+      <name>%POLICY_CATEGORY%</name>
+    </category>
+    <trigger_other>%POLICY_NAME%</trigger_other>
+  </general>
+  <scope>
+    <all_computers>true</all_computers>
+  </scope>
+  <package_configuration>
+    <packages>
+      <size>1</size>
+      <package>
+        <name>%pkg_name%</name>
+        <action>Install</action>
+      </package>
+    </packages>
+  </package_configuration>
+  <scripts>
+  </scripts>
   <dock_items>
     <size>1</size>
     <dock_item>
@@ -118,6 +118,6 @@ Process:
   </dock_items>
   <maintenance>
     <recon>true</recon>
-	</maintenance>
+  </maintenance>
 </policy>
 ```
