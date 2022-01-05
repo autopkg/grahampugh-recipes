@@ -83,7 +83,7 @@ Process:
 
 **Note:** You need to define the 'action' of the dock item. Either 'Add To End', 'Add To Beginning' or 'Remove'.
 
-```yaml
+```xml
 <?xml version="1.0"?>
 <policy>
   <general>
