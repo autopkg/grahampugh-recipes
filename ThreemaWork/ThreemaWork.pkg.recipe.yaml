@@ -1,0 +1,12 @@
+Description: Downloads the latest version of Threema Work and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.ThreemaWork
+ParentRecipe: com.github.grahampugh.recipes.download.ThreemaWork
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Threema Work
+
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      bundleid: threema.work

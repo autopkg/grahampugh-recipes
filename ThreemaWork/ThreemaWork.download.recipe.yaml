@@ -1,0 +1,20 @@
+Description: Downloads the latest version of Threema Work.
+Identifier: com.github.grahampugh.recipes.download.ThreemaWork
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Threema Work
+  DOWNLOAD_URL: "https://releases.threema.ch/web-electron/v1/release/Threema-Work-Latest.dmg"
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      filename: Threema-Work-Latest.dmg
+      url: "%DOWNLOAD_URL%"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/Threema Work.app"
+      requirement: identifier "threema-work-web" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = DL5SR3PBJC

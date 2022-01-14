@@ -8,12 +8,12 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (?P<url>https:\/\/download01\.logi\.com\/web\/ftp\/pub\/techsupport\/presentation\/LogiPresentation_(?P<version>.*?)\.dmg)
+      re_pattern: Mac OS X.*?(https://download01\.logi\.com/web/ftp/pub/techsupport/presentation/LogiPresentation_.*?\.dmg)\\\"
       url: https://support.logi.com/api/v2/help_center/en-gb/articles.json?label_names=webcontent=productdownload,webproduct=f7f7f812-7db0-11e9-b911-cb2c3611cd40
 
   - Processor: URLDownloader
     Arguments:
-      url: "%url%"
+      url: "%match%"
 
   - Processor: EndOfCheckPhase
 
