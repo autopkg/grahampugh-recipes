@@ -18,7 +18,7 @@ Process:
   - Processor: Copier
     Arguments:
       destination_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
-      force_pkg_build: true
+      overwrite: true
       source_path: "%pathname%/%NAME%.app"
 
   - Processor: PlistEditor
@@ -31,6 +31,11 @@ Process:
   - Processor: AppPkgCreator
     Arguments:
       app_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
-      overwrite: false
+      overwrite: true
       pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%webversion%.pkg"
       version: "%webversion%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/downloads/%NAME%.app"
