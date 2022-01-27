@@ -104,7 +104,7 @@ class JamfPolicyDeleter(JamfUploaderBase):
         obj_type = "policy"
         obj_name = self.policy_name
         obj_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_type, obj_name, enc_creds=send_creds, token=token,
+            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
         )
 
         if obj_id:
