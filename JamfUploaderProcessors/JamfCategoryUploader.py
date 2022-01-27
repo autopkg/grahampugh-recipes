@@ -5,9 +5,20 @@ JamfCategoryUploader processor for uploading a category to Jamf Pro using AutoPk
     by G Pugh
 """
 
+import os.path
+import sys
+
 from time import sleep
-from JamfUploaderLib.JamfUploaderBase import JamfUploaderBase
-from autopkglib import ProcessorError  # pylint: disable=import-error
+from autopkglib import ProcessorError
+
+# to use a base module in AutoPkg we need to add this path to the sys.path.
+# this violates flake8 E402 (PEP8 imports) but is unavoidable, so the following
+# imports require noqa comments for E402
+sys.path.insert(0, os.path.dirname(__file__))
+
+from JamfUploaderLib.JamfUploaderBase import JamfUploaderBase  # noqa: E402
+
+__all__ = ["JamfCategoryUploader"]
 
 
 class JamfCategoryUploader(JamfUploaderBase):
