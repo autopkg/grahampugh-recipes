@@ -117,7 +117,7 @@ class JamfScriptUploader(JamfUploaderBase):
         },
         "replace_script": {
             "required": False,
-            "description": "Overwrite an existing category if True.",
+            "description": "Overwrite an existing script if True.",
             "default": False,
         },
     }
@@ -262,7 +262,7 @@ class JamfScriptUploader(JamfUploaderBase):
 
             # check for existing category - requires obj_name
             obj_type = "category"
-            obj_name = self.category_name
+            obj_name = self.script_category
             category_id = self.get_uapi_obj_id_from_name(
                 self.jamf_url, obj_type, obj_name, token,
             )
