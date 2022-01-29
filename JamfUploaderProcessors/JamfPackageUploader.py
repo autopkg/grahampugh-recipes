@@ -486,7 +486,7 @@ class JamfPackageUploader(Processor):
             + f"<priority>{pkg_metadata['priority']}</priority>"
             + f"<reboot_required>{pkg_metadata['reboot_required']}</reboot_required>"
             + f"<required_processor>{pkg_metadata['required_processor']}</required_processor>"
-            + f"<os_requirement>{pkg_metadata['os_requirement']}</os_requirement>"
+            + f"<os_requirements>{pkg_metadata['os_requirement']}</os_requirements>"
             + f"<hash_type>{hash_type}</hash_type>"
             + f"<hash_value>{hash_value}</hash_value>"
             + f"<send_notification>{pkg_metadata['send_notification']}</send_notification>"
