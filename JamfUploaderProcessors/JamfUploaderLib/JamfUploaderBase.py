@@ -448,7 +448,7 @@ class JamfUploaderBase(Processor):
             obj_id = 0
             for obj in object_list[self.object_list_types(object_type)]:
                 self.output(
-                    obj, verbose_level=3,
+                    obj, verbose_level=4,
                 )
                 # we need to check for a case-insensitive match
                 if obj["name"].lower() == object_name.lower():
