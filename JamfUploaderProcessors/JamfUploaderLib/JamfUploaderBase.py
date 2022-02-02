@@ -259,11 +259,11 @@ class JamfUploaderBase(Processor):
         # if using Jamf Pro API, or Classic API on Jamf Pro 10.35+,
         # and we already have a token, then we use the token for authorization.
         # The Slack webhook doesn't have authentication
-        if token:
-            curl_cmd.extend(["--header", f"authorization: Bearer {token}"])
         # basic auth to obtain a token, or for classic API older than 10.35
-        elif enc_creds:
+        if enc_creds:
             curl_cmd.extend(["--header", f"authorization: Basic {enc_creds}"])
+        elif token:
+            curl_cmd.extend(["--header", f"authorization: Bearer {token}"])
 
         # set either Accept or Content-Type depending on method
 
