@@ -42,6 +42,7 @@ class JamfUploaderBase(Processor):
             "computer_group": "JSSResource/computergroups",
             "dock_item": "JSSResource/dockitems",
             "jamf_pro_version": "api/v1/jamf-pro-version",
+            "logflush": "JSSResource/logflush",
             "package": "JSSResource/packages",
             "package_upload": "dbfileupload",
             "os_x_configuration_profile": "JSSResource/osxconfigurationprofiles",
@@ -140,7 +141,7 @@ class JamfUploaderBase(Processor):
                         if data["token"]:
                             # check if it's expired or not
                             expires = datetime.strptime(
-                                data["expires"].split('.')[0], "%Y-%m-%dT%H:%M:%S"
+                                data["expires"].split(".")[0], "%Y-%m-%dT%H:%M:%S"
                             )
                             if expires > datetime.utcnow():
                                 self.output("Existing token is valid")
