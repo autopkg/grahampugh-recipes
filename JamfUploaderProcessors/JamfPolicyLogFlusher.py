@@ -78,7 +78,12 @@ class JamfPolicyLogFlusher(JamfUploaderBase):
             count += 1
             self.output("Log Flush Request attempt {}".format(count), verbose_level=2)
             request = "DELETE"
-            r = self.curl(request=request, url=url, enc_creds=enc_creds, token=token,)
+            r = self.curl(
+                request=request,
+                url=url,
+                enc_creds=enc_creds,
+                token=token,
+            )
 
             # check HTTP response
             if self.status_check(r, "Log Flush Request", obj_id, request) == "break":
@@ -115,13 +120,18 @@ class JamfPolicyLogFlusher(JamfUploaderBase):
         obj_type = "policy"
         obj_name = self.policy_name
         obj_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
 
         if obj_id:
             self.output(f"Policy '{self.policy_name}' exists: ID {obj_id}")
             self.output(
-                "Flushing existing policy", verbose_level=1,
+                "Flushing existing policy",
+                verbose_level=1,
             )
             self.flush_policy(
                 self.jamf_url,
