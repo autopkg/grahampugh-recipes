@@ -56,6 +56,7 @@ class JamfUploaderSlacker(JamfUploaderBase):
         },
         "NAME": {"required": False, "description": ("Generic product name.")},
         "pkg_name": {"required": False, "description": ("Package in policy.")},
+        "version": {"required": False, "description": ("Package version.")},
         "jamfpackageuploader_summary_result": {
             "required": False,
             "description": ("Summary results of package processors."),
@@ -77,7 +78,7 @@ class JamfUploaderSlacker(JamfUploaderBase):
         },
         "slack_channel": {
             "required": False,
-            "description": ("Slack channel (of overriding the default)."),
+            "description": ("Slack channel (for overriding the default)."),
         },
         "slack_icon_emoji": {
             "required": False,
