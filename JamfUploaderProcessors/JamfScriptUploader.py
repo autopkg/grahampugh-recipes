@@ -191,10 +191,12 @@ class JamfScriptUploader(JamfUploaderBase):
         }
 
         self.output(
-            "Script data:", verbose_level=2,
+            "Script data:",
+            verbose_level=2,
         )
         self.output(
-            script_data, verbose_level=2,
+            script_data,
+            verbose_level=2,
         )
 
         script_json = self.write_json_file(script_data)
@@ -212,7 +214,8 @@ class JamfScriptUploader(JamfUploaderBase):
         while True:
             count += 1
             self.output(
-                "Script upload attempt {}".format(count), verbose_level=2,
+                "Script upload attempt {}".format(count),
+                verbose_level=2,
             )
             request = "PUT" if obj_id else "POST"
             r = self.curl(request=request, url=url, token=token, data=script_json)
@@ -267,7 +270,10 @@ class JamfScriptUploader(JamfUploaderBase):
             obj_type = "category"
             obj_name = self.script_category
             category_id = self.get_uapi_obj_id_from_name(
-                self.jamf_url, obj_type, obj_name, token,
+                self.jamf_url,
+                obj_type,
+                obj_name,
+                token,
             )
 
             if not category_id:
@@ -298,12 +304,16 @@ class JamfScriptUploader(JamfUploaderBase):
             "Checking for existing '{}' on {}".format(self.script_name, self.jamf_url)
         )
         self.output(
-            "Full path: {}".format(self.script_path), verbose_level=2,
+            "Full path: {}".format(self.script_path),
+            verbose_level=2,
         )
         obj_type = "script"
         obj_name = self.script_name
         obj_id = self.get_uapi_obj_id_from_name(
-            self.jamf_url, obj_type, obj_name, token,
+            self.jamf_url,
+            obj_type,
+            obj_name,
+            token,
         )
 
         if obj_id:
