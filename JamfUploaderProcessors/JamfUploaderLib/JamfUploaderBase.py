@@ -45,6 +45,8 @@ class JamfUploaderBase(Processor):
             "logflush": "JSSResource/logflush",
             "package": "JSSResource/packages",
             "package_upload": "dbfileupload",
+            "patch_policy": "JSSResource/patchpolicies",
+            "patch_software_title": "JSSResource/patchsoftwaretitles",
             "os_x_configuration_profile": "JSSResource/osxconfigurationprofiles",
             "policy": "JSSResource/policies",
             "policy_icon": "JSSResource/fileuploads/policies",
@@ -75,6 +77,8 @@ class JamfUploaderBase(Processor):
             "extension_attribute": "computer_extension_attributes",
             "os_x_configuration_profile": "os_x_configuration_profiles",
             "package": "packages",
+            "patch_policy": "patch_policies",
+            "patch_software_title": "patch_software_titles",
             "policy": "policies",
             "restricted_software": "restricted_software",
             "script": "scripts",
@@ -226,7 +230,14 @@ class JamfUploaderBase(Processor):
         return tmp_dir
 
     def curl(
-        self, request="", url="", token="", enc_creds="", data="", additional_headers=""
+            self,
+            request="",
+            url="",
+            token="",
+            enc_creds="",
+            data="",
+            additional_headers="",
+            force_xml=False
     ):
         """
         build a curl command based on method (GET, PUT, POST, DELETE)
@@ -270,7 +281,13 @@ class JamfUploaderBase(Processor):
 
         # Accept for GET requests
         if request == "GET" or request == "DELETE":
-            curl_cmd.extend(["--header", "Accept: application/json"])
+            # Some endpoints are exceptions which NEED to respond with xml
+            # Otherwise the endpoints are broken or don't report all information.
+            # For example the `patchsoftwaretitle` endpoint.
+            if force_xml:
+                curl_cmd.extend(["--header", "Accept: application/xml"])
+            else:
+                curl_cmd.extend(["--header", "Accept: application/json"])
 
         # icon upload requires special method
         elif request == "POST" and "fileuploads" in url:
@@ -457,6 +474,10 @@ class JamfUploaderBase(Processor):
                 if obj["name"].lower() == object_name.lower():
                     obj_id = obj["id"]
             return obj_id
+        elif r.status_code == 401:
+            raise ProcessorError(
+                "ERROR: Jamf returned status code '401' - Access denied."
+            )
 
     def substitute_assignable_keys(self, data, xml_escape=False):
         """substitutes any key in the inputted text using the %MY_KEY% nomenclature"""
