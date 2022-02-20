@@ -1,5 +1,5 @@
 Description: Uploads a script to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
-Identifier: com.github.grahampugh.recipes.jamf.XcodeCommandLineTools
+Identifier: com.github.grahampugh.recipes.jamf.XcodeCommandLineTools-script
 MinimumVersion: "2.3"
 
 Input:

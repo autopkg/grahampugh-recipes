@@ -1,0 +1,12 @@
+Description: Creates all production policies for Carbon Copy Cloner
+Identifier: com.github.grahampugh.recipes.jss.prod.CarbonCopyCloner
+ParentRecipe: com.github.grahampugh.recipes.jss-prod.prod-self-service
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Carbon Copy Cloner
+
+Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: JSS recipes are being removed from grahampugh-recipes. For examples of functional jamf recipes, see grahampugh/jss-recipes

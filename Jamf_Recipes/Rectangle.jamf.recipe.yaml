@@ -7,17 +7,14 @@ Input:
   NAME: Rectangle
   CATEGORY: Productivity
   GROUP_NAME: "%NAME%-update-smart"
-  GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
-  POLICY_TEMPLATE: Policy-install-latest.xml
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
   POLICY_NAME: "Install Latest %NAME%"
-  POLICY_RUN_COMMAND: "echo 'Installation of %NAME% complete'"
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
   SELF_SERVICE_DESCRIPTION: Rectangle is an Open Source application that allows you to easily rearrange your open application windows with shortcut key combinations.
   SELF_SERVICE_ICON: "%NAME%.png"
-  INSTALL_BUTTON_TEXT: "Install %version%"
-  REINSTALL_BUTTON_TEXT: "Install %version%"
   UPDATE_PREDICATE: "pkg_uploaded == False"
 
 Process:
@@ -30,8 +27,6 @@ Process:
   - Processor: StopProcessingIf
     Arguments:
       predicate: "%UPDATE_PREDICATE%"
-
-  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
     Arguments:

@@ -1,0 +1,19 @@
+Comment: Options for INSTALLER are - erase-install, erase-install-nopython, erase-install-depnotify
+Description: Downloads the latest version of erase-install and uploads the package to Jamf.
+Identifier: com.github.grahampugh.recipes.jamf.erase-install-pkg-upload
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.grahampugh.recipes.pkg.erase-install
+
+Input:
+  CATEGORY: Administration
+  NAME: erase-install
+  INSTALLER: erase-install-depnotify
+
+Process:
+  - Arguments:
+      category_name: "%CATEGORY%"
+    Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+
+  - Arguments:
+      pkg_category: "%CATEGORY%"
+    Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader

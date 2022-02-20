@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Comment</key>
+        <string>Created with Recipe Robot v2.3.0 (https://github.com/homebysix/recipe-robot)</string>
+        <key>Description</key>
+        <string>Downloads the latest version of XQuartz and uploads the package to Jamf.</string>
+        <key>Identifier</key>
+        <string>com.github.grahampugh.recipes.jamf.XQuartz</string>
+        <key>Input</key>
+        <dict>
+            <key>CATEGORY</key>
+            <string>Productivity</string>
+            <key>NAME</key>
+            <string>XQuartz</string>
+        </dict>
+        <key>MinimumVersion</key>
+        <string>2.3</string>
+        <key>ParentRecipe</key>
+        <string>com.github.scriptingosx.pkg.XQuartz</string>
+        <key>Process</key>
+        <array>
+            <dict>
+                <key>Arguments</key>
+                <dict>
+                    <key>category_name</key>
+                    <string>%CATEGORY%</string>
+                </dict>
+                <key>Processor</key>
+                <string>com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader</string>
+            </dict>
+            <dict>
+                <key>Arguments</key>
+                <dict>
+                    <key>pkg_category</key>
+                    <string>%CATEGORY%</string>
+                </dict>
+                <key>Processor</key>
+                <string>com.github.grahampugh.jamf-upload.processors/JamfPackageUploader</string>
+            </dict>
+        </array>
+    </dict>
+</plist>
