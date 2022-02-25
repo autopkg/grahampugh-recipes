@@ -15,6 +15,14 @@ A processor for AutoPkg that will upload a Patch Policy to a Jamf Cloud or on-pr
 - **API_PASSWORD:**
   - **required:** True
   - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file.
+- **pkg_name**
+  - **required:** False
+  - **description:** "Name of package which should be used in the patch. Mostly provided by previous AutoPKG recipe/processor.
+  - **default:** ""
+- **version**
+  - **required:** False
+  - **description:** Version string - provided by previous pkg recipe/processor.
+  - **default:** ""
 - **patch_softwaretitle**:
   - **required**: True
   - **description**: Name of the patch softwaretitle (e.g. 'Mozilla Firefox') used in Jamf. You need to create the patch softwaretitle by hand, since there is currently no way to create these via the API.
