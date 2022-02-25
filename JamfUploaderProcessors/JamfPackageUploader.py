@@ -343,7 +343,7 @@ class JamfPackageUploader(JamfUploaderBase):
 
     def create_session(self, jamf_url, user, password):
         """create session cookies for the package upload endpoint"""
-        url = jamf_url
+        url = jamf_url + "/?failover"
         tmp_dir = self.make_tmp_dir()
         cookie_jar = os.path.join(tmp_dir, "curl_cookies_from_jamf_upload.txt")
         additional_headers = [
@@ -562,7 +562,6 @@ class JamfPackageUploader(JamfUploaderBase):
             self.pkg_name = os.path.basename(self.pkg_path)
         self.version = self.env.get("version")
         self.replace = self.env.get("replace_pkg")
-        self.jcds_mode = self.env.get("jcds_mode")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False
@@ -570,6 +569,10 @@ class JamfPackageUploader(JamfUploaderBase):
         # handle setting replace_metadata in overrides
         if not self.replace_metadata or self.replace_metadata == "False":
             self.replace_metadata = False
+        self.jcds_mode = self.env.get("jcds_mode")
+        # handle setting jcds_mode in overrides
+        if not self.jcds_mode or self.jcds_mode == "False":
+            self.jcds_mode = False
         self.jamf_url = self.env.get("JSS_URL")
         self.jamf_user = self.env.get("API_USERNAME")
         self.jamf_password = self.env.get("API_PASSWORD")
