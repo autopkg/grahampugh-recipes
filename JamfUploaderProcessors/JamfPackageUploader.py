@@ -694,34 +694,36 @@ class JamfPackageUploader(JamfUploaderBase):
                             enc_creds=enc_creds,
                             token=token,
                         )
-                        # 2. start the session
-                        self.create_session(
-                            self.jamf_url, self.jamf_user, self.jamf_password
-                        )
-                        # 3. get the required tokens and URL
-                        (
-                            session_token,
-                            x_auth_token,
-                            pkg_upload_url,
-                        ) = self.get_session_token(self.jamf_url, pkg_id)
-                        # 4. upload the package
-                        self.post_pkg(
-                            self.jamf_url,
-                            self.pkg_name,
-                            self.pkg_path,
-                            x_auth_token,
-                            pkg_upload_url,
-                        )
-                        # 5. record the package in Jamf Pro
-                        self.create_pkg_object(
-                            self.jamf_url,
-                            self.pkg_name,
-                            pkg_id,
-                            session_token,
-                            pkg_category_id,
-                        )
-                        self.pkg_uploaded = True  # TODO - needs to be validated
-                        self.pkg_metadata_updated = True  # TODO - needs to be validated
+                    else:
+                        pkg_category_id = -1
+                    # 2. start the session
+                    self.create_session(
+                        self.jamf_url, self.jamf_user, self.jamf_password
+                    )
+                    # 3. get the required tokens and URL
+                    (
+                        session_token,
+                        x_auth_token,
+                        pkg_upload_url,
+                    ) = self.get_session_token(self.jamf_url, pkg_id)
+                    # 4. upload the package
+                    self.post_pkg(
+                        self.jamf_url,
+                        self.pkg_name,
+                        self.pkg_path,
+                        x_auth_token,
+                        pkg_upload_url,
+                    )
+                    # 5. record the package in Jamf Pro
+                    self.create_pkg_object(
+                        self.jamf_url,
+                        self.pkg_name,
+                        pkg_id,
+                        session_token,
+                        pkg_category_id,
+                    )
+                    self.pkg_uploaded = True  # TODO - needs to be validated
+                    self.pkg_metadata_updated = True  # TODO - needs to be validated
                 else:
                     # post the package (won't run if the pkg exists and replace is False)
                     r = self.curl_pkg(
