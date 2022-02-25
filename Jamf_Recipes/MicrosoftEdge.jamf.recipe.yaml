@@ -25,6 +25,8 @@ Process:
       category_name: "%CATEGORY%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      category_name: "%CATEGORY%"
 
   - Processor: StopProcessingIf
     Arguments:
