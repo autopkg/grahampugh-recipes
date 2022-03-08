@@ -48,6 +48,9 @@ class LastRecipeRunChecker(Processor):
     output_variables = {
         "url": {"description": ("the download URL.")},
         "version": {"description": ("The current package version.")},
+        "minimum_os_version": {
+            "description": ("The minimum OS version compatibility of a package.")
+        },
         "license_key": {"description": ("The outputted value for license_key.")},
         "pkg_path": {"description": ("the package path.")},
         "pkg_name": {"description": ("the package name.")},
@@ -87,6 +90,7 @@ class LastRecipeRunChecker(Processor):
         # make sure all the values were obtained from the file
         data = self.get_latest_recipe_run_info(cache_dir, identifier, info_file)
         self.env["version"] = data.get("version")
+        self.env["minimum_os_version"] = data.get("minimum_os_version")
         self.env["license_key"] = data.get("license_key")
         self.env["pkg_name"] = data.get("pkg_name")
         self.env["pkg_uploaded"] = data.get("pkg_uploaded")
@@ -110,6 +114,7 @@ class LastRecipeRunChecker(Processor):
         self.output(f"Package name: {self.env['pkg_name']}")
         self.output(f"Package path: {self.env['pkg_path']}")
         self.output(f"Version: {self.env['version']}")
+        self.output(f"Minimum OS version: {self.env['minimum_os_version']}")
         self.output(f"URL: {self.env['url']}")
         self.output(f"Pkg category: {self.env['PKG_CATEGORY']}")
         self.output(f"Policy name: {self.env['LAST_RUN_POLICY_NAME']}")

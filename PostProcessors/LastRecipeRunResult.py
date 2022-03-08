@@ -73,6 +73,14 @@ class LastRecipeRunResult(Processor):
             "required": False,
             "default": None,
         },
+        "minimum_os_version": {
+            "description": (
+                "The minimum OS version compatibility of a package, "
+                "determined by a PlistReader processor."
+            ),
+            "required": False,
+            "default": None,
+        },
         "SELFSERVICE_DESCRIPTION": {
             "description": ("The self-service description in Jamf Pro."),
             "required": False,
@@ -89,6 +97,9 @@ class LastRecipeRunResult(Processor):
         "pkg_name": {"description": ("the package name.")},
         "PKG_CATEGORY": {"description": ("The package category.")},
         "policy_name": {"description": ("The policy name.")},
+        "minimum_os_version": {
+            "description": ("The minimum OS version compatibility of a package.")
+        },
         "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
     }
 
@@ -117,6 +128,7 @@ class LastRecipeRunResult(Processor):
         license_key = self.env.get("license_key")
         category = self.env.get("PKG_CATEGORY")
         policy_name = self.env.get("policy_name")
+        minimum_os_version = self.env.get("minimum_os_version")
         self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
 
         if pathname:
@@ -137,6 +149,8 @@ class LastRecipeRunResult(Processor):
             self.output("Pkg Category: {}".format(category))
         if policy_name:
             self.output("Policy name: {}".format(policy_name))
+        if minimum_os_version:
+            self.output("Minimum OS version: {}".format(minimum_os_version))
         if self_service_description:
             self.output("Self Service Description: {}".format(self_service_description))
 
@@ -154,6 +168,7 @@ class LastRecipeRunResult(Processor):
         data["license_key"] = license_key
         data["category"] = category
         data["policy_name"] = policy_name
+        data["minimum_os_version"] = minimum_os_version
         data["self_service_description"] = self_service_description
 
         with open(output_file, "w") as outfile:
