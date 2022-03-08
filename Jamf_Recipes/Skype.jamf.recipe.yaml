@@ -5,21 +5,17 @@ ParentRecipe: com.github.autopkg.pkg.Skype
 
 Input:
   NAME: Skype
+  VERSIONTYPE: CFBundleShortVersionString
   CATEGORY: Productivity
   GROUP_NAME: "%NAME%-update-smart"
-  GROUP_TEMPLATE: SmartGroup-update-smart-EA-regex.xml
-  EXTENSION_ATTRIBUTE_NAME: "%NAME% Version"
-  EXTENSION_ATTRIBUTE_SCRIPT: ExtensionAttribute-CFBundleVersion.sh
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
-  POLICY_TEMPLATE: Policy-install-latest.xml
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
   POLICY_NAME: "Install Latest %NAME%"
-  POLICY_RUN_COMMAND: "echo 'Installation of %NAME% complete'"
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
   SELF_SERVICE_DESCRIPTION: Skype is a freemium voice over IP service and instant messaging client, currently developed by Microsoft-owned Skype Technologies.
   SELF_SERVICE_ICON: "%NAME%.png"
-  INSTALL_BUTTON_TEXT: "Install %version%"
-  REINSTALL_BUTTON_TEXT: "Install %version%"
   UPDATE_PREDICATE: "pkg_uploaded == False"
 
 Process:
@@ -32,13 +28,6 @@ Process:
   - Processor: StopProcessingIf
     Arguments:
       predicate: "%UPDATE_PREDICATE%"
-
-  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
-
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfExtensionAttributeUploader
-    Arguments:
-      ea_script_path: "%EXTENSION_ATTRIBUTE_SCRIPT%"
-      ea_name: "%EXTENSION_ATTRIBUTE_NAME%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
     Arguments:

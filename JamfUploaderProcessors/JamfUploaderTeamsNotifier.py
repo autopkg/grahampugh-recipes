@@ -47,10 +47,18 @@ class JamfUploaderTeamsNotifier(JamfUploaderBase):
             "description": ("Untested product name from a jamf recipe."),
         },
         "NAME": {"required": False, "description": ("Generic product name.")},
+        "patch_name": {
+            "required": False,
+            "description": ("Name of Patch Policy being updated"),
+        },
         "pkg_name": {"required": False, "description": ("Package in policy.")},
         "jamfpackageuploader_summary_result": {
             "required": False,
             "description": ("Summary results of package processors."),
+        },
+        "jamfpatchuploader_summary_result": {
+            "required": False,
+            "description": ("Summary results of patch processors."),
         },
         "jamfpolicyuploader_summary_result": {
             "required": False,
@@ -90,8 +98,12 @@ class JamfUploaderTeamsNotifier(JamfUploaderBase):
         name = self.env.get("NAME")
         version = self.env.get("version")
         pkg_name = self.env.get("pkg_name")
+        patch_name = self.env.get("patch_name")
         jamfpackageuploader_summary_result = self.env.get(
             "jamfpackageuploader_summary_result"
+        )
+        jamfpatchuploader_summary_result = self.env.get(
+            "jamfpatchuploader_summary_result"
         )
         jamfpolicyuploader_summary_result = self.env.get(
             "jamfpolicyuploader_summary_result"
@@ -113,38 +125,48 @@ class JamfUploaderTeamsNotifier(JamfUploaderBase):
         self.output(f"Package Category: {category}")
         self.output(f"Policy Category: {policy_category}")
 
-        webhook_text = (
-            "{"
-            + "'type': 'message', "
-            + "'attachments': "
-            + "["
-            + "{"
-            + "'contentType': 'application/vnd.microsoft.teams.card.o365connector', "
-            + "'content': "
-            + "{"
-            + "'type': 'MessageCard', "
-            + "'$schema': 'https://schema.org/extensions', "
-            + "'summary': 'New item uploaded to Jamf Pro', "
-            + "'themeColor': '778eb1', "
-            + "'title': 'New item uploaded to Jamf Pro', "
-            + "'sections': "
-            + "["
-            + "{"
-            + "'activityTitle': '', "
-            + "'activityImage': '', "
-            + "'facts': []"
-            + "}"
-            + "]"
-            + "}"
-            + "}"
-            + "]"
-            + "}"
-        )
+        webhook_text = {}
+        webhook_text["type"] = "message"
+        webhook_text["attachments"] = [{}]
+        webhook_text["attachments"][0][
+            "contentType"
+        ] = "application/vnd.microsoft.teams.card.o365connector"
+        webhook_text["attachments"][0]["content"] = {}
+        webhook_text["attachments"][0]["content"]["type"] = "MessageCard"
+        webhook_text["attachments"][0]["content"][
+            "$schema"
+        ] = "https://schema.org/extensions"
+        webhook_text["attachments"][0]["content"][
+            "summary"
+        ] = "New item uploaded to Jamf Pro"
+        webhook_text["attachments"][0]["content"]["themeColor"] = "778eb1"
+        webhook_text["attachments"][0]["content"][
+            "title"
+        ] = "New item uploaded to Jamf Pro"
+        webhook_text["attachments"][0]["content"]["sections"] = [{}]
+        webhook_text["attachments"][0]["content"]["sections"][0]["activityTitle"] = ""
+        webhook_text["attachments"][0]["content"]["sections"][0][
+            "activitySubtitle"
+        ] = ""
+        webhook_text["attachments"][0]["content"]["sections"][0]["activityImage"] = ""
+        webhook_text["attachments"][0]["content"]["sections"][0]["facts"] = []
 
-        webhook_template = json.loads(webhook_text)
+        if (
+            jamfpackageuploader_summary_result
+            and jamfpatchuploader_summary_result
+            and jamfpolicyuploader_summary_result
+        ):
+            webhook_text["attachments"][0]["content"]["sections"][0]["facts"] += [
+                {"name": "Title", "value": selfservice_policy_name},
+                {"name": "Version", "value": version},
+                {"name": "Category", "value": category},
+                {"name": "Policy Name", "value": policy_name},
+                {"name": "Package", "value": pkg_name},
+                {"name": "Patch Policy", "value": patch_name},
+            ]
 
-        if jamfpackageuploader_summary_result and jamfpolicyuploader_summary_result:
-            webhook_template["attachments"][0]["content"]["sections"][0]["facts"] += [
+        elif jamfpackageuploader_summary_result and jamfpolicyuploader_summary_result:
+            webhook_text["attachments"][0]["content"]["sections"][0]["facts"] += [
                 {"name": "Title", "value": selfservice_policy_name},
                 {"name": "Version", "value": version},
                 {"name": "Category", "value": category},
@@ -152,23 +174,32 @@ class JamfUploaderTeamsNotifier(JamfUploaderBase):
                 {"name": "Package", "value": pkg_name},
             ]
 
+        elif jamfpackageuploader_summary_result and jamfpatchuploader_summary_result:
+            webhook_text["attachments"][0]["content"]["sections"][0]["facts"] += [
+                {"name": "Title", "value": selfservice_policy_name},
+                {"name": "Version", "value": version},
+                {"name": "Category", "value": category},
+                {"name": "Package", "value": pkg_name},
+                {"name": "Patch Policy", "value": patch_name},
+            ]
+
         elif jamfpolicyuploader_summary_result:
-            webhook_template["attachments"][0]["content"]["sections"][0]["facts"] += [
+            webhook_text["attachments"][0]["content"]["sections"][0]["facts"] += [
                 {"name": "Title", "value": selfservice_policy_name},
                 {"name": "Category", "value": category},
                 {"name": "Policy Name", "value": policy_name},
             ]
-            webhook_template["attachments"][0]["content"]["sections"] += [
+            webhook_text["attachments"][0]["content"]["sections"] += [
                 {"text": "No new package uploaded."}
             ]
 
         elif jamfpackageuploader_summary_result:
-            webhook_template["attachments"][0]["content"]["sections"][0]["facts"] += [
+            webhook_text["attachments"][0]["content"]["sections"][0]["facts"] += [
                 {"name": "Version", "value": version},
                 {"name": "Category", "value": category},
                 {"name": "Package", "value": pkg_name},
             ]
-            webhook_template["attachments"][0]["content"]["sections"] += [
+            webhook_text["attachments"][0]["content"]["sections"] += [
                 {"text": "No new package uploaded."}
             ]
 
@@ -176,26 +207,25 @@ class JamfUploaderTeamsNotifier(JamfUploaderBase):
             self.output("Nothing to report to Teams")
             return
 
-        webhook_template["attachments"][0]["content"]["sections"][0][
+        webhook_text["attachments"][0]["content"]["sections"][0][
             "activityTitle"
         ] = teams_username
-        webhook_template["attachments"][0]["content"]["sections"][0][
+        webhook_text["attachments"][0]["content"]["sections"][0][
             "activitySubtitle"
         ] = jss_url
 
         if teams_icon_url:
-            webhook_template["attachments"][0]["content"]["sections"][0][
+            webhook_text["attachments"][0]["content"]["sections"][0][
                 "activityImage"
             ] = teams_icon_url
 
-        teams_json = json.dumps(webhook_template)
+        teams_json = json.dumps(webhook_text)
 
         count = 0
         while True:
             count += 1
             self.output(
-                "Teams webhook post attempt {}".format(count),
-                verbose_level=2,
+                "Teams webhook post attempt {}".format(count), verbose_level=2,
             )
             r = self.curl(request="POST", url=teams_webhook_url, data=teams_json)
             # check HTTP response

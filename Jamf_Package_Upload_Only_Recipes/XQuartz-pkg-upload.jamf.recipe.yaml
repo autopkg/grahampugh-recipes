@@ -1,0 +1,22 @@
+Comment: Created with Recipe Robot v2.3.0 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of XQuartz and uploads the package to Jamf.
+Identifier: com.github.grahampugh.recipes.jamf.XQuartz-pkg-upload
+MinimumVersion: "2.3"
+ParentRecipe: com.github.scriptingosx.pkg.XQuartz
+
+Input:
+  CATEGORY: Productivity
+  NAME: XQuartz
+
+Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: Example Jamf recipes are being removed from grahampugh.recipes. Jamf recipes which are functionally equivalent to old jss recipes exist in app-specific folders.
+
+  - Arguments:
+      category_name: "%CATEGORY%"
+    Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+
+  - Arguments:
+      pkg_category: "%CATEGORY%"
+    Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader

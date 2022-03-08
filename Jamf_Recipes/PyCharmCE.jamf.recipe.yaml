@@ -7,17 +7,14 @@ Input:
   NAME: PyCharm CE
   CATEGORY: Computer Science
   GROUP_NAME: "%NAME%-update-smart"
-  GROUP_TEMPLATE: SmartGroup-update-smart-regex.xml
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
-  POLICY_TEMPLATE: Policy-install-latest.xml
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
   POLICY_NAME: "Install Latest %NAME%"
-  POLICY_RUN_COMMAND: "echo 'Installation of %NAME% complete'"
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
   SELF_SERVICE_DESCRIPTION: PyCharm CE the community edition of an Integrated Development Environment (IDE) used for programming in Python. It provides code analysis, a graphical debugger, an integrated unit tester, integration with version control systems (VCS), and supports web development with Django.
   SELF_SERVICE_ICON: "%NAME%.png"
-  INSTALL_BUTTON_TEXT: "Install %version%"
-  REINSTALL_BUTTON_TEXT: "Install %version%"
   UPDATE_PREDICATE: "pkg_uploaded == False"
 
 Process:
@@ -30,10 +27,6 @@ Process:
   - Processor: StopProcessingIf
     Arguments:
       predicate: "%UPDATE_PREDICATE%"
-
-  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
-    Arguments:
-      version: "%version%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
     Arguments:
