@@ -197,7 +197,8 @@ class JamfPackageUploader(JamfUploaderBase):
             ),
         ]
         self.output(
-            f"Mount command: {' '.join(mount_cmd)}", verbose_level=3,
+            f"Mount command: {' '.join(mount_cmd)}",
+            verbose_level=3,
         )
 
         r = subprocess.check_output(mount_cmd)
@@ -214,7 +215,8 @@ class JamfPackageUploader(JamfUploaderBase):
         try:
             r = subprocess.check_output(cmd)
             self.output(
-                r.decode("ascii"), verbose_level=2,
+                r.decode("ascii"),
+                verbose_level=2,
             )
         except subprocess.CalledProcessError:
             self.output("WARNING! Unmount failed.")
@@ -230,11 +232,13 @@ class JamfPackageUploader(JamfUploaderBase):
             else:
                 self.output("No existing package found")
                 self.output(
-                    f"Expected path: {existing_pkg_path}", verbose_level=2,
+                    f"Expected path: {existing_pkg_path}",
+                    verbose_level=2,
                 )
         else:
             self.output(
-                f"Expected path not found!: {dirname}", verbose_level=2,
+                f"Expected path not found!: {dirname}",
+                verbose_level=2,
             )
 
     def copy_pkg(self, mount_share, pkg_path, pkg_name):
@@ -270,7 +274,8 @@ class JamfPackageUploader(JamfUploaderBase):
                 for member in files:
                     zip_handle.write(os.path.join(root, member))
             self.output(
-                f"Closing: {zip_name}", verbose_level=2,
+                f"Closing: {zip_name}",
+                verbose_level=2,
             )
         return zip_name
 
@@ -285,7 +290,12 @@ class JamfPackageUploader(JamfUploaderBase):
         )
 
         request = "GET"
-        r = self.curl(request=request, url=url, enc_creds=enc_creds, token=token,)
+        r = self.curl(
+            request=request,
+            url=url,
+            enc_creds=enc_creds,
+            token=token,
+        )
 
         if r.status_code == 200:
             obj = json.loads(r.output)
@@ -337,7 +347,12 @@ class JamfPackageUploader(JamfUploaderBase):
         self.output(f"Checking for existing '{category}' on {url}")
         obj_type = "category"
         obj_name = category
-        obj_id = self.get_uapi_obj_id_from_name(url, obj_type, obj_name, token,)
+        obj_id = self.get_uapi_obj_id_from_name(
+            url,
+            obj_type,
+            obj_name,
+            token,
+        )
         self.output(f"ID for category {category}: {obj_id}", verbose_level=1)
         return obj_id
 
@@ -358,7 +373,11 @@ class JamfPackageUploader(JamfUploaderBase):
             "--location",
         ]
         request = "POST"
-        r = self.curl(request=request, url=url, additional_headers=additional_headers,)
+        r = self.curl(
+            request=request,
+            url=url,
+            additional_headers=additional_headers,
+        )
 
         self.output(f"HTTP response: {r.status_code}", verbose_level=1)
         self.output(f"Headers: {r.headers}", verbose_level=2)
@@ -371,7 +390,11 @@ class JamfPackageUploader(JamfUploaderBase):
             "--location",
         ]
         request = "GET"
-        r = self.curl(request=request, url=url, additional_headers=additional_headers,)
+        r = self.curl(
+            request=request,
+            url=url,
+            additional_headers=additional_headers,
+        )
         self.output(f"HTTP response: {r.status_code}", verbose_level=1)
         self.output(str(r.output), verbose_level=3)
 
@@ -419,7 +442,11 @@ class JamfPackageUploader(JamfUploaderBase):
             "--compressed",
         ]
         request = "POST"
-        r = self.curl(request=request, url=url, additional_headers=additional_headers,)
+        r = self.curl(
+            request=request,
+            url=url,
+            additional_headers=additional_headers,
+        )
         self.output(f"HTTP response: {r.status_code}", verbose_level=1)
         self.output(r.output, verbose_level=3)
 
@@ -467,7 +494,11 @@ class JamfPackageUploader(JamfUploaderBase):
             "--compressed",
         ]
         request = "POST"
-        r = self.curl(request=request, url=url, additional_headers=additional_headers,)
+        r = self.curl(
+            request=request,
+            url=url,
+            additional_headers=additional_headers,
+        )
         self.output("HTTP response: {}".format(r.status_code), verbose_level=1)
         self.output(r.output, verbose_level=3)
 
@@ -512,14 +543,16 @@ class JamfPackageUploader(JamfUploaderBase):
         url = "{}/{}/id/{}".format(jamf_url, self.api_endpoints(object_type), pkg_id)
 
         self.output(
-            pkg_data, verbose_level=2,
+            pkg_data,
+            verbose_level=2,
         )
 
         count = 0
         while True:
             count += 1
             self.output(
-                f"Package metadata upload attempt {count}", verbose_level=2,
+                f"Package metadata upload attempt {count}",
+                verbose_level=2,
             )
 
             pkg_xml = self.write_temp_file(pkg_data)
@@ -541,7 +574,8 @@ class JamfPackageUploader(JamfUploaderBase):
                     "WARNING: Package metadata update did not succeed after 5 attempts"
                 )
                 self.output(
-                    f"HTTP POST Response Code: {r.status_code}", verbose_level=1,
+                    f"HTTP POST Response Code: {r.status_code}",
+                    verbose_level=1,
                 )
                 raise ProcessorError("ERROR: Package metadata upload failed ")
             sleep(30)
@@ -689,6 +723,10 @@ class JamfPackageUploader(JamfUploaderBase):
                     )
                 if self.jcds_mode:
                     # use direct upload method if jcds_mode is True
+                    self.output(
+                        "Uploading package using experimental JCDS mode",
+                        verbose_level=1,
+                    )
                     if self.pkg_category:
                         # 1. get the ID of a category
                         pkg_category_id = self.get_pkg_category_id(
@@ -780,7 +818,8 @@ class JamfPackageUploader(JamfUploaderBase):
             and not self.jcds_mode
         ):
             self.output(
-                "Updating package metadata for {}".format(pkg_id), verbose_level=1,
+                "Updating package metadata for {}".format(pkg_id),
+                verbose_level=1,
             )
             self.update_pkg_metadata(
                 self.jamf_url,
@@ -794,7 +833,8 @@ class JamfPackageUploader(JamfUploaderBase):
             self.pkg_metadata_updated = True
         elif self.smb_url and not pkg_id:
             self.output(
-                "Creating package metadata", verbose_level=1,
+                "Creating package metadata",
+                verbose_level=1,
             )
             self.update_pkg_metadata(
                 self.jamf_url,
@@ -807,7 +847,8 @@ class JamfPackageUploader(JamfUploaderBase):
             self.pkg_metadata_updated = True
         elif not self.jcds_mode:
             self.output(
-                "Not updating package metadata", verbose_level=1,
+                "Not updating package metadata",
+                verbose_level=1,
             )
             self.pkg_metadata_updated = False
 
