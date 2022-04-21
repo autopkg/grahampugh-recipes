@@ -280,12 +280,9 @@ class JamfMacAppUploader(JamfUploaderBase):
                         )
                 # obtain the VPP location
                 vpp_id = self.get_vpp_id(self.jamf_url, token)
-                if self.selfservice_icon_uri:
+                if vpp_id:
                     self.output(
-                        "Existing Self Service icon is '{}'".format(
-                            self.selfservice_icon_uri
-                        ),
-                        verbose_level=1,
+                        "Existing VPP ID is '{}'".format(vpp_id), verbose_level=1,
                     )
 
                 # we need to substitute the values in the MAS app name and template now to
