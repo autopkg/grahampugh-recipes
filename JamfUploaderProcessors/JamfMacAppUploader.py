@@ -96,6 +96,8 @@ class JamfMacAppUploader(JamfUploaderBase):
                 self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
                 obj_id = obj["id"]
             return obj_id
+        else:
+            self.output(f"Return code: {r.status_code}", verbose_level=2)
 
     def prepare_macapp_template(self, macapp_name, macapp_template):
         """prepare the macapp contents"""
