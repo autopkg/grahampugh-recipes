@@ -55,8 +55,8 @@ class JamfIconUploader(JamfUploaderBase):
     }
 
     output_variables = {
-        "icon_uri": {"description": "The created/updated category."},
-        "icon_id": {"description": "The created/updated category."},
+        "selfservice_icon_uri": {"description": "The uploaded icon's URI."},
+        "icon_id": {"description": "The cuploaded icon's ID."},
         "jamficonuploader_summary_result": {
             "description": "Description of interesting results.",
         },
@@ -149,6 +149,7 @@ class JamfIconUploader(JamfUploaderBase):
 
         # output the summary
         self.env["selfservice_icon_uri"] = selfservice_icon_uri
+        self.env["icon_id"] = icon_id
         self.env["jamficonuploader_summary_result"] = {
             "summary_text": "The following icons were uploaded in Jamf Pro:",
             "report_fields": ["selfservice_icon_uri", "icon_id"],
