@@ -22,7 +22,9 @@ __all__ = ["JamfIconUploader"]
 
 
 class JamfIconUploader(JamfUploaderBase):
-    """A processor for AutoPkg that will upload an icon to a Jamf Cloud or on-prem server."""
+    """A processor for AutoPkg that will upload an icon to a Jamf Cloud or on-prem server.
+    Note that an icon can only be successsfully injected into a Mac App Store app item if
+    Cloud Services Connection is enabled."""
 
     input_variables = {
         "JSS_URL": {
