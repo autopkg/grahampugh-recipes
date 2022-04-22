@@ -71,7 +71,7 @@ class JamfIconUploader(JamfUploaderBase):
         while True:
             count += 1
             self.output(
-                f"Icon upload attempt {count}", verbose_level=2,
+                f"Icon download attempt {count}", verbose_level=2,
             )
             request = "GET"
             r = self.curl(request=request, url=icon_uri)
@@ -144,16 +144,19 @@ class JamfIconUploader(JamfUploaderBase):
         r = self.upload_icon(self.jamf_url, self.icon_file, token,)
 
         # get the uri from the output
-        selfservice_icon_uri = r.output["url"]
-        icon_id = r.output["id"]
+        self.selfservice_icon_uri = r.output["url"]
+        self.icon_id = r.output["id"]
 
         # output the summary
-        self.env["selfservice_icon_uri"] = selfservice_icon_uri
-        self.env["icon_id"] = icon_id
+        self.env["selfservice_icon_uri"] = self.selfservice_icon_uri
+        self.env["icon_id"] = self.icon_id
         self.env["jamficonuploader_summary_result"] = {
             "summary_text": "The following icons were uploaded in Jamf Pro:",
             "report_fields": ["selfservice_icon_uri", "icon_id"],
-            "data": {"selfservice_icon_uri": selfservice_icon_uri, "icon_id": icon_id},
+            "data": {
+                "selfservice_icon_uri": self.selfservice_icon_uri,
+                "icon_id": self.icon_id,
+            },
         }
 
 
