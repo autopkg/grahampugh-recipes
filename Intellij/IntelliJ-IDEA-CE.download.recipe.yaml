@@ -1,9 +1,9 @@
 Description: Downloads latest Intellij disk image.
-Identifier: com.github.grahampugh.recipes.download.intellij
+Identifier: com.github.grahampugh.recipes.download.IntelliJ-IDEA-CE
 MinimumVersion: "2.3"
 
 Input:
-  NAME: Intellij
+  NAME: Intellij IDEA CE
 
 Process:
   - Processor: IntellijURLProvider
