@@ -1,0 +1,21 @@
+Description: Downloads latest Intellij disk image.
+Identifier: com.github.grahampugh.recipes.download.intellij
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Intellij
+
+Process:
+  - Processor: IntellijURLProvider
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.dmg"
+      url: "%url%"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/IntelliJ IDEA CE.app"
+      requirement: anchor apple generic and identifier "com.jetbrains.intellij.ce" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */) and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"

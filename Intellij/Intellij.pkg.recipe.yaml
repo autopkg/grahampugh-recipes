@@ -1,0 +1,17 @@
+Description: Downloads the latest version of dupeGuru and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.intellij
+ParentRecipe: com.github.grahampugh.recipes.download.intellij
+MinimumVersion: "2.3"
+
+Input:
+  NAME: IntelliJ
+
+Process:
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: "%pathname%"
+
+  - Processor: AppPkgCreator
+    Arguments:
+      force_pkg_build: false
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
