@@ -302,12 +302,13 @@ class JamfUploaderBase(Processor):
         # By default, we obtain json as its easier to parse. However,
         # some endpoints (For example the 'patchsoftwaretitle' endpoint)
         # do not return complete json, so we have to get the xml instead.
-        elif (request == "GET" or request == "DELETE") and "legacy/packages" not in url:
+        elif request == "GET" or request == "DELETE":
             curl_cmd.extend(["--output", output_file])
-            if force_xml:
-                curl_cmd.extend(["--header", "Accept: application/xml"])
-            else:
-                curl_cmd.extend(["--header", "Accept: application/json"])
+            if "legacy/packages" not in url:
+                if force_xml:
+                    curl_cmd.extend(["--header", "Accept: application/xml"])
+                else:
+                    curl_cmd.extend(["--header", "Accept: application/json"])
 
         # icon upload (Classic API) requires special method
         elif request == "POST" and "fileuploads" in url:
@@ -321,11 +322,11 @@ class JamfUploaderBase(Processor):
 
         # Content-Type for POST/PUT
         elif request == "POST" or request == "PUT":
+            curl_cmd.extend(["--output", output_file])
             if data and "slack" in url or "webhook.office" in url:
                 # slack and teams require a data argument
                 curl_cmd.extend(["--data", data])
                 curl_cmd.extend(["--header", "Content-type: application/json"])
-                curl_cmd.extend(["--output", output_file])
             elif data:
                 # jamf data upload requires upload-file argument
                 curl_cmd.extend(["--upload-file", data])
@@ -477,12 +478,14 @@ class JamfUploaderBase(Processor):
         if r.status_code == 200:
             object_list = json.loads(r.output)
             self.output(
-                object_list, verbose_level=4,
+                object_list,
+                verbose_level=4,
             )
             obj_id = 0
             for obj in object_list[self.object_list_types(object_type)]:
                 self.output(
-                    obj, verbose_level=4,
+                    obj,
+                    verbose_level=4,
                 )
                 # we need to check for a case-insensitive match
                 if obj["name"].lower() == object_name.lower():
@@ -518,7 +521,9 @@ class JamfUploaderBase(Processor):
                         replacement_key = self.env.get(found_key)
                     data = data.replace(f"%{found_key}%", replacement_key)
                 else:
-                    self.output(f"WARNING: '{found_key}' has no replacement object!",)
+                    self.output(
+                        f"WARNING: '{found_key}' has no replacement object!",
+                    )
                     raise ProcessorError("Unsubstitutable key in template found")
         return data
 
@@ -659,7 +664,9 @@ class JamfUploaderBase(Processor):
                         replacement_key = cli_custom_keys[found_key]
                     data = data.replace(f"%{found_key}%", replacement_key)
                 else:
-                    self.output(f"WARNING: '{found_key}' has no replacement object!",)
+                    self.output(
+                        f"WARNING: '{found_key}' has no replacement object!",
+                    )
         return data
 
     def pretty_print_xml(self, xml):
