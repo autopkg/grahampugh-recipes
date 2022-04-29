@@ -55,7 +55,7 @@ class JamfRecipeMaker(Processor):
 
     input_variables = {
         "RECIPE_CACHE_DIR": {"required": False, "description": ("RECIPE_CACHE_DIR.")},
-        "output_file_path": {
+        "RECIPE_OUTPUT_PATH": {
             "description": ("Path to output file."),
             "required": False,
             "default": ".",
@@ -70,14 +70,6 @@ class JamfRecipeMaker(Processor):
             "description": ("The package category in Jamf Pro."),
             "required": False,
             "default": "Applications",
-        },
-        "minimum_os_version": {
-            "description": (
-                "The minimum OS version compatibility of a package, "
-                "determined by a PlistReader processor."
-            ),
-            "required": False,
-            "default": None,
         },
     }
 
@@ -183,7 +175,7 @@ class JamfRecipeMaker(Processor):
     def main(self):
         """output the values to a file in the location provided"""
 
-        output_file_path = self.env.get("output_file_path")
+        output_file_path = self.env.get("RECIPE_OUTPUT_PATH")
 
         name = self.env.get("NAME")
         identifier_prefix = self.env.get("RECIPE_IDENTIFIER_PREFIX")
