@@ -1,0 +1,16 @@
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.MersiveSolstice-pkg-upload
+ParentRecipe: com.github.ahousseini-recipes.pkg.Mersive Solstice
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Mersive Solstice
+  CATEGORY: Applications
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+  Arguments:
+    category_name: '%CATEGORY%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
