@@ -71,6 +71,11 @@ class JamfRecipeMaker(Processor):
             "required": False,
             "default": "Applications",
         },
+        "make_category": {
+            "description": ("Add JamfCategoryUploader process if true."),
+            "required": False,
+            "default": False,
+        },
     }
 
     output_variables = {
@@ -175,16 +180,20 @@ class JamfRecipeMaker(Processor):
     def main(self):
         """output the values to a file in the location provided"""
 
+        # set variables
         output_file_path = self.env.get("RECIPE_OUTPUT_PATH")
-
         name = self.env.get("NAME")
         identifier_prefix = self.env.get("RECIPE_IDENTIFIER_PREFIX")
         category = self.env.get("CATEGORY")
-
         parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
         output_file_name = name.replace(" ", "") + "-pkg-upload.jamf.recipe.yaml"
         output_file = os.path.join(output_file_path, output_file_name)
+        make_category = self.env.get("make_category")
+        # handle setting make_category in overrides
+        if not make_category or make_category == "False":
+            make_category = False
 
+        # write recipe data
         data = {
             "Identifier": (
                 identifier_prefix + ".jamf." + name.replace(" ", "") + "-pkg-upload"
@@ -194,12 +203,15 @@ class JamfRecipeMaker(Processor):
             "Input": {"NAME": name, "CATEGORY": category},
             "Process": [],
         }
-        data["Process"].append(
-            {
-                "Processor": "com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader",
-                "Arguments": {"category_name": "%CATEGORY%"},
-            }
-        )
+        if make_category:
+            data["Process"].append(
+                {
+                    "Processor": (
+                        "com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader"
+                    ),
+                    "Arguments": {"category_name": "%CATEGORY%"},
+                }
+            )
         data["Process"].append(
             {
                 "Processor": "com.github.grahampugh.jamf-upload.processors/JamfPackageUploader",
