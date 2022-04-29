@@ -61,7 +61,7 @@ class JamfRecipeMaker(Processor):
             "default": ".",
         },
         "NAME": {"description": ("The NAME key."), "required": False},
-        "identifier_prefix": {
+        "RECIPE_IDENTIFIER_PREFIX": {
             "description": "The identifier prefix.",
             "required": False,
             "default": "com.github.autopkg.grahampugh-recipes",
@@ -186,7 +186,7 @@ class JamfRecipeMaker(Processor):
         output_file_path = self.env.get("output_file_path")
 
         name = self.env.get("NAME")
-        identifier_prefix = self.env.get("identifier_prefix")
+        identifier_prefix = self.env.get("RECIPE_IDENTIFIER_PREFIX")
         category = self.env.get("CATEGORY")
 
         parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
@@ -199,10 +199,7 @@ class JamfRecipeMaker(Processor):
             ),
             "ParentRecipe": parent_recipe,
             "MinimumVersion": "2.3",
-            "Input": {
-                "NAME": name,
-                "CATEGORY": category,
-            },
+            "Input": {"NAME": name, "CATEGORY": category},
             "Process": [],
         }
         data["Process"].append(
@@ -214,9 +211,7 @@ class JamfRecipeMaker(Processor):
         data["Process"].append(
             {
                 "Processor": "com.github.grahampugh.jamf-upload.processors/JamfPackageUploader",
-                "Arguments": {
-                    "pkg_category": "%CATEGORY%",
-                },
+                "Arguments": {"pkg_category": "%CATEGORY%"},
             }
         )
 
