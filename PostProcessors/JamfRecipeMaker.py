@@ -248,16 +248,21 @@ class JamfRecipeMaker(Processor):
             add_regex = False
 
         # parent recipes dependent on whether we are running a pkg or jss recipe
+        # and if we're running an override
         parent_recipe = ""
-        if ".jss." in self.env.get("RECIPE_CACHE_DIR"):
+        if ".jss." in self.env.get("RECIPE_CACHE_DIR") or "local." in self.env.get(
+            "RECIPE_CACHE_DIR"
+        ):
             for recipe in self.env.get("PARENT_RECIPES"):
-                if ".pkg" in recipe and "local." not in recipe:
+                if ".pkg.recipe" in recipe:
                     # is the parent recipe a yaml or plist recipe?
                     try:
                         if ".yaml" in recipe:
+                            self.output("Parent is a YAML recipe", verbose_level=2)
                             with open(recipe, "r") as in_file:
                                 parent_recipe_data = yaml.safe_load(in_file)
                         else:
+                            self.output("Parent is a PLIST recipe", verbose_level=2)
                             with open(recipe, "rb") as in_file:
                                 parent_recipe_data = load_plist(in_file)
                         parent_recipe = os.path.basename(
