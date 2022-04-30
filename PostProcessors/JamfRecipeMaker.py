@@ -249,6 +249,7 @@ class JamfRecipeMaker(Processor):
 
         # parent recipes dependent on whether we are running a pkg or jss recipe
         # and if we're running an override
+        run_recipe_identifier = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
         parent_recipe = ""
         if ".jss." in self.env.get("RECIPE_CACHE_DIR") or "local." in self.env.get(
             "RECIPE_CACHE_DIR"
@@ -301,6 +302,10 @@ class JamfRecipeMaker(Processor):
         # write recipe data
         # common settings
         data = {
+            "Comment": (
+                f"Recipe automatically generated from {run_recipe_identifier} "
+                "by JamfRecipeMaker"
+            ),
             "Identifier": (
                 identifier_prefix + ".jamf." + name.replace(" ", "") + "-pkg-upload"
             ),
