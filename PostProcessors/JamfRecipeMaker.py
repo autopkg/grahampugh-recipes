@@ -18,8 +18,9 @@
 import os.path
 import subprocess
 import sys
-from autopkglib import Processor  # pylint: disable=import-error
 from collections import OrderedDict
+from plistlib import load as load_plist
+from autopkglib import Processor  # pylint: disable=import-error
 
 try:
     from ruamel.yaml import dump
@@ -248,8 +249,29 @@ class JamfRecipeMaker(Processor):
         if ".jss." in self.env.get("RECIPE_CACHE_DIR"):
             for recipe in self.env.get("PARENT_RECIPES"):
                 if ".pkg." in recipe and "local." not in recipe:
-                    parent_recipe = os.path.basename(recipe)
+                    try:
+                        with open(recipe, "r") as in_file:
+                            parent_recipe_data = load_plist(in_file)
+                            parent_recipe = os.path.basename(
+                                parent_recipe_data["Identifier"]
+                            )
+                    except IOError:
+                        self.output(
+                            (
+                                "WARNING: could not find parent recipe identifier. "
+                                f'Defaulting to {self.env.get("RECIPE_CACHE_DIR")} '
+                                "which may need editing."
+                            )
+                        )
+                    parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
             if not parent_recipe:
+                self.output(
+                    (
+                        "WARNING: could not find parent recipe identifier. "
+                        f'Defaulting to {self.env.get("RECIPE_CACHE_DIR")} '
+                        "which may need editing."
+                    )
+                )
                 parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
         else:
             parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
