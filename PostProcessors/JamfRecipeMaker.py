@@ -20,9 +20,10 @@ import subprocess
 import sys
 from collections import OrderedDict
 from plistlib import load as load_plist
-from autopkglib import Processor  # pylint: disable=import-error
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 try:
+    from ruamel import yaml
     from ruamel.yaml import dump
     from ruamel.yaml import add_representer
     from ruamel.yaml.nodes import MappingNode
@@ -43,8 +44,10 @@ except ImportError:
             "--user",
         ]
     )
+    from ruamel import yaml
     from ruamel.yaml import dump
     from ruamel.yaml import add_representer
+    from ruamel.yaml.nodes import MappingNode
 
 
 __all__ = ["JamfRecipeMaker"]
@@ -248,10 +251,13 @@ class JamfRecipeMaker(Processor):
         parent_recipe = ""
         if ".jss." in self.env.get("RECIPE_CACHE_DIR"):
             for recipe in self.env.get("PARENT_RECIPES"):
-                if ".pkg." in recipe and "local." not in recipe:
+                if ".pkg" in recipe and "local." not in recipe:
+                    # is the parent recipe a yaml or plist recipe?
                     try:
                         with open(recipe, "rb") as in_file:
-                            parent_recipe_data = load_plist(in_file)
+                            parent_recipe_data = yaml.safe_load(in_file)
+
+                            # parent_recipe_data = load_plist(in_file)
                             parent_recipe = os.path.basename(
                                 parent_recipe_data["Identifier"]
                             )
