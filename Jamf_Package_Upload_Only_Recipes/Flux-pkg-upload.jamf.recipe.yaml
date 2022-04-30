@@ -1,0 +1,17 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.Flux by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Flux-pkg-upload
+ParentRecipe: com.github.homebysix.pkg.Flux
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Flux
+  CATEGORY: Utility
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+  Arguments:
+    category_name: '%CATEGORY%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
