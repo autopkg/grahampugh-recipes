@@ -307,9 +307,9 @@ class JamfRecipeMaker(Processor):
 
         # filename dependent on whether making policy or not
         if make_policy:
-            output_file_name = name.replace(" ", "") + ".jamf.recipe.yaml"
+            output_file_name = name.replace(" ", "") + ".jamf.recipe"
         else:
-            output_file_name = name.replace(" ", "") + "-pkg-upload.jamf.recipe.yaml"
+            output_file_name = name.replace(" ", "") + "-pkg-upload.jamf.recipe"
         if recipe_format == "yaml":
             output_file_name = output_file_name + ".yaml"
         output_file = os.path.join(output_file_path, output_file_name)
