@@ -1,12 +1,10 @@
-Comment: Created with Recipe Robot v2.3.0 (https://github.com/homebysix/recipe-robot)
-Description: Downloads the latest version of Nudge and uploads the package to Jamf.
-Identifier: com.github.grahampugh.recipes.jamf.Nudge-pkg-upload
+Description: Downloads the latest version of Threema and makes a pkg. Then, uploads to the Jamf Pro Server.
+Identifier: com.github.grahampugh.recipes.jamf.Threema-pkg-upload
 MinimumVersion: "2.3"
-ParentRecipe: com.github.grahampugh.recipes.pkg.Nudge
+ParentRecipe: com.github.grahampugh.recipes.pkg.Threema
 
 Input:
   CATEGORY: Productivity
-  NAME: Nudge
 
 Process:
   - Arguments:

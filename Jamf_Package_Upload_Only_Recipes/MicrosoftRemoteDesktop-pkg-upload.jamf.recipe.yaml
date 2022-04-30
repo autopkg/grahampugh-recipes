@@ -1,0 +1,17 @@
+Comment: Recipe automatically generated from com.github.novaksam.jss.MicrosoftRemoteDesktop by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.MicrosoftRemoteDesktop-pkg-upload
+ParentRecipe: com.github.nmcspadden.pkg.appstore
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Microsoft Remote Desktop
+  CATEGORY: Utilities
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+  Arguments:
+    category_name: '%CATEGORY%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'

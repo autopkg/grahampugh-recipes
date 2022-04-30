@@ -1,0 +1,17 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.CarbonCopyCloner by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.CarbonCopyCloner-pkg-upload
+ParentRecipe: com.github.keeleysam.recipes.pkg.CarbonCopyCloner
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Carbon Copy Cloner
+  CATEGORY: Utility
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+  Arguments:
+    category_name: '%CATEGORY%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'

@@ -7,10 +7,6 @@ Input:
   CATEGORY: Productivity
 
 Process:
-  - Processor: DeprecationWarning
-    Arguments:
-      warning_message: Example Jamf recipes are being removed from grahampugh.recipes. Jamf recipes which are functionally equivalent to old jss recipes exist in app-specific folders.
-
   - Arguments:
       category_name: "%CATEGORY%"
     Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader

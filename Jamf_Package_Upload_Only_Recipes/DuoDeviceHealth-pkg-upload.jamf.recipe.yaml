@@ -1,0 +1,17 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.DuoDeviceHealth by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.DuoDeviceHealth-pkg-upload
+ParentRecipe: com.keeleysam.recipes.pkg.DuoDeviceHealth
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Duo Device Health
+  CATEGORY: Utility
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+  Arguments:
+    category_name: '%CATEGORY%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'

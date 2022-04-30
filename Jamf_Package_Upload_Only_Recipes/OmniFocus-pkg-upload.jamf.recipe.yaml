@@ -1,10 +1,10 @@
-Comment: Recipe automatically generated from com.github.jss-recipes.jss.VisualStudioCode by JamfRecipeMaker
-Identifier: com.github.autopkg.grahampugh-recipes.jamf.VisualStudioCode-pkg-upload
-ParentRecipe: com.github.killahquam.pkg.visualstudioscode
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.OmniFocus by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.OmniFocus-pkg-upload
+ParentRecipe: com.github.autopkg.pkg.omnigroupproduct
 MinimumVersion: '2.3'
 
 Input:
-  NAME: Visual Studio Code
+  NAME: OmniFocus
   CATEGORY: Productivity
 
 Process:

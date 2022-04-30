@@ -1,11 +1,11 @@
-Comment: Recipe automatically generated from com.github.novaksam.jss.XQuartz by JamfRecipeMaker
-Identifier: com.github.autopkg.grahampugh-recipes.jamf.XQuartz-pkg-upload
-ParentRecipe: com.github.scriptingosx.pkg.XQuartz
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.GIMP by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.GIMP-pkg-upload
+ParentRecipe: io.github.hjuutilainen.pkg.GIMP
 MinimumVersion: '2.3'
 
 Input:
-  NAME: XQuartz
-  CATEGORY: Plugins and Frameworks
+  NAME: GIMP
+  CATEGORY: Digital Media
 
 Process:
 - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader

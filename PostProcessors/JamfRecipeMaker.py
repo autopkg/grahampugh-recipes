@@ -71,7 +71,7 @@ class JamfRecipeMaker(Processor):
             "required": False,
             "default": "Install Latest %NAME%",
         },
-        "POLICY_TEMPLATE": {
+        "policy_template": {
             "description": ("The desired policy template."),
             "required": False,
             "default": "JamfPolicyTemplate.xml",
@@ -81,7 +81,7 @@ class JamfRecipeMaker(Processor):
             "required": False,
             "default": "%NAME%-update-smart",
         },
-        "GROUP_TEMPLATE": {
+        "group_template": {
             "description": ("The desired smart group template."),
             "required": False,
             "default": "JamfSmartGroupTemplate.xml",
@@ -243,14 +243,14 @@ class JamfRecipeMaker(Processor):
         category = self.env.get("CATEGORY")
         self_service_description = self.env.get("SELF_SERVICE_DESCRIPTION")
         group_name = self.env.get("GROUP_NAME")
-        group_template = self.env.get("GROUP_TEMPLATE")
+        group_template = self.env.get("group_template")
         policy_name = self.env.get("POLICY_NAME")
-        policy_template = self.env.get("POLICY_TEMPLATE")
-        make_category = self.env.get("make_category")
+        policy_template = self.env.get("policy_template")
+        make_categories = self.env.get("make_categories")
         recipe_format = self.env.get("format")
-        # handle setting make_category in overrides
-        if not make_category or make_category == "False":
-            make_category = False
+        # handle setting make_categories in overrides
+        if not make_categories or make_categories == "False":
+            make_categories = False
         make_policy = self.env.get("make_policy")
         # handle setting make_policy in overrides
         if not make_policy or make_policy == "False":
@@ -337,7 +337,7 @@ class JamfRecipeMaker(Processor):
             )
 
         # JamfCategoryUploader
-        if make_category:
+        if make_categories:
             data["Process"].append(
                 {
                     "Processor": (
@@ -390,7 +390,7 @@ class JamfRecipeMaker(Processor):
                     },
                 }
             )
-            if make_category:
+            if make_categories:
                 data["Process"].append(
                     {
                         "Processor": (

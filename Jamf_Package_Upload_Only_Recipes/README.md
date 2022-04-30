@@ -2,4 +2,4 @@
 
 These recipes simply upload a package to Jamf, creating the specified category if it doesn't exist.
 
-They are meant to provide examples on how to build a `pkg-upload.jamf` recipe.
+For recipes that upload a policy and smart group (equivalent to `.jss` recipes), look in the `Jamf_Recipes` folder.
