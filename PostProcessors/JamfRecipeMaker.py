@@ -247,6 +247,7 @@ class JamfRecipeMaker(Processor):
         policy_name = self.env.get("POLICY_NAME")
         policy_template = self.env.get("POLICY_TEMPLATE")
         make_category = self.env.get("make_category")
+        recipe_format = self.env.get("format")
         # handle setting make_category in overrides
         if not make_category or make_category == "False":
             make_category = False
@@ -309,7 +310,7 @@ class JamfRecipeMaker(Processor):
             output_file_name = name.replace(" ", "") + ".jamf.recipe.yaml"
         else:
             output_file_name = name.replace(" ", "") + "-pkg-upload.jamf.recipe.yaml"
-        if format == "yaml":
+        if recipe_format == "yaml":
             output_file_name = output_file_name + ".yaml"
         output_file = os.path.join(output_file_path, output_file_name)
 
@@ -411,7 +412,7 @@ class JamfRecipeMaker(Processor):
                 }
             )
 
-        if format == "plist":
+        if recipe_format == "plist":
             output = self.convert_to_plist(data)
         else:
             normalized = self.optimise_yaml_recipes(data)
