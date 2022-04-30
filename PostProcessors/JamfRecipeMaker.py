@@ -250,7 +250,7 @@ class JamfRecipeMaker(Processor):
             for recipe in self.env.get("PARENT_RECIPES"):
                 if ".pkg." in recipe and "local." not in recipe:
                     try:
-                        with open(recipe, "r") as in_file:
+                        with open(recipe, "rb") as in_file:
                             parent_recipe_data = load_plist(in_file)
                             parent_recipe = os.path.basename(
                                 parent_recipe_data["Identifier"]
