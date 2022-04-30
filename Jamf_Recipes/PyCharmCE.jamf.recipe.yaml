@@ -1,42 +1,38 @@
-Description: Downloads the latest version and makes a pkg. Then, uploads the package to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
-Identifier: com.github.grahampugh.recipes.jamf.PyCharmCE
-MinimumVersion: "2.3"
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.PyCharmCE by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.PyCharmCE
 ParentRecipe: com.github.hansen-m.pkg.pycharm
+MinimumVersion: '2.3'
 
 Input:
   NAME: PyCharm CE
   CATEGORY: Computer Science
-  GROUP_NAME: "%NAME%-update-smart"
+  GROUP_NAME: PyCharm CE-update-smart
   GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   TESTING_GROUP_NAME: Testing
   POLICY_CATEGORY: Testing
+  POLICY_NAME: Install Latest %NAME%
   POLICY_TEMPLATE: JamfPolicyTemplate.xml
-  POLICY_NAME: "Install Latest %NAME%"
-  SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
-  SELF_SERVICE_DESCRIPTION: PyCharm CE the community edition of an Integrated Development Environment (IDE) used for programming in Python. It provides code analysis, a graphical debugger, an integrated unit tester, integration with version control systems (VCS), and supports web development with Django.
-  SELF_SERVICE_ICON: "%NAME%.png"
-  UPDATE_PREDICATE: "pkg_uploaded == False"
+  SELF_SERVICE_DISPLAY_NAME: Install Latest %NAME%
+  SELF_SERVICE_DESCRIPTION: PyCharm is an Integrated Development Environment (IDE) used for programming in Python. It provides code analysis, a graphical debugger, an integrated unit tester, integration with version control systems (VCSes), and supports web development with Django.
+  SELF_SERVICE_ICON: '%NAME%.png'
+  UPDATE_PREDICATE: pkg_uploaded == False
 
 Process:
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
-    Arguments:
-      category_name: "%CATEGORY%"
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
 
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
-    Arguments:
-      category_name: "%CATEGORY%"
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%UPDATE_PREDICATE%'
 
-  - Processor: StopProcessingIf
-    Arguments:
-      predicate: "%UPDATE_PREDICATE%"
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+  Arguments:
+    computergroup_name: '%GROUP_NAME%'
+    computergroup_template: '%GROUP_TEMPLATE%'
 
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
-    Arguments:
-      computergroup_template: "%GROUP_TEMPLATE%"
-      computergroup_name: "%GROUP_NAME%"
-
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
-    Arguments:
-      policy_template: "%POLICY_TEMPLATE%"
-      policy_name: "%POLICY_NAME%"
-      icon: "%SELF_SERVICE_ICON%"
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+  Arguments:
+    icon: '%SELF_SERVICE_ICON%'
+    policy_name: '%POLICY_NAME%'
+    policy_template: '%POLICY_TEMPLATE%'

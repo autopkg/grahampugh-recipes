@@ -1,0 +1,38 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.TextExpander by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.TextExpander
+ParentRecipe: io.github.hjuutilainen.pkg.TextExpander
+MinimumVersion: '2.3'
+
+Input:
+  NAME: TextExpander
+  CATEGORY: Productivity
+  GROUP_NAME: TextExpander-update-smart
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  TESTING_GROUP_NAME: Testing
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: Install Latest %NAME%
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  SELF_SERVICE_DISPLAY_NAME: Install Latest %NAME%
+  SELF_SERVICE_DESCRIPTION: Expand keystrokes into frequently-used text and pictures.
+  SELF_SERVICE_ICON: '%NAME%.png'
+  UPDATE_PREDICATE: pkg_uploaded == False
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
+
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%UPDATE_PREDICATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+  Arguments:
+    computergroup_name: '%GROUP_NAME%'
+    computergroup_template: '%GROUP_TEMPLATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+  Arguments:
+    icon: '%SELF_SERVICE_ICON%'
+    policy_name: '%POLICY_NAME%'
+    policy_template: '%POLICY_TEMPLATE%'

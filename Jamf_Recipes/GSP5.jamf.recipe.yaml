@@ -1,0 +1,38 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.GSP5 by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.GSP5
+ParentRecipe: com.github.homebysix.pkg.GSP5
+MinimumVersion: '2.3'
+
+Input:
+  NAME: GSP5
+  CATEGORY: Science and Math
+  GROUP_NAME: GSP5-update-smart
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  TESTING_GROUP_NAME: Testing
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: Install Latest %NAME%
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  SELF_SERVICE_DISPLAY_NAME: Install Latest %NAME%
+  SELF_SERVICE_DESCRIPTION: Interactive geometry software for exploring Euclidean geometry, algebra, calculus, and other areas of mathematics.
+  SELF_SERVICE_ICON: '%NAME%.png'
+  UPDATE_PREDICATE: pkg_uploaded == False
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
+
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%UPDATE_PREDICATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+  Arguments:
+    computergroup_name: '%GROUP_NAME%'
+    computergroup_template: '%GROUP_TEMPLATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+  Arguments:
+    icon: '%SELF_SERVICE_ICON%'
+    policy_name: '%POLICY_NAME%'
+    policy_template: '%POLICY_TEMPLATE%'

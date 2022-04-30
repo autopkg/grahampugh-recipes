@@ -1,0 +1,38 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.Blender by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Blender
+ParentRecipe: io.github.hjuutilainen.pkg.Blender
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Blender
+  CATEGORY: Digital Media
+  GROUP_NAME: Blender-update-smart
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  TESTING_GROUP_NAME: Testing
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: Install Latest %NAME%
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  SELF_SERVICE_DISPLAY_NAME: Install Latest %NAME%
+  SELF_SERVICE_DESCRIPTION: Open source 3D graphics and animation software.
+  SELF_SERVICE_ICON: '%NAME%.png'
+  UPDATE_PREDICATE: pkg_uploaded == False
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
+
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%UPDATE_PREDICATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+  Arguments:
+    computergroup_name: '%GROUP_NAME%'
+    computergroup_template: '%GROUP_TEMPLATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+  Arguments:
+    icon: '%SELF_SERVICE_ICON%'
+    policy_name: '%POLICY_NAME%'
+    policy_template: '%POLICY_TEMPLATE%'

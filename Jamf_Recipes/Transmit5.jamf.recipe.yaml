@@ -1,0 +1,38 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.Transmit5 by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Transmit5
+ParentRecipe: com.github.autopkg.pkg.transmit5
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Transmit5
+  CATEGORY: Computer Science
+  GROUP_NAME: Transmit5-update-smart
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  TESTING_GROUP_NAME: Testing
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: Install Latest %NAME%
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  SELF_SERVICE_DISPLAY_NAME: Install Latest %NAME%
+  SELF_SERVICE_DESCRIPTION: Transmit 5 is an excellent FTP (file transfer protocol), SFTP, S3 (Amazon.com file hosting) and iDisk/WebDAV client that allows you to upload, download, and delete files over the internet.
+  SELF_SERVICE_ICON: '%NAME%.png'
+  UPDATE_PREDICATE: pkg_uploaded == False
+
+Process:
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+  Arguments:
+    pkg_category: '%CATEGORY%'
+
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%UPDATE_PREDICATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+  Arguments:
+    computergroup_name: '%GROUP_NAME%'
+    computergroup_template: '%GROUP_TEMPLATE%'
+
+- Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+  Arguments:
+    icon: '%SELF_SERVICE_ICON%'
+    policy_name: '%POLICY_NAME%'
+    policy_template: '%POLICY_TEMPLATE%'
