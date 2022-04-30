@@ -276,7 +276,9 @@ class JamfRecipeMaker(Processor):
                                 "which may need editing."
                             )
                         )
-                    parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
+                        parent_recipe = os.path.basename(
+                            self.env.get("RECIPE_CACHE_DIR")
+                        )
             if not parent_recipe:
                 self.output(
                     (
