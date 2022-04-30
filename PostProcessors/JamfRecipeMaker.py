@@ -260,7 +260,7 @@ class JamfRecipeMaker(Processor):
                         else:
                             with open(recipe, "rb") as in_file:
                                 parent_recipe_data = yaml.safe_load(in_file)
-                           parent_recipe_data = load_plist(in_file)
+                            parent_recipe_data = load_plist(in_file)
                         parent_recipe = os.path.basename(
                             parent_recipe_data["Identifier"]
                         )
