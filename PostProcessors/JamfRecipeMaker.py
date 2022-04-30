@@ -23,7 +23,7 @@ from plistlib import load as load_plist
 from autopkglib import Processor  # pylint: disable=import-error
 
 try:
-    from ruamel import yaml
+    import ruamel.yaml
     from ruamel.yaml import dump
     from ruamel.yaml import add_representer
     from ruamel.yaml.nodes import MappingNode
@@ -44,7 +44,7 @@ except ImportError:
             "--user",
         ]
     )
-    from ruamel import yaml
+    import ruamel.yaml
     from ruamel.yaml import dump
     from ruamel.yaml import add_representer
     from ruamel.yaml.nodes import MappingNode
@@ -257,11 +257,11 @@ class JamfRecipeMaker(Processor):
                         with open(recipe, "rb") as in_file:
                             try:
                                 # try to open a yaml recipe
-                                parent_recipe_data = yaml.safe_load(in_file)
+                                parent_recipe_data = ruamel.yaml.safe_load(in_file)
                                 parent_recipe = os.path.basename(
                                     parent_recipe_data["Identifier"]
                                 )
-                            except yaml.scanner.ScannerError:
+                            except ruamel.yaml.scanner.ScannerError:
                                 # try to open a plist recipe
                                 parent_recipe_data = load_plist(in_file)
                                 parent_recipe = os.path.basename(
