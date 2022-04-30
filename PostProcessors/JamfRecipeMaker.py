@@ -20,7 +20,7 @@ import subprocess
 import sys
 from collections import OrderedDict
 from plistlib import load as load_plist
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
+from autopkglib import Processor  # pylint: disable=import-error
 
 try:
     from ruamel import yaml
@@ -255,12 +255,18 @@ class JamfRecipeMaker(Processor):
                     # is the parent recipe a yaml or plist recipe?
                     try:
                         with open(recipe, "rb") as in_file:
-                            parent_recipe_data = yaml.safe_load(in_file)
-
-                            # parent_recipe_data = load_plist(in_file)
-                            parent_recipe = os.path.basename(
-                                parent_recipe_data["Identifier"]
-                            )
+                            try:
+                                # try to open a yaml recipe
+                                parent_recipe_data = yaml.safe_load(in_file)
+                                parent_recipe = os.path.basename(
+                                    parent_recipe_data["Identifier"]
+                                )
+                            except yaml.scanner.ScannerError:
+                                # try to open a plist recipe
+                                parent_recipe_data = load_plist(in_file)
+                                parent_recipe = os.path.basename(
+                                    parent_recipe_data["Identifier"]
+                                )
                     except IOError:
                         self.output(
                             (
