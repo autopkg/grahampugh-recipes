@@ -248,11 +248,11 @@ class JamfRecipeMaker(Processor):
         if ".jss." in self.env.get("RECIPE_CACHE_DIR"):
             for recipe in self.env.get("PARENT_RECIPES"):
                 if ".pkg." in recipe and "local." not in recipe:
-                    parent_recipe = os.path.basename(recipe)
+                    parent_recipe = recipe
             if not parent_recipe:
-                parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
+                parent_recipe = self.env.get("RECIPE_CACHE_DIR")
         else:
-            parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
+            parent_recipe = self.env.get("RECIPE_CACHE_DIR")
 
         # filename dependent on whether making policy or not
         if make_policy:
