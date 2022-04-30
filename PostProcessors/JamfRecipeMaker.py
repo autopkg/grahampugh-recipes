@@ -329,7 +329,7 @@ class JamfRecipeMaker(Processor):
                         "Processor": (
                             "com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader"
                         ),
-                        "Arguments": {"category_name": "%CATEGORY%"},
+                        "Arguments": {"category_name": "%POLICY_CATEGORY%"},
                     }
                 )
             data["Process"].append(
