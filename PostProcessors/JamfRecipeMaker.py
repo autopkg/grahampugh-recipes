@@ -230,7 +230,6 @@ class JamfRecipeMaker(Processor):
         group_template = self.env.get("GROUP_TEMPLATE")
         policy_name = self.env.get("POLICY_NAME")
         policy_template = self.env.get("POLICY_TEMPLATE")
-        parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
         make_category = self.env.get("make_category")
         # handle setting make_category in overrides
         if not make_category or make_category == "False":
@@ -243,6 +242,17 @@ class JamfRecipeMaker(Processor):
         # handle setting add_regex in overrides
         if not add_regex or add_regex == "False":
             add_regex = False
+
+        # parent recipes dependent on whether we are running a pkg or jss recipe
+        parent_recipe = ""
+        if ".jss." in self.env.get("RECIPE_CACHE_DIR"):
+            for recipe in self.env.get("PARENT_RECIPES"):
+                if ".pkg." in recipe and "local." not in recipe:
+                    parent_recipe = os.path.basename(recipe)
+            if not parent_recipe:
+                parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
+        else:
+            parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
 
         # filename dependent on whether making policy or not
         if make_policy:
