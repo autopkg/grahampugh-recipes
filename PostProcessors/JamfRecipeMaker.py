@@ -20,6 +20,7 @@ import subprocess
 import sys
 from collections import OrderedDict
 from plistlib import load as load_plist
+from plistlib import dumps as write_plist
 from autopkglib import Processor  # pylint: disable=import-error
 
 try:
@@ -120,6 +121,11 @@ class JamfRecipeMaker(Processor):
             "required": False,
             "default": False,
         },
+        "format": {
+            "description": ("recipe output format (plist or yaml)."),
+            "required": False,
+            "default": "yaml",
+        },
     }
 
     output_variables = {
@@ -140,12 +146,18 @@ class JamfRecipeMaker(Processor):
 
         return MappingNode("tag:yaml.org,2002:map", value)
 
-    def convert(self, data):
+    def convert_to_yaml(self, data):
         """Do the conversion."""
         add_representer(OrderedDict, self.represent_ordereddict)
         return dump(data, width=float("inf"), default_flow_style=False)
 
-    def optimise_autopkg_recipes(self, recipe):
+    def convert_to_plist(self, data):
+        """Do the conversion."""
+        lines = write_plist(data).decode("utf-8").splitlines()
+        lines.append("")
+        return "\n".join(lines)
+
+    def optimise_yaml_recipes(self, recipe):
         """If input is an AutoPkg recipe, optimise the yaml output in 3 ways to aid
         human readability:
 
@@ -189,7 +201,7 @@ class JamfRecipeMaker(Processor):
         reordered_recipe = OrderedDict(reordered_recipe)
         return reordered_recipe
 
-    def format_autopkg_recipes(self, output):
+    def format_yaml_recipes(self, output):
         """Add lines between Input and Process, and between multiple processes.
         This aids readability of yaml recipes"""
         # add line before specific processors
@@ -297,6 +309,8 @@ class JamfRecipeMaker(Processor):
             output_file_name = name.replace(" ", "") + ".jamf.recipe.yaml"
         else:
             output_file_name = name.replace(" ", "") + "-pkg-upload.jamf.recipe.yaml"
+        if format == "yaml":
+            output_file_name = output_file_name + ".yaml"
         output_file = os.path.join(output_file_path, output_file_name)
 
         # write recipe data
@@ -397,10 +411,12 @@ class JamfRecipeMaker(Processor):
                 }
             )
 
-        normalized = self.optimise_autopkg_recipes(data)
-        output = self.convert(normalized)
-        output = self.format_autopkg_recipes(output)
-
+        if format == "plist":
+            output = self.convert_to_plist(data)
+        else:
+            normalized = self.optimise_yaml_recipes(data)
+            output = self.convert_to_yaml(normalized)
+            output = self.format_yaml_recipes(output)
         out_file = open(output_file, "w")
         out_file.writelines(output)
         self.output("Wrote to : {}\n".format(output_file))
