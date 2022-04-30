@@ -380,6 +380,7 @@ class JamfRecipeMaker(Processor):
                     "Arguments": {
                         "policy_name": "%POLICY_NAME%",
                         "policy_template": "%POLICY_TEMPLATE%",
+                        "icon": "%SELF_SERVICE_ICON%",
                     },
                 }
             )
