@@ -28,6 +28,12 @@ Process:
       input_plist_path: "%RECIPE_CACHE_DIR%/downloads/payload/Microsoft %VERSIONING_STRING%.app/Contents/Info.plist"
       plist_version_key: CFBundleVersion
 
+  - Processor: PlistReader
+    Arguments:
+      info_path: "%input_plist_path%"
+      plist_keys:
+        LSMinimumSystemVersion: minimum_os_version
+
   - Processor: PkgCopier
     Arguments:
       pkg_path: "%RECIPE_CACHE_DIR%/%PKG_NAME%-%version%.pkg"
