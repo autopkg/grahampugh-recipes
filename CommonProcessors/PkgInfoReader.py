@@ -29,7 +29,6 @@ from xml.dom import minidom
 from urllib.parse import unquote
 
 from autopkglib import APLooseVersion  # pylint: disable=import-error
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 from autopkglib.Copier import Copier  # pylint: disable=import-error
 
 import plistlib
@@ -50,11 +49,12 @@ class PkgInfoReader(Copier):
         },
     }
     output_variables = {
-        "infodict": {"description": "A dictionary of information from the package.",},
+        "cataloginfo": {"description": "A dictionary of information from the package."},
         "version": {
             "description": "The version of the inputted package. Note that this will "
             "return the highest version found if multiple packages are found.",
         },
+        "minimum_os_version": {"description": "The minimum OS version if supplied."},
     }
 
     description = __doc__
@@ -93,7 +93,7 @@ class PkgInfoReader(Copier):
                     keys = list(ref.attributes.keys())
                     if "id" in keys:
                         pkgid = ref.attributes["id"].value
-                        if not pkgid in pkgref_dict:
+                        if pkgid not in pkgref_dict:
                             pkgref_dict[pkgid] = {"packageid": pkgid}
                         if "version" in keys:
                             pkgref_dict[pkgid]["version"] = ref.attributes[
@@ -283,7 +283,8 @@ class PkgInfoReader(Copier):
             except AttributeError:
                 pkginfo["packageid"] = f"BAD PLIST in {os.path.basename(pkgpath)}"
                 pkginfo["version"] = "0.0"
-            ## now look for applications to suggest for blocking_applications
+
+            # now look for applications to suggest for blocking_applications
             # bomlist = getBomList(pkgpath)
             # if bomlist:
             #    pkginfo['apps'] = [os.path.basename(item) for item in bomlist
@@ -438,7 +439,7 @@ class PkgInfoReader(Copier):
             # reach a digit (because we might have characters in '._abdv'
             # at the start)
             for char in possibleVersion:
-                if not char in "0123456789":
+                if char not in "0123456789":
                     index += 1
                 else:
                     break
@@ -574,9 +575,10 @@ class PkgInfoReader(Copier):
                     f"'{source_pkg}'."
                 )
 
-            infodict = self.getPackageMetaData(matched_source_path)
-            self.env["infodict"] = infodict
-            self.env["version"] = infodict["version"]
+            cataloginfo = self.getPackageMetaData(matched_source_path)
+            self.env["infodict"] = cataloginfo
+            self.env["version"] = cataloginfo["version"]
+            self.env["minimum_os_version"] = cataloginfo["minimum_os_version"]
 
         finally:
             if dmg:
