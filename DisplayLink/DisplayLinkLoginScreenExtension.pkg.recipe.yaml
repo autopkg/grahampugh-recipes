@@ -1,0 +1,40 @@
+Description: Downloads the latest version of the DisplayLink Login Screen Extension and creates a package containing the script. The expectation is that this would be used with a postinstall script containing the parameters required to use this script for upgrading or reinstalling macOS on clients.
+Identifier: com.github.grahampugh.recipes.pkg.DisplayLinkLoginScreenExtension
+ParentRecipe: com.github.grahampugh.recipes.download.DisplayLinkLoginScreenExtension
+MinimumVersion: "2.3"
+
+Input:
+  NAME: DisplayLink Login Screen Extension
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      flat_pkg_path: "%pathname%/*.pkg"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      purge_destination: true
+
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/LoginScreenExt.pkg/Payload"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+
+  - Processor: PlistReader
+    Arguments:
+      info_path: "%RECIPE_CACHE_DIR%/payload/com.displaylink.loginscreen.plist"
+      plist_keys:
+        CFBundleVersion: version
+
+  - Processor: com.github.homebysix.VersionSplitter/VersionSplitter
+    Arguments:
+      version: "%version%"
+
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/DisplayLinkLoginScreenExtension-%version%.pkg"
+      source_pkg: "%pathname%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unpack"
+        - "%RECIPE_CACHE_DIR%/payload"
