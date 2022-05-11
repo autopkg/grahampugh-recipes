@@ -1,0 +1,22 @@
+Description: Downloads the current stable macOS version of the DisplayLink Login Screen Extension.
+Identifier: com.github.grahampugh.recipes.download.DisplayLinkLoginScreenExtension
+MinimumVersion: "2.3"
+
+Input:
+  NAME: DisplayLink Login Screen Extension
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://www.displaylink.com/downloads/macos_extension"
+      filename: macOS App LoginExtension-EXE.dmg
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: DisplayLink Corp (73YQY62QM3)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%/DisplayLinkLoginScreenExtension.pkg"
