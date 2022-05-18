@@ -311,12 +311,12 @@ class JamfUploaderBase(Processor):
                     curl_cmd.extend(["--header", "Accept: application/json"])
 
         # icon upload (Classic API) requires special method
-        elif request == "POST" and "fileuploads" in url:
+        elif request == "POST" and self.api_endpoints("policy_icon") in url:
             curl_cmd.extend(["--header", "Content-type: multipart/form-data"])
             curl_cmd.extend(["--form", f"name=@{data}"])
 
         # icon upload (Jamf Pro API) requires special method
-        elif request == "POST" and "icon" in url:
+        elif request == "POST" and self.api_endpoints("icon") in url:
             curl_cmd.extend(["--header", "Content-type: multipart/form-data"])
             curl_cmd.extend(["--form", f"file=@{data};type=image/png"])
 
@@ -345,7 +345,7 @@ class JamfUploaderBase(Processor):
             "/api/" in url
             or "/uapi/" in url
             or "JSSResource" in url
-            or "dbfileupload" in url
+            or self.api_endpoints("package_upload") in url
             or "legacy/packages" in url
         ):
             curl_cmd.extend(["--cookie-jar", cookie_jar])
@@ -478,14 +478,12 @@ class JamfUploaderBase(Processor):
         if r.status_code == 200:
             object_list = json.loads(r.output)
             self.output(
-                object_list,
-                verbose_level=4,
+                object_list, verbose_level=4,
             )
             obj_id = 0
             for obj in object_list[self.object_list_types(object_type)]:
                 self.output(
-                    obj,
-                    verbose_level=4,
+                    obj, verbose_level=4,
                 )
                 # we need to check for a case-insensitive match
                 if obj["name"].lower() == object_name.lower():
@@ -521,9 +519,7 @@ class JamfUploaderBase(Processor):
                         replacement_key = self.env.get(found_key)
                     data = data.replace(f"%{found_key}%", replacement_key)
                 else:
-                    self.output(
-                        f"WARNING: '{found_key}' has no replacement object!",
-                    )
+                    self.output(f"WARNING: '{found_key}' has no replacement object!",)
                     raise ProcessorError("Unsubstitutable key in template found")
         return data
 
@@ -664,9 +660,7 @@ class JamfUploaderBase(Processor):
                         replacement_key = cli_custom_keys[found_key]
                     data = data.replace(f"%{found_key}%", replacement_key)
                 else:
-                    self.output(
-                        f"WARNING: '{found_key}' has no replacement object!",
-                    )
+                    self.output(f"WARNING: '{found_key}' has no replacement object!",)
         return data
 
     def pretty_print_xml(self, xml):
