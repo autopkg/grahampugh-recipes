@@ -9,7 +9,7 @@ Input:
 
 Process:
   - Arguments:
-      app_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%/*.app"
+      app_path: "%RECIPE_CACHE_DIR%/unzip/FileZilla.app"
       force_pkg_build: true
     Processor: AppPkgCreator
 
