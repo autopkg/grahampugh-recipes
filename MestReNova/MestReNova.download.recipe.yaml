@@ -10,12 +10,12 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: MestReNova-(?P<version>(?P<pkgversion>.*?)-.*?)\.dmg
+      re_pattern: MestReNova-(?P<urlversion>(?P<version>.*?)-.*?)\.dmg
       url: "%SEARCH_URL%"
 
   - Processor: URLDownloader
     Arguments:
-      url: "%DOWNLOAD_URL%/MestReNova-%version%.dmg"
+      url: "%DOWNLOAD_URL%/MestReNova-%urlversion%.dmg"
 
   - Processor: EndOfCheckPhase
 

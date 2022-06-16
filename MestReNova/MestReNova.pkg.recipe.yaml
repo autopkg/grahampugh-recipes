@@ -29,5 +29,5 @@ Process:
         pkgdir: "%RECIPE_CACHE_DIR%"
         pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
         pkgtype: flat
-        version: "%pkgversion%"
+        version: "%version%"
       pkgname: "%NAME%-%version%"
