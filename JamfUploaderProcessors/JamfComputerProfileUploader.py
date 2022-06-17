@@ -26,8 +26,10 @@ __all__ = ["JamfComputerProfileUploader"]
 
 
 class JamfComputerProfileUploader(JamfUploaderBase):
-    """A processor for AutoPkg that will upload an item to a Jamf Cloud or on-prem server."""
-
+    description = (
+        "A processor for AutoPkg that will upload a computer configuration "
+        "profile to a Jamf Cloud or on-prem server."
+    )
     input_variables = {
         "JSS_URL": {
             "required": True,
@@ -263,6 +265,14 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         template_contents = self.substitute_limited_assignable_keys(
             template_contents, replaceable_keys, xml_escape=True
         )
+
+        self.output(
+            "Configuration Profile with intermediate substitution:", verbose_level=2
+        )
+        self.output(template_contents, verbose_level=2)
+
+        # substitute user-assignable keys
+        template_contents = self.substitute_assignable_keys(template_contents)
 
         self.output("Configuration Profile to be uploaded:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
