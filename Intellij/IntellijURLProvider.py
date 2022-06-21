@@ -29,7 +29,7 @@ class IntellijURLProvider(URLGetter):
 
     description = "Provides URL and version for the latest release of Intellij."
     input_variables = {
-        "base_url": {
+        "updates_url": {
             "required": False,
             "description": (
                 "Default is " "https://www.jetbrains.com/updates/updates.xml"
@@ -41,6 +41,12 @@ class IntellijURLProvider(URLGetter):
                 'Either "C" for "Community" or "U" for "Ultimate" '
                 'edition. Defaults to "C".'
             ),
+            "default": "C",
+        },
+        "arch": {
+            "required": False,
+            "description": ('Either "intel" or "arm64". ' 'Defaults to "intel".'),
+            "default": "intel",
         },
     }
     output_variables = {"url": {"description": "URL to the latest release of Intellij"}}
@@ -63,13 +69,21 @@ class IntellijURLProvider(URLGetter):
     def main(self):
         """Main function."""
         # Determine values.
-        version_url = self.env.get("version_url", intellij_version_url)
-        version = self.get_intellij_version(version_url)
-        download_url = "https://download.jetbrains.com/idea/" "ideaI%s-%s.dmg" % (
-            self.env.get("edition", "C"),
-            version,
-        )
-
+        updates_url = self.env.get("updates_url")
+        edition = self.env.get("edition")
+        arch = self.env.get("arch")
+        self.output(f"Edition selected: {edition}", verbose_level=2)
+        self.output(f"Architecture selected: {arch}", verbose_level=2)
+        version = self.get_intellij_version(updates_url)
+        if arch == "arm64":
+            download_url = (
+                "https://download.jetbrains.com/idea/"
+                f"ideaI{edition}-{version}-aarch64.dmg"
+            )
+        else:
+            download_url = (
+                f"https://download.jetbrains.com/idea/ideaI{edition}-{version}.dmg"
+            )
         self.env["url"] = download_url
         self.output("URL: %s" % self.env["url"])
 
