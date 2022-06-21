@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Uploads a computer configuration to the Jamf Pro Server and creates a Self Service Policy and Smart Group.</string>
+	<key>Identifier</key>
+	<string>com.github.grahampugh.recipes.jamf.VLC-profile</string>
+	<key>Input</key>
+	<dict>
+		<key>IDENTIFIER</key>
+		<string>org.videolan.vlc</string>
+		<key>INSTALLED_GROUP_NAME</key>
+		<string>VLC installed</string>
+		<key>JSS_INVENTORY_NAME</key>
+		<string>VLC.app</string>
+		<key>NAME</key>
+		<string>VLC settings</string>
+		<key>ORGANIZATION</key>
+		<string>AutoPkg</string>
+		<key>PROFILE_CATEGORY</key>
+		<string>Applications</string>
+		<key>PROFILE_DESCRIPTION</key>
+		<string>Disables automatic updates and prevents sending telemetry.</string>
+		<key>PROFILE_GROUP_TEMPLATE</key>
+		<string>SmartGroup-application-installed.xml</string>
+		<key>PROFILE_NAME</key>
+		<string>%NAME%</string>
+		<key>PROFILE_PAYLOAD</key>
+		<string>%IDENTIFIER%.plist</string>
+		<key>PROFILE_TEMPLATE</key>
+		<string>Profile-single-group.xml</string>
+		<key>REPLACE_PROFILE</key>
+		<string>True</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>2.3</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>category_name</key>
+				<string>%PROFILE_CATEGORY%</string>
+				<key>replace_category</key>
+				<string>False</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>computergroup_name</key>
+				<string>%INSTALLED_GROUP_NAME%</string>
+				<key>computergroup_template</key>
+				<string>%PROFILE_GROUP_TEMPLATE%</string>
+				<key>replace_group</key>
+				<string>False</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>identifier</key>
+				<string>%IDENTIFIER%</string>
+				<key>organization</key>
+				<string>%ORGANIZATION%</string>
+				<key>payload</key>
+				<string>%PROFILE_PAYLOAD%</string>
+				<key>profile_category</key>
+				<string>%PROFILE_CATEGORY%</string>
+				<key>profile_computergroup</key>
+				<string>%INSTALLED_GROUP_NAME%</string>
+				<key>profile_description</key>
+				<string>%PROFILE_DESCRIPTION%</string>
+				<key>profile_name</key>
+				<string>%PROFILE_NAME%</string>
+				<key>profile_template</key>
+				<string>%PROFILE_TEMPLATE%</string>
+				<key>replace_profile</key>
+				<string>%REPLACE_PROFILE%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader</string>
+		</dict>
+	</array>
+</dict>
+</plist>
