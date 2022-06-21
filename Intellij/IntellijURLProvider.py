@@ -21,8 +21,6 @@ from autopkglib.URLGetter import URLGetter
 
 __all__ = ["IntellijURLProvider"]
 
-intellij_version_url = "https://www.jetbrains.com/updates/updates.xml"
-
 
 class IntellijURLProvider(URLGetter):
     """Provide URL for latest Intellij IDEA build."""
@@ -31,9 +29,8 @@ class IntellijURLProvider(URLGetter):
     input_variables = {
         "updates_url": {
             "required": False,
-            "description": (
-                "Default is " "https://www.jetbrains.com/updates/updates.xml"
-            ),
+            "description": "Default is https://www.jetbrains.com/updates/updates.xml",
+            "default": "https://www.jetbrains.com/updates/updates.xml",
         },
         "edition": {
             "required": False,
@@ -45,7 +42,7 @@ class IntellijURLProvider(URLGetter):
         },
         "arch": {
             "required": False,
-            "description": ('Either "intel" or "arm64". ' 'Defaults to "intel".'),
+            "description": 'Either "intel" or "arm64". Defaults to "intel".',
             "default": "intel",
         },
     }
