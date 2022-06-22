@@ -24,8 +24,10 @@ __all__ = ["JamfPatchUploader"]
 
 
 class JamfPatchUploader(JamfUploaderBase):
-    """A processor for AutoPkg that will upload a patch policy to a Jamf Cloud or on-prem server."""
-
+    description = (
+        "A processor for AutoPkg that will upload a Patch Policy to a Jamf "
+        "Cloud or on-prem server."
+    )
     input_variables = {
         "JSS_URL": {
             "required": True,
@@ -371,8 +373,10 @@ class JamfPatchUploader(JamfUploaderBase):
             else:
                 # Name was given, but no matching id could be found
                 self.output(
-                    f"No policy with the given name '{self.patch_icon_policy_name}' was found.",
-                    "Not able to extract an icon. Continuing...",
+                    (
+                        f"No policy with the given name '{self.patch_icon_policy_name}' was found."
+                        "Not able to extract an icon. Continuing..."
+                    )
                 )
         else:
             self.patch_icon_policy_id = 0
