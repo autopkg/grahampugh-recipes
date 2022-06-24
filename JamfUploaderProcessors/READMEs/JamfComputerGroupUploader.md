@@ -1,8 +1,8 @@
-# JamfPolicyLogFlusher
+# JamfComputerGroupUploader
 
 ## Description
 
-A processor for AutoPkg that will flush logs for a policy on a Jamf Cloud or on-prem server.
+A processor for AutoPkg that will upload a computer group (smart or static) to a Jamf Cloud or on-prem server.
 
 ## Input variables
 
@@ -15,15 +15,18 @@ A processor for AutoPkg that will flush logs for a policy on a Jamf Cloud or on-
 - **API_PASSWORD:**
   - **required:** True
   - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file.
-- **policy_name:**
-  - **required:** True
-  - **description:** Policy name
-- **interval:**
-  - **required:** False
-  - **description:** Interval of log to flush
-  - **default:** "Six Years"
+- **computergroup_name**:
+  - **required**: False
+  - **description**: Computer Group name
+- **computergroup_template**:
+  - **required**: False
+  - **description**: Path to Computer Group template file
+- **eplace_group**:
+  - **required**: False
+  - **description**: overwrite an existing Computer Group if True.
+  - **default**: False
 
 ## Output variables
 
-- **jamfpolicylogflusher_summary_result:**
+- **jamfcomputergroupuploader_summary_result:**
   - **description:** Description of interesting results.

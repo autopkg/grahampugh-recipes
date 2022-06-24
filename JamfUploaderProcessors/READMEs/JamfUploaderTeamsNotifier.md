@@ -2,7 +2,7 @@
 
 ## Description
 
-A postprocessor for AutoPkg that will send details about a recipe run to a Microsoft Teams webhook.
+A postprocessor for AutoPkg that will send details about a recipe run to a Microsoft Teams webhook based on the output of a JamfPolicyUploader process.
 
 ## Input variables
 
@@ -18,6 +18,9 @@ A postprocessor for AutoPkg that will send details about a recipe run to a Micro
 - **NAME:**
   - **required:** True
   - **description:** Name of the application being created/updated.
+- **patch_name:**
+  - **required:** False
+  - **description:** Name of the Patch Policy being updated.
 - **pkg_name:**
   - **required:** False
   - **description:** File name of the pkg being uploaded.

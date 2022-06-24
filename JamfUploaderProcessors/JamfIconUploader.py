@@ -73,7 +73,8 @@ class JamfIconUploader(JamfUploaderBase):
         while True:
             count += 1
             self.output(
-                f"Icon download attempt {count}", verbose_level=2,
+                f"Icon download attempt {count}",
+                verbose_level=2,
             )
             request = "GET"
             r = self.curl(request=request, url=icon_uri)
@@ -101,7 +102,8 @@ class JamfIconUploader(JamfUploaderBase):
         while True:
             count += 1
             self.output(
-                f"Icon upload attempt {count}", verbose_level=2,
+                f"Icon upload attempt {count}",
+                verbose_level=2,
             )
             request = "POST"
             r = self.curl(request=request, url=url, token=token, data=icon_file)
@@ -143,7 +145,11 @@ class JamfIconUploader(JamfUploaderBase):
             raise ProcessorError("ERROR: Icon not found")
 
         # upload the icon
-        r = self.upload_icon(self.jamf_url, self.icon_file, token,)
+        r = self.upload_icon(
+            self.jamf_url,
+            self.icon_file,
+            token,
+        )
 
         # get the uri from the output
         self.selfservice_icon_uri = r.output["url"]

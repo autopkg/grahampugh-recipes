@@ -23,8 +23,10 @@ __all__ = ["JamfSoftwareRestrictionUploader"]
 
 
 class JamfSoftwareRestrictionUploader(JamfUploaderBase):
-    """A processor for AutoPkg that will upload an item to a Jamf Cloud or on-prem server."""
-
+    description = (
+        "A processor for AutoPkg that will upload a restricted software record "
+        "to a Jamf Cloud or on-prem server."
+    )
     input_variables = {
         "JSS_URL": {
             "required": True,
@@ -246,7 +248,11 @@ class JamfSoftwareRestrictionUploader(JamfUploaderBase):
         obj_type = "restricted_software"
         obj_name = self.restriction_name
         obj_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
         if obj_id:
             self.output(

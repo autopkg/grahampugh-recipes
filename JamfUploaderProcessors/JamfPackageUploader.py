@@ -11,6 +11,7 @@ Developed from an idea posted at
 
 import os
 import re
+import shutil
 import sys
 import hashlib
 import json
@@ -19,7 +20,8 @@ import xml.etree.ElementTree as ElementTree
 
 from shutil import copyfile
 from time import sleep
-from zipfile import ZipFile, ZIP_DEFLATED
+
+# from zipfile import ZipFile, ZIP_DEFLATED
 from urllib.parse import urlparse, quote, quote_plus
 from xml.sax.saxutils import escape
 from autopkglib import ProcessorError  # pylint: disable=import-error
@@ -35,11 +37,12 @@ __all__ = ["JamfPackageUploader"]
 
 
 class JamfPackageUploader(JamfUploaderBase):
-    """A processor for AutoPkg that will upload a package to a JCDS or
-    File Share Distribution Point.
-    Can be run as a post-processor for a pkg recipe or in a child recipe.
-    The pkg recipe must output pkg_path or this will fail."""
-
+    description = (
+        "A processor for AutoPkg that will upload a package to a JCDS or File "
+        "Share Distribution Point."
+        "Can be run as a post-processor for a pkg recipe or in a child recipe. "
+        "The pkg recipe must output pkg_path or this will fail."
+    )
     input_variables = {
         "pkg_name": {
             "required": False,
@@ -119,6 +122,12 @@ class JamfPackageUploader(JamfUploaderBase):
             "required": False,
             "description": "Overwrite existing package metadata and continue if True, "
             "even if the package object is not re-uploaded.",
+            "default": "False",
+        },
+        "skip_metadata_upload": {
+            "required": False,
+            "description": "Skip processing package metadata and continue if True. "
+            "Designed for organisations where amending packages is not allowed.",
             "default": "False",
         },
         "JSS_URL": {
@@ -253,7 +262,7 @@ class JamfPackageUploader(JamfUploaderBase):
         else:
             self.output("Package copy failed")
 
-    def zip_pkg_path(self, bundle_path):
+    def zip_pkg_path(self, bundle_path, recipe_cache_dir):
         """Add files from path to a zip file handle.
 
         Args:
@@ -262,21 +271,39 @@ class JamfPackageUploader(JamfUploaderBase):
         Returns:
             (str) name of resulting zip file.
         """
+
         zip_name = f"{bundle_path}.zip"
 
         if os.path.exists(zip_name):
             self.output("Package object is a bundle. Zipped archive already exists.")
             return zip_name
 
-        self.output("Package object is a bundle. Converting to zip...")
-        with ZipFile(zip_name, "w", ZIP_DEFLATED, allowZip64=True) as zip_handle:
-            for root, _, files in os.walk(bundle_path):
-                for member in files:
-                    zip_handle.write(os.path.join(root, member))
-            self.output(
-                f"Closing: {zip_name}",
-                verbose_level=2,
-            )
+        # we need to create a zip that contains the package (not just the contents of the package)
+        # to do this, me copy the package into it's own folder, and then zip that folder.
+        self.output(
+            f"Package object is a bundle. Converting to zip, will be placed at {recipe_cache_dir}"
+        )
+        pkg_basename = os.path.basename(bundle_path)
+        # make a subdirectory
+        pkg_dir = os.path.join(recipe_cache_dir, "temp", "pkg")
+        os.makedirs(pkg_dir, mode=0o777)
+        # copy the package into pkg_dir
+        shutil.copytree(bundle_path, os.path.join(pkg_dir, pkg_basename))
+        # now rename pkg_dir to the package name (I know, weird)
+        temp_dir = os.path.join(recipe_cache_dir, "temp", pkg_basename)
+        shutil.move(pkg_dir, temp_dir)
+        # now make the zip archive
+        zip_path = shutil.make_archive(
+            temp_dir,
+            "zip",
+            temp_dir,
+        )
+        # move it to the recipe_cache_dir
+        shutil.move(zip_path, zip_name)
+        # clean up
+        shutil.rmtree(os.path.join(recipe_cache_dir, "temp"))
+
+        self.output(f"Zip file {zip_name} created.")
         return zip_name
 
     def check_pkg(self, pkg_name, jamf_url, enc_creds="", token=""):
@@ -603,6 +630,10 @@ class JamfPackageUploader(JamfUploaderBase):
         # handle setting replace_metadata in overrides
         if not self.replace_metadata or self.replace_metadata == "False":
             self.replace_metadata = False
+        self.skip_metadata_upload = self.env.get("skip_metadata_upload")
+        # handle setting replace_metadata in overrides
+        if not self.skip_metadata_upload or self.skip_metadata_upload == "False":
+            self.skip_metadata_upload = False
         self.jcds_mode = self.env.get("jcds_mode")
         # handle setting jcds_mode in overrides
         if not self.jcds_mode or self.jcds_mode == "False":
@@ -613,6 +644,7 @@ class JamfPackageUploader(JamfUploaderBase):
         self.smb_url = self.env.get("SMB_URL")
         self.smb_user = self.env.get("SMB_USERNAME")
         self.smb_password = self.env.get("SMB_PASSWORD")
+        self.recipe_cache_dir = self.env.get("RECIPE_CACHE_DIR")
         self.pkg_uploaded = False
         self.pkg_metadata_updated = False
 
@@ -645,7 +677,7 @@ class JamfPackageUploader(JamfUploaderBase):
         # If that doesn't exist, it will create the zip and return the pkg_path with .zip added
         # In that case, we need to add .zip to the pkg_name key too, if we don't already have it
         if os.path.isdir(self.pkg_path):
-            self.pkg_path = self.zip_pkg_path(self.pkg_path)
+            self.pkg_path = self.zip_pkg_path(self.pkg_path, self.recipe_cache_dir)
             if ".zip" not in self.pkg_name:
                 self.pkg_name += ".zip"
 
@@ -816,6 +848,7 @@ class JamfPackageUploader(JamfUploaderBase):
             int(pkg_id) > 0
             and (self.pkg_uploaded or self.replace_metadata)
             and not self.jcds_mode
+            and not self.skip_metadata_upload
         ):
             self.output(
                 "Updating package metadata for {}".format(pkg_id),
@@ -845,7 +878,7 @@ class JamfPackageUploader(JamfUploaderBase):
                 token=token,
             )
             self.pkg_metadata_updated = True
-        elif not self.jcds_mode:
+        elif not self.jcds_mode and not self.skip_metadata_upload:
             self.output(
                 "Not updating package metadata",
                 verbose_level=1,

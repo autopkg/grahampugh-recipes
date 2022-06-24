@@ -1,8 +1,8 @@
-# JamfPolicyLogFlusher
+# JamfDockItemUploader
 
 ## Description
 
-A processor for AutoPkg that will flush logs for a policy on a Jamf Cloud or on-prem server.
+A processor for AutoPkg that will upload a Dock item to a Jamf Cloud or on-prem server.
 
 ## Input variables
 
@@ -15,15 +15,21 @@ A processor for AutoPkg that will flush logs for a policy on a Jamf Cloud or on-
 - **API_PASSWORD:**
   - **required:** True
   - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file.
-- **policy_name:**
-  - **required:** True
-  - **description:** Policy name
-- **interval:**
-  - **required:** False
-  - **description:** Interval of log to flush
-  - **default:** "Six Years"
+- **dock_item_name**:
+  - **required**: True
+  - **description**: Dock Item name
+- **dock_item_type**:
+  - **required**: True
+  - **description**: Type of Dock Item - either 'App', 'File' or 'Folder'
+- **dock_item_path**:
+  - **required**: True
+  - **description**: Path of Dock Item - e.g. 'file:///Applications/Safari.app/'
+- **replace_dock_item**:
+  - **required**: False
+  - **description**: Overwrite an existing Dock Item if True.
+  - **default**: False
 
 ## Output variables
 
-- **jamfpolicylogflusher_summary_result:**
+- **jamfdockitemuploader_summary_result:**
   - **description:** Description of interesting results.

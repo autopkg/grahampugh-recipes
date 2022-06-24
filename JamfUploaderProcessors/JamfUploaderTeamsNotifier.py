@@ -36,7 +36,9 @@ __all__ = ["JamfUploaderTeamsNotifier"]
 
 class JamfUploaderTeamsNotifier(JamfUploaderBase):
     description = (
-        "Posts to Teams via webhook based on output of a JamfPolicyUploader process. "
+        "A postprocessor for AutoPkg that will send details about a recipe run "
+        "to a Microsoft Teams webhook based on the output of a "
+        "JamfPolicyUploader process."
     )
     input_variables = {
         "JSS_URL": {"required": False, "description": ("JSS_URL.")},
@@ -225,7 +227,8 @@ class JamfUploaderTeamsNotifier(JamfUploaderBase):
         while True:
             count += 1
             self.output(
-                "Teams webhook post attempt {}".format(count), verbose_level=2,
+                "Teams webhook post attempt {}".format(count),
+                verbose_level=2,
             )
             r = self.curl(request="POST", url=teams_webhook_url, data=teams_json)
             # check HTTP response

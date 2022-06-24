@@ -459,7 +459,11 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         obj_type = "os_x_configuration_profile"
         obj_name = mobileconfig_name
         obj_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
         if obj_id:
             self.output(

@@ -151,7 +151,11 @@ class JamfPatchUploader(JamfUploaderBase):
             obj_type = "package"
             obj_name = pkg_name
             pkg_id = self.get_api_obj_id_from_name(
-                self.jamf_url, obj_name, obj_type, enc_creds=enc_creds, token=token,
+                self.jamf_url,
+                obj_name,
+                obj_type,
+                enc_creds=enc_creds,
+                token=token,
             )
             if pkg_id:
                 self.output(f"Found id '{pkg_id}' for package '{pkg_name}'.")
@@ -342,7 +346,11 @@ class JamfPatchUploader(JamfUploaderBase):
             obj_type = "policy"
             obj_name = self.patch_icon_policy_name
             self.patch_icon_policy_id = self.get_api_obj_id_from_name(
-                self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+                self.jamf_url,
+                obj_name,
+                obj_type,
+                enc_creds=send_creds,
+                token=token,
             )
             if self.patch_icon_policy_id:
                 # Only try to extract an icon, if a policy with the given name was found.
@@ -390,7 +398,11 @@ class JamfPatchUploader(JamfUploaderBase):
         obj_type = "patch_software_title"
         obj_name = self.patch_softwaretitle
         self.patch_softwaretitle_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
 
         if not self.patch_softwaretitle_id:
@@ -432,7 +444,11 @@ class JamfPatchUploader(JamfUploaderBase):
         obj_type = "patch_policy"
         obj_name = self.patch_name
         patch_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
 
         if patch_id:
