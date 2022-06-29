@@ -387,6 +387,7 @@ class JamfRecipeMaker(Processor):
                     "Arguments": {
                         "computergroup_name": "%GROUP_NAME%",
                         "computergroup_template": "%GROUP_TEMPLATE%",
+                        "replace_group": "True",
                     },
                 }
             )
@@ -408,6 +409,7 @@ class JamfRecipeMaker(Processor):
                         "policy_name": "%POLICY_NAME%",
                         "policy_template": "%POLICY_TEMPLATE%",
                         "icon": "%SELF_SERVICE_ICON%",
+                        "replace_policy": "True",
                     },
                 }
             )
