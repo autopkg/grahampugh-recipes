@@ -39,6 +39,7 @@ except ImportError:
             "install",
             "-U",
             "pip",
+            "importlib-metadata",
             "setuptools",
             "wheel",
             "ruamel.yaml",
