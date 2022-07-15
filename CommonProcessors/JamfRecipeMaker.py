@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 #
 # 2022 Graham R Pugh
 #
@@ -35,14 +35,13 @@ except ImportError:
         [
             sys.executable,
             "-m",
-            "pip3",
+            "pip",
             "install",
             "-U",
             "pip",
             "setuptools",
             "wheel",
             "ruamel.yaml",
-            "--user",
         ]
     )
     from ruamel import yaml
@@ -56,7 +55,10 @@ __all__ = ["JamfRecipeMaker"]
 
 class JamfRecipeMaker(Processor):
     """An AutoPkg processor which will create a new recipe containing the package.
-    Designed to be run as a post-processor of a .pkg or .jss recipe."""
+    Designed to be run as a post-processor of a .pkg or .jss recipe.
+
+    Requires AutoPkg to be installed. Uses the AutoPkg Python. Will attempt to
+    use pip to install ruamel if not present."""
 
     input_variables = {
         "RECIPE_CACHE_DIR": {"required": False, "description": ("RECIPE_CACHE_DIR.")},
