@@ -1,6 +1,6 @@
 Description: Downloads the latest version of macOSLAPS.
 Identifier: com.github.grahampugh.recipes.download.macOSLAPS
-MinimumVersion: 1.0.0
+MinimumVersion: "2.3"
 
 Input:
   NAME: macOSLAPS
