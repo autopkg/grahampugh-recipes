@@ -43,7 +43,7 @@ class Sleep(Processor):
 
     def main(self):
         """Main process."""
-        sleep_time = self.env.get("sleep_time")
+        sleep_time = int(self.env.get("sleep_time"))
         sleep(sleep_time)
 
 
