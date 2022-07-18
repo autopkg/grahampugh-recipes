@@ -7,6 +7,11 @@ Input:
   NAME: macOSLAPS
 
 Process:
+  - Processor: com.github.homebysix.VersionSplitter/VersionSplitter
+    Arguments:
+      version: "%version%"
+      split_on: "("
+
   - Processor: PkgCopier
     Arguments:
       pkg_path: "%RECIPE_CACHE_DIR%/macOSLAPS-%version%.pkg"
