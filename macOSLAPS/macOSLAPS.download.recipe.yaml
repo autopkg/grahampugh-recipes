@@ -1,0 +1,28 @@
+Description: Downloads the latest version of macOSLAPS.
+Identifier: com.github.grahampugh.recipes.download.macOSLAPS
+MinimumVersion: 1.0.0
+
+Input:
+  NAME: macOSLAPS
+  GITHUB_REPO: joshua-d-miller/macOSLAPS
+  INCLUDE_PRERELEASES: "True"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      include_prereleases: "%INCLUDE_PRERELEASES%"
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%-%version%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: Joshua Miller (9UYK4F9BSM)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%"
