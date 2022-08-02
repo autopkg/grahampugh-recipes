@@ -59,6 +59,11 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
             "description": "Overwrite an existing category if True.",
             "default": False,
         },
+        "ea_data_type": {
+            "required": False,
+            "description": "Data type for the EA. One of String, Integer or Date.",
+            "default": "String",
+        },
     }
 
     output_variables = {
@@ -68,7 +73,7 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
     }
 
     def upload_ea(
-        self, jamf_url, ea_name, script_path, obj_id=None, enc_creds="", token="",
+        self, jamf_url, ea_name, ea_data_type, script_path, obj_id=None, enc_creds="", token="",
     ):
         """Update extension attribute metadata."""
         # import script from file and replace any keys in the script
@@ -90,7 +95,7 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
             + "<name>{}</name>".format(ea_name)
             + "<enabled>true</enabled>"
             + "<description/>"
-            + "<data_type>String</data_type>"
+            + "<data_type>{}</data_type>".format(ea_data_type)
             + "<input_type>"
             + "  <type>script</type>"
             + "  <platform>Mac</platform>"
@@ -149,6 +154,7 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
         self.ea_script_path = self.env.get("ea_script_path")
         self.ea_name = self.env.get("ea_name")
         self.replace = self.env.get("replace_ea")
+        self.ea_data_type = self.env.get("ea_data_type")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False
@@ -205,6 +211,7 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
         self.upload_ea(
             self.jamf_url,
             self.ea_name,
+            self.ea_data_type,
             self.ea_script_path,
             obj_id=obj_id,
             enc_creds=send_creds,
