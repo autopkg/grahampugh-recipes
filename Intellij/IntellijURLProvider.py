@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/autopkg/python
 """Intellij URL Provider."""
 # Copyright (c) Facebook, Inc. and its affiliates.
 #
