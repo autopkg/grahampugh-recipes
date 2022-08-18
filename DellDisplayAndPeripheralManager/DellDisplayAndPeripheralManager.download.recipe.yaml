@@ -1,0 +1,35 @@
+Description: Downloads the current version of Dell Display and Peripheral Manager.
+Identifier: com.github.grahampugh.recipes.download.DellDisplayAndPeripheralManager
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Dell Display and Peripheral Manager
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (https:\/\/dl.dell.com\/FOLDER08875527M\/1\/DDPMv.*?.zip)
+      url: https://www.dell.com/support/home/de-ch/drivers/driversdetails?driverid=rwmn5&oscode=mac1&productcode=u2723qe-monitor
+
+  - Processor: URLDownloader
+    Comment: user-agent is required to allow download using curl
+    Arguments:
+      url: "%match%"
+      request_headers:
+        user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15
+
+  - Processor: EndOfCheckPhase
+
+  - Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: True
+    Processor: Unarchiver
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/unzip/DDPM_Installer.pkg"
+      expected_authority_names:
+        - "Developer ID Installer: Yufu Fan (S3YBM9ALKM)"
+        - Developer ID Certification Authority
+        - Apple Root CA
