@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/autopkg/python
 
 """
 Adapted from com.github.jessepeterson.munki.PortfolioClient10/ModeChanger.py.
