@@ -8,7 +8,7 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (https:\/\/dl.dell.com\/FOLDER08875527M\/1\/DDPMv.*?.zip)
+      re_pattern: (https:\/\/www\.delldisplaymanagermac\.com\/DDPM\/DDPMv.*?.zip)
       url: https://www.dell.com/support/home/de-ch/drivers/driversdetails?driverid=rwmn5&oscode=mac1&productcode=u2723qe-monitor
 
   - Processor: URLDownloader
