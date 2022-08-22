@@ -9,7 +9,7 @@ Process:
   - Processor: URLTextSearcher
     Arguments:
       re_pattern: (https:\/\/www\.delldisplaymanagermac\.com\/DDPM\/DDPMv.*?.zip)
-      url: https://www.dell.com/support/home/de-ch/drivers/driversdetails?driverid=rwmn5&oscode=mac1&productcode=u2723qe-monitor
+      url: https://www.delldisplaymanagermac.com
 
   - Processor: URLDownloader
     Comment: user-agent is required to allow download using curl
