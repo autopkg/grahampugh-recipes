@@ -70,6 +70,11 @@ class JamfPolicyUploader(JamfUploaderBase):
             "description": "Overwrite an existing policy icon if True.",
             "default": False,
         },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
+        },
     }
 
     output_variables = {
@@ -110,7 +115,13 @@ class JamfPolicyUploader(JamfUploaderBase):
         return policy_name, template_xml
 
     def upload_policy(
-        self, jamf_url, policy_name, template_xml, obj_id=0, enc_creds="", token="",
+        self,
+        jamf_url,
+        policy_name,
+        template_xml,
+        obj_id=0,
+        enc_creds="",
+        token="",
     ):
         """Upload policy"""
 
@@ -139,7 +150,10 @@ class JamfPolicyUploader(JamfUploaderBase):
                 self.output("WARNING: Policy upload did not succeed after 5 attempts")
                 self.output("\nHTTP POST Response Code: {}".format(r.status_code))
                 raise ProcessorError("ERROR: Policy upload failed ")
-            sleep(30)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
         return r
 
     def upload_policy_icon(
@@ -162,7 +176,11 @@ class JamfPolicyUploader(JamfUploaderBase):
             obj_type = "policy"
             obj_name = policy_name
             obj_id = self.get_api_obj_id_from_name(
-                jamf_url, obj_type, obj_name, enc_creds=enc_creds, token=token,
+                jamf_url,
+                obj_type,
+                obj_name,
+                enc_creds=enc_creds,
+                token=token,
             )
 
             if not obj_id:
@@ -221,7 +239,10 @@ class JamfPolicyUploader(JamfUploaderBase):
                     print("WARNING: Icon upload did not succeed after 5 attempts")
                     print("\nHTTP POST Response Code: {}".format(r.status_code))
                     raise ProcessorError("ERROR: Icon upload failed")
-                sleep(30)
+                if int(self.sleep) > 30:
+                    sleep(int(self.sleep))
+                else:
+                    sleep(30)
         else:
             self.output("Not replacing icon. Set replace_icon='True' to enforce...")
         return policy_icon_name
@@ -235,6 +256,7 @@ class JamfPolicyUploader(JamfUploaderBase):
         self.policy_template = self.env.get("policy_template")
         self.icon = self.env.get("icon")
         self.replace = self.env.get("replace_policy")
+        self.sleep = self.env.get("sleep")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False
@@ -275,7 +297,11 @@ class JamfPolicyUploader(JamfUploaderBase):
         obj_type = "policy"
         obj_name = self.policy_name
         obj_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
 
         if obj_id:

@@ -122,6 +122,11 @@ class JamfScriptUploader(JamfUploaderBase):
             "description": "Overwrite an existing script if True.",
             "default": False,
         },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
+        },
     }
 
     output_variables = {
@@ -228,7 +233,10 @@ class JamfScriptUploader(JamfUploaderBase):
                 self.output("Script upload did not succeed after 5 attempts")
                 self.output("\nHTTP POST Response Code: {}".format(r.status_code))
                 raise ProcessorError("ERROR: Script upload failed ")
-            sleep(10)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
         return r
 
     def main(self):
@@ -252,6 +260,7 @@ class JamfScriptUploader(JamfUploaderBase):
         self.script_parameter10 = self.env.get("script_parameter10")
         self.script_parameter11 = self.env.get("script_parameter11")
         self.replace = self.env.get("replace_script")
+        self.sleep = self.env.get("sleep")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False

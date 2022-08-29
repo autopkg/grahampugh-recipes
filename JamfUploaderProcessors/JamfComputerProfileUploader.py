@@ -98,6 +98,11 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             "description": "overwrite an existing Configuration Profile if True.",
             "default": False,
         },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
+        },
     }
 
     output_variables = {
@@ -314,7 +319,10 @@ class JamfComputerProfileUploader(JamfUploaderBase):
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 break
-            sleep(10)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
 
         return r
 
@@ -332,11 +340,12 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         self.organization = self.env.get("organization")
         self.profile_description = self.env.get("profile_description")
         self.profile_computergroup = self.env.get("profile_computergroup")
+        self.replace = self.env.get("replace_profile")
+        self.sleep = self.env.get("sleep")
         self.unsign = self.env.get("unsign_profile")
         # handle setting unsign in overrides
         if not self.unsign or self.unsign == "False":
             self.unsign = False
-        self.replace = self.env.get("replace_profile")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False

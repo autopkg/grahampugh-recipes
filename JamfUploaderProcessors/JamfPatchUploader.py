@@ -94,6 +94,11 @@ class JamfPatchUploader(JamfUploaderBase):
             "description": "Overwrite an existing patch policy if True.",
             "default": False,
         },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
+        },
     }
 
     output_variables = {
@@ -248,7 +253,10 @@ class JamfPatchUploader(JamfUploaderBase):
                     "ERROR: Uploading updated Patch Softwaretitle did not succeed after 5 attempts."
                 )
                 raise ProcessorError("ERROR: Patch Softwaretitle upload failed.")
-            sleep(10)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
 
     def upload_patch(
         self,
@@ -295,7 +303,10 @@ class JamfPatchUploader(JamfUploaderBase):
                 )
                 self.output("\nHTTP POST Response Code: {}".format(r.status_code))
                 raise ProcessorError("ERROR: Policy upload failed.")
-            sleep(30)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
         return r
 
     def main(self):
@@ -310,6 +321,7 @@ class JamfPatchUploader(JamfUploaderBase):
         self.patch_template = self.env.get("patch_template")
         self.patch_icon_policy_name = self.env.get("patch_icon_policy_name")
         self.replace = self.env.get("replace_patch")
+        self.sleep = self.env.get("sleep")
         if not self.replace or self.replace == "False":
             self.replace = False
 
