@@ -1,0 +1,33 @@
+Description: Downloads the current release version of polybox and extracts the installer package.
+Identifier: com.github.grahampugh.recipes.pkg.owncloud
+MinimumVersion: "2.3"
+ParentRecipe: com.github.gerardkok.download.ownCloudDesktopClient
+
+Input: {}
+
+Process:
+  - Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      flat_pkg_path: "%pathname%"
+    Processor: FlatPkgUnpacker
+
+  - Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/owncloud.pkg/Payload"
+    Processor: PkgPayloadUnpacker
+
+  - Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/payload/Applications/owncloud.app/Contents/Info.plist"
+      plist_version_key: CFBundleVersion
+    Processor: Versioner
+
+  - Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/owncloud-%version%.pkg"
+      source_pkg: "%pathname%"
+    Processor: PkgCopier
+
+  - Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unpack"
+        - "%RECIPE_CACHE_DIR%/payload"
+    Processor: PathDeleter
