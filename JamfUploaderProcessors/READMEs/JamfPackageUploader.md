@@ -72,13 +72,13 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file.
 - **SMB_URL:**
   - **required:** False
-  - **description:** URL to a Jamf Pro fileshare distribution point which should be in the form `smb://server/share`.
+  - **description:** URL to a Jamf Pro fileshare distribution point which should be in the form `smb://server/share`. If you have multiple SMB shares you wish to mount, you can separate those urls with ';;' (ex. `smb://xsrv1.example.com/CasperShare;;smb://xsrv2.example.com/Caspershare`) and the uploader will iterate over that list.
 - **SMB_USERNAME:**
   - **required:** False
-  - **description:** Username of account with appropriate access to jss, optionally set as a key in the com.github.autopkg preference file.
+  - **description:** Username of account with appropriate access to jss, optionally set as a key in the com.github.autopkg preference file. If you have multiple SMB shares you wish to mount that have different usernames, you can separate those usernames with ';;' (ex. `xsrvupload1;;xsrvupload2`) in the corresponding order to your SMB_URL list, otherwise the same account will be used for all SMB endpoints.
 - **SMB_PASSWORD:**
   - **required:** False
-  - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file.
+  - **description:** Password of api user, optionally set as a key in the com.github.autopkg preference file. If you have multiple SMB shares you wish to mount that have different passwords, you can separate those passwords with ';;' (ex. `xsrvpw1;;xsrvpw2`) in the corresponding order to your SMB_URL list, otherwise the same account will be used for all SMB endpoints.
 
 ## Output variables
 
