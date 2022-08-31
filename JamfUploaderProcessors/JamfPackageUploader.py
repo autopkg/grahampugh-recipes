@@ -723,34 +723,143 @@ class JamfPackageUploader(JamfUploaderBase):
         # process for SMB shares if defined
         if self.smb_url:
             # mount the share
-            self.mount_smb(self.smb_url, self.smb_user, self.smb_password)
-            # check for existing package
-            local_pkg = self.check_local_pkg(self.smb_url, self.pkg_name)
-            if not local_pkg or self.replace:
-                if self.replace:
-                    self.output(
-                        "Replacing existing package as 'replace_pkg' is set to {}".format(
-                            self.replace
-                        ),
-                        verbose_level=1,
-                    )
-                # copy the file
-                self.copy_pkg(self.smb_url, self.pkg_path, self.pkg_name)
-                # unmount the share
-                self.umount_smb(self.smb_url)
-                self.pkg_uploaded = True
+            smburlsubstring = ";;smb://"
+            if smburlsubstring in self.smb_url:
+                #  Handle multiple URLs
+                # We need to add 1 so we can get the last instance of the substring
+                smburl_count = self.smb_url.count(";;") + 1
+                smburl_list = []
+                smburl_index_start = 0
+                
+                for ss in range(smburl_count):
+                    # Find the next instance of ";;"
+                    # Ex: smb://asdf;;smb://asdf;;smb://asdf
+                    # This will return '10' for the first part of the for loop
+                    # And on our second loop, we increased the index start to 10 + 2 (to account for the ';;' being two characters)
+                    # So it would look for the next instance of ';;' starting at index 12, which returns 22
+                    ss_last_index = self.smb_url.find(";;",smburl_index_start)
+                    # But if we have reached the end, set the last index to the total string length
+                    if ss_last_index == -1:
+                        ss_last_index = len(self.smb_url)
+                    # Then we use that 10 as the end of our substring
+                    # since our initial substring starts at 0
+                    smburl_list.append(self.smb_url[smburl_index_start:ss_last_index])
+                    # increase the index start for our next loop
+                    smburl_index_start = ss_last_index + 2
+
+                #  Handle multiple users
+                # We need to add 1 so we can get the last instance of the substring
+                smbuser_count = self.smb_user.count(";;") + 1
+                smbuser_list = []
+                smbuser_index_start = 0
+                # If we only have a single smbuser entry
+                if smbuser_count == -1:
+                    for ss in range(smburl_count):
+                        smbuser_list.append(self.smb_user)
+                else:
+                    for ss in range(smbuser_count):
+                        # Find the next instance of ";;"
+                        # Ex: smb://asdf;;smb://asdf;;smb://asdf
+                        # This will return '10' for the first part of the for loop
+                        # And on our second loop, we increased the index start to 10 + 2 (to account for the ';;' being two characters)
+                        # So it would look for the next instance of ';;' starting at index 12, which returns 22
+                        ss_last_index = self.smb_user.find(";;",smbuser_index_start)
+                        # But if we have reached the end, set the last index to the total string length
+                        if ss_last_index == -1:
+                            ss_last_index = len(self.smb_user)
+                        # Then we use that 10 as the end of our substring
+                        # since our initial substring starts at 0
+                        smbuser_list.append(self.smb_user[smbuser_index_start:ss_last_index])
+                        # increase the index start for our next loop
+                        smbuser_index_start = ss_last_index + 2
+
+                #  Handle multiple passwords
+                # We need to add 1 so we can get the last instance of the substring
+                smbpw_count = self.smb_password.count(";;") + 1
+                smbpw_list = []
+                smbpw_index_start = 0
+                # If we only have a single smbuser entry
+                if smbpw_count == -1:
+                    # We need as many entries as we have URLs
+                    for ss in range(smburl_count):
+                        smbpw_list.append(self.smb_password)
+                else:
+                    for ss in range(smbpw_count):
+                        # Find the next instance of ";;"
+                        # Ex: smb://asdf;;smb://asdf;;smb://asdf
+                        # This will return '10' for the first part of the for loop
+                        # And on our second loop, we increased the index start to 10 + 2 (to account for the ';;' being two characters)
+                        # So it would look for the next instance of ';;' starting at index 12, which returns 22
+                        ss_last_index = self.smb_password.find(";;",smbpw_index_start)
+                        # But if we have reached the end, set the last index to the total string length
+                        if ss_last_index == -1:
+                            ss_last_index = len(self.smb_password)
+                        # Then we use that 10 as the end of our substring
+                        # since our initial substring starts at 0
+                        smbpw_list.append(self.smb_password[smbpw_index_start:ss_last_index])
+                        # increase the index start for our next loop
+                        smbpw_index_start = ss_last_index + 2
+
+                # Now we handle the actual processing of the uploads
+                for entry in smburl_count - 1:
+                    self.mount_smb(smburl_list[entry], smburl_list[entry], smbpw_list[entry])
+                    # check for existing package
+                    local_pkg = self.check_local_pkg(smburl_list[entry], self.pkg_name)
+                    if not local_pkg or self.replace:
+                        if self.replace:
+                            self.output(
+                                "Replacing existing package as 'replace_pkg' is set to {}".format(
+                                    self.replace
+                                ),
+                                verbose_level=1,
+                            )
+                        # copy the file
+                        self.copy_pkg(smburl_list[entry], self.pkg_path, self.pkg_name)
+                        # unmount the share
+                        self.umount_smb(smburl_list[entry])
+                        self.pkg_uploaded = True
+                    else:
+                        self.output(
+                            f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
+                            f"{self.replace}. Use replace_pkg='True' to enforce."
+                        )
+                        # unmount the share
+                        self.umount_smb(smburl_list[entry])
+                        if not self.replace_metadata:
+                            # even if we don't upload a package, we still need to pass it on so that a
+                            # policy processor can use it
+                            self.env["pkg_name"] = self.pkg_name
+                            self.pkg_uploaded = False
             else:
-                self.output(
-                    f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
-                    f"{self.replace}. Use replace_pkg='True' to enforce."
-                )
-                # unmount the share
-                self.umount_smb(self.smb_url)
-                if not self.replace_metadata:
-                    # even if we don't upload a package, we still need to pass it on so that a
-                    # policy processor can use it
-                    self.env["pkg_name"] = self.pkg_name
-                    self.pkg_uploaded = False
+                # Handle single SMB urls
+                self.mount_smb(self.smb_url, self.smb_user, self.smb_password)
+                # check for existing package
+                local_pkg = self.check_local_pkg(self.smb_url, self.pkg_name)
+                if not local_pkg or self.replace:
+                    if self.replace:
+                        self.output(
+                            "Replacing existing package as 'replace_pkg' is set to {}".format(
+                                self.replace
+                            ),
+                            verbose_level=1,
+                        )
+                    # copy the file
+                    self.copy_pkg(self.smb_url, self.pkg_path, self.pkg_name)
+                    # unmount the share
+                    self.umount_smb(self.smb_url)
+                    self.pkg_uploaded = True
+                else:
+                    self.output(
+                        f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
+                        f"{self.replace}. Use replace_pkg='True' to enforce."
+                    )
+                    # unmount the share
+                    self.umount_smb(self.smb_url)
+                    if not self.replace_metadata:
+                        # even if we don't upload a package, we still need to pass it on so that a
+                        # policy processor can use it
+                        self.env["pkg_name"] = self.pkg_name
+                        self.pkg_uploaded = False
 
         # otherwise process for cloud DP
         else:
