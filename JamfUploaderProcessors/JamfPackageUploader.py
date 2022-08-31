@@ -724,7 +724,13 @@ class JamfPackageUploader(JamfUploaderBase):
         if self.smb_url:
             # mount the share
             smburlsubstring = ";;smb://"
+            self.output(
+                "SMB Url: {}".format(self.smb_url)
+            )
             if smburlsubstring in self.smb_url:
+                self.output(
+                    "Begin upload to multiple distribution points"
+                )
                 #  Handle multiple URLs
                 # We need to add 1 so we can get the last instance of the substring
                 smburl_count = self.smb_url.count(";;") + 1
@@ -753,7 +759,7 @@ class JamfPackageUploader(JamfUploaderBase):
                 smbuser_list = []
                 smbuser_index_start = 0
                 # If we only have a single smbuser entry
-                if smbuser_count == -1:
+                if smbuser_count == 1:
                     for ss in range(smburl_count):
                         smbuser_list.append(self.smb_user)
                 else:
@@ -779,7 +785,7 @@ class JamfPackageUploader(JamfUploaderBase):
                 smbpw_list = []
                 smbpw_index_start = 0
                 # If we only have a single smbuser entry
-                if smbpw_count == -1:
+                if smbpw_count == 1:
                     # We need as many entries as we have URLs
                     for ss in range(smburl_count):
                         smbpw_list.append(self.smb_password)
@@ -801,9 +807,24 @@ class JamfPackageUploader(JamfUploaderBase):
                         smbpw_index_start = ss_last_index + 2
 
                 # Now we handle the actual processing of the uploads
-                loop_count = smburl_count - 1
-                for entry in loop_count:
-                    self.mount_smb(smburl_list[entry], smburl_list[entry], smbpw_list[entry])
+                for entry in range(smburl_count):
+                    self.output(
+                        "Begin multi-upload to {}".format(smburl_list[entry]),
+                        verbose_level = 1
+                    )
+                    self.output(
+                        "Begin smb url list {}".format(smburl_list),
+                        verbose_level = 1
+                    )
+                    self.output(
+                        "Begin smb user list {}".format(smbuser_list),
+                        verbose_level = 1
+                    )
+                    self.output(
+                        "Begin smb pw list {}".format(smbpw_list),
+                        verbose_level = 1
+                    )
+                    self.mount_smb(smburl_list[entry], smbuser_list[entry], smbpw_list[entry])
                     # check for existing package
                     local_pkg = self.check_local_pkg(smburl_list[entry], self.pkg_name)
                     if not local_pkg or self.replace:
@@ -818,7 +839,8 @@ class JamfPackageUploader(JamfUploaderBase):
                         self.copy_pkg(smburl_list[entry], self.pkg_path, self.pkg_name)
                         # unmount the share
                         self.umount_smb(smburl_list[entry])
-                        self.pkg_uploaded = True
+                        if entry == smburl_count:
+                            self.pkg_uploaded = True
                     else:
                         self.output(
                             f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
@@ -830,9 +852,14 @@ class JamfPackageUploader(JamfUploaderBase):
                             # even if we don't upload a package, we still need to pass it on so that a
                             # policy processor can use it
                             self.env["pkg_name"] = self.pkg_name
-                            self.pkg_uploaded = False
+                            if entry == smburl_count:
+                                self.pkg_uploaded = False
             else:
                 # Handle single SMB urls
+                self.output(
+                    "Begin single upload to {}".format(self.smb_url),
+                    verbose_level = 1
+                )
                 self.mount_smb(self.smb_url, self.smb_user, self.smb_password)
                 # check for existing package
                 local_pkg = self.check_local_pkg(self.smb_url, self.pkg_name)
