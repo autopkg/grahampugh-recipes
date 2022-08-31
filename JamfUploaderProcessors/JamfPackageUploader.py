@@ -801,7 +801,8 @@ class JamfPackageUploader(JamfUploaderBase):
                         smbpw_index_start = ss_last_index + 2
 
                 # Now we handle the actual processing of the uploads
-                for entry in smburl_count - 1:
+                loop_count = smburl_count - 1
+                for entry in loop_count:
                     self.mount_smb(smburl_list[entry], smburl_list[entry], smbpw_list[entry])
                     # check for existing package
                     local_pkg = self.check_local_pkg(smburl_list[entry], self.pkg_name)
