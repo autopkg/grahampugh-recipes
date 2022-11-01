@@ -1,0 +1,13 @@
+Description: Placeholder pkg recipe - just moves the pkg to create the pkg_path variable.
+Identifier: com.github.grahampugh.recipes.pkg.swiftDialog
+ParentRecipe: com.github.zentralpro.download.swiftDialog
+MinimumVersion: "2.3"
+
+Input:
+  NAME: swiftDialog
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/swiftDialog-%version%.pkg"
+      source_pkg: "%pathname%"
