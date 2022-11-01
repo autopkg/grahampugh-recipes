@@ -44,7 +44,11 @@ class LastRecipeRunResult(Processor):
             "description": ("The path where the package is stored."),
             "required": False,
         },
-        "pkg_name": {"description": ("The name of the package."), "required": False},
+        "pkg_name": {
+            "description": ("The name of the package."),
+            "required": False,
+            "default": "",
+        },
         "pathname": {
             "description": ("The path to the downloaded installer."),
             "required": False,
@@ -52,26 +56,27 @@ class LastRecipeRunResult(Processor):
         "version": {
             "description": ("The current package version."),
             "required": False,
+            "default": "",
         },
         "bundleid": {
             "description": ("Bundle identifier of the app."),
             "required": False,
-            "default": None,
+            "default": "",
         },
         "license_key": {
             "description": ("The outputted value for license_key."),
             "required": False,
-            "default": None,
+            "default": "",
         },
         "PKG_CATEGORY": {
             "description": ("The package category in Jamf Pro."),
             "required": False,
-            "default": None,
+            "default": "",
         },
         "policy_name": {
             "description": ("The policy name in Jamf Pro."),
             "required": False,
-            "default": None,
+            "default": "",
         },
         "minimum_os_version": {
             "description": (
@@ -79,12 +84,12 @@ class LastRecipeRunResult(Processor):
                 "determined by a PlistReader processor."
             ),
             "required": False,
-            "default": None,
+            "default": "",
         },
         "SELFSERVICE_DESCRIPTION": {
             "description": ("The self-service description in Jamf Pro."),
             "required": False,
-            "default": None,
+            "default": "",
         },
     }
 
