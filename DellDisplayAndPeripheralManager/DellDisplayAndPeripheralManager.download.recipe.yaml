@@ -1,0 +1,33 @@
+Description: Downloads the current version of Dell Display and Peripheral Manager.
+Identifier: com.github.grahampugh.recipes.download.DellDisplayAndPeripheralManager
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Dell Display and Peripheral Manager
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (https:\/\/www\.delldisplaymanagermac\.com\/DDPM\/DDPMv.*?.zip)
+      url: https://www.delldisplaymanagermac.com
+
+  - Processor: URLDownloader
+    Comment: user-agent is required to allow download using curl
+    Arguments:
+      url: "%match%"
+
+  - Processor: EndOfCheckPhase
+
+  - Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: True
+    Processor: Unarchiver
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/unzip/DDPM_Installer.pkg"
+      expected_authority_names:
+        - "Developer ID Installer: Yufu Fan (S3YBM9ALKM)"
+        - Developer ID Certification Authority
+        - Apple Root CA

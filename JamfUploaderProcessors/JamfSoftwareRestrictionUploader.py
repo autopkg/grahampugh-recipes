@@ -90,6 +90,11 @@ class JamfSoftwareRestrictionUploader(JamfUploaderBase):
             "description": "overwrite an existing Software Restriction if True",
             "default": False,
         },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
+        },
     }
 
     output_variables = {
@@ -170,7 +175,10 @@ class JamfSoftwareRestrictionUploader(JamfUploaderBase):
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 break
-            sleep(10)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
 
         return r
 
@@ -182,6 +190,9 @@ class JamfSoftwareRestrictionUploader(JamfUploaderBase):
         self.restriction_name = self.env.get("restriction_name")
         self.process_name = self.env.get("process_name")
         self.template = self.env.get("restriction_template")
+        self.restriction_computergroup = self.env.get("restriction_computergroup")
+        self.sleep = self.env.get("sleep")
+        self.replace = self.env.get("replace_restriction")
         # handle setting display_message in overrides
         self.display_message = self.env.get("display_message")
         if not self.display_message:
@@ -204,8 +215,6 @@ class JamfSoftwareRestrictionUploader(JamfUploaderBase):
         self.delete_executable = self.env.get("delete_executable")
         if not self.delete_executable:
             self.delete_executable = "false"
-        self.restriction_computergroup = self.env.get("restriction_computergroup")
-        self.replace = self.env.get("replace_restriction")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False

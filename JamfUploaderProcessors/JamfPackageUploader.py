@@ -132,40 +132,62 @@ class JamfPackageUploader(JamfUploaderBase):
         },
         "JSS_URL": {
             "required": True,
-            "description": "URL to a Jamf Pro server that the API user has write access "
-            "to, optionally set as a key in the com.github.autopkg "
-            "preference file.",
+            "description": "URL to a Jamf Pro server to which the API user has write access.",
         },
         "API_USERNAME": {
             "required": True,
-            "description": "Username of account with appropriate access to "
-            "jss, optionally set as a key in the com.github.autopkg "
-            "preference file.",
+            "description": "Username of account with appropriate API access to the "
+            "Jamf Pro Server.",
         },
         "API_PASSWORD": {
             "required": True,
-            "description": "Password of api user, optionally set as a key in "
-            "the com.github.autopkg preference file.",
+            "description": "Password of account with appropriate API access to the "
+            "Jamf Pro Server",
+        },
+        "CLOUD_DP": {
+            "required": False,
+            "description": "Indicates the presence of a Cloud Distribution Point. "
+            "The default is deliberately blank. If no SMB DP is configured, "
+            "the default setting assumes that the Cloud DP has been enabled. "
+            "If at least one SMB DP is configured, the default setting assumes "
+            "that no Cloud DP has been set. "
+            "This can be overridden by setting CLOUD_DP to True, in which case "
+            "packages will be uploaded to both a Cloud DP plus the SMB DP(s).",
+            "default": False,
         },
         "SMB_URL": {
             "required": False,
-            "description": "URL to a Jamf Pro fileshare distribution point "
-            "which should be in the form smb://server "
-            "preference file.",
+            "description": "URL to a Jamf Pro file share distribution point "
+            "which should be in the form smb://server/share "
+            "or a local DP in the form file://path. "
+            "Subsequent DPs can be configured using SMB2_URL, SMB3_URL etc. "
+            "Accompanying username and password must be supplied for each DP, e.g. "
+            "SMB2_USERNAME, SMB2_PASSWORD etc.",
             "default": "",
         },
         "SMB_USERNAME": {
             "required": False,
             "description": "Username of account with appropriate access to "
-            "jss, optionally set as a key in the com.github.autopkg "
-            "preference file.",
+            "a Jamf Pro fileshare distribution point.",
             "default": "",
         },
         "SMB_PASSWORD": {
             "required": False,
-            "description": "Password of api user, optionally set as a key in "
-            "the com.github.autopkg preference file.",
+            "description": "Password of account with appropriate access to "
+            "a Jamf Pro fileshare distribution point.",
             "default": "",
+        },
+        "SMB_SHARES": {
+            "required": False,
+            "description": "An array of dictionaries containing SMB_URL, SMB_USERNAME and "
+            "SMB_PASSWORD, as an alternative to individual keys. Any individual keys will "
+            "override this complete array. The array can only be provided via the AutoPkg "
+            "preferences file.",
+        },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
         },
     }
 
@@ -207,14 +229,14 @@ class JamfPackageUploader(JamfUploaderBase):
         ]
         self.output(
             f"Mount command: {' '.join(mount_cmd)}",
-            verbose_level=3,
+            verbose_level=4,
         )
 
         r = subprocess.check_output(mount_cmd)
         self.output(
-            # r.decode("ascii"), verbose_level=2,
-            r,
-            verbose_level=2,
+            r.decode("ascii"),
+            # r,
+            verbose_level=4,
         )
 
     def umount_smb(self, mount_share):
@@ -605,7 +627,10 @@ class JamfPackageUploader(JamfUploaderBase):
                     verbose_level=1,
                 )
                 raise ProcessorError("ERROR: Package metadata upload failed ")
-            sleep(30)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
 
     def main(self):
         """Do the main thing here"""
@@ -623,6 +648,7 @@ class JamfPackageUploader(JamfUploaderBase):
             self.pkg_name = os.path.basename(self.pkg_path)
         self.version = self.env.get("version")
         self.replace = self.env.get("replace_pkg")
+        self.sleep = self.env.get("sleep")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False
@@ -631,7 +657,7 @@ class JamfPackageUploader(JamfUploaderBase):
         if not self.replace_metadata or self.replace_metadata == "False":
             self.replace_metadata = False
         self.skip_metadata_upload = self.env.get("skip_metadata_upload")
-        # handle setting replace_metadata in overrides
+        # handle setting skip_metadata_upload in overrides
         if not self.skip_metadata_upload or self.skip_metadata_upload == "False":
             self.skip_metadata_upload = False
         self.jcds_mode = self.env.get("jcds_mode")
@@ -641,12 +667,79 @@ class JamfPackageUploader(JamfUploaderBase):
         self.jamf_url = self.env.get("JSS_URL")
         self.jamf_user = self.env.get("API_USERNAME")
         self.jamf_password = self.env.get("API_PASSWORD")
-        self.smb_url = self.env.get("SMB_URL")
-        self.smb_user = self.env.get("SMB_USERNAME")
-        self.smb_password = self.env.get("SMB_PASSWORD")
+        self.cloud_dp = self.env.get("CLOUD_DP")
+        # handle setting jcds_mode in overrides
+        if not self.cloud_dp or self.cloud_dp == "False":
+            self.cloud_dp = False
         self.recipe_cache_dir = self.env.get("RECIPE_CACHE_DIR")
         self.pkg_uploaded = False
         self.pkg_metadata_updated = False
+
+        # Create a list of smb shares in tuples
+        self.smb_shares = []
+        if self.env.get("SMB_URL"):
+            if not self.env.get("SMB_USERNAME") or not self.env.get("SMB_PASSWORD"):
+                raise ProcessorError("SMB_URL defined but no credentials supplied.")
+            self.output(
+                "DP 1: {}, {}, pass len: {}".format(
+                    self.env.get("SMB_URL"),
+                    self.env.get("SMB_USERNAME"),
+                    len(self.env.get("SMB_PASSWORD")),
+                ),
+                verbose_level=2,
+            )
+            self.smb_shares.append(
+                (
+                    self.env.get("SMB_URL"),
+                    self.env.get("SMB_USERNAME"),
+                    self.env.get("SMB_PASSWORD"),
+                )
+            )
+            n = 2
+            while n > 0:
+                if self.env.get(f"SMB{n}_URL"):
+                    if not self.env.get(f"SMB{n}_USERNAME") or not self.env.get(
+                        f"SMB{n}_PASSWORD"
+                    ):
+                        raise ProcessorError(
+                            f"SMB{n}_URL defined but no credentials supplied."
+                        )
+                    self.output(
+                        "DP {}: {}, {}, pass len: {}".format(
+                            n,
+                            self.env.get(f"SMB{n}_URL"),
+                            self.env.get(f"SMB{n}_USERNAME"),
+                            len(self.env.get(f"SMB{n}_PASSWORD")),
+                        ),
+                        verbose_level=2,
+                    )
+                    self.smb_shares.append(
+                        (
+                            self.env.get(f"SMB{n}_URL"),
+                            self.env.get(f"SMB{n}_USERNAME"),
+                            self.env.get(f"SMB{n}_PASSWORD"),
+                        )
+                    )
+                    n = n + 1
+                else:
+                    self.output(f"DP {n}: not defined", verbose_level=3)
+                    n = 0
+        elif self.env.get("SMB_SHARES"):
+            smb_share_array = self.env.get("SMB_SHARES")
+            for share in smb_share_array:
+                if (
+                    not share["SMB_URL"]
+                    or not share["SMB_USERNAME"]
+                    or not share["SMB_PASSWORD"]
+                ):
+                    raise ProcessorError("Incorrect SMB credentials supplied.")
+                self.smb_shares.append(
+                    (
+                        share["SMB_URL"],
+                        share["SMB_USERNAME"],
+                        share["SMB_PASSWORD"],
+                    )
+                )
 
         # create a dictionary of package metadata from the inputs
         self.pkg_category = self.env.get("pkg_category")
@@ -711,12 +804,18 @@ class JamfPackageUploader(JamfUploaderBase):
             else:
                 pkg_id = 0
 
-        # process for SMB shares if defined
-        if self.smb_url:
-            # mount the share
-            self.mount_smb(self.smb_url, self.smb_user, self.smb_password)
+        # Process for SMB shares if defined
+        self.output(
+            "Number of File Share DPs: " + str(len(self.smb_shares)), verbose_level=2
+        )
+        for smb_share in self.smb_shares:
+            smb_url, smb_user, smb_password = smb_share[0], smb_share[1], smb_share[2]
+            self.output(f"Begin upload to File Share DP {smb_url}", verbose_level=1)
+            if "smb://" in smb_url:
+                # mount the share
+                self.mount_smb(smb_url, smb_user, smb_password)
             # check for existing package
-            local_pkg = self.check_local_pkg(self.smb_url, self.pkg_name)
+            local_pkg = self.check_local_pkg(smb_url, self.pkg_name)
             if not local_pkg or self.replace:
                 if self.replace:
                     self.output(
@@ -726,25 +825,34 @@ class JamfPackageUploader(JamfUploaderBase):
                         verbose_level=1,
                     )
                 # copy the file
-                self.copy_pkg(self.smb_url, self.pkg_path, self.pkg_name)
-                # unmount the share
-                self.umount_smb(self.smb_url)
-                self.pkg_uploaded = True
+                self.copy_pkg(smb_url, self.pkg_path, self.pkg_name)
+                if "smb://" in smb_url:
+                    # unmount the share
+                    self.umount_smb(smb_url)
+                # Don't set this property if
+                # 1. We need to upload to the cloud (self.cloud_dp == True)
+                # 2. We have more SMB shares to process
+                if not self.cloud_dp and (
+                    len(self.smb_shares) - 1
+                ) == self.smb_shares.index(smb_share):
+                    self.pkg_uploaded = True
             else:
                 self.output(
                     f"Not replacing existing {self.pkg_name} as 'replace_pkg' is set to "
                     f"{self.replace}. Use replace_pkg='True' to enforce."
                 )
-                # unmount the share
-                self.umount_smb(self.smb_url)
-                if not self.replace_metadata:
+                if "smb://" in smb_url:
+                    # unmount the share
+                    self.umount_smb(smb_url)
+                if self.smb_shares and not self.replace_metadata:
                     # even if we don't upload a package, we still need to pass it on so that a
-                    # policy processor can use it
+                    # subsequent processor can use it
                     self.env["pkg_name"] = self.pkg_name
                     self.pkg_uploaded = False
 
         # otherwise process for cloud DP
-        else:
+        if self.cloud_dp or not self.smb_shares:
+            self.output("Handling Cloud Distribution Point", verbose_level=2)
             if obj_id == "-1" or self.replace:
                 if self.replace:
                     self.output(
@@ -864,7 +972,7 @@ class JamfPackageUploader(JamfUploaderBase):
                 token=token,
             )
             self.pkg_metadata_updated = True
-        elif self.smb_url and not pkg_id:
+        elif self.smb_shares and not pkg_id:
             self.output(
                 "Creating package metadata",
                 verbose_level=1,
@@ -892,12 +1000,19 @@ class JamfPackageUploader(JamfUploaderBase):
         if self.pkg_metadata_updated or self.pkg_uploaded:
             self.env["jamfpackageuploader_summary_result"] = {
                 "summary_text": "The following packages were uploaded to or updated in Jamf Pro:",
-                "report_fields": ["pkg_path", "pkg_name", "version", "category"],
+                "report_fields": [
+                    "category",
+                    "name",
+                    "pkg_name",
+                    "pkg_path",
+                    "version",
+                ],
                 "data": {
-                    "pkg_path": self.pkg_path,
-                    "pkg_name": self.pkg_name,
-                    "version": self.version,
                     "category": self.pkg_category,
+                    "name": str(self.env.get("NAME")),
+                    "pkg_name": self.pkg_name,
+                    "pkg_path": self.pkg_path,
+                    "version": self.version,
                 },
             }
 

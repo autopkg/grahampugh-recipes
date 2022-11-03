@@ -64,6 +64,11 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
             "description": "Data type for the EA. One of String, Integer or Date.",
             "default": "String",
         },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
+        },
     }
 
     output_variables = {
@@ -73,7 +78,14 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
     }
 
     def upload_ea(
-        self, jamf_url, ea_name, ea_data_type, script_path, obj_id=None, enc_creds="", token="",
+        self,
+        jamf_url,
+        ea_name,
+        ea_data_type,
+        script_path,
+        obj_id=None,
+        enc_creds="",
+        token="",
     ):
         """Update extension attribute metadata."""
         # import script from file and replace any keys in the script
@@ -106,10 +118,12 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
             + "</computer_extension_attribute>"
         )
         self.output(
-            "Extension Attribute data:", verbose_level=2,
+            "Extension Attribute data:",
+            verbose_level=2,
         )
         self.output(
-            ea_data, verbose_level=2,
+            ea_data,
+            verbose_level=2,
         )
 
         self.output("Uploading Extension Attribute..")
@@ -124,7 +138,8 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
         while True:
             count += 1
             self.output(
-                "Extension Attribute upload attempt {}".format(count), verbose_level=2,
+                "Extension Attribute upload attempt {}".format(count),
+                verbose_level=2,
             )
             request = "PUT" if obj_id else "POST"
             r = self.curl(
@@ -144,7 +159,10 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
                 )
                 self.output("\nHTTP POST Response Code: {}".format(r.status_code))
                 raise ProcessorError("ERROR: Extension Attribute upload failed ")
-            sleep(10)
+            if int(self.sleep) > 30:
+                sleep(int(self.sleep))
+            else:
+                sleep(30)
 
     def main(self):
         """Do the main thing here"""
@@ -155,6 +173,7 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
         self.ea_name = self.env.get("ea_name")
         self.replace = self.env.get("replace_ea")
         self.ea_data_type = self.env.get("ea_data_type")
+        self.sleep = self.env.get("sleep")
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False
@@ -184,7 +203,11 @@ class JamfExtensionAttributeUploader(JamfUploaderBase):
         obj_type = "extension_attribute"
         obj_name = self.ea_name
         obj_id = self.get_api_obj_id_from_name(
-            self.jamf_url, obj_name, obj_type, enc_creds=send_creds, token=token,
+            self.jamf_url,
+            obj_name,
+            obj_type,
+            enc_creds=send_creds,
+            token=token,
         )
 
         if obj_id:
