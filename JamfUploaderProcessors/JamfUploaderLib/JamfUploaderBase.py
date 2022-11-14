@@ -462,9 +462,9 @@ class JamfUploaderBase(Processor):
                 jamf_pro_version = str(r.output["version"])
                 self.output(f"Jamf Pro Version: {jamf_pro_version}")
                 return jamf_pro_version
-            except KeyError:
-                self.output("ERROR: No version received")
-                return
+            except (KeyError, AttributeError) as error:
+                self.output(f"ERROR: No version received.  Error:\n{error}")
+                raise ProcessorError("Unable to determine version of Jamf Pro") from error
 
     def validate_jamf_pro_version(self, jamf_url, token):
         """return true if Jamf Pro version is 10.35 or greater"""
@@ -529,7 +529,7 @@ class JamfUploaderBase(Processor):
                 break
             found_keys = [i.replace("%", "") for i in found_keys]
             for found_key in found_keys:
-                if self.env.get(found_key):
+                if self.env.get(found_key) is not None:
                     self.output(
                         (
                             f"Replacing any instances of '{found_key}' with",
@@ -546,7 +546,7 @@ class JamfUploaderBase(Processor):
                     self.output(
                         f"WARNING: '{found_key}' has no replacement object!",
                     )
-                    raise ProcessorError("Unsubstitutable key in template found")
+                    raise ProcessorError(f"Unsubstitutable key in template found: '{found_key}'")
         return data
 
     def substitute_limited_assignable_keys(
