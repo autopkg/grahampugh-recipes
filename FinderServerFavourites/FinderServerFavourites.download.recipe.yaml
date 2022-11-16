@@ -1,0 +1,17 @@
+Description: |
+  Downloads the current script of FinderServerFavourites
+Identifier: com.github.grahampugh.recipes.download.FinderServerFavourites
+MinimumVersion: "2.3"
+
+Input: {}
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      # asset_regex: "^FinderServerFavourites.*?.pkg$"
+      github_repo: grahampugh/FinderServerFavourites
+      include_prereleases: false
+
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
