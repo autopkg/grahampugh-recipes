@@ -55,7 +55,6 @@ Process:
   - Processor: Versioner
     Arguments:
       input_plist_path: "%found_filename%"
-      plist_version_key: CFBundleVersion
 
   - Processor: PkgCreator
     Arguments:
