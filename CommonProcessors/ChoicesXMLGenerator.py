@@ -22,12 +22,7 @@ from builtins import str
 import subprocess
 
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
-from plistlib import writePlist
-
-try:
-    from plistlib import readPlistFromString
-except ImportError:
-    from plistlib import readPlistFromBytes as readPlistFromString
+import plistlib
 
 __all__ = ["ChoicesXMLGenerator"]
 
@@ -65,7 +60,7 @@ class ChoicesXMLGenerator(Processor):
         ).communicate()
         if choices_plist:
             try:
-                choices_list = readPlistFromString(choices_plist)
+                choices_list = plistlib.loads(choices_plist)
             except Exception as err:
                 raise ProcessorError(
                     f"Unexpected error parsing manifest as a plist: '{err}'"
@@ -79,7 +74,7 @@ class ChoicesXMLGenerator(Processor):
         """Generates the python dictionary of choices.
         Desired choices are given the choice attribute '1' (chosen).
         Other choices found are given the choice attribute '0'
-        (not chosen). """
+        (not chosen)."""
         parsed_choices = []
         for child_dict in child_items:
             try:
@@ -109,7 +104,8 @@ class ChoicesXMLGenerator(Processor):
     def write_choices_xml(self, parsed_choices, choices_xml_dest):
         """Write the plist to a file"""
         try:
-            writePlist(parsed_choices, choices_xml_dest)
+            with open(choices_xml_dest, "wb") as f:
+                plistlib.dump(parsed_choices, f)
         except:
             self.output("Could not write to file")
 
