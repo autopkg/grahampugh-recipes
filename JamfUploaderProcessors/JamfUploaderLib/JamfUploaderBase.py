@@ -9,20 +9,19 @@ import json
 import os
 import re
 import subprocess
-import uuid
+import tempfile
 import xml.etree.cElementTree as ET
 
 from base64 import b64encode
 from collections import namedtuple
 from datetime import datetime
+from html.parser import HTMLParser
 from pathlib import Path
 from shutil import rmtree
 from urllib.parse import quote
 from xml.sax.saxutils import escape
 
-# from base64 import b64encode
 # from time import sleep
-# from urllib.parse import quote
 
 from autopkglib import (
     APLooseVersion,
@@ -91,42 +90,53 @@ class JamfUploaderBase(Processor):
         }
         return object_list_types[object_type]
 
-    def write_json_file(self, data, tmp_dir="/tmp/jamf_upload"):
+    def write_json_file(self, data):
         """dump some json to a temporary file"""
-        self.make_tmp_dir(tmp_dir)
-        tf = os.path.join(tmp_dir, f"jamf_upload_{str(uuid.uuid4())}.json")
+        tf = self.init_temp_file(suffix=".json")
         with open(tf, "w") as fp:
             json.dump(data, fp)
         return tf
 
-    def write_token_to_json_file(self, url, data, token_file="/tmp/jamf_upload_token"):
+    def write_token_to_json_file(self, url, data):
         """dump the token, expiry, url and user as json to a temporary token file"""
         data["url"] = url
         data["user"] = self.jamf_user
-        with open(token_file, "w") as fp:
+        if not self.env.get("jamfupload_token"):
+            self.env["jamfupload_token"] = self.init_temp_file(
+                prefix="jamf_upload_token_"
+            )
+        with open(self.env["jamfupload_token"], "w") as fp:
             json.dump(data, fp)
 
-    def write_xml_file(self, data, tmp_dir="/tmp/jamf_upload"):
+    def write_xml_file(self, data):
         """dump some xml to a temporary file"""
-        self.make_tmp_dir(tmp_dir)
         xml_tree = ET.ElementTree(data)
-        tf = os.path.join(tmp_dir, f"jamf_upload_{str(uuid.uuid4())}.xml")
+        tf = self.init_temp_file(suffix=".xml")
         xml_tree.write(tf)
         return tf
 
-    def write_temp_file(self, data, tmp_dir="/tmp/jamf_upload"):
+    def write_temp_file(self, data):
         """dump some text to a temporary file"""
-        self.make_tmp_dir(tmp_dir)
-        tf = os.path.join(tmp_dir, f"jamf_upload_{str(uuid.uuid4())}.txt")
+        tf = self.init_temp_file(suffix=".txt")
         with open(tf, "w") as fp:
             fp.write(data)
         return tf
 
-    def make_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
+    def make_tmp_dir(self, tmp_dir="/tmp/jamf_upload_"):
         """make the tmp directory"""
-        if not os.path.exists(tmp_dir):
-            os.mkdir(tmp_dir)
-        return tmp_dir
+        if not self.env.get("jamfupload_tmp_dir"):
+            base_dir, dir = tmp_dir.rsplit("/", 1)
+            self.env["jamfupload_tmp_dir"] = tempfile.mkdtemp(prefix=dir, dir=base_dir)
+        return self.env["jamfupload_tmp_dir"]
+
+    def init_temp_file(self, prefix="jamf_upload_", suffix=None, dir=None, text=True):
+        """dump some text to a temporary file"""
+        return tempfile.mkstemp(
+            prefix=prefix,
+            suffix=suffix,
+            dir=self.make_tmp_dir() if dir is None else dir,
+            text=text,
+        )[1]
 
     def get_enc_creds(self, user, password):
         """encode the username and password into a b64-encoded string"""
@@ -282,7 +292,7 @@ class JamfUploaderBase(Processor):
         """
         tmp_dir = self.make_tmp_dir()
         headers_file = os.path.join(tmp_dir, "curl_headers_from_jamf_upload.txt")
-        output_file = os.path.join(tmp_dir, "curl_output_from_jamf_upload.txt")
+        output_file = self.init_temp_file(prefix="jamf_upload_", suffix=".txt")
         cookie_jar = os.path.join(tmp_dir, "curl_cookies_from_jamf_upload.txt")
 
         # build the curl command
@@ -305,22 +315,18 @@ class JamfUploaderBase(Processor):
         # Jamf Pro API authentication
         if enc_creds:
             curl_cmd.extend(["--header", f"authorization: Basic {enc_creds}"])
-            curl_cmd.extend(["--output", output_file])
         elif token:
             curl_cmd.extend(["--header", f"authorization: Bearer {token}"])
-            curl_cmd.extend(["--output", output_file])
 
         # icon download
         if request == "GET" and "ics.services.jamfcloud.com" in url:
             output_file = os.path.join(tmp_dir, "icon_download.png")
-            curl_cmd.extend(["--output", output_file])
 
         # 'Accept' for GET and DELETE requests
         # By default, we obtain json as its easier to parse. However,
         # some endpoints (For example the 'patchsoftwaretitle' endpoint)
         # do not return complete json, so we have to get the xml instead.
         elif request == "GET" or request == "DELETE":
-            curl_cmd.extend(["--output", output_file])
             if "legacy/packages" not in url:
                 if force_xml:
                     curl_cmd.extend(["--header", "Accept: application/xml"])
@@ -339,7 +345,6 @@ class JamfUploaderBase(Processor):
 
         # Content-Type for POST/PUT
         elif request == "POST" or request == "PUT":
-            curl_cmd.extend(["--output", output_file])
             if data and "slack" in url or "webhook.office" in url:
                 # slack and teams require a data argument
                 curl_cmd.extend(["--data", data])
@@ -356,6 +361,9 @@ class JamfUploaderBase(Processor):
             # note: other endpoints should supply their headers via 'additional_headers'
         elif request != "GET" and request != "DELETE":
             self.output(f"WARNING: HTTP method {request} not supported")
+
+        self.output(f"Output file is:  {output_file}", verbose_level=3)
+        curl_cmd.extend(["--output", output_file])
 
         # write session for jamf requests
         if (
@@ -429,28 +437,41 @@ class JamfUploaderBase(Processor):
         if r.status_code == 200 or r.status_code == 201:
             self.output(f"{endpoint_type} '{obj_name}' {action} successful")
             return "break"
-        elif r.status_code == 409:
-            self.output(r.output, verbose_level=2)
-            raise ProcessorError(
-                f"WARNING: {endpoint_type} '{obj_name}' {action} failed due to a conflict"
-            )
-        elif r.status_code == 401:
-            raise ProcessorError(
-                f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to permissions error"
-            )
-        elif r.status_code == 405:
-            raise ProcessorError(
-                f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to a "
-                "'method not allowed' error"
-            )
-        elif r.status_code == 500:
-            raise ProcessorError(
-                f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to an "
-                "internal server error"
-            )
         else:
-            self.output(f"WARNING: {endpoint_type} '{obj_name}' {action} failed")
-            self.output(r.output, verbose_level=2)
+            parser = self.ParseHTMLForError()
+            parser.feed(r.output.decode())
+            if parser.error:
+                self.output(f"API {parser.error}", verbose_level=2)
+            self.output(f"API response:\n{r.output}", verbose_level=3)
+            if r.status_code == 409:
+                raise ProcessorError(
+                    f"WARNING: {endpoint_type} '{obj_name}' {action} failed due to the following "
+                    f"conflict: {parser.error.replace('Error: ', '')}"
+                )
+            elif r.status_code == 400:
+                raise ProcessorError(
+                    f"WARNING: {endpoint_type} '{obj_name}' {action} failed due to the following "
+                    f"{parser.data[6]}: {parser.data[8]}"
+                )
+            elif r.status_code == 401:
+                raise ProcessorError(
+                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to permissions error"
+                )
+            elif r.status_code == 405:
+                raise ProcessorError(
+                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to a "
+                    "'method not allowed' error"
+                )
+            elif r.status_code == 500:
+                raise ProcessorError(
+                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to an "
+                    "internal server error"
+                )
+            else:
+                self.output(
+                    f"UNKNOWN ERROR: {endpoint_type} '{obj_name}' {action} failed. "
+                    "Will try again."
+                )
 
     def get_jamf_pro_version(self, jamf_url, token):
         """get the Jamf Pro version so that we can figure out which auth method to use for the
@@ -462,17 +483,23 @@ class JamfUploaderBase(Processor):
                 jamf_pro_version = str(r.output["version"])
                 self.output(f"Jamf Pro Version: {jamf_pro_version}")
                 return jamf_pro_version
-            except (KeyError, AttributeError) as error:
-                self.output(f"ERROR: No version received.  Error:\n{error}")
-                raise ProcessorError("Unable to determine version of Jamf Pro") from error
+            except KeyError as error:
+                self.output(f"ERROR: No version of Jamf Pro received.  Error:\n{error}")
+                raise ProcessorError("No version of Jamf Pro received") from error
 
     def validate_jamf_pro_version(self, jamf_url, token):
         """return true if Jamf Pro version is 10.35 or greater"""
         jamf_pro_version = self.get_jamf_pro_version(jamf_url, token)
-        if APLooseVersion(jamf_pro_version) >= APLooseVersion("10.35.0"):
-            return True
-        else:
-            return False
+        try:
+            if APLooseVersion(jamf_pro_version) >= APLooseVersion("10.35.0"):
+                return True
+            else:
+                return False
+        except AttributeError as error:
+            self.output(
+                f"ERROR: Unable to determine version of Jamf Pro.  Error:\n{error}"
+            )
+            raise ProcessorError("Unable to determine version of Jamf Pro") from error
 
     def get_uapi_obj_id_from_name(self, jamf_url, object_type, object_name, token):
         """Get the Jamf Pro API object by name. This requires use of RSQL filtering"""
@@ -546,7 +573,9 @@ class JamfUploaderBase(Processor):
                     self.output(
                         f"WARNING: '{found_key}' has no replacement object!",
                     )
-                    raise ProcessorError(f"Unsubstitutable key in template found: '{found_key}'")
+                    raise ProcessorError(
+                        f"Unsubstitutable key in template found: '{found_key}'"
+                    )
         return data
 
     def substitute_limited_assignable_keys(
@@ -588,7 +617,8 @@ class JamfUploaderBase(Processor):
         1. RecipeOverrides directory/ies
         2. Same directory as the recipe
         3. Same repo (recipe search directory) as the recipe
-        4. Parent recipe's repo (recipe search directory) if recipe is an override"""
+        4. Parent recipe's repo (recipe search directory) if recipe is an override
+        Relative paths also work."""
         recipe_dir = self.env.get("RECIPE_DIR")
         recipe_dir_path = Path(os.path.expanduser(recipe_dir))
         filepath = os.path.join(recipe_dir, filename)
@@ -698,6 +728,17 @@ class JamfUploaderBase(Processor):
         )
         (output, _) = proc.communicate(xml)
         return output
+
+    class ParseHTMLForError(HTMLParser):
+        def __init__(self):
+            HTMLParser.__init__(self)
+            self.error = None
+            self.data = []
+
+        def handle_data(self, data):
+            self.data.append(data)
+            if "Error:" in data:
+                self.error = data
 
 
 if __name__ == "__main__":

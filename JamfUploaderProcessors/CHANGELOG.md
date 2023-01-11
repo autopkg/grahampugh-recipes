@@ -2,6 +2,8 @@
 
 | Date       | Notes                                                                                            |
 | ---------- | ------------------------------------------------------------------------------------------------ |
+| 2022-12-20 | Allow relative paths to templates.                                                               |
+| 2022-12-20 | Allow skip template in `JamfPatchUploader`.                                                      |
 | 2022-11-14 | All shebangs updated to use the AutoPkg python distribution.                                     |
 | 2022-10-15 | Allow multiple SMB repos plus SMB + Cloud in `JamfPackageUploader`.                              |
 | 2022-10-08 | Fail properly for unsubstitutable variables.                                                     |

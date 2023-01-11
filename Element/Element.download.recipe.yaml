@@ -4,12 +4,12 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: Element (Riot)
-  DOWNLOAD_URL: https://element.io/get-started
+  DOWNLOAD_URL: https://element.io/download
 
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: '"(?P<match>https://packages\.riot\.im/desktop/install/macos/Element.*\.dmg)"'
+      re_pattern: '"(?P<match>https://packages\.riot\.im/desktop/install/macos/Element\.dmg)"'
       url: "%DOWNLOAD_URL%"
 
   - Processor: URLDownloader
