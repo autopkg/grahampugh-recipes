@@ -90,7 +90,9 @@ class InstallApp(Processor):
                 self.connect()
                 self.output("Sending installation request")
                 self.output(
-                    "[TEMP] Item: {}".format(self.env["items_to_copy"]),
+                    "[TEMP] Item: {}".format(
+                        self.env["items_to_copy"][0]["source_item"]
+                    ),
                     verbose_level=2,
                 )
 
@@ -109,7 +111,7 @@ class InstallApp(Processor):
                     "summary_text": (
                         "The following items " "were successfully installed:"
                     ),
-                    "data": {"app_path": self.env["items_to_copy"]["source_item"]},
+                    "data": {"app_path": self.env["items_to_copy"][0]["source_item"]},
                 }
         except Exception as err:
             result = f"ERROR: {err}"
