@@ -106,8 +106,8 @@ class InstallApp(Processor):
                     ),
                     "data": {"app_path": self.env["app_path"]},
                 }
-        finally:
-            self.unmount(self.env["app_path"])
+        except Exception as err:
+            result = f"ERROR: {err}"
 
     def connect(self):
         """Connect to autopkginstalld"""
