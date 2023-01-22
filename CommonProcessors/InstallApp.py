@@ -89,9 +89,7 @@ class InstallApp(Processor):
                 self.output("Connecting")
                 self.connect()
                 self.output("Sending installation request")
-                self.output("[TEMP] We are at line 92", verbose_level=4)
                 result = self.send_request(request)
-                self.output("[TEMP] We are at line 94", verbose_level=4)
             except Exception as err:
                 result = f"ERROR: {err}"
             finally:
@@ -104,9 +102,9 @@ class InstallApp(Processor):
             if result == "DONE":
                 self.env["install_app_summary_result"] = {
                     "summary_text": (
-                        "Items from the following paths " "were successfully installed:"
+                        "The following items " "were successfully installed:"
                     ),
-                    "data": {"app_path": self.env["app_path"]},
+                    "data": {"app_path": self.env["items_to_copy"]["source_item"]},
                 }
         except Exception as err:
             result = f"ERROR: {err}"
@@ -125,7 +123,6 @@ class InstallApp(Processor):
         with os.fdopen(self.socket.fileno()) as fileref:
             while True:
                 data = fileref.readline()
-                self.output("[TEMP] We are at line 128", verbose_level=4)
                 if data:
                     if data.startswith("OK:"):
                         return data.replace("OK:", "").rstrip()
