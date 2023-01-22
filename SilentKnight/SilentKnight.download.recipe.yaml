@@ -1,0 +1,29 @@
+Description: Downloads the current version of Howard Oakley's SilentKnight.
+Identifier: com.github.grahampugh.recipes.download.SilentKnight
+MinimumVersion: "2.3"
+
+Input:
+  NAME: SilentKnight
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<url>https:\/\/eclecticlightdotcom\.files\.wordpress.com/.*/silentknight.*\.zip)
+      url: https://eclecticlight.co/downloads/
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%url%"
+
+  - Processor: EndOfCheckPhase
+
+  - Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: True
+    Processor: Unarchiver
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      requirement: anchor apple generic and identifier "co.eclecticlight.SilentKnight" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QWY4LRW926)
+      input_path: "%RECIPE_CACHE_DIR%/unzip/silentknight*/SilentKnight.app"
