@@ -90,7 +90,7 @@ class InstallApp(Processor):
                 self.connect()
                 self.output("Sending installation request")
                 self.output(
-                    "[TEMP] Item: {}".format(self.env["items_to_copy"]["source_item"]),
+                    "[TEMP] Item: {}".format(self.env["items_to_copy"]),
                     verbose_level=2,
                 )
 
