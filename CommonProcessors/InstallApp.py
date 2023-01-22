@@ -19,6 +19,7 @@ import os.path
 import plistlib
 import socket
 
+from pathlib import Path
 from autopkglib import Processor, ProcessorError
 
 AUTOPKGINSTALLD_SOCKET = "/var/run/autopkginstalld"
@@ -77,7 +78,7 @@ class InstallApp(Processor):
                 self.env["install_result"] = "SKIPPED"
                 return
         try:
-            app_path = self.env["app_path"]
+            app_path = Path(os.path.expanduser(self.env["app_path"]))
 
             request = {
                 "mount_point": app_path,
