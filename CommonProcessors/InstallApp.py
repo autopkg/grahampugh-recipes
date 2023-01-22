@@ -89,7 +89,9 @@ class InstallApp(Processor):
                 self.output("Connecting")
                 self.connect()
                 self.output("Sending installation request")
+                self.output("[TEMP] We are at line 92", verbose_level=4)
                 result = self.send_request(request)
+                self.output("[TEMP] We are at line 94", verbose_level=4)
             except Exception as err:
                 result = f"ERROR: {err}"
             finally:
@@ -123,6 +125,7 @@ class InstallApp(Processor):
         with os.fdopen(self.socket.fileno()) as fileref:
             while True:
                 data = fileref.readline()
+                self.output("[TEMP] We are at line 128", verbose_level=4)
                 if data:
                     if data.startswith("OK:"):
                         return data.replace("OK:", "").rstrip()
