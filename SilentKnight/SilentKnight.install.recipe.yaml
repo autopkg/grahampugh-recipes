@@ -5,15 +5,22 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: SilentKnight
+  DESTINATION: /Applications
 
 Process:
   - Processor: Unarchiver
     Arguments:
       archive_path: "%pathname%"
-      destination_path: "%RECIPE_CACHE_DIR%/SilentKnight"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
       purge_destination: True
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: "%RECIPE_CACHE_DIR%/unzip/silentknight*"
 
   - Processor: com.github.grahampugh.recipes.commonprocessors/InstallApp
     Arguments:
-      destination_path: "~/Applications/SilentKnight.app"
-      app_path: "%RECIPE_CACHE_DIR%/SilentKnight"
+      app_path: "%found_filename%"
+      items_to_copy:
+        - destination_path: "%DESTINATION%"
+          source_item: SilentKnight.app
