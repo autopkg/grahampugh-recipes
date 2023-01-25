@@ -1,0 +1,26 @@
+Description: Downloads the latest version of CLC Genomics Workbench. Please note that this application installer is not signed properly.
+Identifier: com.github.grahampugh.recipes.download.CLCGenomicsWorkbench
+MinimumVersion: "2.3"
+
+Input:
+  NAME: CLC Genomics Workbench
+  DOWNLOAD_URL: https://digitalinsights.qiagen.com/products/clc-genomics-workbench-direct-download/
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: '"(?P<match>https:\/\/download.clcbio.com\/clcgenomicswb\/[\d|\.]*\/CLCGenomicsWorkbench_[\d|_]*.dmg)"'
+      url: "%DOWNLOAD_URL%"
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%match%"
+
+  - Processor: EndOfCheckPhase
+
+  # note that this app is not properly notarised so is not worth having a CodeSignatureVerificationCheck. Use at your own risk!
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%pathname%/CLC Genomics Workbench Installer.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
