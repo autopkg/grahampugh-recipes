@@ -17,7 +17,7 @@ Process:
     pkg_payload_path: '%found_filename%/Payload'
   Processor: PkgPayloadUnpacker
 - Arguments:
-    input_plist_path: '%RECIPE_CACHE_DIR%/payload/Applications/Utilities/Nudge.app/Contents/Info.plist'
+    input_plist_path: '%RECIPE_CACHE_DIR%/payload/Nudge.app/Contents/Info.plist'
   Processor: Versioner
 - Arguments:
     pkg_path: '%RECIPE_CACHE_DIR%/Nudge-%version%.pkg'
