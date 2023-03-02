@@ -49,6 +49,14 @@ class LastRecipeRunResult(Processor):
             "required": False,
             "default": "",
         },
+        "pkg_uploaded": {
+            "description": ("whether a package was uploaded on the last run or not."),
+            "required": False,
+        },
+        "pkg_metadata_updated": {
+            "description": ("whether package metadata was uploaded on the last run or not."),
+            "required": False,
+        },
         "pathname": {
             "description": ("The path to the downloaded installer."),
             "required": False,
@@ -100,6 +108,9 @@ class LastRecipeRunResult(Processor):
         "license_key": {"description": ("The outputted value for license_key.")},
         "pkg_path": {"description": ("the package path.")},
         "pkg_name": {"description": ("the package name.")},
+        "pkg_uploaded": {"description": ("whether a package was uploaded on the last run or not")},
+        "pkg_metadata_updated": {"description": ("whether package metadata was uploaded on the last run or not")},
+        "pkg_name": {"description": ("the package name.")},
         "PKG_CATEGORY": {"description": ("The package category.")},
         "policy_name": {"description": ("The policy name.")},
         "minimum_os_version": {
@@ -127,6 +138,8 @@ class LastRecipeRunResult(Processor):
         pathname = self.env.get("pathname")
         pkg_path = self.env.get("pkg_path")
         pkg_name = self.env.get("pkg_name")
+        pkg_uploaded = self.env.get("pkg_uploaded")
+        pkg_metadata_updated = self.env.get("pkg_metadata_updated")
         url = self.env.get("url")
         version = self.env.get("version")
         bundleid = self.env.get("bundleid")
@@ -142,6 +155,10 @@ class LastRecipeRunResult(Processor):
             self.output("Package path: {}".format(pkg_path))
         if pkg_name:
             self.output("Package name: {}".format(pkg_name))
+        if pkg_uploaded:
+            self.output("Package updated on last run: {}".format(pkg_uploaded))
+        if pkg_metadata_updated:
+            self.output("Package metadata updated on last run: {}".format(pkg_metadata_updated))
         if url:
             self.output("URL: {}".format(url))
         if version:
@@ -167,6 +184,8 @@ class LastRecipeRunResult(Processor):
         data["pathname"] = pathname
         data["pkg_path"] = pkg_path
         data["pkg_name"] = pkg_name
+        data["pkg_uploaded"] = pkg_uploaded
+        data["pkg_metadata_updated"] = pkg_metadata_updated
         data["url"] = url
         data["version"] = version
         data["bundleid"] = bundleid

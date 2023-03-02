@@ -62,6 +62,7 @@ class LastRecipeRunChecker(Processor):
                 "whether package metadata was updated on the last run or not."
             )
         },
+        "bundleid": {"description": ("the Bundle identifier.")},
         "PKG_CATEGORY": {"description": ("The package category.")},
         "LAST_RUN_POLICY_NAME": {"description": ("The policy_name.")},
         "LAST_RUN_SELFSERVICE_DESCRIPTION": {
@@ -98,6 +99,7 @@ class LastRecipeRunChecker(Processor):
         if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
         self.env["pkg_path"] = data["pkg_path"]
+        self.env["bundleid"] = data["bundleid"]
         self.env["url"] = data.get("url")
         self.env["PKG_CATEGORY"] = data.get("category")
         self.env["LAST_RUN_POLICY_NAME"] = data.get("policy_name")
@@ -118,6 +120,7 @@ class LastRecipeRunChecker(Processor):
         self.output(f"URL: {self.env['url']}")
         self.output(f"Pkg category: {self.env['PKG_CATEGORY']}")
         self.output(f"Policy name: {self.env['LAST_RUN_POLICY_NAME']}")
+        self.output(f"Bundle identifier: {self.env['bundleid']}")
         self.output(
             f"Self Service Description: {self.env['LAST_RUN_SELFSERVICE_DESCRIPTION']}"
         )
