@@ -1,15 +1,11 @@
-Description: Downloads latest FileMaker Pro Advanced updater disk image and extracts the package from within.
+Description: Downloads a specific FileMaker Pro Advanced updater zip file.
 Identifier: com.github.grahampugh.recipes.download.filemakerproadvanced
 
 Input:
   NAME: FileMaker Pro Advanced
-  MAJOR_VERSION: "18"
+  DOWNLOAD_VERSION: "18.0.3.317"
 
 Process:
-  - Processor: FilemakerProAdvancedUpdateURLProcessor
-    Arguments:
-      major_version: "%MAJOR_VERSION%"
-
   - Processor: URLDownloader
     Arguments:
-      url: https://fmdl.filemaker.com/esd/fmpa_%version%.dmg
+      url: https://fmdl.filemaker.com/UPDT/18/fmpa_updater_%DOWNLOAD_VERSION%.zip
