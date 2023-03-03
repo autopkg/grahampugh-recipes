@@ -8,4 +8,4 @@ Input:
 Process:
   - Processor: URLDownloader
     Arguments:
-      url: https://fmdl.filemaker.com/UPDT/18/fmpa_updater_%DOWNLOAD_VERSION%.zip
+      url: https://downloads.claris.com/esd/fmpa_%DOWNLOAD_VERSION%.dmg
