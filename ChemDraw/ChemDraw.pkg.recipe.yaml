@@ -37,7 +37,6 @@ Process:
 
   - Processor: PkgCreator
     Arguments:
-      force_pkg_build: true
       pkg_request:
         chown: []
         id: com.chemdraw.pkg.ChemDraw%MAJOR_VERSION%

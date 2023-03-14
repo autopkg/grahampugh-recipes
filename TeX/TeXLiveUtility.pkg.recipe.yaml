@@ -9,4 +9,3 @@ Input:
 Process:
   - Processor: AppPkgCreator
     Arguments:
-      force_pkg_build: true

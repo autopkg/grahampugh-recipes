@@ -108,7 +108,6 @@ Process:
 
   - Processor: PkgCreator
     Arguments:
-      force_pkg_build: true
       pkg_request:
         id: com.endnote.EndNote%MAJOR_VERSION%
         options: purge_ds_store

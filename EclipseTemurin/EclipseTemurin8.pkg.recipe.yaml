@@ -59,7 +59,6 @@ Process:
 
   - Processor: PkgCreator
     Arguments:
-      force_pkg_build: true
       pkg_request:
         chown:
           - group: wheel
