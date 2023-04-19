@@ -1,0 +1,20 @@
+Description: Installs Notion to the user's Applications directory.
+Identifier: com.github.grahampugh.recipes.userinstall.notion
+ParentRecipe: com.github.moofit-recipes.download.NotionUniversal
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Notion
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
+
+  - Processor: InstallFromDMG
+    Arguments:
+      dmg_path: "%pathname%"
+      items_to_copy:
+        - destination_path: "%user_home%/Applications"
+          source_item: Notion.app
+          user: "%current_user%"
+          group: staff
+          mode: "0755"
