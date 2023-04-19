@@ -35,7 +35,10 @@ class GetUserHome(Processor):
         """Main process."""
         try:
             user_home = os.path.expanduser("~")
+            current_user = os.path.basename(user_home)
             self.env["user_home"] = user_home
+            self.env["current_user"] = current_user
+            self.outout(f"Current user: {current_user}")
             self.output(f"User Home Directory: {user_home}")
         except Exception as e:
             self.output(f"User Home Directory could not be determined (error: {e})")
