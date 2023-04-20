@@ -29,12 +29,15 @@ __all__ = ["InstallApp"]
 
 
 class InstallApp(DmgMounter):
-    """Calls autopkginstalld to copy items from a folder to the root
+    """Calls autopkginstalld to copy items from a source directory to the root
     filesystem."""
 
     description = __doc__
     input_variables = {
-        "folder": {"required": True, "description": "Path to the folder."},
+        "source_directory": {
+            "required": True,
+            "description": "Path to the source directory.",
+        },
         "items_to_copy": {
             "required": True,
             "description": (
@@ -77,7 +80,7 @@ class InstallApp(DmgMounter):
                 return
         try:
             request = {
-                "folder": self.env["folder"],
+                "source_directory": self.env["source_directory"],
                 "items_to_copy": self.env["items_to_copy"],
             }
             result = None
@@ -99,13 +102,13 @@ class InstallApp(DmgMounter):
             if result == "DONE":
                 self.env["install_app_summary_result"] = {
                     "summary_text": (
-                        "Items from the following folders "
+                        "Items from the following source directories "
                         "were successfully installed:"
                     ),
-                    "data": {"folder": self.env["folder"]},
+                    "data": {"source_directory": self.env["source_directory"]},
                 }
-        finally:
-            self.unmount(self.env["folder"])
+        except Exception as e:
+            raise ProcessorError(f"Could not install, error {e}")
 
     def connect(self):
         """Connect to autopkginstalld"""
