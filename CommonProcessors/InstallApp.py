@@ -124,6 +124,7 @@ class InstallApp(DmgMounter):
         with os.fdopen(self.socket.fileno()) as fileref:
             terminated = False
             while not terminated:
+                self.output(terminated, verbose_level=2)  # TEMP
                 try:
                     data = fileref.readline()
                     if data:
