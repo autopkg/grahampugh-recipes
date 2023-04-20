@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""See docstring for InstallApp class"""
+"""See docstring for InstallFromFolder class"""
 
 import os.path
 import plistlib
@@ -25,10 +25,10 @@ from autopkglib.DmgMounter import DmgMounter
 AUTOPKGINSTALLD_SOCKET = "/var/run/autopkginstalld"
 
 
-__all__ = ["InstallApp"]
+__all__ = ["InstallFromFolder"]
 
 
-class InstallApp(DmgMounter):
+class InstallFromFolder(DmgMounter):
     """Calls autopkginstalld to copy items from a source directory to the root
     filesystem."""
 
@@ -153,5 +153,5 @@ class InstallApp(DmgMounter):
 
 
 if __name__ == "__main__":
-    PROCESSOR = InstallApp()
+    PROCESSOR = InstallFromFolder()
     PROCESSOR.execute_shell()

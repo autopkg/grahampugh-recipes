@@ -1,10 +1,10 @@
 Description: Installs Notion to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
-Identifier: com.github.grahampugh.recipes.userinstall.Notion
-ParentRecipe: com.github.moofit-recipes.download.NotionUniversal
+Identifier: com.github.grahampugh.recipes.userinstall.iMazingProfileEditor
+ParentRecipe: com.github.rtrouton.download.iMazingProfileEditor
 MinimumVersion: "2.3"
 
 Input:
-  NAME: Notion
+  NAME: iMazing Profile Editor
 
 Process:
   - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
@@ -14,7 +14,7 @@ Process:
       dmg_path: "%pathname%"
       items_to_copy:
         - destination_path: "%user_home%/Applications"
-          source_item: Notion.app
+          source_item: iMazing Profile Editor.app
           user: "%current_user%"
           group: staff
           mode: "0755"

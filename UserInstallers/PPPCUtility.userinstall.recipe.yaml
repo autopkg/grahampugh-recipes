@@ -1,4 +1,4 @@
-Description: Installs Notion to the user's Applications directory.
+Description: Installs PPPC Utility to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
 Identifier: com.github.grahampugh.recipes.userinstall.PPPCUtility
 ParentRecipe: com.github.dataJAR-recipes.download.PPPC-Utility
 MinimumVersion: "2.3"
@@ -9,7 +9,7 @@ Input:
 Process:
   - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
 
-  - Processor: com.github.grahampugh.recipes.commonprocessors/InstallApp
+  - Processor: com.github.grahampugh.recipes.commonprocessors/InstallFromFolder
     Arguments:
       source_directory: "%RECIPE_CACHE_DIR%/%NAME%/Applications"
       items_to_copy:
