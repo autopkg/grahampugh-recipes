@@ -122,17 +122,22 @@ class InstallApp(DmgMounter):
         """Send an install request to autopkginstalld"""
         self.socket.send(plistlib.dumps(request))
         with os.fdopen(self.socket.fileno()) as fileref:
-            while True:
-                data = fileref.readline()
-                if data:
-                    if data.startswith("OK:"):
-                        return data.replace("OK:", "").rstrip()
-                    elif data.startswith("ERROR:"):
-                        break
+            terminated = False
+            while not terminated:
+                try:
+                    data = fileref.readline()
+                    if data:
+                        if data.startswith("OK:"):
+                            return data.replace("OK:", "").rstrip()
+                        elif data.startswith("ERROR:"):
+                            break
+                        else:
+                            self.output(data.rstrip())
                     else:
-                        self.output(data.rstrip())
-                else:
-                    break
+                        break
+                except IOError:
+                    terminated = True
+                    continue
 
         errors = data.rstrip().split("\n")
         if not errors:
