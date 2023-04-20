@@ -80,7 +80,7 @@ class InstallApp(DmgMounter):
                 return
         try:
             request = {
-                "source_directory": self.env["source_directory"],
+                "mount_point": self.env["source_directory"],
                 "items_to_copy": self.env["items_to_copy"],
             }
             result = None
