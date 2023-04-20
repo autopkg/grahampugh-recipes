@@ -1,4 +1,4 @@
-Description: Installs the latest version of SilentKnight.
+Description: Installs the latest version of SilentKnight to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
 Identifier: com.github.grahampugh.recipes.install.SilentKnight
 ParentRecipe: com.github.grahampugh.recipes.download.SilentKnight
 MinimumVersion: "2.3"
