@@ -1,0 +1,20 @@
+Description: Installs Apparency to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
+Identifier: com.github.grahampugh.recipes.userinstall.Apparency
+ParentRecipe: com.github.kevinmcox.download.Apparency
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Apparency
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
+
+  - Processor: InstallFromDMG
+    Arguments:
+      dmg_path: "%pathname%"
+      items_to_copy:
+        - destination_path: "%user_home%/Applications"
+          source_item: Apparency.app
+          user: "%current_user%"
+          group: staff
+          mode: "0755"

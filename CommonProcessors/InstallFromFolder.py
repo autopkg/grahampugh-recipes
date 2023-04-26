@@ -1,6 +1,6 @@
 #!/usr/local/autopkg/python
 #
-# Copyright 2023 Graham Pugh
+# Copyright 2014 Greg Neagle
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,28 +13,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""See docstring for InstallApp class"""
+"""See docstring for InstallFromFolder class"""
 
 import os.path
 import plistlib
 import socket
 
-from autopkglib import Processor, ProcessorError
+from autopkglib import ProcessorError
+from autopkglib.DmgMounter import DmgMounter
 
 AUTOPKGINSTALLD_SOCKET = "/var/run/autopkginstalld"
 
 
-__all__ = ["InstallApp"]
+__all__ = ["InstallFromFolder"]
 
 
-class InstallApp(Processor):
-    """Calls autopkginstalld to copy an application to the root filesystem."""
+class InstallFromFolder(DmgMounter):
+    """Calls autopkginstalld to copy items from a source directory to the root
+    filesystem."""
 
     description = __doc__
     input_variables = {
-        "app_path": {
+        "source_directory": {
             "required": True,
-            "description": "Path to the folder containing the app bundle.",
+            "description": "Path to the source directory.",
         },
         "items_to_copy": {
             "required": True,
@@ -77,10 +79,8 @@ class InstallApp(Processor):
                 self.env["install_result"] = "SKIPPED"
                 return
         try:
-            app_path = os.path.expanduser(self.env["app_path"])
-
             request = {
-                "mount_point": app_path,
+                "mount_point": self.env["source_directory"],
                 "items_to_copy": self.env["items_to_copy"],
             }
             result = None
@@ -102,12 +102,13 @@ class InstallApp(Processor):
             if result == "DONE":
                 self.env["install_app_summary_result"] = {
                     "summary_text": (
-                        "The following items " "were successfully installed:"
+                        "Items from the following source directories "
+                        "were successfully installed:"
                     ),
-                    "data": {"app_path": self.env["items_to_copy"][0]["source_item"]},
+                    "data": {"source_directory": self.env["source_directory"]},
                 }
-        except Exception as err:
-            result = f"ERROR: {err}"
+        except Exception as e:
+            raise ProcessorError(f"Could not install, error {e}")
 
     def connect(self):
         """Connect to autopkginstalld"""
@@ -123,7 +124,7 @@ class InstallApp(Processor):
         with os.fdopen(self.socket.fileno()) as fileref:
             while True:
                 data = fileref.readline()
-                if data:
+                if len(data) > 0:
                     if data.startswith("OK:"):
                         return data.replace("OK:", "").rstrip()
                     elif data.startswith("ERROR:"):
@@ -152,5 +153,5 @@ class InstallApp(Processor):
 
 
 if __name__ == "__main__":
-    PROCESSOR = InstallApp()
+    PROCESSOR = InstallFromFolder()
     PROCESSOR.execute_shell()

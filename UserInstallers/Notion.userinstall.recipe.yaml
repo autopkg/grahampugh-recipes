@@ -1,0 +1,21 @@
+Description: Installs Notion to the user's Applications directory. Note that the Applications directory must be created before running this recipe. The default download is the AMD64 version. To download the ARM version, set ARCH to arm64
+Identifier: com.github.grahampugh.recipes.userinstall.Notion
+ParentRecipe: com.github.moofit-recipes.download.NotionUniversal
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Notion
+  ARCH: amd64
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
+
+  - Processor: InstallFromDMG
+    Arguments:
+      dmg_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%-%ARCH%.dmg"
+      items_to_copy:
+        - destination_path: "%user_home%/Applications"
+          source_item: Notion.app
+          user: "%current_user%"
+          group: staff
+          mode: "0755"

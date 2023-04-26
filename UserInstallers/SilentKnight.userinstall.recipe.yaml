@@ -1,0 +1,31 @@
+Description: Installs the latest version of SilentKnight to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
+Identifier: com.github.grahampugh.recipes.userinstall.SilentKnight
+ParentRecipe: com.github.grahampugh.recipes.download.SilentKnight
+MinimumVersion: "2.3"
+
+Input:
+  NAME: SilentKnight
+  DESTINATION: /Applications
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: True
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: "%RECIPE_CACHE_DIR%/unzip/silentknight*"
+
+  - Processor: com.github.grahampugh.recipes.commonprocessors/InstallFromFolder
+    Arguments:
+      source_directory: "%RECIPE_CACHE_DIR%/unzip/%found_basename%"
+      items_to_copy:
+        - destination_path: "%user_home%/Applications"
+          source_item: "SilentKnight.app"
+          user: "%current_user%"
+          group: staff
+          mode: "0755"

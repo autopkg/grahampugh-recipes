@@ -1,0 +1,20 @@
+Description: Installs PPPC Utility to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
+Identifier: com.github.grahampugh.recipes.userinstall.PPPCUtility
+ParentRecipe: com.github.dataJAR-recipes.download.PPPC-Utility
+MinimumVersion: "2.3"
+
+Input:
+  NAME: PPPC Utility
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
+
+  - Processor: com.github.grahampugh.recipes.commonprocessors/InstallFromFolder
+    Arguments:
+      source_directory: "%RECIPE_CACHE_DIR%/%NAME%/Applications"
+      items_to_copy:
+        - destination_path: "%user_home%/Applications"
+          source_item: "%NAME%.app"
+          user: "%current_user%"
+          group: staff
+          mode: "0755"
