@@ -5,7 +5,7 @@ MinimumVersion: "2.3"
 Input:
   NAME: Mendeley Reference Manager
   DOWNLOAD_URL: https://static.mendeley.com/bin/desktop
-  SEARCH_URL: https://www.mendeley.com/download-reference-manager/macOS
+  SEARCH_URL: https://static.mendeley.com/bin/desktop/latest-mac.yml
 
 Process:
   - Processor: URLTextSearcher
