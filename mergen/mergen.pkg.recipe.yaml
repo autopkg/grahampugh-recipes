@@ -1,0 +1,10 @@
+Description: Downloads the latest version of mergen and creates a package.
+Identifier: com.github.grahampugh.pkg.mergen
+ParentRecipe: com.github.grahampugh.download.mergen
+MinimumVersion: "2.3"
+
+Input:
+  NAME: mergen
+
+Process:
+  - Processor: AppPkgCreator

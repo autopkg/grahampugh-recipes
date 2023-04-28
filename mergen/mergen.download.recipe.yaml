@@ -1,0 +1,28 @@
+Description: |
+  Downloads the mergen application
+Identifier: com.github.grahampugh.recipes.download.erase-install
+MinimumVersion: "2.3"
+
+Input:
+  NAME: mergen
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: sametsazak/mergen
+      include_prereleases: false
+
+  - Processor: URLDownloader
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: true
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%destination_path%/mergen.app"
+      requirement: anchor apple generic and identifier "sametsazak.mergen" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = HK2X69GGZH)
