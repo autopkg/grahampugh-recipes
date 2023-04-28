@@ -1,6 +1,6 @@
 Description: |
   Downloads the mergen application
-Identifier: com.github.grahampugh.recipes.download.erase-install
+Identifier: com.github.grahampugh.recipes.download.mergen
 MinimumVersion: "2.3"
 
 Input:
