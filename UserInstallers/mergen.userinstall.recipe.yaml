@@ -1,6 +1,6 @@
 Description: Installs mergen to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
 Identifier: com.github.grahampugh.recipes.userinstall.mergen
-ParentRecipe: ccom.github.grahampugh.recipes.download.mergen
+ParentRecipe: com.github.grahampugh.recipes.download.mergen
 MinimumVersion: "2.3"
 
 Input:
