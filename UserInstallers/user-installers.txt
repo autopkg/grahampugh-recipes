@@ -1,5 +1,9 @@
 Apparency.userinstall
+Discord.userinstall
+iMazingProfileEditor.userinstall
+JamfComplianceEditor.userinstall
+MacDown.userinstall
+mergen.userinstall
 Notion.userinstall
 PPPCUtility.userinstall
 SilentKnight.userinstall
-iMazingProfileEditor.userinstall

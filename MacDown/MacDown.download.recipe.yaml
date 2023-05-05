@@ -1,0 +1,21 @@
+Description: Downloads latest MacDown archive.
+Identifier: com.github.grahampugh.recipes.download.MacDown
+MinimumVersion: "2.3"
+
+Input:
+  NAME: MacDown
+  DOWNLOAD_URL: https://macdown.uranusjr.com/download/latest/
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.zip"
+      url: "%DOWNLOAD_URL%"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%"
+      purge_destination: true

@@ -1,0 +1,12 @@
+Description: Downloads latest MacDown archive and builds a package.
+Identifier: com.github.grahampugh.recipes.pkg.MacDown
+ParentRecipe: com.github.grahampugh.recipes.download.MacDown
+
+Input:
+  NAME: MacDown
+  BUNDLEID: com.uranusjr.macdown
+
+Process:
+  - Processor: AppPkgCreator
+    Arguments:
+      app_path: "%RECIPE_CACHE_DIR%/%NAME%/MacDown.app"

@@ -1,0 +1,20 @@
+Description: Installs MacDown to the user's Applications directory. Note that the Applications directory must be created before running this recipe.
+Identifier: com.github.grahampugh.recipes.userinstall.MacDown
+ParentRecipe: com.github.grahampugh.recipes.download.MacDown
+MinimumVersion: "2.3"
+
+Input:
+  NAME: MacDown
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/GetUserHome
+
+  - Processor: com.github.grahampugh.recipes.commonprocessors/InstallFromFolder
+    Arguments:
+      source_directory: "%RECIPE_CACHE_DIR%/unzip"
+      items_to_copy:
+        - destination_path: "%user_home%/Applications"
+          source_item: "%NAME%.app"
+          user: "%current_user%"
+          group: staff
+          mode: "0755"
