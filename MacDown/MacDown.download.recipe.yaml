@@ -17,5 +17,5 @@ Process:
   - Processor: Unarchiver
     Arguments:
       archive_path: "%pathname%"
-      destination_path: "%RECIPE_CACHE_DIR%/%NAME%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
       purge_destination: true

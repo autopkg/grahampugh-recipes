@@ -9,4 +9,9 @@ Input:
 Process:
   - Processor: AppPkgCreator
     Arguments:
-      app_path: "%RECIPE_CACHE_DIR%/%NAME%/MacDown.app"
+      app_path: "%RECIPE_CACHE_DIR%/unzip/MacDown.app"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unzip"
