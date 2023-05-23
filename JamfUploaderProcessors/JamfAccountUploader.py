@@ -73,7 +73,7 @@ class JamfAccountUploader(JamfUploaderBase):
         },
         "template_escape_xml": {
             "required": False,
-            "description": "Disable xml escaping during substitution for the template if False."
+            "description": "Disable xml escaping during substitution for the template if False.",
             "default": True,
         },
     }
