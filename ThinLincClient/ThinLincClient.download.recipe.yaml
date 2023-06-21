@@ -5,20 +5,17 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: ThinLinc Client
-  DOWNLOAD_URL: "%SITE_URL%/thinlinc/download"
   SITE_URL: https://www.cendio.com
 
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: '"(?P<match>/downloads/clients/tl.*-client-macos\.iso)"'
-      result_output_var_name: url
-      url: "%DOWNLOAD_URL%"
+      re_pattern: '(?P<url>%SITE_URL%/downloads/clients/tl-[\d\._]+-client-macos.iso)'
+      url: "%SITE_URL%/thinlinc/download/"
 
   - Processor: URLDownloader
     Arguments:
       filename: ThinLincClient.iso
-      url: "%SITE_URL%%match%"
 
   - Processor: EndOfCheckPhase
 
