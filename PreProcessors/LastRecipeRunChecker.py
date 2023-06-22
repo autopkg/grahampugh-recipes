@@ -104,6 +104,8 @@ class LastRecipeRunChecker(Processor):
         if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
         self.env["pkg_path"] = data.get("pkg_path")
+        if not self.env["pkg_path"]:
+            self.env["pkg_path"] = ""
         self.env["bundleid"] = data.get("bundleid")
         self.env["url"] = data.get("url")
         self.env["ignore_pkg_path"] = data.get("ignore_pkg_path")
