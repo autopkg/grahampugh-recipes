@@ -43,6 +43,11 @@ class LastRecipeRunChecker(Processor):
             "required": False,
             "default": "latest_version.json",
         },
+        "ignore_pkg_path": {
+            "description": ("Ignore the package path. Useful for recipes where no package has been uploaded but a name has been specified."),
+            "required": False,
+            "default": "False",
+        },
     }
 
     output_variables = {
@@ -98,9 +103,10 @@ class LastRecipeRunChecker(Processor):
         self.env["pkg_metadata_updated"] = data.get("pkg_metadata_updated")
         if not self.env["version"] or not self.env["pkg_name"]:
             raise ProcessorError("No package or version information found")
-        self.env["pkg_path"] = data["pkg_path"]
-        self.env["bundleid"] = data["bundleid"]
+        self.env["pkg_path"] = data.get("pkg_path")
+        self.env["bundleid"] = data.get("bundleid")
         self.env["url"] = data.get("url")
+        self.env["ignore_pkg_path"] = data.get("ignore_pkg_path")
         self.env["PKG_CATEGORY"] = data.get("category")
         self.env["LAST_RUN_POLICY_NAME"] = data.get("policy_name")
         self.env["LAST_RUN_SELFSERVICE_DESCRIPTION"] = data.get(
@@ -108,7 +114,7 @@ class LastRecipeRunChecker(Processor):
         )
 
         # make sure the package actually exists
-        if not os.path.exists(self.env["pkg_path"]):
+        if not os.path.exists(self.env["pkg_path"]) and self.env["ignore_pkg_path"] != "True":
             raise ProcessorError(
                 "Package does not exist: {}".format(self.env["pkg_path"])
             )
