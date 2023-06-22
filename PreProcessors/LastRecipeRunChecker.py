@@ -109,14 +109,16 @@ class LastRecipeRunChecker(Processor):
         self.env["bundleid"] = data.get("bundleid")
         self.env["url"] = data.get("url")
         self.env["ignore_pkg_path"] = data.get("ignore_pkg_path")
+        if not self.env["ignore_pkg_path"] or self.env["ignore_pkg_path"] == "False":
+            self.env["ignore_pkg_path"] = False
         self.env["PKG_CATEGORY"] = data.get("category")
         self.env["LAST_RUN_POLICY_NAME"] = data.get("policy_name")
         self.env["LAST_RUN_SELFSERVICE_DESCRIPTION"] = data.get(
             "self_service_description"
         )
 
-        # make sure the package actually exists
-        if self.env["ignore_pkg_path"] != "True":
+        # make sure the package actually exists unless we are ignoring it
+        if self.env["ignore_pkg_path"] is "True":
             if not os.path.exists(str(self.env["pkg_path"])):
                 raise ProcessorError(
                     "Package does not exist: {}".format(self.env["pkg_path"])
