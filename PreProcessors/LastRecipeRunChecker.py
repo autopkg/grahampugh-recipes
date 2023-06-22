@@ -116,10 +116,11 @@ class LastRecipeRunChecker(Processor):
         )
 
         # make sure the package actually exists
-        if not os.path.exists(self.env["pkg_path"]) and self.env["ignore_pkg_path"] != "True":
-            raise ProcessorError(
-                "Package does not exist: {}".format(self.env["pkg_path"])
-            )
+        if self.env["ignore_pkg_path"] != "True":
+            if not os.path.exists(str(self.env["pkg_path"])):
+                raise ProcessorError(
+                    "Package does not exist: {}".format(self.env["pkg_path"])
+                )
 
         self.output(f"Package name: {self.env['pkg_name']}")
         self.output(f"Package path: {self.env['pkg_path']}")
