@@ -8,14 +8,20 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (?P<url>https://.*/Images/Documentation/Jamf%20Compliance%20Editor%20.*.tar.gz.*)\".*(?P<filename>Jamf Compliance Editor.*.tar.gz?)
+      re_pattern: (<a href=\"(?P<url>\/\/cdn\.document360.io\/\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/Images/Documentation/Jamf%20Compliance%20Editor%20v.*)\".*(?P<filename>Jamf Compliance Editor.*.tar.gz?))
       url: https://trusted.jamf.com/docs/establishing-compliance-baselines
       request_headers:
         User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/600.8.9 (KHTML, like Gecko) Version/8.0.8 Safari/600.8.9
 
+  - Processor: com.github.grahampugh.recipes.commonprocessors/StringReplacer
+    Arguments:
+      input_string: "%url%"
+      string_to_replace: "&amp;"
+      replacement_string: "&"
+
   - Processor: URLDownloader
     Arguments:
-      url: "%url%"
+      url: "https:%output_string%"
       filename: "%filename%"
 
   - Processor: EndOfCheckPhase
