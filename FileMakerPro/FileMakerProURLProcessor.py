@@ -64,7 +64,7 @@ class FileMakerProURLProcessor(URLGetter):
 
     def extractMacUpdates(self, obj):
         updates = []
-        for iterm in obj:
+        for item in obj:
             if item["platform"] == "Mac":
                 updates.append(item)
         return updates
