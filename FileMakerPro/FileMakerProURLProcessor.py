@@ -65,30 +65,30 @@ class FileMakerProURLProcessor(URLGetter):
     def extractMacUpdates(self, obj):
         updates = []
         for item in obj:
-            if item["platform"] == "Mac":
+            if item.get("platform") == "Mac":
                 updates.append(item)
         return updates
 
     def extractMajorUpdates(self, obj, major_version):
         updates = []
         for item in obj:
-            self.output(f"Parsing installer: {item}", verbose_level=3)
-            if item["version"][0:len(major_version)].startswith(major_version):
+            self.output(f"Parsing installer version: {item.get('version')}", verbose_level=3)
+            if item.get("version").startswith(major_version):
                 updates.append(item)
         return updates
 
     def extractDefinedUpdates(self, obj, defined_version):
         updates = []
         for item in obj:
-            self.output(f"Parsing installer: {item}", verbose_level=3)
-            if defined_version in item["version"]:
+            self.output(f"Parsing installer version: {item.get('version')}", verbose_level=3)
+            if defined_version in item.get("version"):
                 updates.append(item)
         return updates
 
     def extractProUpdates(self, obj):
         updates = []
         for item in obj:
-            if item["product"] == "FileMaker Pro ":
+            if item.get("product") == "FileMaker Pro ":
                 updates.append(item)
         return updates
 
@@ -112,8 +112,8 @@ class FileMakerProURLProcessor(URLGetter):
 
         versions = []
         for item in obj:
-            version = item["version"].split(".")
-            version_str = item["version"]
+            version = item.get("version").split(".")
+            version_str = item.get("version")
             major = version[0]
             minor = version[1]
             patch = "0"
