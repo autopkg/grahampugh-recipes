@@ -29,7 +29,7 @@ import os
 import re
 from operator import itemgetter
 
-from autopkglib import Processor, ProcessorError, URLGetter
+from autopkglib import ProcessorError, URLGetter
 
 from urllib.parse import urlsplit  # Python 3
 
@@ -69,18 +69,18 @@ class FileMakerProURLProcessor(URLGetter):
                 updates.append(pkg)
         return updates
 
-    def extractMajorUpdates(self, obj):
+    def extractMajorUpdates(self, obj, major_version):
         updates = []
         for pkg in obj:
-            if pkg["version"][0 : len(self.env.get("major_version"))] == self.env.get(
-                "major_version"
-            ):
+            self.output(f"Parsing installer: {pkg}", verbose_level=3)
+            if pkg["version"][0:len(major_version)] == major_version:
                 updates.append(pkg)
         return updates
 
     def extractDefinedUpdates(self, obj, defined_version):
         updates = []
         for pkg in obj:
+            self.output(f"Parsing installer: {pkg}", verbose_level=3)
             if defined_version in pkg["version"]:
                 updates.append(pkg)
         return updates
@@ -141,8 +141,7 @@ class FileMakerProURLProcessor(URLGetter):
                 return pkg
         return None
 
-    def getLatestFilemakerProInstaller(self, defined_version=None):
-        # version_str = self.env.get("major_version")
+    def getLatestFilemakerProInstaller(self, major_version=None, defined_version=None):
         try:
             data = self.download(UPDATE_FEED)
         except Exception as e:
@@ -152,7 +151,7 @@ class FileMakerProURLProcessor(URLGetter):
         # extract all the Mac updates
         mac_updates = self.extractMacUpdates(metadata)
         mac_updates = self.extractProUpdates(mac_updates)
-        mac_updates = self.extractMajorUpdates(mac_updates)
+        mac_updates = self.extractMajorUpdates(mac_updates, major_version=None)
         if defined_version:
             mac_updates = self.extractDefinedUpdates(mac_updates, defined_version)
         update = self.findLatestUpdate(mac_updates)
@@ -171,9 +170,9 @@ class FileMakerProURLProcessor(URLGetter):
     def main(self):
         try:
             url = ""
+            major_version = self.env.get("major_version")
             defined_version = self.env.get("version")
-            update = self.getLatestFilemakerProInstaller(defined_version)
-            # version_str = self.env.get("major_version")
+            update = self.getLatestFilemakerProInstaller(major_version, defined_version)
             update["version"] = self.version_matcher(update["url"])
             url = update["url"]
 
