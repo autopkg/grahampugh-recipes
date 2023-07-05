@@ -1,4 +1,4 @@
-Description: Downloads latest FileMaker Pro updater disk image and extracts the package from within. This will only work for versions 19 and above.
+Description: This recipe is now deprecated as it does not work for FileMaker Pro version 2023 or newer. I advise you to use apizz-recipes/FileMakerProClaris.download instead.
 Identifier: com.github.grahampugh.recipes.download.FileMakerPro
 
 Input:
@@ -6,6 +6,10 @@ Input:
   MAJOR_VERSION: "19"
 
 Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: "This recipe is now deprecated as it does not work for FileMaker Pro version 2023 or newer. I advise you to use apizz-recipes/FileMakerProClaris.download instead."
+
   - Processor: FileMakerProURLProcessor
     Arguments:
       major_version: "%MAJOR_VERSION%"
