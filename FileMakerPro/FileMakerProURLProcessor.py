@@ -64,32 +64,32 @@ class FileMakerProURLProcessor(URLGetter):
 
     def extractMacUpdates(self, obj):
         updates = []
-        for pkg in obj:
-            if pkg["platform"] == "Mac":
-                updates.append(pkg)
+        for iterm in obj:
+            if item["platform"] == "Mac":
+                updates.append(item)
         return updates
 
     def extractMajorUpdates(self, obj, major_version):
         updates = []
-        for pkg in obj:
-            self.output(f"Parsing installer: {pkg}", verbose_level=3)
-            if pkg["version"][0:len(major_version)] == major_version:
-                updates.append(pkg)
+        for item in obj:
+            self.output(f"Parsing installer: {item}", verbose_level=3)
+            if item["version"][0:len(major_version)].startswith(major_version):
+                updates.append(item)
         return updates
 
     def extractDefinedUpdates(self, obj, defined_version):
         updates = []
-        for pkg in obj:
-            self.output(f"Parsing installer: {pkg}", verbose_level=3)
-            if defined_version in pkg["version"]:
-                updates.append(pkg)
+        for item in obj:
+            self.output(f"Parsing installer: {item}", verbose_level=3)
+            if defined_version in item["version"]:
+                updates.append(item)
         return updates
 
     def extractProUpdates(self, obj):
         updates = []
-        for pkg in obj:
-            if pkg["product"] == "FileMaker Pro ":
-                updates.append(pkg)
+        for item in obj:
+            if item["product"] == "FileMaker Pro ":
+                updates.append(item)
         return updates
 
     def compare_vers(self, v1, v2):
@@ -111,9 +111,9 @@ class FileMakerProURLProcessor(URLGetter):
         patch_levels = {"a": 1, "b": 2, "c": 3, "d": 4}
 
         versions = []
-        for pkg in obj:
-            version = pkg["version"].split(".")
-            version_str = pkg["version"]
+        for item in obj:
+            version = item["version"].split(".")
+            version_str = item["version"]
             major = version[0]
             minor = version[1]
             patch = "0"
@@ -136,9 +136,9 @@ class FileMakerProURLProcessor(URLGetter):
             versions.append((major, minor, patch, version_str))
         sorted_versions = sorted(versions, key=itemgetter(0, 1, 2, 3), reverse=True)
         version_str = sorted_versions[0][3]
-        for pkg in obj:
-            if pkg["version"] == version_str:
-                return pkg
+        for item in obj:
+            if item["version"] == version_str:
+                return item
         return None
 
     def getLatestFilemakerProInstaller(self, major_version=None, defined_version=None):
