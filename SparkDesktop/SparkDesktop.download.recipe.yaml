@@ -1,0 +1,24 @@
+Description: Downloads the latest version of Spark Desktop.
+Identifier: com.github.grahampugh.recipes.download.SparkDesktop
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Spark Desktop
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: (?P<url>https:\/\/downloads\.sparkmailapp\.com\/Spark3\/mac\/dist\/[\d|\.]*\/Spark\.dmg)
+      url: https://sparkmailapp.com/download
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: Spark.dmg
+      url: "%url%"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/%NAME%.app"
+      requirement: identifier "com.readdle.SparkDesktop" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "3L68KQB4HG"
