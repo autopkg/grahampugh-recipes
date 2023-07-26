@@ -1,0 +1,29 @@
+Description: Placeholder pkg recipe - just moves the pkg to create the pkg_path variable.
+Identifier: com.github.grahampugh.recipes.pkg.MDMWatchdog
+ParentRecipe: com.github.kevinmcox.download.mdm-watchdog
+MinimumVersion: "2.3"
+
+Input:
+  NAME: MDM Watchdog
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      flat_pkg_path: "%pathname%"
+      purge_destination: True
+
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/mdm-watchdog-component.pkg/payload"
+      purge_destination: True
+
+  - Processor: MDMWatchdogVersioner
+    Arguments:
+      binary_path: "%destination_path%/usr/local/bin/mdm-watchdog"
+
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/MDM-Watchdog-%version%.pkg"
+      source_pkg: "%pathname%"
