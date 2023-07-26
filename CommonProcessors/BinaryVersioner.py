@@ -27,7 +27,7 @@ class BinaryVersioner(Processor):
     input_variables = {
         "binary_path": {
             "required": True,
-            "description": "Path to the mdm-watchdog binary.",
+            "description": "Path to the binary.",
         },
         "binary_parameter": {
             "required": False,
