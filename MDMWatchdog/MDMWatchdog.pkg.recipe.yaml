@@ -19,9 +19,10 @@ Process:
       pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/mdm-watchdog-component.pkg/payload"
       purge_destination: True
 
-  - Processor: MDMWatchdogVersioner
+  - Processor: com.github.grahampugh.recipes.commonprocessors/BinaryVersioner
     Arguments:
       binary_path: "%destination_path%/usr/local/bin/mdm-watchdog"
+      binary_parameter: -version
 
   - Processor: PkgCopier
     Arguments:
