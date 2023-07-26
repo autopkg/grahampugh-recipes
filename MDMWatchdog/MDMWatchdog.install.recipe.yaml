@@ -1,4 +1,4 @@
-Description: Creates a package and installs it.
+Description: Creates a package of MDM Watchdog from Addigy, and installs it directly.
 Identifier: com.github.grahampugh.recipes.install.MDMWatchdog
 ParentRecipe: com.github.grahampugh.recipes.pkg.MDMWatchdog
 MinimumVersion: "2.3"
