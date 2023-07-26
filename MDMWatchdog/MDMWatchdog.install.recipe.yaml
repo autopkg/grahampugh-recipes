@@ -1,0 +1,10 @@
+Description: Creates a package and installs it.
+Identifier: com.github.grahampugh.recipes.install.MDMWatchdog
+ParentRecipe: com.github.grahampugh.recipes.pkg.MDMWatchdog
+MinimumVersion: "2.3"
+
+Input:
+  NAME: MDM Watchdog
+
+Process:
+  - Processor: Installer
