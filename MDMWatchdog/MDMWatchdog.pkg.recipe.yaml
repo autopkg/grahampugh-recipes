@@ -1,4 +1,4 @@
-Description: Placeholder pkg recipe - just moves the pkg to create the pkg_path variable.
+Description: Downloads MDM Watchdog from Addigy, finds the version, and moves the pkg to create the pkg_path variable.
 Identifier: com.github.grahampugh.recipes.pkg.MDMWatchdog
 ParentRecipe: com.github.kevinmcox.download.mdm-watchdog
 MinimumVersion: "2.3"
