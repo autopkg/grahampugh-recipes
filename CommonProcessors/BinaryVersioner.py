@@ -22,7 +22,8 @@ __all__ = ["BinaryVersioner"]
 
 
 class BinaryVersioner(Processor):
-    """find the version of a binary by running it"""
+    """find the version of a binary by running it with an appropriate parameter.
+    Requires exactly one parameter."""
 
     input_variables = {
         "binary_path": {
@@ -30,7 +31,7 @@ class BinaryVersioner(Processor):
             "description": "Path to the binary.",
         },
         "binary_parameter": {
-            "required": False,
+            "required": True,
             "description": "A parameter to run the binary with, for example '--version'.",
         },
     }
