@@ -582,7 +582,6 @@ class PkgInfoReader(Copier):
             self.env["installer_item_size"] = cataloginfo["installer_item_size"]
             self.env["installed_size"] = cataloginfo["installed_size"]
             
-
         finally:
             if dmg:
                 self.unmount(dmg_path)
