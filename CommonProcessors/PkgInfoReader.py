@@ -55,6 +55,7 @@ class PkgInfoReader(Copier):
             "return the highest version found if multiple packages are found.",
         },
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
+        "installer_item_size": {"description": "The size of the package (in bytes)."},
     }
 
     description = __doc__
