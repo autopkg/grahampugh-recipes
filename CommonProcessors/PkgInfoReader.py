@@ -532,6 +532,9 @@ class PkgInfoReader(Copier):
             if key in installerinfo:
                 cataloginfo[key] = installerinfo[key]
 
+        installer_item_size = os.path.getsize(pkgitem)
+        cataloginfo["installer_item_size"] = installer_item_size
+
         if "installed_size" in installerinfo:
             if installerinfo["installed_size"] > 0:
                 cataloginfo["installed_size"] = installerinfo["installed_size"]
