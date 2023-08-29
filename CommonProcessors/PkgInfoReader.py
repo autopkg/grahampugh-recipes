@@ -56,6 +56,7 @@ class PkgInfoReader(Copier):
         },
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
         "installer_item_size": {"description": "The size of the package (in bytes)."},
+        "installed_size": {"description": "The size of the app when installed (in bytes)."}
     }
 
     description = __doc__
