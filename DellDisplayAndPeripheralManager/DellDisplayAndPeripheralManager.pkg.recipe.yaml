@@ -9,7 +9,7 @@ Input:
 Process:
   - Processor: FlatPkgUnpacker
     Arguments:
-      flat_pkg_path: "%RECIPE_CACHE_DIR%/unzip/DDPM_Installer.pkg"
+      flat_pkg_path: "%found_filename%"
       destination_path: "%RECIPE_CACHE_DIR%/unpack"
       purge_destination: true
 
@@ -25,7 +25,7 @@ Process:
   - Processor: PkgCopier
     Arguments:
       pkg_path: "%RECIPE_CACHE_DIR%/DellDisplayAndPeripheralManager-%version%.pkg"
-      source_pkg: "%RECIPE_CACHE_DIR%/unzip/DDPM_Installer.pkg"
+      source_pkg: "%found_filename%"
 
   - Processor: PathDeleter
     Arguments:

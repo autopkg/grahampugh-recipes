@@ -24,9 +24,14 @@ Process:
       purge_destination: True
     Processor: Unarchiver
 
+  - Processor: FileFinder
+    Arguments:
+      pattern: '%RECIPE_CACHE_DIR%/unzip/**/DDPM_Installer.pkg'
+    
+
   - Processor: CodeSignatureVerifier
     Arguments:
-      input_path: "%RECIPE_CACHE_DIR%/unzip/DDPM_Installer.pkg"
+      input_path: "%found_filename%"
       expected_authority_names:
         - "Developer ID Installer: Yufu Fan (S3YBM9ALKM)"
         - Developer ID Certification Authority
