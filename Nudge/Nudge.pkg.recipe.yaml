@@ -1,4 +1,4 @@
-Description: Downloads the latest release of Unison.
+Description: Downloads the latest release of Nudge.
 Identifier: com.github.grahampugh.recipes.pkg.Nudge
 Input:
   NAME: Nudge
