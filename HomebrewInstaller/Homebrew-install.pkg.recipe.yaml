@@ -34,7 +34,7 @@ Process:
     Arguments:
       pkg_request:
         id: com.github.grahampugh.homebrew.pkg
-        options: purge_ds_store
+        scripts: Scripts
         pkgname: homebrew-install-%version%
         version: "%version%"
 
