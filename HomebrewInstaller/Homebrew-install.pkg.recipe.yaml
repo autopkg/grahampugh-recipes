@@ -19,7 +19,7 @@ Process:
 
   - Processor: Copier
     Arguments:
-      destination_path: "%pkgroot%/Scripts"
+      destination_path: "%pkgroot%/Scripts/postinstall"
       overwrite: true
       source_path: "%pathname%"
 
@@ -28,7 +28,7 @@ Process:
       group: wheel
       mode: "755"
       owner: root
-      resource_path: "%pkgroot%/Scripts/homebrew.sh"
+      resource_path: "%pkgroot%/Scripts/postinstall"
 
   - Processor: PkgCreator
     Arguments:
