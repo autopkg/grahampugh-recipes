@@ -33,9 +33,12 @@ Process:
   - Processor: PkgCreator
     Arguments:
       pkg_request:
+        chown: []
         id: com.github.grahampugh.homebrew.pkg
         scripts: Scripts
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
         pkgname: homebrew-install-%version%
+        pkgtype: flat
         version: "%version%"
 
   - Processor: PathDeleter
