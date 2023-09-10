@@ -8,11 +8,6 @@ Input:
   NAME: Homebrew
 
 Process:
-  - Processor: DmgCreator
-    Arguments:
-      dmg_path: "%RECIPE_CACHE_DIR%/%NAME%.dmg"
-      dmg_root: "%RECIPE_CACHE_DIR%/%NAME%/Applications"
-
   - Processor: Installer
     Arguments:
       pkg_path: "%pkg_path%"
