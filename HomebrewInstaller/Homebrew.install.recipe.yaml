@@ -1,0 +1,13 @@
+Comment: Created with Recipe Robot v1.0.2 (https://github.com/homebysix/recipe-robot)
+Description: Installs the latest version of LineIn.
+Identifier: com.github.grahampugh.recipes.install.Homebrew
+ParentRecipe: com.github.grahampugh.recipes.pkg.homebrew-install
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Homebrew
+
+Process:
+  - Processor: Installer
+    Arguments:
+      pkg_path: "%pkg_path%"

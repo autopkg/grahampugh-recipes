@@ -1,4 +1,4 @@
-Description: Downloads the latest release of Unison.
+Description: Downloads the latest release of Nudge.
 Identifier: com.github.grahampugh.recipes.pkg.Nudge
 Input:
   NAME: Nudge
@@ -19,9 +19,13 @@ Process:
       destination_path: "%RECIPE_CACHE_DIR%/payload"
       pkg_payload_path: "%found_filename%/Payload"
     Processor: PkgPayloadUnpacker
+    
+  - Arguments:
+      pattern: "%RECIPE_CACHE_DIR%/payload/**/Nudge.app/Contents/Info.plist"
+    Processor: FileFinder
 
   - Arguments:
-      input_plist_path: "%RECIPE_CACHE_DIR%/payload/Nudge.app/Contents/Info.plist"
+      input_plist_path: "%found_filename%"
     Processor: Versioner
 
   - Arguments:

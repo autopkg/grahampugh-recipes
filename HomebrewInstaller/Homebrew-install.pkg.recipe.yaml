@@ -1,0 +1,47 @@
+Description: Downloads the current release version of Homebrew.sh and builds a package.
+Identifier: com.github.grahampugh.recipes.pkg.homebrew-install
+ParentRecipe: com.github.grahampugh.recipes.download.homebrew-install
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Homebrew
+
+Process:
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgdirs: {}
+      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgdirs: {}
+      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
+
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
+      overwrite: true
+      source_path: "%pathname%"
+
+  - Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+    Arguments:
+      group: wheel
+      mode: "755"
+      owner: root
+      resource_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        chown: []
+        id: com.github.grahampugh.homebrew.pkg
+        scripts: Scripts
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+        pkgname: homebrew-install-%version%
+        pkgtype: flat
+        version: "%version%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/pkgroot"
