@@ -55,6 +55,7 @@ class PkgInfoReader(Copier):
             "return the highest version found if multiple packages are found.",
         },
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
+        "installed_size": {"description": "The size of the app when installed (in kilobytes)."},
         "installer_item_size": {"description": "The size of the package (in bytes)."}
     }
 
@@ -512,7 +513,7 @@ class PkgInfoReader(Copier):
         for infoitem in receiptinfo:
             if APLooseVersion(infoitem["version"]) > APLooseVersion(highestpkgversion):
                 highestpkgversion = infoitem["version"]
-            if "installed_size" in infoitem:
+            if "installKBytes" in infoitem:
                 # note this is in KBytes
                 installedsize += infoitem["installed_size"]
 
@@ -536,7 +537,7 @@ class PkgInfoReader(Copier):
         installer_item_size = os.path.getsize(pkgitem)
         cataloginfo["installer_item_size"] = installer_item_size
 
-        if "installed_size" in installerinfo:
+        if "installKBytes" in installerinfo:
             if installerinfo["installed_size"] > 0:
                 cataloginfo["installed_size"] = installerinfo["installed_size"]
         elif installedsize:
@@ -584,6 +585,7 @@ class PkgInfoReader(Copier):
             self.env["version"] = cataloginfo["version"]
             self.env["minimum_os_version"] = cataloginfo["minimum_os_version"]
             self.env["installer_item_size"] = cataloginfo["installer_item_size"]
+            self.env["installed_size"] = cataloginfo["installed_size"]
 
         finally:
             if dmg:
