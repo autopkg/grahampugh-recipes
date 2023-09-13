@@ -513,7 +513,7 @@ class PkgInfoReader(Copier):
         for infoitem in receiptinfo:
             if APLooseVersion(infoitem["version"]) > APLooseVersion(highestpkgversion):
                 highestpkgversion = infoitem["version"]
-            if "installKBytes" in infoitem:
+            if "installed_size" in infoitem:
                 # note this is in KBytes
                 installedsize += infoitem["installed_size"]
 
