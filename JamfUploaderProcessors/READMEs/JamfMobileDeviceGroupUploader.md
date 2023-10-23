@@ -1,8 +1,8 @@
-# JamfAccountUploader
+# JamfMobileDeviceUploader
 
 ## Description
 
-A processor for AutoPkg that will upload an account to a Jamf Cloud or on-prem server, with privileges supplied by a template xml file.
+A processor for AutoPkg that will upload a mobile device group (smart or static) to a Jamf Cloud or on-prem server.
 
 ## Input variables
 
@@ -21,19 +21,16 @@ A processor for AutoPkg that will upload an account to a Jamf Cloud or on-prem s
 - **CLIENT_SECRET:**
   - **required:** True
   - **description:** Secret associated with the Client ID, optionally set as a key in the com.github.autopkg preference file.
-- **account_name:**
-  - **required:** True
-  - **description:** Account name
-- **account_type:**
-  - **required:** True
-  - **description:** Account type; "user" or "group"
-- **account_template:**
-  - **required:** True
-  - **description:** Full path to the XML template
-- **replace_account:**
-  - **required:** False
-  - **description:** Overwrite an existing account if True.
-  - **default:** False
+- **mobiledevice_name**:
+  - **required**: False
+  - **description**: Mobile Device Group name
+- **mobiledevice_template**:
+  - **required**: False
+  - **description**: Path to Mobile Device Group template file
+- **replace_group**:
+  - **required**: False
+  - **description**: overwrite an existing Mobile Device Group if True.
+  - **default**: False
 - **sleep:**
   - **required:** False
   - **description:** Pause after running this processor for specified seconds.
@@ -41,11 +38,5 @@ A processor for AutoPkg that will upload an account to a Jamf Cloud or on-prem s
 
 ## Output variables
 
-- **jamfaccountuploader_summary_result:**
+- **jamfmobiledeviceuploader_summary_result:**
   - **description:** Description of interesting results.
-- **account_name:**
-  - **description:** Policy name.
-- **account_updated:**
-  - **description:** Boolean - True if the account was changed.
-- **changed_account_id:**
-  - **description:** Jamf object ID of the newly created or modified account.

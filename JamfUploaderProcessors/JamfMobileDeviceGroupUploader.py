@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 """
-JamfComputerGroupUploader processor for uploading items to Jamf Pro using AutoPkg
+JamfMobileDeviceGroupUploader processor for uploading items to Jamf Pro using AutoPkg
     by G Pugh
 """
 
@@ -18,12 +18,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from JamfUploaderLib.JamfUploaderBase import JamfUploaderBase  # noqa: E402
 
-__all__ = ["JamfComputerGroupUploader"]
+__all__ = ["JamfMobileDeviceGroupUploader"]
 
 
-class JamfComputerGroupUploader(JamfUploaderBase):
+class JamfMobileDeviceGroupUploader(JamfUploaderBase):
     description = (
-        "A processor for AutoPkg that will upload a computer group (smart or "
+        "A processor for AutoPkg that will upload a mobile device group (smart or "
         "static) to a Jamf Cloud or on-prem server."
     )
     input_variables = {
@@ -55,18 +55,18 @@ class JamfComputerGroupUploader(JamfUploaderBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "computergroup_name": {
+        "mobiledevicegroup_name": {
             "required": False,
-            "description": "Computer Group name",
+            "description": "Mobile Device Group name",
             "default": "",
         },
-        "computergroup_template": {
+        "mobiledevicegroup_template": {
             "required": False,
             "description": "Full path to the XML template",
         },
         "replace_group": {
             "required": False,
-            "description": "Overwrite an existing Computer Group if True.",
+            "description": "Overwrite an existing Mobile Device Group if True.",
             "default": False,
         },
         "sleep": {
@@ -77,56 +77,46 @@ class JamfComputerGroupUploader(JamfUploaderBase):
     }
 
     output_variables = {
-        "jamfcomputergroupuploader_summary_result": {
+        "JamfMobileDeviceGroupUploader_summary_result": {
             "description": "Description of interesting results.",
         },
     }
 
-    def upload_computergroup(
+    def upload_mobiledevicegroup(
         self,
         jamf_url,
-        computergroup_name,
-        computergroup_template,
+        mobiledevicegroup_name,
+        mobiledevicegroup_template,
         token,
         obj_id=0,
     ):
-        """Upload computer group"""
+        """Upload Mobile Device Group"""
 
         # import template from file and replace any keys in the template
-        if os.path.exists(computergroup_template):
-            with open(computergroup_template, "r") as file:
+        if os.path.exists(mobiledevicegroup_template):
+            with open(mobiledevicegroup_template, "r") as file:
                 template_contents = file.read()
         else:
             raise ProcessorError("Template does not exist!")
 
-        # if JSS_INVENTORY_NAME is not given, make it equivalent to %NAME%.app
-        # (this is to allow use of legacy JSSImporter group templates)
-        try:
-            self.env["JSS_INVENTORY_NAME"]
-        except KeyError:
-            try:
-                self.env["JSS_INVENTORY_NAME"] = self.env["NAME"] + ".app"
-            except KeyError:
-                pass
-
         # substitute user-assignable keys
         template_contents = self.substitute_assignable_keys(template_contents)
 
-        self.output("Computer Group data:", verbose_level=2)
+        self.output("Mobile Device Group data:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
 
-        self.output("Uploading Computer Group...")
+        self.output("Uploading Mobile Device Group...")
         # write the template to temp file
         template_xml = self.write_temp_file(template_contents)
 
         # if we find an object ID we put, if not, we post
-        object_type = "computer_group"
+        object_type = "mobile_device_group"
         url = "{}/{}/id/{}".format(jamf_url, self.api_endpoints(object_type), obj_id)
 
         count = 0
         while True:
             count += 1
-            self.output(f"Computer Group upload attempt {count}", verbose_level=2)
+            self.output(f"Mobile Device Group upload attempt {count}", verbose_level=2)
             request = "PUT" if obj_id else "POST"
             r = self.curl(
                 request=request,
@@ -137,16 +127,18 @@ class JamfComputerGroupUploader(JamfUploaderBase):
 
             # check HTTP response
             if (
-                self.status_check(r, "Computer Group", computergroup_name, request)
+                self.status_check(
+                    r, "Mobile Device Group", mobiledevicegroup_name, request
+                )
                 == "break"
             ):
                 break
             if count > 5:
                 self.output(
-                    "WARNING: Computer Group upload did not succeed after 5 attempts"
+                    "WARNING: Mobile Device Group upload did not succeed after 5 attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
-                raise ProcessorError("ERROR: Computer Group upload failed ")
+                raise ProcessorError("ERROR: Mobile Device Group upload failed ")
             if int(self.sleep) > 30:
                 sleep(int(self.sleep))
             else:
@@ -159,8 +151,8 @@ class JamfComputerGroupUploader(JamfUploaderBase):
         self.jamf_password = self.env.get("API_PASSWORD")
         self.client_id = self.env.get("CLIENT_ID")
         self.client_secret = self.env.get("CLIENT_SECRET")
-        self.computergroup_name = self.env.get("computergroup_name")
-        self.computergroup_template = self.env.get("computergroup_template")
+        self.mobiledevicegroup_name = self.env.get("mobiledevicegroup_name")
+        self.mobiledevicegroup_template = self.env.get("mobiledevicegroup_template")
         self.replace = self.env.get("replace_group")
         self.sleep = self.env.get("sleep")
         # handle setting replace in overrides
@@ -168,23 +160,23 @@ class JamfComputerGroupUploader(JamfUploaderBase):
             self.replace = False
 
         # clear any pre-existing summary result
-        if "jamfcomputergroupuploader_summary_result" in self.env:
-            del self.env["jamfcomputergroupuploader_summary_result"]
+        if "JamfMobileDeviceGroupUploader_summary_result" in self.env:
+            del self.env["JamfMobileDeviceGroupUploader_summary_result"]
         group_uploaded = False
 
         # handle files with a relative path
-        if not self.computergroup_template.startswith("/"):
-            found_template = self.get_path_to_file(self.computergroup_template)
+        if not self.mobiledevicegroup_template.startswith("/"):
+            found_template = self.get_path_to_file(self.mobiledevicegroup_template)
             if found_template:
-                self.computergroup_template = found_template
+                self.mobiledevicegroup_template = found_template
             else:
                 raise ProcessorError(
-                    f"ERROR: Computer Group file {self.computergroup_template} not found"
+                    f"ERROR: Mobile Device Group file {self.mobiledevicegroup_template} not found"
                 )
 
         # now start the process of uploading the object
         self.output(
-            f"Checking for existing '{self.computergroup_name}' on {self.jamf_url}"
+            f"Checking for existing '{self.mobiledevicegroup_name}' on {self.jamf_url}"
         )
 
         # get token using oauth or basic auth depending on the credentials given
@@ -198,8 +190,8 @@ class JamfComputerGroupUploader(JamfUploaderBase):
             raise ProcessorError("ERROR: Credentials not supplied")
 
         # check for existing - requires obj_name
-        obj_type = "computer_group"
-        obj_name = self.computergroup_name
+        obj_type = "mobile_device_group"
+        obj_name = self.mobiledevicegroup_name
         obj_id = self.get_api_obj_id_from_name(
             self.jamf_url,
             obj_name,
@@ -209,26 +201,27 @@ class JamfComputerGroupUploader(JamfUploaderBase):
 
         if obj_id:
             self.output(
-                f"Computer group '{self.computergroup_name}' already exists: ID {obj_id}"
+                f"Mobile Device Group '{self.mobiledevicegroup_name}' already exists: ID {obj_id}"
             )
             if self.replace:
                 self.output(
-                    "Replacing existing Computer Group as 'replace_group' is set "
+                    "Replacing existing Mobile Device Group as 'replace_group' is set "
                     f"to {self.replace}",
                     verbose_level=1,
                 )
             else:
                 self.output(
-                    "Not replacing existing Computer Group. Use replace_group='True' to enforce.",
+                    "Not replacing existing Mobile Device Group. "
+                    "Use replace_group='True' to enforce.",
                     verbose_level=1,
                 )
                 return
 
         # upload the group
-        self.upload_computergroup(
+        self.upload_mobiledevicegroup(
             self.jamf_url,
-            self.computergroup_name,
-            self.computergroup_template,
+            self.mobiledevicegroup_name,
+            self.mobiledevicegroup_template,
             token=token,
             obj_id=obj_id,
         )
@@ -240,19 +233,19 @@ class JamfComputerGroupUploader(JamfUploaderBase):
         # output the summary
         self.env["group_uploaded"] = group_uploaded
         if group_uploaded:
-            self.env["jamfcomputergroupuploader_summary_result"] = {
+            self.env["JamfMobileDeviceGroupUploader_summary_result"] = {
                 "summary_text": (
-                    "The following computer groups were created or updated "
+                    "The following Mobile Device Groups were created or updated "
                     "in Jamf Pro:"
                 ),
                 "report_fields": ["group", "template"],
                 "data": {
-                    "group": self.computergroup_name,
-                    "template": self.computergroup_template,
+                    "group": self.mobiledevicegroup_name,
+                    "template": self.mobiledevicegroup_template,
                 },
             }
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfComputerGroupUploader()
+    PROCESSOR = JamfMobileDeviceGroupUploader()
     PROCESSOR.execute_shell()

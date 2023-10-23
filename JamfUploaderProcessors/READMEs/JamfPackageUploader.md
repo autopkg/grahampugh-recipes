@@ -11,6 +11,9 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
 - **pkg_name:**
   - **required:** False
   - **description:** Package name. If supplied, will rename the package supplied in the pkg_path key when uploading it to the fileshare.
+- **pkg_display_name:**
+  - **required:** False
+  - **description:** Package display name, which may be different to the `pkg_name`. If not supplied, reverts to `pkg_name`.
 - **pkg_path:**
   - **required:** False
   - **description:** Path to a pkg or dmg to import - \*\*provided by previous pkg recipe/processor.
@@ -61,6 +64,10 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **required:** False
   - **description:** Upload package using JCDS mode.
   - **default:** False
+- **jcds2_mode:**
+  - **required:** False
+  - **description:** Upload package using JCDS2 mode.
+  - **default:** False
 - **JSS_URL:**
   - **required:** True
   - **description:** URL to a Jamf Pro server to which the API user has write access.
@@ -85,6 +92,10 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
 - **SMB_SHARES:**
   - **required:** False
   - **description:** An array of dictionaries containing `SMB_URL`, `SMB_USERNAME` and `SMB_PASSWORD`, as an alternative to individual keys. Any individual keys will override this complete array. The array can only be provided via the AutoPkg preferences file.
+- **sleep:**
+  - **required:** False
+  - **description:** Pause after running this processor for specified seconds.
+  - **default:** "0"
 
 ## Output variables
 

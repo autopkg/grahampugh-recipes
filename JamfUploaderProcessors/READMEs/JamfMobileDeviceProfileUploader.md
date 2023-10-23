@@ -1,8 +1,8 @@
-# JamfComputerProfileUploader
+# JamfMobileDeviceProfileUploader
 
 ## Description
 
-A processor for AutoPkg that will upload a computer configuration profile to a Jamf Cloud or on-prem server.
+A processor for AutoPkg that will upload a mobile device configuration profile to a Jamf Cloud or on-prem server.
 
 ## Input variables
 
@@ -24,9 +24,6 @@ A processor for AutoPkg that will upload a computer configuration profile to a J
 - **profile_name**:
   - **required**: False
   - **description**: Configuration Profile name
-- **payload**:
-  - **required**: False
-  - **description**: Path to Configuration Profile payload plist file
 - **mobileconfig**:
   - **required**: False
   - **description**: Path to Configuration Profile mobileconfig file
@@ -45,9 +42,9 @@ A processor for AutoPkg that will upload a computer configuration profile to a J
 - **profile_description**:
   - **required**: False
   - **description**: a description to assign to the profile
-- **profile_computergroup**:
+- **profile_mobiledevicegroup**:
   - **required**: False
-  - **description**: a computer group that will be scoped to the profile
+  - **description**: a mobile device group that will be scoped to the profile
 - **unsign_profile**:
   - **required**: False
   - **description**: Unsign a mobileconfig file prior to uploading if it is signed, if true.
@@ -56,10 +53,6 @@ A processor for AutoPkg that will upload a computer configuration profile to a J
   - **required**: False
   - **description**: overwrite an existing Configuration Profile if True.
   - **default**: False
-- **retain_scope**:
-  - **required**: False
-  - **description**: retain the existing scope of an existing Configuration Profile if True.
-  - **default**: False
 - **sleep:**
   - **required:** False
   - **description:** Pause after running this processor for specified seconds.
@@ -67,5 +60,5 @@ A processor for AutoPkg that will upload a computer configuration profile to a J
 
 ## Output variables
 
-- **jamfcomputerprofileuploader_summary_result:**
+- **jamfmobiledeviceprofileuploader_summary_result:**
   - **description:** Description of interesting results.

@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 """
-JamfComputerProfileUploader processor for uploading computer configuration profiles
+JamfMobileDeviceProfileUploader processor for uploading mobile device configuration profiles
 to Jamf Pro using AutoPkg
     by G Pugh
 """
@@ -22,12 +22,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from JamfUploaderLib.JamfUploaderBase import JamfUploaderBase  # noqa: E402
 
-__all__ = ["JamfComputerProfileUploader"]
+__all__ = ["JamfMobileDeviceProfileUploader"]
 
 
-class JamfComputerProfileUploader(JamfUploaderBase):
+class JamfMobileDeviceProfileUploader(JamfUploaderBase):
     description = (
-        "A processor for AutoPkg that will upload a computer configuration "
+        "A processor for AutoPkg that will upload a device configuration "
         "profile to a Jamf Cloud or on-prem server."
     )
     input_variables = {
@@ -64,10 +64,6 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             "description": "Configuration Profile name",
             "default": "",
         },
-        "payload": {
-            "required": False,
-            "description": "Path to Configuration Profile payload plist file",
-        },
         "mobileconfig": {
             "required": False,
             "description": "Path to Configuration Profile mobileconfig file",
@@ -92,9 +88,9 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             "required": False,
             "description": "a description to assign to the profile",
         },
-        "profile_computergroup": {
+        "profile_mobiledevicegroup": {
             "required": False,
-            "description": "a computer group that will be scoped to the profile",
+            "description": "a device group that will be scoped to the profile",
         },
         "unsign_profile": {
             "required": False,
@@ -109,11 +105,6 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             "description": "overwrite an existing Configuration Profile if True.",
             "default": False,
         },
-        "retain_scope": {
-            "required": False,
-            "description": "Retain the existing scope if True.",
-            "default": False,
-        },
         "sleep": {
             "required": False,
             "description": "Pause after running this processor for specified seconds.",
@@ -122,7 +113,7 @@ class JamfComputerProfileUploader(JamfUploaderBase):
     }
 
     output_variables = {
-        "jamfcomputerprofileuploader_summary_result": {
+        "JamfMobileDeviceProfileUploader_summary_result": {
             "description": "Description of interesting results.",
         },
     }
@@ -130,7 +121,7 @@ class JamfComputerProfileUploader(JamfUploaderBase):
     def get_existing_uuid_and_identifier(self, jamf_url, obj_id, token):
         """return the existing UUID to ensure we don't change it"""
         # first grab the payload from the xml object
-        obj_type = "os_x_configuration_profile"
+        obj_type = "configuration_profile"
         existing_plist = self.get_api_obj_value_from_id(
             jamf_url,
             obj_type,
@@ -172,72 +163,6 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         #     plistlib.dump(mobileconfig_contents, file)
         return mobileconfig_contents
 
-    def make_mobileconfig_from_payload(
-        self,
-        payload_path,
-        payload_identifier,
-        mobileconfig_name,
-        organization,
-        description,
-        mobileconfig_uuid,
-    ):
-        """create a mobileconfig file using a payload file"""
-        # import plist as text and replace any substitutable keys
-        with open(payload_path, "rb") as file:
-            payload_text = file.read()
-        # substitute user-assignable keys (requires decode to string)
-        payload_text = self.substitute_assignable_keys(
-            (payload_text.decode()), xml_escape=True
-        )
-        # now convert to data (requires encode back to bytes...)
-        mcx_preferences = plistlib.loads(str.encode(payload_text))
-
-        self.output("Preferences contents:", verbose_level=2)
-        self.output(mcx_preferences, verbose_level=2)
-
-        # generate a random UUID for the payload
-        payload_uuid = str(uuid.uuid4())
-
-        # add the other keys required in the payload
-        payload_contents = {
-            "PayloadDisplayName": "Custom Settings",
-            "PayloadIdentifier": payload_uuid,
-            "PayloadOrganization": "JAMF Software",
-            "PayloadType": "com.apple.ManagedClient.preferences",
-            "PayloadUUID": payload_uuid,
-            "PayloadVersion": 1,
-            "PayloadContent": {
-                payload_identifier: {
-                    "Forced": [{"mcx_preference_settings": mcx_preferences}]
-                }
-            },
-        }
-
-        self.output("Payload contents:", verbose_level=2)
-        self.output(payload_contents, verbose_level=2)
-
-        # now write the mobileconfig file
-        mobileconfig_data = {
-            "PayloadDescription": description,
-            "PayloadDisplayName": mobileconfig_name,
-            "PayloadOrganization": organization,
-            "PayloadRemovalDisallowed": True,
-            "PayloadScope": "System",
-            "PayloadType": "Configuration",
-            "PayloadVersion": 1,
-            "PayloadIdentifier": mobileconfig_uuid,
-            "PayloadUUID": mobileconfig_uuid,
-            "PayloadContent": [payload_contents],
-        }
-
-        self.output("Converting config data to plist")
-        mobileconfig_plist = plistlib.dumps(mobileconfig_data)
-
-        self.output("Mobileconfig contents:", verbose_level=2)
-        self.output(mobileconfig_plist.decode("UTF-8"), verbose_level=2)
-
-        return mobileconfig_plist
-
     def unsign_signed_mobileconfig(self, mobileconfig_plist):
         """checks if profile is signed. This is necessary because Jamf cannot
         upload a signed profile, so we either need to unsign it, or bail"""
@@ -269,11 +194,10 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         description,
         category,
         mobileconfig_plist,
-        computergroup_name,
+        devicegroup_name,
         template_contents,
         profile_uuid,
         token,
-        retain_scope=False,
         obj_id=0,
     ):
         """Update Configuration Profile metadata."""
@@ -290,7 +214,7 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             "description": description,
             "category": category,
             "payload": mobileconfig,
-            "computergroup_name": computergroup_name,
+            "devicegroup_name": devicegroup_name,
             "uuid": f"com.github.grahampugh.jamf-upload.{profile_uuid}",
         }
 
@@ -310,21 +234,12 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         self.output("Configuration Profile to be uploaded:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
 
-        # get existing scope if --retain-existing-scope is set
-        object_type = "os_x_configuration_profile"
-        if self.retain_scope and obj_id > 0:
-            self.output("Substituting existing scope into template", verbose_level=1)
-            existing_scope = self.get_existing_scope(
-                self.jamf_url, object_type, obj_id, token
-            )
-            # substitute pre-existing scope
-            template_contents = self.replace_scope(template_contents, existing_scope)
-
         self.output("Uploading Configuration Profile...")
         # write the template to temp file
         template_xml = self.write_temp_file(template_contents)
 
         # if we find an object ID we put, if not, we post
+        object_type = "configuration_profile"
         url = "{}/{}/id/{}".format(jamf_url, self.api_endpoints(object_type), obj_id)
 
         count = 0
@@ -370,41 +285,30 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         self.client_id = self.env.get("CLIENT_ID")
         self.client_secret = self.env.get("CLIENT_SECRET")
         self.profile_name = self.env.get("profile_name")
-        self.payload = self.env.get("payload")
         self.mobileconfig = self.env.get("mobileconfig")
         self.identifier = self.env.get("identifier")
         self.template = self.env.get("profile_template")
         self.profile_category = self.env.get("profile_category")
         self.organization = self.env.get("organization")
         self.profile_description = self.env.get("profile_description")
-        self.profile_computergroup = self.env.get("profile_computergroup")
+        self.profile_mobiledevicegroup = self.env.get("profile_mobiledevicegroup")
         self.replace = self.env.get("replace_profile")
-        self.retain_scope = self.env.get("retain_scope")
         self.sleep = self.env.get("sleep")
         self.unsign = self.env.get("unsign_profile")
-        # handle setting replace in overrides
-        if not self.replace or self.replace == "False":
-            self.replace = False
-        # handle setting retain_scope in overrides
-        if not self.retain_scope or self.retain_scope == "False":
-            self.retain_scope = False
         # handle setting unsign in overrides
         if not self.unsign or self.unsign == "False":
             self.unsign = False
+        # handle setting replace in overrides
+        if not self.replace or self.replace == "False":
+            self.replace = False
 
         # clear any pre-existing summary result
-        if "jamfcomputerprofileuploader_summary_result" in self.env:
-            del self.env["jamfcomputerprofileuploader_summary_result"]
+        if "JamfMobileDeviceProfileUploader_summary_result" in self.env:
+            del self.env["JamfMobileDeviceProfileUploader_summary_result"]
 
         profile_updated = False
 
         # handle files with no path
-        if self.payload and "/" not in self.payload:
-            found_payload = self.get_path_to_file(self.payload)
-            if found_payload:
-                self.payload = found_payload
-            else:
-                raise ProcessorError(f"ERROR: Payload file {self.payload} not found")
         if self.mobileconfig and "/" not in self.mobileconfig:
             found_mobileconfig = self.get_path_to_file(self.mobileconfig)
             if found_mobileconfig:
@@ -464,26 +368,6 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             except KeyError:
                 organization = ""
 
-        # otherwise we are dealing with a payload plist and we need a few other bits of info
-        else:
-            if not self.profile_name:
-                raise ProcessorError("ERROR: No profile name supplied - cannot import")
-            if not self.payload:
-                raise ProcessorError(
-                    "ERROR: No path to payload file supplied - cannot import"
-                )
-            if not self.identifier:
-                raise ProcessorError(
-                    "ERROR: No identifier for mobileconfig supplied - cannot import"
-                )
-            mobileconfig_name = self.profile_name
-            description = ""
-            organization = ""
-
-        # we provide a default template which has no category or scope
-        if not self.template:
-            self.template = "Jamf_Templates/ProfileTemplate-no-scope.xml"
-
         # automatically provide a description and organisation from the mobileconfig
         # if not provided in the options
         if not self.profile_description:
@@ -491,7 +375,8 @@ class JamfComputerProfileUploader(JamfUploaderBase):
                 self.profile_description = description
             else:
                 self.profile_description = (
-                    "Config profile created by AutoPkg and JamfComputerProfileUploader"
+                    "Config profile created by AutoPkg and "
+                    "JamfMobileDeviceProfileUploader"
                 )
         if not self.organization:
             if organization:
@@ -517,7 +402,7 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Credentials not supplied")
 
-        obj_type = "os_x_configuration_profile"
+        obj_type = "configuration_profile"
         obj_name = mobileconfig_name
         obj_id = self.get_api_obj_id_from_name(
             self.jamf_url,
@@ -535,7 +420,6 @@ class JamfComputerProfileUploader(JamfUploaderBase):
                     existing_uuid,
                     existing_identifier,
                 ) = self.get_existing_uuid_and_identifier(self.jamf_url, obj_id, token)
-
                 if self.mobileconfig:
                     # need to inject the existing payload identifier to prevent ghost profiles
                     mobileconfig_contents = (
@@ -545,15 +429,7 @@ class JamfComputerProfileUploader(JamfUploaderBase):
                     )
                     mobileconfig_plist = plistlib.dumps(mobileconfig_contents)
                 else:
-                    # generate the mobileconfig from the supplied payload
-                    mobileconfig_plist = self.make_mobileconfig_from_payload(
-                        self.payload,
-                        self.identifier,
-                        mobileconfig_name,
-                        self.organization,
-                        self.profile_description,
-                        existing_uuid,
-                    )
+                    self.output("A mobileconfig was not supplied.")
 
                 # now upload the mobileconfig by generating an XML template
                 if mobileconfig_plist:
@@ -563,16 +439,13 @@ class JamfComputerProfileUploader(JamfUploaderBase):
                         self.profile_description,
                         self.profile_category,
                         mobileconfig_plist,
-                        self.profile_computergroup,
+                        self.profile_mobiledevicegroup,
                         template_contents,
                         existing_uuid,
                         token,
-                        self.retain_scope,
                         obj_id=obj_id,
                     )
                     profile_updated = True
-                else:
-                    self.output("A mobileconfig was not generated so cannot upload.")
             else:
                 self.output(
                     "Not replacing existing Configuration Profile. "
@@ -584,17 +457,6 @@ class JamfComputerProfileUploader(JamfUploaderBase):
             )
             new_uuid = str(uuid.uuid4())
 
-            if not self.mobileconfig:
-                # generate the mobileconfig from the supplied payload
-                mobileconfig_plist = self.make_mobileconfig_from_payload(
-                    self.payload,
-                    self.identifier,
-                    mobileconfig_name,
-                    self.organization,
-                    self.profile_description,
-                    new_uuid,
-                )
-
             # now upload the mobileconfig by generating an XML template
             if mobileconfig_plist:
                 self.upload_mobileconfig(
@@ -603,10 +465,10 @@ class JamfComputerProfileUploader(JamfUploaderBase):
                     self.profile_description,
                     self.profile_category,
                     mobileconfig_plist,
-                    self.profile_computergroup,
+                    self.profile_mobiledevicegroup,
                     template_contents,
                     new_uuid,
-                    token,
+                    token=token,
                 )
                 profile_updated = True
             else:
@@ -618,7 +480,7 @@ class JamfComputerProfileUploader(JamfUploaderBase):
         self.env["profile_name"] = self.profile_name
         self.env["profile_updated"] = profile_updated
         if profile_updated:
-            self.env["jamfcomputerprofileuploader_summary_result"] = {
+            self.env["JamfMobileDeviceProfileUploader_summary_result"] = {
                 "summary_text": (
                     "The following configuration profiles were uploaded to "
                     "or updated in Jamf Pro:"
@@ -632,5 +494,5 @@ class JamfComputerProfileUploader(JamfUploaderBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfComputerProfileUploader()
+    PROCESSOR = JamfMobileDeviceProfileUploader()
     PROCESSOR.execute_shell()

@@ -36,14 +36,25 @@ class JamfPolicyUploader(JamfUploaderBase):
             "preference file.",
         },
         "API_USERNAME": {
-            "required": True,
+            "required": False,
             "description": "Username of account with appropriate access to "
             "jss, optionally set as a key in the com.github.autopkg "
             "preference file.",
         },
         "API_PASSWORD": {
-            "required": True,
+            "required": False,
             "description": "Password of api user, optionally set as a key in "
+            "the com.github.autopkg preference file.",
+        },
+        "CLIENT_ID": {
+            "required": False,
+            "description": "Client ID with access to "
+            "jss, optionally set as a key in the com.github.autopkg "
+            "preference file.",
+        },
+        "CLIENT_SECRET": {
+            "required": False,
+            "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
         "policy_name": {
@@ -70,6 +81,11 @@ class JamfPolicyUploader(JamfUploaderBase):
             "description": "Overwrite an existing policy icon if True.",
             "default": False,
         },
+        "retain_scope": {
+            "required": False,
+            "description": "Retain the existing scope if True.",
+            "default": False,
+        },
         "sleep": {
             "required": False,
             "description": "Pause after running this processor for specified seconds.",
@@ -92,7 +108,9 @@ class JamfPolicyUploader(JamfUploaderBase):
         },
     }
 
-    def prepare_policy_template(self, policy_name, policy_template):
+    def prepare_policy_template(
+        self, policy_template, obj_id, token, retain_scope=False
+    ):
         """prepare the policy contents"""
         # import template from file and replace any keys in the template
         if os.path.exists(policy_template):
@@ -102,26 +120,34 @@ class JamfPolicyUploader(JamfUploaderBase):
             raise ProcessorError("Template does not exist!")
 
         # substitute user-assignable keys
-        policy_name = self.substitute_assignable_keys(policy_name)
         template_contents = self.substitute_assignable_keys(
             template_contents, xml_escape=True
         )
 
-        self.output("Policy data:", verbose_level=2)
-        self.output(template_contents, verbose_level=2)
+        # get existing scope if --retain-existing-scope is set
+        object_type = "policy"
+        if self.retain_scope and obj_id > 0:
+            self.output("Substituting existing scope into template", verbose_level=1)
+            existing_scope = self.get_existing_scope(
+                self.jamf_url, object_type, obj_id, token
+            )
+            # substitute pre-existing scope
+            template_contents = self.replace_scope(template_contents, existing_scope)
+
+        self.output("Policy data:", verbose_level=3)
+        self.output(template_contents, verbose_level=3)
 
         # write the template to temp file
         template_xml = self.write_temp_file(template_contents)
-        return policy_name, template_xml
+        return template_xml
 
     def upload_policy(
         self,
         jamf_url,
         policy_name,
         template_xml,
+        token,
         obj_id=0,
-        enc_creds="",
-        token="",
     ):
         """Upload policy"""
 
@@ -139,7 +165,6 @@ class JamfPolicyUploader(JamfUploaderBase):
             r = self.curl(
                 request=request,
                 url=url,
-                enc_creds=enc_creds,
                 token=token,
                 data=template_xml,
             )
@@ -162,9 +187,8 @@ class JamfPolicyUploader(JamfUploaderBase):
         policy_name,
         policy_icon_path,
         replace_icon,
+        token,
         obj_id=None,
-        enc_creds="",
-        token="",
     ):
         """Upload an icon to the policy that was just created"""
         # check that the policy exists.
@@ -179,7 +203,6 @@ class JamfPolicyUploader(JamfUploaderBase):
                 jamf_url,
                 obj_type,
                 obj_name,
-                enc_creds=enc_creds,
                 token=token,
             )
 
@@ -196,7 +219,6 @@ class JamfPolicyUploader(JamfUploaderBase):
             "policy",
             obj_id,
             "self_service/self_service_icon/filename",
-            enc_creds=enc_creds,
             token=token,
         )
         if existing_icon:
@@ -227,9 +249,9 @@ class JamfPolicyUploader(JamfUploaderBase):
                 r = self.curl(
                     request=request,
                     url=url,
-                    enc_creds=enc_creds,
                     token=token,
                     data=policy_icon_path,
+                    endpoint_type="policy_icon",
                 )
 
                 # check HTTP response
@@ -252,19 +274,25 @@ class JamfPolicyUploader(JamfUploaderBase):
         self.jamf_url = self.env.get("JSS_URL")
         self.jamf_user = self.env.get("API_USERNAME")
         self.jamf_password = self.env.get("API_PASSWORD")
+        self.client_id = self.env.get("CLIENT_ID")
+        self.client_secret = self.env.get("CLIENT_SECRET")
         self.policy_name = self.env.get("policy_name")
         self.policy_template = self.env.get("policy_template")
         self.icon = self.env.get("icon")
         self.replace = self.env.get("replace_policy")
+        self.retain_scope = self.env.get("retain_scope")
         self.sleep = self.env.get("sleep")
+        self.replace_icon = self.env.get("replace_icon")
+        self.policy_updated = False
         # handle setting replace in overrides
         if not self.replace or self.replace == "False":
             self.replace = False
-        self.replace_icon = self.env.get("replace_icon")
+        # handle setting retain_scope in overrides
+        if not self.retain_scope or self.retain_scope == "False":
+            self.retain_scope = False
         # handle setting replace in overrides
         if not self.replace_icon or self.replace_icon == "False":
             self.replace_icon = False
-        self.policy_updated = False
 
         # clear any pre-existing summary result
         if "jamfpolicyuploader_summary_result" in self.env:
@@ -282,16 +310,21 @@ class JamfPolicyUploader(JamfUploaderBase):
 
         # we need to substitute the values in the policy name and template now to
         # account for version strings in the name
-        self.policy_name, template_xml = self.prepare_policy_template(
-            self.policy_name, self.policy_template
-        )
+        # substitute user-assignable keys
+        self.policy_name = self.substitute_assignable_keys(self.policy_name)
 
         # now start the process of uploading the object
         self.output(f"Checking for existing '{self.policy_name}' on {self.jamf_url}")
 
-        token, send_creds, _ = self.handle_classic_auth(
-            self.jamf_url, self.jamf_user, self.jamf_password
-        )
+        # get token using oauth or basic auth depending on the credentials given
+        if self.jamf_url and self.client_id and self.client_secret:
+            token = self.handle_oauth(self.jamf_url, self.client_id, self.client_secret)
+        elif self.jamf_url and self.jamf_user and self.jamf_password:
+            token = self.handle_api_auth(
+                self.jamf_url, self.jamf_user, self.jamf_password
+            )
+        else:
+            raise ProcessorError("ERROR: Credentials not supplied")
 
         # check for existing - requires obj_name
         obj_type = "policy"
@@ -300,8 +333,13 @@ class JamfPolicyUploader(JamfUploaderBase):
             self.jamf_url,
             obj_name,
             obj_type,
-            enc_creds=send_creds,
             token=token,
+        )
+
+        # we need to substitute the values in the template now to
+        # account for version strings in the name
+        template_xml = self.prepare_policy_template(
+            self.policy_template, obj_id, token, self.retain_scope
         )
 
         if obj_id:
@@ -327,9 +365,8 @@ class JamfPolicyUploader(JamfUploaderBase):
             self.jamf_url,
             self.policy_name,
             template_xml,
+            token,
             obj_id=obj_id,
-            enc_creds=send_creds,
-            token=token,
         )
         self.policy_updated = True
 
@@ -362,18 +399,16 @@ class JamfPolicyUploader(JamfUploaderBase):
                     self.policy_name,
                     self.icon,
                     self.replace_icon,
+                    token,
                     policy_id,
-                    enc_creds=send_creds,
-                    token=token,
                 )
             except UnboundLocalError:
                 policy_icon_name = self.upload_policy_icon(
                     self.jamf_url,
                     self.policy_name,
                     self.icon,
+                    token,
                     self.replace_icon,
-                    enc_creds=send_creds,
-                    token=token,
                 )
 
         # output the summary
