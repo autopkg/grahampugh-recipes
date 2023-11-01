@@ -10,7 +10,7 @@ Examples include 'en-US', 'de', 'ja-JP-mac', 'sv-SE', and 'zh-TW'
 No idea if all Firefox builds are available in all the same localizations, so you may need to verify that any particular combination is offered.
 </string>
 	<key>Identifier</key>
-	<string>com.github.grahampugh.recipes.jamf.Firefox-patch</string>
+	<string>com.github.autopkg.grahampugh-recipes.jamf.Firefox-patch</string>
 	<key>Input</key>
 	<dict>
 		<key>CATEGORY</key>
@@ -31,7 +31,7 @@ No idea if all Firefox builds are available in all the same localizations, so yo
 	<key>MinimumVersion</key>
 	<string>2.3</string>
 	<key>ParentRecipe</key>
-	<string>com.github.grahampugh.recipes.jamf.Firefox</string>
+	<string>com.github.autopkg.grahampugh-recipes.jamf.Firefox</string>
 	<key>Process</key>
 	<array>
 		<dict>
