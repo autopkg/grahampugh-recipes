@@ -10,12 +10,12 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: mendeley-reference-manager-(?P<version>.*?)\.dmg
+      re_pattern: mendeley-reference-manager-(?P<version>.*?)-x64\.dmg
       url: "%SEARCH_URL%"
 
   - Processor: URLDownloader
     Arguments:
-      url: "%DOWNLOAD_URL%/mendeley-reference-manager-%version%.dmg"
+      url: "%DOWNLOAD_URL%/mendeley-reference-manager-%version%-x64.dmg"
 
   - Processor: EndOfCheckPhase
 
