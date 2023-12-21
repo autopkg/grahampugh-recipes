@@ -13,7 +13,7 @@ Process:
     Processor: URLTextSearcher
 
   - Arguments:
-      re_pattern: '"(?P<url>https://.*/client/FileZilla_.*_macosx-x86\S+)"'
+      re_pattern: '"(?P<url>https://.*/client/FileZilla_.*_macos-x86\S+)"'
       url: "%SEARCH_URL%"
     Processor: URLTextSearcher
 
