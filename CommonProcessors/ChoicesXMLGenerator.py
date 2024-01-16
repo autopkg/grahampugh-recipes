@@ -23,6 +23,7 @@ import subprocess
 
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 import plistlib
+import re
 
 __all__ = ["ChoicesXMLGenerator"]
 
@@ -54,12 +55,18 @@ class ChoicesXMLGenerator(Processor):
     def output_showchoicesxml(self, choices_pkg_path):
         """Invoke the installer showChoicesXML command and return
         the contents"""
-        (choices_plist, error) = subprocess.Popen(
-            ["/usr/sbin/installer", "-showChoicesXML", "-pkg", choices_pkg_path],
+        (choices_result, error) = subprocess.Popen(
+            ["/usr/sbin/installer", "-showChoicesXML", "-pkg", choices_pkg_path, "-target", "/"],
             stdout=subprocess.PIPE,
         ).communicate()
-        if choices_plist:
+        if choices_result:
             try:
+                choices_plist = bytearray(
+                    re.search(
+                        r"(?s)<\?xml.*</plist>", choices_result.decode("utf-8")
+                    ).group(),
+                    "utf-8",
+                )
                 choices_list = plistlib.loads(choices_plist)
             except Exception as err:
                 raise ProcessorError(
