@@ -56,7 +56,7 @@ class ChoicesXMLGenerator(Processor):
         """Invoke the installer showChoicesXML command and return
         the contents"""
         (choices_result, error) = subprocess.Popen(
-            ["/usr/sbin/installer", "-showChoicesXML", "-pkg", choices_pkg_path],
+            ["/usr/sbin/installer", "-showChoicesXML", "-pkg", choices_pkg_path, "-target", "/"],
             stdout=subprocess.PIPE,
         ).communicate()
         if choices_result:
