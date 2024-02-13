@@ -138,7 +138,7 @@ class ChoicesXMLGenerator(Processor):
             recursive_child_items = True
 
         child_items = self.output_showchoicesxml(choices_pkg_path)
-        parsed_choices = self.parse_choices_list(child_items, desired_choices)
+        parsed_choices = self.parse_choices_list(child_items, desired_choices, recursive_child_items)
         self.write_choices_xml(parsed_choices, choices_xml_dest)
 
 
