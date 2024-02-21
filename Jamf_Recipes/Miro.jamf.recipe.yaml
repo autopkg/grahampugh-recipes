@@ -1,0 +1,59 @@
+Description: Creates a package, uploads it to Jamf and creates associated objects. This recipe uses the AppIconExtractor processor from homebysix, which requires the python Pillow module.
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Miro
+ParentRecipe: com.github.dataJAR-recipes.pkg.Miro
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Miro
+  CATEGORY: Productivity
+  GROUP_NAME: Miro-update-smart
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  TESTING_GROUP_NAME: Testing
+  STATIC_GROUP_NAME: Testing
+  STATIC_GROUP_TEMPLATE: JamfStaticGroupTemplate.xml
+  POLICY_CATEGORY: Testing
+  POLICY_NAME: Install Latest %NAME%
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  SELF_SERVICE_DESCRIPTION: The online collaborative whiteboard platform to bring teams together, anytime, anywhere.
+  SELF_SERVICE_DISPLAY_NAME: Install Latest %NAME%
+  UPDATE_PREDICATE: pkg_uploaded == False
+
+Process:
+  - Processor: com.github.haircut.processors/AppIconExtractor
+    Arguments:
+      source_app: "%RECIPE_CACHE_DIR%/Miro/Applications/Miro.app"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      pkg_category: "%CATEGORY%"
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: "%UPDATE_PREDICATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_name: "%STATIC_GROUP_NAME%"
+      computergroup_template: "%STATIC_GROUP_TEMPLATE%"
+      replace_group: "False"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_name: "%GROUP_NAME%"
+      computergroup_template: "%GROUP_TEMPLATE%"
+      replace_group: "True"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      icon: "%app_icon_path%"
+      policy_name: "%POLICY_NAME%"
+      policy_template: "%POLICY_TEMPLATE%"
+      replace_policy: "True"
