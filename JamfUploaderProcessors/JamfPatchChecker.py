@@ -1,22 +1,10 @@
 #!/usr/local/autopkg/python
 
 """
-Copyright 2023 Graham Pugh
+JamfPatchChecker processor for checking if a patch definition exists for the given 
+pkg name and version in Jamf Pro.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-NOTES:
-All functions are in JamfUploaderLib/JamfPolicyLogFlusherBase.py
+Made by Jerker Adolfsson based on the other JamfUploader processors.
 """
 
 import os.path
@@ -27,17 +15,17 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfPolicyLogFlusherBase import (  # noqa: E402
-    JamfPolicyLogFlusherBase,
+from JamfUploaderLib.JamfPatchCheckerBase import (  # noqa: E402
+    JamfPatchCheckerBase,
 )
 
-__all__ = ["JamfPolicyLogFlusher"]
+__all__ = ["JamfPatchChecker"]
 
 
-class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
+class JamfPatchChecker(JamfPatchCheckerBase):
     description = (
-        "A processor for AutoPkg that will flush logs for a policy on a Jamf "
-        "Cloud or on-prem server."
+        "A processor for AutoPkg that will check if a Patch Policy is ready to be uploaded "
+        "to a Jamf Cloud or on-prem server."
     )
 
     input_variables = {
@@ -69,20 +57,39 @@ class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "policy_name": {
-            "required": True,
-            "description": "Policy whose log is to be flushed",
+        "pkg_name": {
+            "required": False,
+            "description": "Name of package which should be used in the patch."
+            "Mostly provided by previous AutoPKG recipe/processor.",
             "default": "",
         },
-        "logflush_interval": {
+        "version": {
             "required": False,
-            "description": "Log interval to be flushed",
-            "default": "Zero Days",
+            "description": "Version string - provided by previous pkg recipe/processor.",
+            "default": "",
+        },
+        "patch_softwaretitle": {
+            "required": True,
+            "description": (
+                "Name of the patch softwaretitle (e.g. 'Mozilla Firefox') used in Jamf. "
+                "You need to create the patch softwaretitle by hand, since there is "
+                "currently no way to create these via the API."
+            ),
+            "default": "",
+        },
+        "sleep": {
+            "required": False,
+            "description": "Pause after running this processor for specified seconds.",
+            "default": "0",
         },
     }
 
     output_variables = {
-        "jamfpolicylogflusher_summary_result": {
+        "patch_version_found": {
+            "description": "Returns True if the specified version is found in the patch software title, "
+            "False otherwise."
+        },
+        "jamfpatchchecker_summary_result": {
             "description": "Description of interesting results.",
         },
     }
@@ -94,5 +101,5 @@ class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfPolicyLogFlusher()
+    PROCESSOR = JamfPatchChecker()
     PROCESSOR.execute_shell()

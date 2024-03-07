@@ -1,8 +1,8 @@
-# JamfExtensionAttributeUploader
+# JamfPatchChecker
 
 ## Description
 
-A processor for AutoPkg that will upload an Extension Attribute item to a Jamf Cloud or on-prem server.
+A processor for AutoPkg that will check and report whether a Patch Software Title has the version that AutoPkg has found or not. This can be used with a subsequent `StopProcessingIf` processor to prevent updating a Patch Policy with a version that does not yet exist in the Patch Software Title, allowing the recipe to run again on a subsequent recipe run.
 
 ## Input variables
 
@@ -21,28 +21,15 @@ A processor for AutoPkg that will upload an Extension Attribute item to a Jamf C
 - **CLIENT_SECRET:**
   - **required:** True
   - **description:** Secret associated with the Client ID, optionally set as a key in the com.github.autopkg preference file.
-- **ea_name**:
-  - **required**: False
-  - **description**: Extension Attribute name
-- **ea_script_path**:
-  - **required**: False
-  - **description**: Full path to the script to be uploaded
-- **replace_ea**:
-  - **required**: False
-  - **description**: Overwrite an existing Extension Attribute if True.
-  - **default**: False
-- **ea_inventory_display:**
-  - **required:** False
-  - **description:** Inventory Display value for the EA.
-  - **default:** "Extension Attributes"
-- **ea_data_type:**
-  - **required:** False
-  - **description:** Data type for the EA. One of String, Integer or Date.
-  - **default:** "String"
-- **skip_script_key_substitution**:
-  - **required**: False
-  - **description**: Skip substitution of keys marked between `%` signs in the script.
-  - **default**: False
+- **patch_softwaretitle**:
+  - **required**: True
+  - **description**: Name of the patch softwaretitle (e.g. 'Mozilla Firefox') used in Jamf. You need to create the patch softwaretitle by hand, since there is currently no way to create these via the API.
+- **pkg_name**:
+  - **required**: True
+  - **description**: Name of package which should be used in the patch. Mostly provided by previous AutoPKG recipe/processor.
+- **version**:
+  - **required**: True
+  - **description**: Version string - provided by previous pkg recipe/processor.
 - **sleep:**
   - **required:** False
   - **description:** Pause after running this processor for specified seconds.
@@ -50,5 +37,5 @@ A processor for AutoPkg that will upload an Extension Attribute item to a Jamf C
 
 ## Output variables
 
-- **jamfextensionattributeuploader_summary_result:**
+- **jamfpatchuploader_summary_result:**
   - **description:** Description of interesting results.

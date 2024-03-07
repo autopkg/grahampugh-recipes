@@ -15,7 +15,7 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **required:** False
   - **description:** Package display name, which may be different to the `pkg_name`. If not supplied, reverts to `pkg_name`.
 - **pkg_path:**
-  - **required:** False
+  - **required:** True
   - **description:** Path to a pkg or dmg to import - \*\*provided by previous pkg recipe/processor.
 - **version:**
   - **required:** False
@@ -62,12 +62,19 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **default:** False
 - **jcds_mode:**
   - **required:** False
-  - **description:** Upload package using JCDS mode.
+  - **description:** This option is no longer functional. A warning message is displayed if set.
   - **default:** False
 - **jcds2_mode:**
   - **required:** False
-  - **description:** Upload package using JCDS2 mode.
+  - **description:** Upload package using JCDS2 mode. Requires the `boto3` module to be manually installed.
   - **default:** False
+- **aws_cdp_mode:**
+  - **required:** False
+  - **description:** Upload package to an AWS S3 CDP using `aws-cli` tools. These must be manually installed on the AutoPkg client. Requires the `S3_BUCKET_NAME` key to be populated.
+  - **default:** False
+- **S3_BUCKET_NAME:**
+  - **required:** False
+  - **description:** The name of an AWS S3 bucket linked to a Jamf Pro server. Required for `aws_cdp_mode`.
 - **JSS_URL:**
   - **required:** True
   - **description:** URL to a Jamf Pro server to which the API user has write access.
