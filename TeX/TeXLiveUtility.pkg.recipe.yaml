@@ -1,4 +1,4 @@
-Description: Downloads the latest TeXLive Utility release and renames the pkg to include the version number.
+Description: Downloads the latest version of TeX Live Utility and creates a package.
 Identifier: com.github.grahampugh.recipes.pkg.TeXLiveUtility
 ParentRecipe: com.github.grahampugh.recipes.download.TeXLiveUtility
 MinimumVersion: "2.3"
@@ -9,3 +9,4 @@ Input:
 Process:
   - Processor: AppPkgCreator
     Arguments:
+      app_path: "%RECIPE_CACHE_DIR%/%NAME%/TeX Live Utility.app"
