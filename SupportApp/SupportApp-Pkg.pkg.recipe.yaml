@@ -1,4 +1,4 @@
-Description: Downloads the current version of The Microsoft License Reset package.
+Description: Downloads the latest packaged version of Support App developed by Root3.
 Identifier: com.github.grahampugh.recipes.pkg.SupportApp
 ParentRecipe: com.github.grahampugh.recipes.download.SupportApp
 MinimumVersion: "2.3"

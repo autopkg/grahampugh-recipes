@@ -1,13 +1,13 @@
-Description: Downloads the latest packaged version of Support App developed by Root3.
-Identifier: com.github.grahampugh.recipes.download.SupportApp
+Description: Downloads the latest packaged version of the Support App Helper developed by Root3.
+Identifier: com.github.grahampugh.recipes.download.SupportHelper
 MinimumVersion: "2.3"
 
 Input:
-  NAME: Support
+  NAME: Support Helper
 
 Process:
   - Arguments:
-      asset_regex: Support\..*\.pkg$
+      asset_regex: SupportHelper\..*\.pkg$
       github_repo: root3nl/SupportApp
     Processor: GitHubReleasesInfoProvider
 
