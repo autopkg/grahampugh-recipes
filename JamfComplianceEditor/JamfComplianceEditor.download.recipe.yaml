@@ -8,7 +8,8 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (<a href=\"(?P<url>\/\/cdn\.document360.io\/\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/Images/Documentation/Jamf%20Compliance%20Editor%20v.*)\".*(?P<filename>Jamf Compliance Editor.*.tar.gz?))
+      # re_pattern: (<a href=\"(?P<url>\/\/cdn\.document360.io\/\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/Images/Documentation/(?P<filename>JamfComplianceEditor%20v.*\.pkg?)\?.*)\"JamfComplianceEditor .[0-9\.]\.pkg<\/a>)
+      re_pattern: (<a href=\"(?P<url>\/\/cdn\.document360.io\/\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/Images/Documentation/JamfComplianceEditor%20v.*\.pkg\?.*)\">(?P<filename>JamfComplianceEditor\ v(?P<version>.*)\.pkg)</a>)
       url: https://trusted.jamf.com/docs/establishing-compliance-baselines
       request_headers:
         User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/600.8.9 (KHTML, like Gecko) Version/8.0.8 Safari/600.8.9
@@ -26,13 +27,10 @@ Process:
 
   - Processor: EndOfCheckPhase
 
-  - Arguments:
-      archive_path: "%pathname%"
-      destination_path: "%RECIPE_CACHE_DIR%/unzip"
-      purge_destination: True
-    Processor: Unarchiver
-
   - Processor: CodeSignatureVerifier
     Arguments:
-      requirement: anchor apple generic and identifier "com.jamf.complianceeditor" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "483DWKW443")
-      input_path: "%RECIPE_CACHE_DIR%/unzip/Jamf Compliance Editor.app"
+      expected_authority_names:
+        - "Developer ID Installer: JAMF Software (483DWKW443)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%pathname%"
