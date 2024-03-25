@@ -24,7 +24,7 @@ Process:
 
   - Processor: Copier
     Arguments:
-      destination_path: "%RECIPE_CACHE_DIR%/Scripts"
+      destination_path: "%RECIPE_CACHE_DIR%/Scripts/lghub_installer.app"
       overwrite: true
       source_path: "%RECIPE_CACHE_DIR%/unzip/lghub_installer.app"
 
