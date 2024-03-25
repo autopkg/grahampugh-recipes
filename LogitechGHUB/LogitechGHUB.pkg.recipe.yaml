@@ -57,4 +57,4 @@ Process:
         pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
         pkgtype: flat
         scripts: Scripts
-      pkgname: "%NAME%-%version%"
+      pkgname: "LogitechGHUB-%version%"
