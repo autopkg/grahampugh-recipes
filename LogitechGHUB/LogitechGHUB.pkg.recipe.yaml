@@ -38,6 +38,8 @@ Process:
         if "$DIR/lghub_installer.app/Contents/MacOS/lghub_installer" --silent
         then
             echo "Logitech G Hub installed successfully"
+            sleep 2
+            pkill lghub
         else
             echo "ERROR: Logitech G Hub installation failed"
             finish
