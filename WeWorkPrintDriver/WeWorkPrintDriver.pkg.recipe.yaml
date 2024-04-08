@@ -15,3 +15,8 @@ Process:
     Arguments:
       pkg_path: "%RECIPE_CACHE_DIR%/WeWorkPrinterDriver-%version%.pkg"
       source_pkg: "%RECIPE_CACHE_DIR%/unzip/*.pkg"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+      - "%RECIPE_CACHE_DIR%/unzip"
