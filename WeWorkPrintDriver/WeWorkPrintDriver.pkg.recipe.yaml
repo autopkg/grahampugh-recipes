@@ -1,0 +1,17 @@
+Description: Downloads the latest version of the WeWork Printer Driver and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.WeWorkPrintDriver
+ParentRecipe: com.github.grahampugh.recipes.download.WeWorkPrintDriver
+MinimumVersion: "2.3"
+
+Input:
+  NAME: WeWork Printer Driver
+
+Process:
+  - Arguments:
+      source_pkg: "%RECIPE_CACHE_DIR%/unzip/*.pkg"
+    Processor: com.github.grahampugh.recipes.commonprocessors/PkgInfoReader
+
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/unzip/WeWorkPrinterDriver-%version%.pkg"
+      source_pkg: "%RECIPE_CACHE_DIR%/unzip/*.pkg"
