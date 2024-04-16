@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>accountDomain</key>
+	<string></string>
+	<key>allowConfiguration</key>
+	<true/>
+	<key>allowLocalStorage</key>
+	<false/>
+	<key>allowRememberLogin</key>
+	<true/>
+	<key>authType</key>
+	<integer>0</integer>
+	<key>directOfflinePrint</key>
+	<false/>
+	<key>gatewayAddress</key>
+	<string></string>
+	<key>loginPopupType</key>
+	<integer>0</integer>
+	<key>offline</key>
+	<true/>
+	<key>refreshPeriod</key>
+	<integer>60</integer>
+	<key>serverCheck</key>
+	<true/>
+	<key>storageType</key>
+	<integer>1</integer>
+</dict>
+</plist>
