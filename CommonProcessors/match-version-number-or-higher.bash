@@ -1,6 +1,6 @@
 #!/bin/bash
 
-<<ABOUT_THIS_SCRIPT
+: <<ABOUT_THIS_SCRIPT
 -------------------------------------------------------------------------------
 
 	Written by:William Smith
@@ -25,8 +25,13 @@
 
 	Modified September 9, 2020 by Graham Pugh
 	Changes:
-	Allowed verbose and usingJamf modes to be called from the command line.
+	Allowed verbose and using Jamf modes to be called from the command line.
 	Added quiet mode which suppresses all output except the regex itself.
+
+	Modified April 23, 2024 by Graham Pugh
+	Changes:
+	Altered the character on which the regex is split for Jamf modes,
+	to prevent problems where there is a 'b' in the version string.
 
 	Purpose: Generate a regular expression (regex) string that matches
 	the provided version number or higher.
@@ -52,7 +57,7 @@ ABOUT_THIS_SCRIPT
 
 # ----- get command line arguments ---------------------
 
-# defaults
+# defaults
 # turn on for step-by-step explanation while building the regex or off to provide only the regex
 verbose="Off" # "On" or "Off"
 # turn on for a single line output
@@ -69,7 +74,7 @@ do
         ;;
         -j|--usingJamf) usingJamf="Yes"
         ;;
-        -h|--help|-*|--*)
+        -h|--help|-*)
             echo "
 Generate a regular expression (regex) string that matches
 the provided version number or higher.
@@ -181,7 +186,7 @@ function evaluateSequence()	{
 	# create array of digits in sequence ( e.g. "7, 4" )
 	digits=()
 	for ((i = 0; i < ${#sequence}; i++)); do
-		digits+=(${sequence:$i:1})
+		digits+=("${sequence:$i:1}")
 	done
 
 	# iterate over each digit of the sequence
@@ -266,7 +271,7 @@ regexSpecialCharacters="\&$.|?*+()[]{}"
 regexPrefix=""
 
 # evaluate the version string
-for ((aSequence=1;aSequence<=$sequenceCount;aSequence++))
+for ((aSequence=1;aSequence<=sequenceCount;aSequence++))
 do
 	logcomment "Evaluating sequence $aSequence of $sequenceCount"
 	evaluateSequence
@@ -349,12 +354,12 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
 	
 	dividedRegex=$regex
 
-	for (( aBreak=1; aBreak<$jamfStringCount; aBreak++ ))
+	for (( aBreak=1; aBreak<jamfStringCount; aBreak++ ))
 	do
 		breakDelimiterPosition=$((split_len * aBreak ))
 		regex_beginning="${dividedRegex:0:$breakDelimiterPosition}"
 		regex_end="${dividedRegex:$breakDelimiterPosition}"
-		regex_end=$( /usr/bin/sed "s/|/b/" <<< ${regex_end} )
+		regex_end=$( /usr/bin/sed "s/|/±/" <<< ${regex_end} )
 		dividedRegex="${regex_beginning}${regex_end}"
 	done
 
@@ -374,9 +379,9 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
 	fi
 
 	# display each Jamf Pro string
-	for (( aBreak=0; aBreak<$jamfStringCount; aBreak++ ))
+	for (( aBreak=0; aBreak<jamfStringCount; aBreak++ ))
 	do
-		regexString=$( /usr/bin/awk -F "b" -v divider=$(( aBreak + 1 )) '{ print $divider }' <<< "$dividedRegex" )
+		regexString=$( /usr/bin/awk -F "±" -v divider=$(( aBreak + 1 )) '{ print $divider }' <<< "$dividedRegex" )
 
 		# add beginning of line characters if needed
 		if [[ "$regexString" != "^("* ]]; then
