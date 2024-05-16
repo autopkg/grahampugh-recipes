@@ -19,7 +19,11 @@ Process:
 
   - Processor: EndOfCheckPhase
 
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: "%pathname%"
+
   - Processor: CodeSignatureVerifier
     Arguments:
-      input_path: "%pathname%/%NAME%.app"
+      input_path: "%pathname%/%app_name%"
       requirement: identifier "com.elsevier.mendeley" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "45K89Y5X9B"
