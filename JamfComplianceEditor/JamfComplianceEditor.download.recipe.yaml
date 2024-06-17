@@ -6,24 +6,14 @@ Input:
   NAME: Jamf Compliance Editor
 
 Process:
-  - Processor: URLTextSearcher
+  - Processor: GitHubReleasesInfoProvider
     Arguments:
-      # re_pattern: (<a href=\"(?P<url>\/\/cdn\.document360.io\/\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/Images/Documentation/(?P<filename>JamfComplianceEditor%20v.*\.pkg?)\?.*)\"JamfComplianceEditor .[0-9\.]\.pkg<\/a>)
-      re_pattern: (<a href=\"(?P<url>\/\/cdn\.document360.io\/\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/Images/Documentation/JamfComplianceEditor%20v.*\.pkg\?.*)\">(?P<filename>JamfComplianceEditor\ v(?P<version>.*)\.pkg)</a>)
-      url: https://trusted.jamf.com/docs/establishing-compliance-baselines
-      request_headers:
-        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/600.8.9 (KHTML, like Gecko) Version/8.0.8 Safari/600.8.9
-
-  - Processor: com.github.grahampugh.recipes.commonprocessors/StringReplacer
-    Arguments:
-      input_string: "%url%"
-      string_to_replace: "&amp;"
-      replacement_string: "&"
+      github_repo: Jamf-Concepts/jamf-compliance-editor
+      asset_regex: JamfComplianceEditor\.v.*\.pkg
 
   - Processor: URLDownloader
     Arguments:
-      url: "https:%output_string%"
-      filename: "%filename%"
+      filename: "JamfComplianceEditor-%version%.pkg"
 
   - Processor: EndOfCheckPhase
 
