@@ -42,7 +42,6 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
         jamf_url,
         ea_name,
         ea_data_type,
-        ea_description,
         ea_inventory_display,
         script_path,
         skip_script_key_substitution,
@@ -69,7 +68,7 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
             "<computer_extension_attribute>"
             + "<name>{}</name>".format(ea_name)
             + "<enabled>true</enabled>"
-            + "<description>{}</description>".format(ea_description)
+            + "<description/>"
             + "<data_type>{}</data_type>".format(ea_data_type)
             + "<input_type>"
             + "  <type>script</type>"
@@ -128,7 +127,7 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload an extension attribute"""
-        self.jamf_url = self.env.get("JSS_URL").rstrip('/')
+        self.jamf_url = self.env.get("JSS_URL")
         self.jamf_user = self.env.get("API_USERNAME")
         self.jamf_password = self.env.get("API_PASSWORD")
         self.client_id = self.env.get("CLIENT_ID")
@@ -138,7 +137,6 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
         self.skip_script_key_substitution = self.env.get("skip_script_key_substitution")
         self.replace = self.env.get("replace_ea")
         self.ea_data_type = self.env.get("ea_data_type")
-        self.ea_description = self.env.get("ea_description")
         self.ea_inventory_display = self.env.get("ea_inventory_display")
         self.sleep = self.env.get("sleep")
         # handle setting replace in overrides
@@ -211,7 +209,6 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
             self.jamf_url,
             self.ea_name,
             self.ea_data_type,
-            self.ea_description,
             self.ea_inventory_display,
             self.ea_script_path,
             self.skip_script_key_substitution,
