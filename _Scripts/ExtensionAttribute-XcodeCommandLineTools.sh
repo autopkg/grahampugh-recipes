@@ -32,8 +32,8 @@ installCommandLineTools() {
 
         # Install the command line tools
         if [[ $cmd_line_tools ]]; then
-            ${LOGGER} "Running softwareupdate to downoload the Xcode Command Line Tools..."
-            echo "Running softwareupdate to downoload the Xcode Command Line Tools..."
+            ${LOGGER} "Running softwareupdate to download the Xcode Command Line Tools..."
+            echo "Running softwareupdate to download the Xcode Command Line Tools..."
             echo
             softwareupdate -i "$cmd_line_tools"
         else
