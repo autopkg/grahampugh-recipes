@@ -22,7 +22,7 @@ Process:
   - Processor: URLDownloader
     Arguments:
       filename: pd-autodeploy.zip
-      url: http://download.parallels.com/desktop/tools/pd-autodeploy.zip
+      url: https://download.parallels.com/desktop/tools/pd-autodeploy.zip
 
   - Processor: Unarchiver
     Arguments:

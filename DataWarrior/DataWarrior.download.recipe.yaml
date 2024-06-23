@@ -4,7 +4,7 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: DataWarrior
-  DOWNLOAD_URL: http://www.openmolecules.org/datawarrior/download.html
+  DOWNLOAD_URL: https://www.openmolecules.org/datawarrior/download.html
 
 Process:
   - Processor: URLTextSearcher
