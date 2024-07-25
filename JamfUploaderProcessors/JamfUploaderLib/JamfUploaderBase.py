@@ -22,23 +22,18 @@ import re
 import subprocess
 import tempfile
 import xml.etree.cElementTree as ET
-
 from base64 import b64encode
 from collections import namedtuple
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from shutil import rmtree
-from urllib.parse import urlparse, quote
+from urllib.parse import quote, urlparse
 from xml.sax.saxutils import escape
 
-# from time import sleep
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
-from autopkglib import (  # pylint: disable=import-error
-    Processor,
-    ProcessorError,
-)
+# from time import sleep
 
 
 class JamfUploaderBase(Processor):
@@ -196,7 +191,7 @@ class JamfUploaderBase(Processor):
                                 expires = datetime.strptime(
                                     data["expires"], "%Y-%m-%dT%H:%M:%S.%fZ"
                                 )
-                                if expires > datetime.utcnow():
+                                if expires > datetime.now(timezone.utc):
                                     self.output("Existing token is valid")
                                     return data["token"]
                             except ValueError:
@@ -238,7 +233,7 @@ class JamfUploaderBase(Processor):
                     token = str(output["access_token"])
                     expires_in = output["expires_in"]
                     # convert "expires_in" value to a timestamp to match basic auth method
-                    expires_timestamp = datetime.utcnow() + timedelta(
+                    expires_timestamp = datetime.now(timezone.utc) + timedelta(
                         seconds=expires_in
                     )
                     expires_str = datetime.strptime(
