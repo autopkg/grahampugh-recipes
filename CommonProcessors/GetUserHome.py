@@ -16,7 +16,7 @@
 
 import os
 
-from autopkglib import Processor
+from autopkglib import Processor  # pylint: disable=import-error
 
 __all__ = ["GetUserHome"]
 
