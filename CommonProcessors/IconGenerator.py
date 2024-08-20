@@ -85,7 +85,7 @@ class IconGenerator(DmgMounter):
             "required": False,
             "description": "The output path to write the composited 'install' "
             "icon .png, where `composite_install_template` is superimposed on "
-            "top of the app icon. If not set, not 'install' composite icon will "
+            "top of the app icon. If not set, no 'install' composite icon will "
             "be created.",
         },
         "composite_install_template": {
@@ -98,7 +98,7 @@ class IconGenerator(DmgMounter):
             "required": False,
             "description": "The output path to write the composited 'update' "
             "icon .png, where `composite_update_template` is superimposed on "
-            "top of the app icon. If not set, not 'update' composite icon will "
+            "top of the app icon. If not set, no 'update' composite icon will "
             "be created.",
         },
         "composite_update_template": {
@@ -111,7 +111,7 @@ class IconGenerator(DmgMounter):
             "required": False,
             "description": "The output path to write the composited 'uninstall' "
             "icon .png, where `composite_uninstall_template` is superimposed on "
-            "top of the app icon. If not set, not 'uninstall' composite icon will "
+            "top of the app icon. If not set, no 'uninstall' composite icon will "
             "be created.",
         },
         "composite_uninstall_template": {
