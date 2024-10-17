@@ -107,7 +107,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         zip_name = f"{bundle_path}.zip"
 
         if os.path.exists(zip_name):
-            self.output("Package object is a bundle. " "Zipped archive already exists.")
+            self.output("Package object is a bundle. Zipped archive already exists.")
             return zip_name
 
         # we need to create a zip that contains the package (not just the contents of the package)
@@ -138,6 +138,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         self.output(f"Zip file {zip_name} created.")
         return zip_name
 
+    # ------------------------------------------------------------------------
     # Beginning of section for upload to Local Fileshare Distribution Points
 
     def check_local_pkg(self, mount_share, pkg_name):
@@ -248,7 +249,10 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             tmp_pkg_path = os.path.join(pkg_dirname, pkg_name)
             shutil.copyfile(pkg_path, tmp_pkg_path)
             self.output(
-                f"Package name does not match path, so package copied from {pkg_path} to {tmp_pkg_path}",
+                (
+                    f"Package name does not match path, so package copied from {pkg_path} to",
+                    f"{tmp_pkg_path}",
+                ),
                 verbose_level=2,
             )
             pkg_path = tmp_pkg_path
@@ -461,7 +465,18 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         pkg_name,
         credentials,
     ):
-        """upload the package"""
+        """
+        upload the package using the jcds API endpoint
+
+        Note that this requires the boto3 python module
+        To install this, run the following command
+
+        /usr/local/autopkg/python -m pip install boto3
+
+        See https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html
+        and
+        https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#guide-configuration
+        """
 
         try:
             import boto3  # pylint: disable=import-outside-toplevel
@@ -470,13 +485,26 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             )
         except ImportError:
             print(
-                "WARNING: could not import boto3 module. Use pip to install requests and try again."
+                "WARNING: could not import boto3 module. Use pip to install boto3 and try again:",
+                "/usr/local/autopkg/python -m pip install boto3",
             )
             sys.exit()
+
+        self.output(
+            (
+                "JCDS credentials:",
+                f"Access Key: {credentials['accessKeyID']}",
+                f"Bucket Name: {credentials['bucketName']}",
+                f"Path: {credentials['path']}",
+                f"Region: {credentials['region']}",
+            ),
+            verbose_level=3,
+        )  # TEMP
 
         # Upload File To AWS S3
         s3_client = boto3.client(
             "s3",
+            credentials["region"],
             aws_access_key_id=credentials["accessKeyID"],
             aws_secret_access_key=credentials["secretAccessKey"],
             aws_session_token=credentials["sessionToken"],
@@ -500,10 +528,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         """upload the package to an AWS CDP
         Note that this requires the installation of the aws-cli tools on your AutoPkg machine
         and you must set up the connection with 'aws configure'. Alternatively you can create
-        the config file manually.
-        See https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html
-        and
-        https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#guide-configuration
+        the config file manually. See https://aws.amazon.com/cli/ for installation instructions.
 
         You must also specify the bucket name to the environment ('S3_BUCKET_NAME').
         """
@@ -741,6 +766,37 @@ class JamfPackageUploaderBase(JamfUploaderBase):
 
     # End section on uploading pkg metadata
     # ------------------------------------------------------------------------
+    # Begin section on recalulating packages on JCDS
+
+    def recalculate_packages(self, jamf_url, token):
+        """Send a request to recalulate the JCDS packages"""
+        # get the JCDS file list
+        object_type = "jcds"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/refresh-inventory"
+
+        request = "POST"
+        r = self.curl(
+            request=request,
+            url=url,
+            token=token,
+        )
+
+        if r.status_code == 204:
+            self.output(
+                "JCDS Packages successfully recalculated",
+                verbose_level=2,
+            )
+            packages_recalculated = True
+        else:
+            self.output(
+                f"WARNING: JCDS Packages NOT successfully recalculated (response={r.status_code})",
+                verbose_level=1,
+            )
+            packages_recalculated = False
+        return packages_recalculated
+
+    # End section on recalulating packages on JCDS
+    # ------------------------------------------------------------------------
 
     # main function
     def execute(
@@ -766,6 +822,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         self.jcds2_mode = self.env.get("jcds2_mode")
         self.aws_cdp_mode = self.env.get("aws_cdp_mode")
         self.pkg_api_mode = self.env.get("pkg_api_mode")
+        self.recalculate = self.env.get("recalculate")
         self.jamf_url = self.env.get("JSS_URL").rstrip("/")
         self.jamf_user = self.env.get("API_USERNAME")
         self.jamf_password = self.env.get("API_PASSWORD")
@@ -789,6 +846,8 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             self.jcds2_mode = False
         if not self.aws_cdp_mode or self.aws_cdp_mode == "False":
             self.aws_cdp_mode = False
+        if not self.recalculate or self.recalculate == "False":
+            self.recalculate = False
         if not self.cloud_dp or self.cloud_dp == "False":
             self.cloud_dp = False
 
@@ -929,7 +988,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
 
         if APLooseVersion(jamf_pro_version) >= APLooseVersion("11.5"):
             # set default mode to pkg_api_mode if using Jamf Cloud / AWS
-            if not self.smb_shares and not self.jcds2_mode and not self.aws_cdp_mode:
+            if not self.jcds2_mode and not self.aws_cdp_mode:
                 self.pkg_api_mode = True
 
         # get token using oauth or basic auth depending on the credentials given
@@ -951,10 +1010,20 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                 "only be used with jcds2_mode or pkg_api_mode)"
             )
 
-        # check for existing pkg
-        obj_id = self.check_pkg(self.pkg_name, self.jamf_url, token=token)
-        self.output(f"ID: {obj_id}", verbose_level=3)  # TEMP
-        if obj_id != "-1":
+        # check for existing pkg (use new API if 11.5+)
+        if APLooseVersion(jamf_pro_version) >= APLooseVersion("11.5"):
+            filter_name = "packageName"
+            obj_id = self.get_uapi_obj_id_from_name(
+                self.jamf_url,
+                "package_v1",
+                self.pkg_name,
+                token=token,
+                filter_name=filter_name,
+            )
+        else:
+            obj_id = self.check_pkg(self.pkg_name, self.jamf_url, token=token)
+        self.output(f"Package ID: {obj_id}", verbose_level=3)  # TEMP
+        if obj_id and obj_id != "-1":
             self.output(f"Package '{self.pkg_name}' already exists: ID {obj_id}")
             pkg_id = obj_id  # assign pkg_id for smb runs - JCDS runs get it from the pkg upload
         else:
@@ -1072,6 +1141,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                     # fake that the package was replaced even if it wasn't
                     # so that the metadata gets replaced
                     self.pkg_uploaded = True
+
                 elif not self.pkg_api_mode:  # dbfileupload mode
                     # generate enc_creds
                     enc_creds = self.get_enc_creds(self.jamf_user, self.jamf_password)
@@ -1232,6 +1302,31 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             # if we get this far then there was a 200 success response so the package was uploaded
             self.pkg_uploaded = True
 
+        # recalculate packages on JCDS if the metadata was updated and recalculation requested
+        if (
+            (self.pkg_api_mode or self.jcds2_mode)
+            and APLooseVersion(jamf_pro_version) >= APLooseVersion("11.10")
+            and self.pkg_metadata_updated
+            and self.recalculate
+        ):
+            # check token again using oauth or basic auth depending on the credentials given
+            # as package upload may have taken some time
+            if self.client_id and self.client_secret:
+                token = self.handle_oauth(
+                    self.jamf_url, self.client_id, self.client_secret
+                )
+            elif self.jamf_user and self.jamf_password:
+                token = self.handle_api_auth(
+                    self.jamf_url, self.jamf_user, self.jamf_password
+                )
+            else:
+                raise ProcessorError("ERROR: Valid credentials not supplied")
+
+            # now send the recalvculation request
+            packages_recalculated = self.recalculate_packages(self.jamf_url, token)
+        else:
+            packages_recalculated = False
+
         # output the summary
         self.env["pkg_name"] = self.pkg_name
         self.env["pkg_display_name"] = self.pkg_display_name
@@ -1247,6 +1342,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                     "pkg_display_name",
                     "pkg_path",
                     "version",
+                    "packages_recalculated",
                 ],
                 "data": {
                     "category": self.pkg_category,
@@ -1255,5 +1351,6 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                     "pkg_display_name": self.pkg_display_name,
                     "pkg_path": self.pkg_path,
                     "version": self.version,
+                    "packages_recalculated": str(packages_recalculated),
                 },
             }

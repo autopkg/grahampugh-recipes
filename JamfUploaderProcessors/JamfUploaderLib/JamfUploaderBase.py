@@ -21,7 +21,7 @@ import os
 import re
 import subprocess
 import tempfile
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 from base64 import b64encode
 from collections import namedtuple
@@ -43,6 +43,9 @@ from autopkglib import (  # pylint: disable=import-error
 
 class JamfUploaderBase(Processor):
     """Common functions used by at least two JamfUploader processors."""
+
+    # Global version
+    __version__ = "2024.10.17.0"
 
     def api_endpoints(self, object_type):
         """Return the endpoint URL from the object type"""
@@ -382,8 +385,11 @@ class JamfUploaderBase(Processor):
         else:
             raise ProcessorError("No URL supplied")
 
-        # allow use of a self-signed certificate
+        # set User-Agent
+        user_agent = f"JamfUploader/{self.__version__}"
+        curl_cmd.extend(["--header", f"User-Agent: {user_agent}"])
 
+        # allow use of a self-signed certificate
         # insecure mode
         if self.env.get("insecure_mode"):
             curl_cmd.extend(["--insecure"])
@@ -485,6 +491,10 @@ class JamfUploaderBase(Processor):
         if additional_curl_opts:
             curl_cmd.extend(additional_curl_opts)
 
+        # add custom curl options specified
+        if self.env.get("custom_curl_opts"):
+            curl_cmd.extend(self.env.get("custom_curl_opts"))
+
         self.output(f"curl command: {' '.join(curl_cmd)}", verbose_level=3)
 
         # now subprocess the curl command and build the r tuple which contains the
@@ -526,6 +536,8 @@ class JamfUploaderBase(Processor):
             action = "upload"
         elif request == "GET":
             action = "download"
+        else:
+            action = "unknown"
 
         if r.status_code == 200 or r.status_code == 201:
             if endpoint_type == "jcds":
@@ -588,9 +600,11 @@ class JamfUploaderBase(Processor):
                 self.output(f"ERROR: No version of Jamf Pro received.  Error:\n{error}")
                 raise ProcessorError("No version of Jamf Pro received") from error
 
-    def get_uapi_obj_id_from_name(self, jamf_url, object_type, object_name, token):
+    def get_uapi_obj_id_from_name(
+        self, jamf_url, object_type, object_name, token, filter_name="name"
+    ):
         """Get the Jamf Pro API object by name. This requires use of RSQL filtering"""
-        url_filter = f"?page=0&page-size=1000&sort=id&filter=name%3D%3D%22{quote(object_name)}%22"
+        url_filter = f"?page=0&page-size=1000&sort=id&filter={filter_name}%3D%3D%22{quote(object_name)}%22"
         url = jamf_url + "/" + self.api_endpoints(object_type) + url_filter
         r = self.curl(request="GET", url=url, token=token)
         if r.status_code == 200:
@@ -598,9 +612,12 @@ class JamfUploaderBase(Processor):
             # output = json.loads(r.output)
             output = r.output
             for obj in output["results"]:
-                self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
-                if obj["name"] == object_name:
+                self.output(
+                    f"ID: {obj['id']} NAME: {obj[filter_name]}", verbose_level=3
+                )
+                if obj[filter_name] == object_name:
                     obj_id = obj["id"]
+                    break
             return obj_id
 
     def get_api_obj_id_from_name(self, jamf_url, object_name, object_type, token):
