@@ -9,7 +9,7 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (?P<url>https:\/\/eclecticlightdotcom\.files\.wordpress.com/.*/silentknight%MAJOR_VERSION%.*\.zip)
+      re_pattern: (?P<url>https://eclecticlight\.co/.*/silentknight2.*.zip)
       url: https://eclecticlight.co/downloads/
 
   - Processor: URLDownloader

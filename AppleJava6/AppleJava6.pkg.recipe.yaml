@@ -5,8 +5,13 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: AppleJava6
+  DEPRECATION_WARNING: The parent recipe is no longer functional, so this recipe is deprecated and will be removed in the future.
 
 Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: "%DEPRECATION_WARNING%"
+
   - Processor: FlatPkgUnpacker
     Arguments:
       destination_path: "%RECIPE_CACHE_DIR%/unpack"
