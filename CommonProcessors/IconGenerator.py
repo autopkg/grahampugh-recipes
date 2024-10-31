@@ -292,9 +292,9 @@ class IconGenerator(DmgMounter):
         """
         try:
             icon = Image.open(input_path)
-            if (128, 128, 2) in icon.info["sizes"]:
+            if (128, 128, 2) in icon.info.get("sizes"):
                 icon.size = (128, 128, 2)
-            elif (256, 256) in icon.info["sizes"]:
+            elif (256, 256) in icon.info.get("sizes"):
                 icon.size = (256, 256)
             else:
                 self.output("Resizing icon to 256px.")
