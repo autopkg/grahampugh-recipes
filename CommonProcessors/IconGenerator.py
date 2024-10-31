@@ -441,6 +441,7 @@ class IconGenerator(DmgMounter):
 
         # Retrieve the app path
         source_app = self.env.get("source_app")
+        dmg = ""
 
         if source_icon:
             if source_icon.lower().endswith(".icns") or source_icon.lower().endswith(
