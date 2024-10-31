@@ -292,7 +292,8 @@ class IconGenerator(DmgMounter):
         """
         try:
             icon = Image.open(input_path)
-            if icon.info.get("sizes"):
+            try:
+                icon.info.get("sizes")
                 if (128, 128, 2) in icon.info.get("sizes"):
                     icon.size = (128, 128, 2)
                 elif (256, 256) in icon.info.get("sizes"):
@@ -300,7 +301,10 @@ class IconGenerator(DmgMounter):
                 else:
                     self.output("Resizing icon to 256px.")
                     icon = icon.resize((256, 256))
-            else:
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print(message)
                 self.output("Resizing icon to 256px.")
                 icon = icon.resize((256, 256))
             icon.convert("RGBA")
