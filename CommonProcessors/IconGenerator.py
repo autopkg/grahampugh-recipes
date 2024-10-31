@@ -353,7 +353,10 @@ class IconGenerator(DmgMounter):
         source_app = self.env.get("source_app")
 
         if source_icon:
-            if source_icon.lower().endswith(".icns") and os.path.exists(source_icon):
+            if (
+                source_icon.lower().endswith(".icns")
+                or source_icon.lower().endswith(".png")
+            ) and os.path.exists(source_icon):
                 icon_path = source_icon
             else:
                 # invalid icon provided
