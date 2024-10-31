@@ -433,15 +433,16 @@ class IconGenerator(DmgMounter):
         source_app = self.env.get("source_app")
 
         if source_icon:
-            if (
-                source_icon.lower().endswith(".icns")
-                or source_icon.lower().endswith(".png")
-            ) and os.path.exists(source_icon):
+            if source_icon.lower().endswith(".icns") or source_icon.lower().endswith(
+                ".png"
+            ):
                 app_icon_path = self.get_path_to_file(source_icon)
                 # icon_path = source_icon
             else:
                 # invalid icon provided
                 raise ProcessorError("Provided icon is not valid.")
+            if not os.path.exists(app_icon_path):
+                raise ProcessorError("Could not determine path to provided icon.")
         elif source_app:
             # Determine if the app path is within a dmg
             (dmg_path, dmg, dmg_app_path) = self.parsePathForDMG(source_app)
