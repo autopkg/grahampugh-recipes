@@ -33,6 +33,7 @@ import base64
 import io
 import os
 
+from pathlib import Path
 from autopkglib import ProcessorError  # pylint: disable=import-error
 from autopkglib.DmgMounter import DmgMounter  # pylint: disable=import-error
 
@@ -151,6 +152,85 @@ class IconGenerator(DmgMounter):
         },
     }
     description = __doc__
+
+    def get_path_to_file(self, filename):
+        """Find a file in a recipe without requiring a path. Looks in the following places
+        in the following order:
+        1. RecipeOverrides directory/ies
+        2. Same directory as the recipe
+        3. Same repo (recipe search directory) as the recipe
+        4. Parent recipe's repo (recipe search directory) if recipe is an override
+        Relative paths also work."""
+        recipe_dir = self.env.get("RECIPE_DIR")
+        recipe_dir_path = Path(os.path.expanduser(recipe_dir))
+        filepath = os.path.join(recipe_dir, filename)
+        matched_override_dir = ""
+
+        # first, look in the overrides directory
+        if self.env.get("RECIPE_OVERRIDE_DIRS"):
+            matched_filepath = ""
+            for d in self.env["RECIPE_OVERRIDE_DIRS"]:
+                override_dir_path = Path(os.path.expanduser(d))
+                if (
+                    override_dir_path == recipe_dir_path
+                    or override_dir_path in recipe_dir_path.parents
+                ):
+                    self.output(f"Matching dir: {override_dir_path}", verbose_level=3)
+                    matched_override_dir = override_dir_path
+                for path in Path(os.path.expanduser(d)).rglob(filename):
+                    matched_filepath = str(path)
+                    break
+            if matched_filepath:
+                self.output(f"File found at: {matched_filepath}")
+                return matched_filepath
+
+        # second, look in the same directory as the recipe
+        self.output(f"Looking for {filename} in {recipe_dir}", verbose_level=3)
+        if os.path.exists(filepath):
+            self.output(f"File found at: {filepath}")
+            return filepath
+
+        # third, try to match the recipe's dir with one of the recipe search dirs
+        if self.env.get("RECIPE_SEARCH_DIRS"):
+            matched_filepath = ""
+            for d in self.env["RECIPE_SEARCH_DIRS"]:
+                search_dir_path = Path(os.path.expanduser(d))
+                if (
+                    search_dir_path == recipe_dir_path
+                    or search_dir_path in recipe_dir_path.parents
+                ):
+                    # matching search dir, look for file in here
+                    self.output(f"Matching dir: {search_dir_path}", verbose_level=3)
+                    for path in Path(os.path.expanduser(d)).rglob(filename):
+                        matched_filepath = str(path)
+                        break
+                if matched_filepath:
+                    self.output(f"File found at: {matched_filepath}")
+                    return matched_filepath
+
+        # fourth, look in the parent recipe's directory if we are an override
+        if matched_override_dir:
+            if self.env.get("PARENT_RECIPES"):
+                matched_filepath = ""
+                parent = self.env["PARENT_RECIPES"][0]
+                self.output(f"Parent Recipe: {parent}", verbose_level=2)
+                parent_dir = os.path.dirname(parent)
+                # grab the root of this repo
+                parent_dir_path = Path(os.path.expanduser(parent_dir))
+                for d in self.env["RECIPE_SEARCH_DIRS"]:
+                    search_dir_path = Path(os.path.expanduser(d))
+                    if (
+                        search_dir_path == parent_dir_path
+                        or search_dir_path in parent_dir_path.parents
+                    ):
+                        # matching parent dir, look for file in here
+                        self.output(f"Matching dir: {search_dir_path}", verbose_level=3)
+                        for path in Path(os.path.expanduser(d)).rglob(filename):
+                            matched_filepath = str(path)
+                            break
+                    if matched_filepath:
+                        self.output(f"File found at: {matched_filepath}")
+                        return matched_filepath
 
     def is_base64(self, s: str) -> bool:
         """Returns boolean whether the passed string is a base64-endcoded value.
@@ -357,7 +437,8 @@ class IconGenerator(DmgMounter):
                 source_icon.lower().endswith(".icns")
                 or source_icon.lower().endswith(".png")
             ) and os.path.exists(source_icon):
-                icon_path = source_icon
+                app_icon_path = self.get_path_to_file(source_icon)
+                # icon_path = source_icon
             else:
                 # invalid icon provided
                 raise ProcessorError("Provided icon is not valid.")
@@ -378,13 +459,11 @@ class IconGenerator(DmgMounter):
                 raise ProcessorError(
                     f"Unable to determine app icon path for app at {app_path}."
                 )
-            icon_path = self.save_icon_to_destination(
-                app_icon_path, app_icon_output_path
-            )
         else:
             # no icon provided
-            raise ProcessorError("Unable to determine app icon path.")
+            raise ProcessorError("Unable to determine icon path.")
 
+        icon_path = self.save_icon_to_destination(app_icon_path, app_icon_output_path)
         self.env["app_icon_path"] = icon_path
 
         # Create an 'install' version if requested
