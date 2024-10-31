@@ -8,6 +8,7 @@ To use these processors, add the processor as so:
 
 -   [ChangeModeOwner](#ChangeModeOwner)
 -   [ChoicesXMLGenerator](#ChoicesXMLGenerator)
+-   [IconGenerator](#IconGenerator)
 -   [JSSRecipeReceiptChecker](#JSSRecipeReceiptChecker)
 -   [NSURLDownloader](#NSURLDownloader)
 -   [SMBMounter](#SMBMounter)
@@ -72,6 +73,76 @@ Generates a `choices.xml` file for use with an installer. A postinstall script i
 ## Output variables
 
 -   None
+
+# IconGenerator
+
+## Description
+
+An AutoPkg processor based on [AppIconExtractor](https://github.com/autopkg/haircut-recipes/blob/master/Processors/AppIconExtractor.py) with the alternative option to supply an icon rather than point to an app. See [Haircut's Blog Post](https://macblog.org/autopkg-icons/) about AppIconEtractor.
+
+## Input variables
+
+-   **source_icon:**
+
+    -   **required:** False
+    -   **description:** The input path of the icon. This can be supplied as an alternative to the app path. If just an icon name is supplied without a path, the repo that the recipe is in, or the folder that it's in, will be searched to look for the icon.
+
+-   **source_app:**
+
+    -   **required:** False
+    -   **description:** Path to the .app from which to extract an icon. Can point to a path inside a .dmg which will be mounted. This path may also contain basic globbing characters such as the wildcard '*', but only the first result will be returned.
+
+-   **icon_output_path:**
+
+    -   **required:** False
+    -   **description:** The output path to write the .png icon. If not set, defaults to %RECIPE_CACHE_DIR%/%NAME%.png
+    -   **default:** `""`
+
+-   **composite_install_path:**
+    -   **required:** False
+    -   **description:** The output path to write the composited 'install' icon .png, where `composite_install_template` is superimposed on top of the app icon. If not set, no 'install' composite icon will be created.
+
+-   **composite_install_template:**
+    -   **required:** False
+    -   **description:** Path to a template icon to composite on top of the app's icon to create an 'install' icon version. If not set, a default template icon is used.
+
+-   **composite_update_path:**
+    -   **required:** False
+    -   **description:** The output path to write the composited 'update' icon .png, where `composite_update_template` is superimposed on top of the app icon. If not set, no 'update' composite icon will be created.
+
+-   **composite_update_template:**
+    -   **required:** False
+    -   **description:** Path to a template icon to composite on top of the app's icon to create an 'update' icon version. If not set, a default template icon is used.
+
+-   **composite_uninstall_path:**
+    -   **required:** False
+    -   **description:** The output path to write the composited 'uninstall' icon .png, where `composite_uninstall_template` is superimposed on top of the app icon. If not set, no 'uninstall' composite icon will be created.
+
+-   **composite_uninstall_template:**
+    -   **required:** False
+    -   **description:** Path to a template icon to composite on top of the app's icon to create an 'uninstall' icon version. If not set, a default template icon is used.
+
+-   **composite_position:**
+    -   **required:** False
+    -   **description:** The anchor position at which to add the composited template icons. One of: `br` (bottom right), `bl` (bottom left), `ur` (upper right), or ul (upper left). Defaults to `br`.
+
+-   **composite_padding:**
+    -   **required:** False
+    -   **description:** The number of both horizontal and vertical pixels to add as padding from the edge of the app icon when compositing a template icon on top. Defaults to `10`.
+
+## Output variables
+
+-   **app_icon_path:**
+    -   **description:** The path on disk to the plain, uncomposited app icon.
+
+-   **install_icon_path:**
+    -   **description:** The path on disk to the 'install' composited icon variation, if requested.
+
+-   **app_icon_path:**
+    -   **description:** The path on disk to the 'update' composited icon variation, if requested.
+
+-   **app_icon_path:**
+    -   **description:** The path on disk to the 'uninstall' composited icon variation, if requested.
 
 # JSSRecipeReceiptChecker
 
