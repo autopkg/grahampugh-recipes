@@ -379,17 +379,17 @@ class IconGenerator(DmgMounter):
         #      passed a larger representation that may not be available.
         #   4. PRs accepted for improvements :)
         try:
-            icon.info.get("sizes")
-            if (128, 128, 2) in icon.info.get("sizes"):
-                icon.size = (128, 128, 2)
-            elif (256, 256) in icon.info.get("sizes"):
-                icon.size = (256, 256)
+            bg.info.get("sizes")
+            if (128, 128, 2) in bg.info.get("sizes"):
+                bg.size = (128, 128, 2)
+            elif (256, 256) in bg.info.get("sizes"):
+                bg.size = (256, 256)
             else:
-                self.output("Resizing icon to 256px.")
-                icon = icon.resize((256, 256))
+                self.output("Resizing background image to 256px.")
+                bg = bg.resize((256, 256))
         except TypeError:
-            self.output("Resizing icon to 256px.")
-            icon = icon.resize((256, 256))
+            self.output("Resizing background image to 256px.")
+            bg = bg.resize((256, 256))
         bg.convert("RGBA")
         bg.load()
         # Open the foreground template
