@@ -1,6 +1,6 @@
 Description: Installs the latest version of Visual Studio Code.
 Identifier: com.github.grahampugh.install.VisualStudioCode
-ParentRecipe: com.github.killahquam.download.visualstudiocode
+ParentRecipe: com.github.valdore86.download.visualstudiocode
 MinimumVersion: "2.3"
 
 Input:
