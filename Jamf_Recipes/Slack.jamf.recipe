@@ -3,7 +3,7 @@
 <plist version="1.0">
 	<dict>
 		<key>Comment</key>
-		<string>Recipe automatically generated from com.github.killahquam.jss.slack by JamfRecipeMaker</string>
+	<string>Recipe automatically generated from com.github.killahquam.jss.slack by JamfRecipeMaker, and updated to parent com.github.rtrouton.pkg.SlackUniversal</string>
 		<key>Identifier</key>
 		<string>com.github.autopkg.grahampugh-recipes.jamf.Slack</string>
 		<key>Input</key>
@@ -36,7 +36,7 @@
 		<key>MinimumVersion</key>
 		<string>2.3</string>
 		<key>ParentRecipe</key>
-		<string>com.github.killahquam.pkg.slack</string>
+		<string>com.github.rtrouton.pkg.SlackUniversal</string>
 		<key>Process</key>
 		<array>
 			<dict>
