@@ -156,15 +156,21 @@ class IconGenerator(DmgMounter):
     def get_path_to_file(self, filename):
         """Find a file in a recipe without requiring a path. Looks in the following places
         in the following order:
-        1. RecipeOverrides directory/ies
-        2. Same directory as the recipe
-        3. Same repo (recipe search directory) as the recipe
-        4. Parent recipe's repo (recipe search directory) if recipe is an override
+        1. Absolute path
+        2. RecipeOverrides directory/ies
+        3. Same directory as the recipe
+        4. Same repo (recipe search directory) as the recipe
+        5. Parent recipe's repo (recipe search directory) if recipe is an override
         Relative paths also work."""
         recipe_dir = self.env.get("RECIPE_DIR")
         recipe_dir_path = Path(os.path.expanduser(recipe_dir))
         filepath = os.path.join(recipe_dir, filename)
         matched_override_dir = ""
+
+        # first, check for an absolute path
+        if "/" in filename:
+            self.output(f"Absolute filepath given: {filename}")
+            return filename
 
         # first, look in the overrides directory
         if self.env.get("RECIPE_OVERRIDE_DIRS"):
