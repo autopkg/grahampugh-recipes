@@ -15,15 +15,14 @@
 # limitations under the License.
 """See docstring for SubDirectoryList class"""
 
-
 from __future__ import absolute_import
 
-from builtins import str
-import subprocess
-
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 import plistlib
 import re
+import subprocess
+
+from builtins import str
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["ChoicesXMLGenerator"]
 
@@ -61,7 +60,14 @@ class ChoicesXMLGenerator(Processor):
         """Invoke the installer showChoicesXML command and return
         the contents"""
         (choices_result, error) = subprocess.Popen(
-            ["/usr/sbin/installer", "-showChoicesXML", "-pkg", choices_pkg_path, "-target", "/"],
+            [
+                "/usr/sbin/installer",
+                "-showChoicesXML",
+                "-pkg",
+                choices_pkg_path,
+                "-target",
+                "/",
+            ],
             stdout=subprocess.PIPE,
         ).communicate()
         if choices_result:

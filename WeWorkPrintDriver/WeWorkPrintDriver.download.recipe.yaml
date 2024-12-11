@@ -1,0 +1,28 @@
+Description: Downloads the latest version of the WeWork Printer Driver.
+Identifier: com.github.grahampugh.recipes.download.WeWorkPrintDriver
+MinimumVersion: "2.3"
+
+Input:
+  NAME: WeWork Printer Driver
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://it-assets.s3.amazonaws.com/printing/WeWork-Printer-Mac-Installer.zip"
+
+  - Processor: EndOfCheckPhase
+
+  - Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: True
+    Processor: Unarchiver
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      expected_authority_names:
+        - "Developer ID Installer: Y Soft Corporation, a.s. (3CPED8WGS9)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+      input_path: "%RECIPE_CACHE_DIR%/unzip/*.pkg"
+

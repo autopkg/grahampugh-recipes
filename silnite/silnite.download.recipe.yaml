@@ -8,7 +8,7 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (?P<url>https:\/\/eclecticlightdotcom\.files\.wordpress.com/.*/silnite.[\d+]\.zip)
+      re_pattern: (?P<url>https://eclecticlight\.co/.*/silnite.[\d+]\.zip)
       url: https://eclecticlight.co/downloads/
 
   - Processor: URLDownloader

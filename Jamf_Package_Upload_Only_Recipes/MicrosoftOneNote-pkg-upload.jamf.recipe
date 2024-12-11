@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>2.3</string>
 	<key>ParentRecipe</key>
-	<string>com.github.jss-recipes.jss.MicrosoftOneNote</string>
+	<string>com.github.rtrouton.pkg.microsoftonenote365</string>
 	<key>Process</key>
 	<array>
 		<dict>

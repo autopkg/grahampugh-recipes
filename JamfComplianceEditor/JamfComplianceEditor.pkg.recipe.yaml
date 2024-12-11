@@ -7,11 +7,7 @@ Input:
   NAME: Jamf Compliance Editor
 
 Process:
-  - Processor: AppPkgCreator
+  - Processor: PkgCopier
     Arguments:
-      app_path: "%RECIPE_CACHE_DIR%/unzip/Jamf Compliance Editor.app"
-
-  - Processor: PathDeleter
-    Arguments:
-      path_list:
-        - "%RECIPE_CACHE_DIR%/unzip"
+      pkg_path: "%RECIPE_CACHE_DIR%/JamfComplianceEditor-%version%.pkg"
+      source_pkg: "%pathname%"

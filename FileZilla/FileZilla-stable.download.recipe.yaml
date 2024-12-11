@@ -10,16 +10,22 @@ Process:
   - Arguments:
       re_pattern: <p>The latest stable version of FileZilla Client is (?P<dl_version>.*)<\/p>
       url: "%SEARCH_URL%"
+      request_headers:
+        user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15
     Processor: URLTextSearcher
 
   - Arguments:
       re_pattern: '"(?P<url>https://.*/client/FileZilla_.*_macos-x86\S+)"'
       url: "%SEARCH_URL%"
+      request_headers:
+        user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15
     Processor: URLTextSearcher
 
   - Arguments:
       CHECK_FILESIZE_ONLY: true
       filename: "%NAME%-%dl_version%.tar.bz2"
+      request_headers:
+        user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15
     Processor: URLDownloader
 
   - Processor: EndOfCheckPhase

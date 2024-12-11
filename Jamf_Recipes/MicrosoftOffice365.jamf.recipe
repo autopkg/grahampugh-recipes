@@ -2,20 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
-		<key>Comment</key>
-		<string>Recipe automatically generated from com.github.jss-recipes.jss.MicrosoftOneNote by JamfRecipeMaker</string>
 		<key>Identifier</key>
-		<string>com.github.autopkg.grahampugh-recipes.jamf.MicrosoftOneNote</string>
+		<string>com.github.autopkg.grahampugh-recipes.jamf.MicrosoftOffice365</string>
 		<key>Input</key>
 		<dict>
 			<key>CATEGORY</key>
 			<string>Productivity</string>
+			<key>JSS_INVENTORY_NAME</key>
+			<string>Microsoft Word.app</string>
 			<key>GROUP_NAME</key>
-			<string>Microsoft OneNote-update-smart</string>
+			<string>Microsoft Office 365-update-smart</string>
 			<key>GROUP_TEMPLATE</key>
 			<string>JamfSmartGroupTemplate.xml</string>
 			<key>NAME</key>
-			<string>Microsoft OneNote</string>
+			<string>Microsoft Office 365</string>
 			<key>POLICY_CATEGORY</key>
 			<string>Testing</string>
 			<key>POLICY_NAME</key>
@@ -23,7 +23,7 @@
 			<key>POLICY_TEMPLATE</key>
 			<string>JamfPolicyTemplate.xml</string>
 			<key>SELF_SERVICE_DESCRIPTION</key>
-			<string>Microsoft OneNote allows free-form information gathering and multi-user collaboration. It gathers users' notes (handwritten or typed), drawings, screen clippings and audio commentaries.</string>
+			<string>Microsoft Office 365 is a popular and powerful suite of productivity apps.</string>
 			<key>SELF_SERVICE_DISPLAY_NAME</key>
 			<string>Install Latest %NAME%</string>
 			<key>SELF_SERVICE_ICON</key>
@@ -36,7 +36,7 @@
 		<key>MinimumVersion</key>
 		<string>2.3</string>
 		<key>ParentRecipe</key>
-		<string>com.github.jss-recipes.jss.MicrosoftOneNote</string>
+		<string>com.github.grahampugh.recipes.pkg.MicrosoftOffice365</string>
 		<key>Process</key>
 		<array>
 			<dict>

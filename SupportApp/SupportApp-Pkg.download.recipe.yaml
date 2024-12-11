@@ -7,7 +7,7 @@ Input:
 
 Process:
   - Arguments:
-      asset_regex: .*\.pkg$
+      asset_regex: Support\..*\.pkg$
       github_repo: root3nl/SupportApp
     Processor: GitHubReleasesInfoProvider
 

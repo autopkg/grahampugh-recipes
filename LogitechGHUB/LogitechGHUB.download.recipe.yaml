@@ -1,0 +1,24 @@
+Description: Downloads the current version of Logitech G HUB.
+Identifier: com.github.grahampugh.recipes.download.LogitechGHUB
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Logitech G HUB
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://download01.logi.com/web/ftp/pub/techsupport/gaming/lghub_installer.zip"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unzip"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/unzip/lghub_installer.app"
+      requirement: identifier "com.logi.ghub.installer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QED4VVPZWA

@@ -1,0 +1,14 @@
+Description: Downloads the latest packaged version of the Support App Helper developed by Root3.
+Identifier: com.github.grahampugh.recipes.pkg.SupportHelper
+ParentRecipe: com.github.grahampugh.recipes.download.SupportHelper
+MinimumVersion: "2.3"
+
+Input:
+  NAME: SupportHelper
+
+Process:
+  - Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/SupportHelper-%version%.pkg"
+      source_pkg: "%pathname%"
+    Comment: Although the package version in GitHub is unrelated to that of the Support app itself, I considered it appropriate (and easiest) to re-push this package when the main app is updated, so I am using the version string of the main Support app.
+    Processor: PkgCopier

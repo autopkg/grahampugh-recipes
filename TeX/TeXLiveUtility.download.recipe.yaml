@@ -1,4 +1,4 @@
-Description: Downloads the latest TeXLive Utility release and renames the pkg to include the version number.
+Description: Downloads the latest version of TeX Live Utility.
 Identifier: com.github.grahampugh.recipes.download.TeXLiveUtility
 MinimumVersion: "2.3"
 
@@ -6,15 +6,23 @@ Input:
   NAME: TeXLive Utility
 
 Process:
-  - Processor: GitHubReleasesInfoProvider
+  - Processor: SparkleUpdateInfoProvider
     Arguments:
-      github_repo: amaxwell/tlutility
+      appcast_url: https://raw.githubusercontent.com/amaxwell/tlutility/master/appcast/tlu_appcast.xml
 
   - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%-%version%.zip"
 
   - Processor: EndOfCheckPhase
 
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%"
+      purge_destination: true
+
   - Processor: CodeSignatureVerifier
     Arguments:
-      input_path: "%pathname%/TeX Live Utility.app"
-      requirement: identifier "com.googlecode.mactlmgr.tlu" and certificate leaf = H"9762c300630034b23fe0eeb054acc8bc889f1346"
+      input_path: "%RECIPE_CACHE_DIR%/%NAME%/TeX Live Utility.app"
+      requirement: identifier "com.googlecode.mactlmgr.tlu" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "966Z24PX4J"

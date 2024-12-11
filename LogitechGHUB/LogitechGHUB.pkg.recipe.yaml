@@ -1,0 +1,62 @@
+Identifier: com.github.grahampugh.recipes.pkg.LogitechGHUB
+ParentRecipe: com.github.grahampugh.recipes.download.LogitechGHUB
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Logitech G HUB
+
+Process:
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgdirs: {}
+      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgdirs: {}
+      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+
+  - Processor: PlistReader
+    Arguments:
+      info_path: "%RECIPE_CACHE_DIR%/unzip/lghub_installer.app/Contents/Info.plist"
+      plist_keys:
+        CFBundleVersion: version
+
+  - Processor: Copier
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/Scripts/lghub_installer.app"
+      overwrite: true
+      source_path: "%RECIPE_CACHE_DIR%/unzip/lghub_installer.app"
+
+  - Processor: FileCreator
+    Arguments:
+      file_content: |
+        #!/bin/bash
+
+        DIR=$(dirname "$0")
+
+        if "$DIR/lghub_installer.app/Contents/MacOS/lghub_installer" --silent
+        then
+            echo "Logitech G Hub installed successfully"
+            sleep 2
+            pkill lghub
+        else
+            echo "ERROR: Logitech G Hub installation failed"
+            finish
+            exit 1
+        fi
+      file_mode: "0755"
+      file_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
+
+  - Processor: PkgCreator
+    Arguments:
+      force_pkg_build: false
+      pkg_request:
+        chown: []
+        id: com.logi.ghub
+        options: purge_ds_store
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+        pkgtype: flat
+        scripts: Scripts
+      pkgname: "LogitechGHUB-%version%"

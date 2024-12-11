@@ -1,8 +1,19 @@
 #!/usr/local/autopkg/python
 
 """
-JamfUploaderBase - used only as a template for copying into the JamfUploader processors
-    by G Pugh
+Copyright 2023 Graham Pugh
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
 import json
@@ -10,7 +21,7 @@ import os
 import re
 import subprocess
 import tempfile
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 from base64 import b64encode
 from collections import namedtuple
@@ -19,19 +30,22 @@ from datetime import timedelta
 from html.parser import HTMLParser
 from pathlib import Path
 from shutil import rmtree
-from urllib.parse import quote
+from urllib.parse import urlparse, quote
 from xml.sax.saxutils import escape
 
 # from time import sleep
 
-from autopkglib import (
+from autopkglib import (  # pylint: disable=import-error
     Processor,
     ProcessorError,
-)  # pylint: disable=import-error
+)
 
 
 class JamfUploaderBase(Processor):
-    """A processor for AutoPkg that will upload a category to a Jamf Cloud or on-prem server."""
+    """Common functions used by at least two JamfUploader processors."""
+
+    # Global version
+    __version__ = "2024.10.17.0"
 
     def api_endpoints(self, object_type):
         """Return the endpoint URL from the object type"""
@@ -51,6 +65,7 @@ class JamfUploaderBase(Processor):
             "mac_application": "JSSResource/macapplications",
             "mobile_device_group": "JSSResource/mobiledevicegroups",
             "package": "JSSResource/packages",
+            "package_v1": "api/v1/packages",
             "package_upload": "dbfileupload",
             "patch_policy": "JSSResource/patchpolicies",
             "patch_software_title": "JSSResource/patchsoftwaretitles",
@@ -112,11 +127,11 @@ class JamfUploaderBase(Processor):
         """dump the token, expiry, url and user as json to a temporary token file"""
         data["url"] = url
         data["user"] = self.jamf_user
-        if not self.env.get("jamfupload_token"):
-            self.env["jamfupload_token"] = self.init_temp_file(
+        if not self.env.get("jamfupload_token_file"):
+            self.env["jamfupload_token_file"] = self.init_temp_file(
                 prefix="jamf_upload_token_"
             )
-        with open(self.env["jamfupload_token"], "w") as fp:
+        with open(self.env["jamfupload_token_file"], "w") as fp:
             json.dump(data, fp)
 
     def write_xml_file(self, data):
@@ -156,8 +171,12 @@ class JamfUploaderBase(Processor):
         enc_creds = str(enc_creds_bytes, "utf-8")
         return enc_creds
 
-    def check_api_token(self, url, token_file="/tmp/jamf_upload_token"):
+    def check_api_token(self, url):
         """Check validity of an existing token"""
+        if self.env.get("jamfupload_token_file"):
+            token_file = self.env["jamfupload_token_file"]
+        else:
+            token_file = ""
         if os.path.exists(token_file):
             with open(token_file, "rb") as file:
                 data = json.load(file)
@@ -358,6 +377,7 @@ class JamfUploaderBase(Processor):
         if url:
             curl_cmd = [
                 "/usr/bin/curl",
+                "--location",
                 "--dump-header",
                 headers_file,
                 url,
@@ -365,8 +385,11 @@ class JamfUploaderBase(Processor):
         else:
             raise ProcessorError("No URL supplied")
 
-        # allow use of a self-signed certificate
+        # set User-Agent
+        user_agent = f"JamfUploader/{self.__version__}"
+        curl_cmd.extend(["--header", f"User-Agent: {user_agent}"])
 
+        # allow use of a self-signed certificate
         # insecure mode
         if self.env.get("insecure_mode"):
             curl_cmd.extend(["--insecure"])
@@ -398,6 +421,14 @@ class JamfUploaderBase(Processor):
                 curl_cmd.extend(["--header", "Accept: application/xml"])
             else:
                 curl_cmd.extend(["--header", "Accept: application/json"])
+        # for uploading a package we need to return JSON
+        elif request == "POST" and endpoint_type == "package":
+            curl_cmd.extend(["--header", "Accept: application/json"])
+
+        # icon upload (Jamf Pro API)
+        elif endpoint_type == "package_v1":
+            curl_cmd.extend(["--header", "Content-type: multipart/form-data"])
+            curl_cmd.extend(["--form", f"file=@{data}"])
 
         # icon upload (Classic API)
         elif endpoint_type == "policy_icon":
@@ -460,6 +491,10 @@ class JamfUploaderBase(Processor):
         if additional_curl_opts:
             curl_cmd.extend(additional_curl_opts)
 
+        # add custom curl options specified
+        if self.env.get("custom_curl_opts"):
+            curl_cmd.extend(self.env.get("custom_curl_opts"))
+
         self.output(f"curl command: {' '.join(curl_cmd)}", verbose_level=3)
 
         # now subprocess the curl command and build the r tuple which contains the
@@ -501,6 +536,8 @@ class JamfUploaderBase(Processor):
             action = "upload"
         elif request == "GET":
             action = "download"
+        else:
+            action = "unknown"
 
         if r.status_code == 200 or r.status_code == 201:
             if endpoint_type == "jcds":
@@ -509,42 +546,11 @@ class JamfUploaderBase(Processor):
                 self.output(f"{endpoint_type} '{obj_name}' {action} successful")
             return "break"
         else:
-            parser = self.ParseHTMLForError()
-            try:
-                parser.feed(r.output.decode())
-            except AttributeError:
-                self.output("Could not parse output for error type", verbose_level=2)
-            if parser.error:
-                self.output(f"API {parser.error}", verbose_level=2)
             self.output(f"API response:\n{r.output}", verbose_level=3)
-            if r.status_code == 409:
+            if r.status_code >= 400:
                 raise ProcessorError(
-                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to the following "
-                    f"conflict: {parser.error.replace('Error: ', '')}"
-                )
-            elif r.status_code == 400:
-                raise ProcessorError(
-                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to the following "
-                    f"{parser.data[6]}: {parser.data[8]}"
-                )
-            elif r.status_code == 401:
-                raise ProcessorError(
-                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to permissions error"
-                )
-            elif r.status_code == 405:
-                raise ProcessorError(
-                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to a "
-                    "'method not allowed' error"
-                )
-            elif r.status_code == 500:
-                raise ProcessorError(
-                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to an "
-                    "internal server error"
-                )
-            else:
-                self.output(
-                    f"UNKNOWN ERROR: {endpoint_type} '{obj_name}' {action} failed. "
-                    "Will try again."
+                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed due to: "
+                    + r.output["errors"][0]["description"]
                 )
 
     def get_jamf_pro_version(self, jamf_url, token):
@@ -561,9 +567,11 @@ class JamfUploaderBase(Processor):
                 self.output(f"ERROR: No version of Jamf Pro received.  Error:\n{error}")
                 raise ProcessorError("No version of Jamf Pro received") from error
 
-    def get_uapi_obj_id_from_name(self, jamf_url, object_type, object_name, token):
+    def get_uapi_obj_id_from_name(
+        self, jamf_url, object_type, object_name, token, filter_name="name"
+    ):
         """Get the Jamf Pro API object by name. This requires use of RSQL filtering"""
-        url_filter = f"?page=0&page-size=1000&sort=id&filter=name%3D%3D%22{quote(object_name)}%22"
+        url_filter = f"?page=0&page-size=1000&sort=id&filter={filter_name}%3D%3D%22{quote(object_name)}%22"
         url = jamf_url + "/" + self.api_endpoints(object_type) + url_filter
         r = self.curl(request="GET", url=url, token=token)
         if r.status_code == 200:
@@ -571,9 +579,12 @@ class JamfUploaderBase(Processor):
             # output = json.loads(r.output)
             output = r.output
             for obj in output["results"]:
-                self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
-                if obj["name"] == object_name:
+                self.output(
+                    f"ID: {obj['id']} NAME: {obj[filter_name]}", verbose_level=3
+                )
+                if obj[filter_name] == object_name:
                     obj_id = obj["id"]
+                    break
             return obj_id
 
     def get_api_obj_id_from_name(self, jamf_url, object_name, object_type, token):
@@ -626,14 +637,12 @@ class JamfUploaderBase(Processor):
             for found_key in found_keys:
                 if self.env.get(found_key) is not None:
                     self.output(
-                        (
-                            f"Replacing any instances of '{found_key}' with",
-                            f"'{str(self.env.get(found_key))}'",
-                        ),
+                        f"Replacing any instances of '{found_key}' with "
+                        f"'{str(self.env.get(found_key))}'",
                         verbose_level=2,
                     )
                     if xml_escape and type(self.env.get(found_key)) is not int:
-                        replacement_key = escape(self.env.get(found_key))
+                        replacement_key = escape(str(self.env.get(found_key)))
                     else:
                         replacement_key = self.env.get(found_key)
                     data = data.replace(f"%{found_key}%", str(replacement_key))
@@ -849,6 +858,41 @@ class JamfUploaderBase(Processor):
         # Print new scope element for debugging
         self.output(template_contents, verbose_level=2)
         return template_contents
+
+    def mount_smb(self, mount_share, mount_user, mount_pass):
+        """Mount distribution point."""
+        mount_cmd = [
+            "/usr/bin/osascript",
+            "-e",
+            (
+                f'mount volume "{mount_share}" as user name "{mount_user}" '
+                f'with password "{mount_pass}"'
+            ),
+        ]
+        self.output(
+            f"Mount command: {' '.join(mount_cmd)}",
+            verbose_level=4,
+        )
+
+        r = subprocess.check_output(mount_cmd)
+        self.output(
+            r.decode("ascii"),
+            # r,
+            verbose_level=4,
+        )
+
+    def umount_smb(self, mount_share):
+        """Unmount distribution point."""
+        path = f"/Volumes{urlparse(mount_share).path}"
+        cmd = ["/usr/sbin/diskutil", "unmount", path]
+        try:
+            r = subprocess.check_output(cmd)
+            self.output(
+                r.decode("ascii"),
+                verbose_level=2,
+            )
+        except subprocess.CalledProcessError:
+            self.output("WARNING! Unmount failed.")
 
     class ParseHTMLForError(HTMLParser):
         def __init__(self):

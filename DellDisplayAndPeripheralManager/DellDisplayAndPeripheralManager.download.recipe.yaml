@@ -12,7 +12,6 @@ Process:
       url: https://www.delldisplaymanagermac.com
 
   - Processor: URLDownloader
-    Comment: user-agent is required to allow download using curl
     Arguments:
       url: "%match%"
 
@@ -26,8 +25,7 @@ Process:
 
   - Processor: FileFinder
     Arguments:
-      pattern: '%RECIPE_CACHE_DIR%/unzip/**/DDPM_Installer.pkg'
-    
+      pattern: "%RECIPE_CACHE_DIR%/unzip/**/DDPM_Installer.pkg"
 
   - Processor: CodeSignatureVerifier
     Arguments:

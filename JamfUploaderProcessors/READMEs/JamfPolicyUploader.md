@@ -28,7 +28,7 @@ A processor for AutoPkg that will upload a policy to a Jamf Cloud or on-prem ser
   - **required:** False
   - **description:** Full path to Self Service icon
 - **policy_template:**
-  - **required:** False
+  - **required:** True
   - **description:** Full path to the XML template
 - **replace_policy:**
   - **required:** False
