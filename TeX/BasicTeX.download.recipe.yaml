@@ -4,7 +4,7 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: BasicTeX
-  DOWNLOAD_URL: https://tug.org/cgi-bin/mactex-download/BasicTeX.pkg
+  DOWNLOAD_URL: https://mirror.ctan.org/systems/mac/mactex/BasicTeX.pkg
 
 Process:
   - Processor: URLTextSearcher
