@@ -885,7 +885,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                 ),
                 verbose_level=2,
             )
-            self.smb_shares.append(
+            smb_shares.append(
                 (
                     self.env.get("SMB_URL"),
                     self.env.get("SMB_USERNAME"),
@@ -931,7 +931,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                     or not share["SMB_PASSWORD"]
                 ):
                     raise ProcessorError("Incorrect SMB credentials supplied.")
-                self.smb_shares.append(
+                smb_shares.append(
                     (
                         share["SMB_URL"],
                         share["SMB_USERNAME"],
