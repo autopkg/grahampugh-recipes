@@ -8,6 +8,10 @@ Input:
 
 Process:
   - Arguments:
+      warning_message: Consider switching to the FreeFileSync recipes in the keeleysam-recipes repo. This recipe is deprecated and will be removed in the future.
+    Processor: DeprecationWarning
+
+  - Arguments:
       re_pattern: <p>The latest stable version of FileZilla Client is (?P<dl_version>.*)<\/p>
       url: "%SEARCH_URL%"
       request_headers:
