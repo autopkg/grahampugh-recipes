@@ -9,6 +9,10 @@ Input:
   RELEASE: still
 
 Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: Consider switching to the LibreOfficeLangPack recipes in the wycomco-recipes repo. This recipe is deprecated and will be removed in the future.
+
   - Processor: com.github.sebtomasi.SharedProcessors/RenameVar
     Arguments:
       input_var: "%pathname%"
