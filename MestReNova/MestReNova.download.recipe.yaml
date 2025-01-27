@@ -8,6 +8,10 @@ Input:
   SEARCH_URL: https://mestrelab.com/download/mnova/
 
 Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: "Consider switching to the MestReNova recipes in the andrewvalentine-recipes repo. This recipe is deprecated and will be removed in the future."
+
   - Processor: URLTextSearcher
     Arguments:
       re_pattern: MestReNova-(?P<urlversion>(?P<version>.*?)-.*?)\.dmg
