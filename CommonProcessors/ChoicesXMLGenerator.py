@@ -46,6 +46,11 @@ class ChoicesXMLGenerator(Processor):
             "description": "Path to save the choices.xml file.",
             "required": False,
         },
+        "recursive_child_items": {
+            "description": "Enables recursively identifying child items of child items",
+            "default": "False",
+            "required": False,
+        }
     }
     output_variables = {}
 
@@ -83,13 +88,15 @@ class ChoicesXMLGenerator(Processor):
         if error:
             raise ProcessorError("No Plist generated from installer command")
 
-    def parse_choices_list(self, child_items, desired_choices):
+    def parse_choices_list(self, child_items, desired_choices, recursive_child_items = False):
         """Generates the python dictionary of choices.
         Desired choices are given the choice attribute '1' (chosen).
         Other choices found are given the choice attribute '0'
         (not chosen)."""
         parsed_choices = []
         for child_dict in child_items:
+            if recursive_child_items and child_dict["childItems"]:
+                parsed_choices.extend(self.parse_choices_list(child_dict["childItems"], desired_choices, recursive_child_items))
             try:
                 choice_identifier = child_dict["choiceIdentifier"]
                 if choice_identifier in desired_choices:
@@ -127,14 +134,17 @@ class ChoicesXMLGenerator(Processor):
         choices_pkg_path = self.env.get("choices_pkg_path")
         desired_choices = self.env.get("desired_choices")
         choices_xml_dest = self.env.get("choices_xml_dest")
+        recursive_child_items = False
 
         if not choices_pkg_path:
             self.output("No package selected!")
         if not desired_choices:
             self.output("No choices means an empty package!")
+        if str(self.env.get("recursive_child_items")).lower() == "true":
+            recursive_child_items = True
 
         child_items = self.output_showchoicesxml(choices_pkg_path)
-        parsed_choices = self.parse_choices_list(child_items, desired_choices)
+        parsed_choices = self.parse_choices_list(child_items, desired_choices, recursive_child_items)
         self.write_choices_xml(parsed_choices, choices_xml_dest)
 
 
