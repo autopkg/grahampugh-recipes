@@ -6,6 +6,10 @@ Input:
   NAME: JSSImporter
 
 Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning: JSSImporter is no longer maintained. This recipe is deprecated and will be removed in the future.
+
   - Processor: GitHubReleasesInfoProvider
     Arguments:
       github_repo: jssimporter/JSSImporter

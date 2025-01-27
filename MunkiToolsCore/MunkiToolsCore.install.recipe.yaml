@@ -4,7 +4,7 @@ ParentRecipe: com.github.grahampugh.recipes.pkg.MunkiToolsCore
 MinimumVersion: "2.3"
 
 Input:
-  NAME: JSSImporter
+  NAME: MunkiToolsCore
 
 Process:
   - Processor: Installer
