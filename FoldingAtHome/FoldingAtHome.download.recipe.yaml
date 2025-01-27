@@ -8,27 +8,19 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (?P<url>https:\/\/download\.foldingathome\.org\/releases\/public\/release\/fah-installer\/osx-10.*fah-installer_(?P<version>.*?)_x86_64\.mpkg\.zip)
-      url: https://download.foldingathome.org
-      request_headers:
-        user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15
+      re_pattern: (?P<urlpath>macos-\d+-universal/release/fah-client_(?P<version>[\d\.]+)_universal\.pkg)
+      url: https://download.foldingathome.org/releases/public/fah-client/meta.json
 
   - Processor: URLDownloader
     Arguments:
-      url: "%url%"
+      url: "https://download.foldingathome.org/releases/public/fah-client/%urlpath%"
 
   - Processor: EndOfCheckPhase
-
-  - Processor: Unarchiver
-    Arguments:
-      archive_path: "%pathname%"
-      destination_path: "%RECIPE_CACHE_DIR%/unzip"
-      purge_destination: true
 
   - Processor: CodeSignatureVerifier
     Arguments:
       expected_authority_names:
-        - "Developer ID Installer: Joseph Coffland (M9MP6KCS4V)"
+        - "Developer ID Installer: Cauldron Development Oy (M9MP6KCS4V)"
         - Developer ID Certification Authority
         - Apple Root CA
-      input_path: "%RECIPE_CACHE_DIR%/unzip/fah-installer_%version%_x86_64.pkg"
+      input_path: "%pathname%"
