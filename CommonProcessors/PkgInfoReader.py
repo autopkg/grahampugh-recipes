@@ -161,7 +161,7 @@ class PkgInfoReader(Copier):
 
         self.output(f"Receipt: {info}", verbose_level=3)  # TEMP
 
-        return info[0]
+        return info["receipts"]
 
     def getFlatPackageInfo(self, pkgpath):
         """
@@ -555,7 +555,7 @@ class PkgInfoReader(Copier):
             cataloginfo["installed_size"] = installedsize
 
         if receiptinfo:
-            cataloginfo["receipts"] = receiptinfo["receipts"]
+            cataloginfo["receipts"] = receiptinfo
 
         if os.path.isfile(pkgitem) and not pkgitem.endswith(".dist"):
             # flat packages require 10.5.0+
