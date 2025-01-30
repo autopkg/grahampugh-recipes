@@ -141,7 +141,7 @@ class PkgInfoReader(Copier):
                             del pkgref["file"]
                         info.append(pkgref_dict[key])
 
-        return info
+        return info[0]
 
     def getReceiptInfo(self, pkgname):
         """Get receipt info from a package"""
