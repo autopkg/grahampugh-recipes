@@ -161,7 +161,7 @@ class PkgInfoReader(Copier):
 
         self.output(f"Receipt: {info}", verbose_level=3)  # TEMP
 
-        return info["receipts"]
+        return info
 
     def getFlatPackageInfo(self, pkgpath):
         """
@@ -511,7 +511,7 @@ class PkgInfoReader(Copier):
         # first query /usr/sbin/installer for restartAction
         installerinfo = self.getPkgRestartInfo(pkgitem)
         # now look for receipt/subpkg info
-        receiptinfo = self.getReceiptInfo(pkgitem)
+        receiptinfo = self.getReceiptInfo(pkgitem).get("receipts", [])
 
         name = os.path.split(pkgitem)[1]
         shortname = os.path.splitext(name)[0]
