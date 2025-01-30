@@ -362,7 +362,7 @@ class PkgInfoReader(Copier):
                     componentdir = plist["IFPkgFlagComponentDirectory"]
                     dirsToSearch.append(componentdir)
 
-            if dirsToSearch == []:
+            if not dirsToSearch:
                 dirsToSearch = [
                     "",
                     "Contents",
@@ -511,7 +511,7 @@ class PkgInfoReader(Copier):
         # first query /usr/sbin/installer for restartAction
         installerinfo = self.getPkgRestartInfo(pkgitem)
         # now look for receipt/subpkg info
-        receiptinfo = self.getReceiptInfo(pkgitem).get("receipts", [])
+        receiptinfo = self.getReceiptInfo(pkgitem)[0].get("receipts", [])
 
         name = os.path.split(pkgitem)[1]
         shortname = os.path.splitext(name)[0]
