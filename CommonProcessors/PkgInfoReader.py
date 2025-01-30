@@ -150,13 +150,16 @@ class PkgInfoReader(Copier):
             self.output(f"Examining {pkgname}")
             if os.path.isfile(pkgname):  # new flat package
                 info = self.getFlatPackageInfo(pkgname)
-
-            if os.path.isdir(pkgname):  # bundle-style package?
+            elif os.path.isdir(pkgname):  # bundle-style package?
                 info = self.getBundlePackageInfo(pkgname)
+            else:
+                raise ProcessorError(f"Package {pkgname} is not a file")
 
         elif pkgname.endswith(".dist"):
             receiptarray = self.parsePkgRefs(pkgname)
             info = {"receipts": receiptarray}
+
+        self.output(f"Receipt: {info}", verbose_level=3)  # TEMP
 
         return info
 
@@ -551,7 +554,8 @@ class PkgInfoReader(Copier):
         elif installedsize:
             cataloginfo["installed_size"] = installedsize
 
-        cataloginfo["receipts"] = receiptinfo["receipts"]
+        if receiptinfo:
+            cataloginfo["receipts"] = receiptinfo["receipts"]
 
         if os.path.isfile(pkgitem) and not pkgitem.endswith(".dist"):
             # flat packages require 10.5.0+
