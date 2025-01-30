@@ -594,7 +594,7 @@ class PkgInfoReader(Copier):
                 self.env["installer_item_size"] = cataloginfo.get("installer_item_size")
                 self.env["installed_size"] = cataloginfo.get("installed_size")
             except TypeError as e:
-                raise ProcessorError("ERROR: Missing data from pkg: " + e) from e
+                raise ProcessorError("ERROR: Missing data from pkg: " + str(e)) from e
             finally:
                 if dmg:
                     self.unmount(dmg_path)
