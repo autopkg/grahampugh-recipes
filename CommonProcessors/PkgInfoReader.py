@@ -1,5 +1,8 @@
 #!/usr/local/autopkg/python
-#
+
+# Disable pylint complaining about function names as these are inherited from Munki
+# pylint: disable=invalid-name
+
 # Copyright 2020 Graham Pugh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +31,7 @@ import tempfile
 from xml.dom import minidom
 from urllib.parse import unquote
 
-from autopkglib import APLooseVersion  # pylint: disable=import-error
+from autopkglib import APLooseVersion, ProcessorError  # pylint: disable=import-error
 from autopkglib.Copier import Copier  # pylint: disable=import-error
 
 import plistlib
@@ -55,8 +58,10 @@ class PkgInfoReader(Copier):
             "return the highest version found if multiple packages are found.",
         },
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
-        "installed_size": {"description": "The size of the app when installed (in kilobytes)."},
-        "installer_item_size": {"description": "The size of the package (in bytes)."}
+        "installed_size": {
+            "description": "The size of the app when installed (in kilobytes)."
+        },
+        "installer_item_size": {"description": "The size of the package (in bytes)."},
     }
 
     description = __doc__
@@ -123,11 +128,13 @@ class PkgInfoReader(Copier):
                                         thisdir, relativepath
                                     )
 
-                for key in pkgref_dict:
-                    pkgref = pkgref_dict[key]
+                for key, pkgref in pkgref_dict.items():
                     if "file" in pkgref:
                         if os.path.exists(pkgref["file"]):
-                            info.extend(self.getReceiptInfo(pkgref["file"]))
+                            receipts = self.getReceiptInfo(pkgref["file"]).get(
+                                "receipts", []
+                            )
+                            info.extend(receipts)
                             continue
                     if "version" in pkgref:
                         if "file" in pkgref:
@@ -143,12 +150,16 @@ class PkgInfoReader(Copier):
             self.output(f"Examining {pkgname}")
             if os.path.isfile(pkgname):  # new flat package
                 info = self.getFlatPackageInfo(pkgname)
-
-            if os.path.isdir(pkgname):  # bundle-style package?
+            elif os.path.isdir(pkgname):  # bundle-style package?
                 info = self.getBundlePackageInfo(pkgname)
+            else:
+                raise ProcessorError(f"Package {pkgname} is not a file")
 
         elif pkgname.endswith(".dist"):
-            info = self.parsePkgRefs(pkgname)
+            receiptarray = self.parsePkgRefs(pkgname)
+            info = {"receipts": receiptarray}
+
+        self.output(f"Receipt: {info}", verbose_level=3)  # TEMP
 
         return info
 
@@ -225,7 +236,7 @@ class PkgInfoReader(Copier):
                         )
 
             if not infoarray:
-                self.output("No valid Distribution or PackageInfo found.")
+                raise ProcessorError("No valid Distribution or PackageInfo found.")
         else:
             self.output(err.decode("UTF-8"))
 
@@ -351,7 +362,7 @@ class PkgInfoReader(Copier):
                     componentdir = plist["IFPkgFlagComponentDirectory"]
                     dirsToSearch.append(componentdir)
 
-            if dirsToSearch == []:
+            if not dirsToSearch:
                 dirsToSearch = [
                     "",
                     "Contents",
@@ -500,7 +511,7 @@ class PkgInfoReader(Copier):
         # first query /usr/sbin/installer for restartAction
         installerinfo = self.getPkgRestartInfo(pkgitem)
         # now look for receipt/subpkg info
-        receiptinfo = self.getReceiptInfo(pkgitem)
+        receiptinfo = self.getReceiptInfo(pkgitem)[0].get("receipts", [])
 
         name = os.path.split(pkgitem)[1]
         shortname = os.path.splitext(name)[0]
@@ -537,13 +548,14 @@ class PkgInfoReader(Copier):
         installer_item_size = os.path.getsize(pkgitem)
         cataloginfo["installer_item_size"] = installer_item_size
 
-        if "installKBytes" in receiptinfo:
-            if receiptinfo["installKBytes"] > 0:
-                cataloginfo["installed_size"] = receiptinfo["installKBytes"]
+        if "installed_size" in installerinfo:
+            if installerinfo["installed_size"] > 0:
+                cataloginfo["installed_size"] = installerinfo["installed_size"]
         elif installedsize:
             cataloginfo["installed_size"] = installedsize
 
-        cataloginfo["receipts"] = receiptinfo
+        if receiptinfo:
+            cataloginfo["receipts"] = receiptinfo
 
         if os.path.isfile(pkgitem) and not pkgitem.endswith(".dist"):
             # flat packages require 10.5.0+
@@ -553,43 +565,45 @@ class PkgInfoReader(Copier):
 
     def main(self):
         """Do the thing"""
-        # Check if we're trying to copy something inside a dmg.
-        (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(self.env["source_pkg"])
-        try:
-            if dmg:
-                # Mount dmg and copy path inside.
-                mount_point = self.mount(dmg_path)
-                source_pkg = os.path.join(mount_point, dmg_source_path)
-            else:
-                # Straight copy from file system.
-                source_pkg = self.env["source_pkg"]
+        source_pkg = self.env.get("source_pkg")
+        if os.path.exists(source_pkg):
+            # Check if we're trying to copy something inside a dmg.
+            (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(source_pkg)
+            try:
+                if dmg:
+                    # Mount dmg and copy path inside.
+                    mount_point = self.mount(dmg_path)
+                    source_pkg = os.path.join(mount_point, dmg_source_path)
 
-            # Process the path for globs
-            matches = glob.glob(source_pkg)
-            matched_source_path = matches[0]
-            if len(matches) > 1:
-                self.output(
-                    f"WARNING: Multiple paths match 'source_pkg' glob '{source_pkg}':"
-                )
-                for match in matches:
-                    self.output(f"  - {match}")
+                # Process the path for globs
+                matches = glob.glob(source_pkg)
+                matched_source_path = matches[0]
+                if len(matches) > 1:
+                    self.output(
+                        f"WARNING: Multiple paths match 'source_pkg' glob '{source_pkg}':"
+                    )
+                    for match in matches:
+                        self.output(f"  - {match}")
 
-            if [c for c in "*?[]!" if c in source_pkg]:
-                self.output(
-                    f"Using path '{matched_source_path}' matched from globbed "
-                    f"'{source_pkg}'."
-                )
+                if [c for c in "*?[]!" if c in source_pkg]:
+                    self.output(
+                        f"Using path '{matched_source_path}' matched from globbed "
+                        f"'{source_pkg}'."
+                    )
 
-            cataloginfo = self.getPackageMetaData(matched_source_path)
-            self.env["infodict"] = cataloginfo
-            self.env["version"] = cataloginfo["version"]
-            self.env["minimum_os_version"] = cataloginfo["minimum_os_version"]
-            self.env["installer_item_size"] = cataloginfo["installer_item_size"]
-            self.env["installed_size"] = cataloginfo["installed_size"]
-
-        finally:
-            if dmg:
-                self.unmount(dmg_path)
+                cataloginfo = self.getPackageMetaData(matched_source_path)
+                self.env["infodict"] = cataloginfo
+                self.env["version"] = cataloginfo.get("version")
+                self.env["minimum_os_version"] = cataloginfo.get("minimum_os_version")
+                self.env["installer_item_size"] = cataloginfo.get("installer_item_size")
+                self.env["installed_size"] = cataloginfo.get("installed_size")
+            except TypeError as e:
+                raise ProcessorError("ERROR: Missing data from pkg: " + str(e)) from e
+            finally:
+                if dmg:
+                    self.unmount(dmg_path)
+        else:
+            raise ProcessorError("ERROR: Invalid package item provided")
 
 
 if __name__ == "__main__":
