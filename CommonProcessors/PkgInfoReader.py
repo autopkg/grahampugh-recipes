@@ -233,7 +233,7 @@ class PkgInfoReader(Copier):
                         )
 
             if not infoarray:
-                self.output("No valid Distribution or PackageInfo found.")
+                raise ProcessorError("No valid Distribution or PackageInfo found.")
         else:
             self.output(err.decode("UTF-8"))
 
@@ -562,7 +562,7 @@ class PkgInfoReader(Copier):
     def main(self):
         """Do the thing"""
         source_pkg = self.env.get("source_pkg")
-        if source_pkg:
+        if os.path.exists(source_pkg):
             # Check if we're trying to copy something inside a dmg.
             (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(source_pkg)
             try:
@@ -593,12 +593,13 @@ class PkgInfoReader(Copier):
                 self.env["minimum_os_version"] = cataloginfo.get("minimum_os_version")
                 self.env["installer_item_size"] = cataloginfo.get("installer_item_size")
                 self.env["installed_size"] = cataloginfo.get("installed_size")
-
+            except TypeError as e:
+                raise ProcessorError("ERROR: Missing data from pkg: " + e) from e
             finally:
                 if dmg:
                     self.unmount(dmg_path)
         else:
-            raise ProcessorError("ERROR: No package item provided")
+            raise ProcessorError("ERROR: Invalid package item provided")
 
 
 if __name__ == "__main__":
