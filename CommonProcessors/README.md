@@ -11,6 +11,7 @@ To use these processors, add the processor as so:
 -   [IconGenerator](#IconGenerator)
 -   [JSSRecipeReceiptChecker](#JSSRecipeReceiptChecker)
 -   [NSURLDownloader](#NSURLDownloader)
+-   [PkgInfoReader](#PkgInfoReader)
 -   [SMBMounter](#SMBMounter)
 -   [SMBUnmounter](#SMBUnmounter)
 -   [StringReplacer](#StringReplacer)
@@ -224,6 +225,36 @@ An experimental replacement for URLDownloader that uses `nscurl` instead of `cur
     -   **description:** Boolean indicating if the download has changed since the last time it was downloaded.
 -   **nscurl_downloader_summary_result:**
     -   **description:** Description of interesting results.
+
+# PkgInfoReader
+
+## Description
+
+This processor looks for information in packages with the primary objective of
+    obtaining the package version. If there are multiple packages within the package,
+    the highest version number found will be returned in the 'version' variable. 
+
+This code is adapted largely from Munki's [pkgutils.py](https://github.com/munki/munki/blob/main/code/client/munkilib/pkgutils.py), written by Greg Neagle.
+
+## Input variables
+
+-   **source_pkg:**
+    -   **description:** The path of the package to interrogate.
+      
+## Output Variables
+
+-   **cataloginfo:**
+    -   **description:** A dictionary of information from the package.
+-   **version:**
+    -   **description:** The version of the inputted package. Note that this will return the highest version found if multiple packages are found.
+-   **packageid:**
+    -   **description:** The package ID of the package providing the version variable.
+-   **minimum_os_version:**
+    -   **description:** The minimum OS version if supplied.
+-   **installed_size:**
+    -   **description:** The size of the app when installed (in kilobytes).
+-   **installer_item_size:**
+    -   **description:** The size of the package (in bytes).
 
 # SMBMounter
 
