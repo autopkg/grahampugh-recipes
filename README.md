@@ -6,11 +6,13 @@ A few recipes not found elsewhere. To use them, enter the following command:
 
 Note that some recipes in this repo are designed to help package up software that is not publicly available. As such, those recipes have no `.download` recipe. Those recipes have their own `README` files to give further instruction.
 
-## Wait, these are all yaml files!
+## Wait, what are all these YAML files?!
 
-I write my recipes as `yaml` files, and then convert them to `plist` format when I'm done. I find constructing the recipes much nicer in `yaml` format, and it ensures a consistent `plist` structure (e.g. alphabetised input keys).
+I write my recipes as `yaml` files. I find constructing and reading the recipes much nicer in `yaml` format. Since AutoPkg version 2.3, YAML recipes are supported.
 
-If, on the other hand, you are interested in this technique, take a look at https://github.com/grahampugh/plist-yaml-plist
+If you are interested converting PLIST-based recipes to YAML, or vice-versa, take a look at my [PLIST-YAML-PLIST][https://github.com/grahampugh/plist-yaml-plist] project. 
+
+Note that AutoPkgR cannot search for YAML-based AutoPkg recipes.
 
 ## JamfUploader processors
 
