@@ -10,7 +10,7 @@ Note that some recipes in this repo are designed to help package up software tha
 
 I write my recipes as `yaml` files. I find constructing and reading the recipes much nicer in `yaml` format. Since AutoPkg version 2.3, YAML recipes are supported.
 
-If you are interested converting PLIST-based recipes to YAML, or vice-versa, take a look at my [PLIST-YAML-PLIST][https://github.com/grahampugh/plist-yaml-plist] project. 
+If you are interested converting PLIST-based recipes to YAML, or vice-versa, take a look at my [PLIST-YAML-PLIST](https://github.com/grahampugh/plist-yaml-plist) project. 
 
 Note that AutoPkgR cannot search for YAML-based AutoPkg recipes.
 
