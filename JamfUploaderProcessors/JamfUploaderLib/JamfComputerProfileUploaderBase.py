@@ -20,7 +20,6 @@ limitations under the License.
 import os.path
 import sys
 import plistlib
-import subprocess
 import uuid
 
 from time import sleep
@@ -46,7 +45,7 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         """return the existing UUID to ensure we don't change it"""
         # first grab the payload from the xml object
         obj_type = "os_x_configuration_profile"
-        existing_plist = self.get_api_obj_value_from_id(
+        existing_plist = self.get_classic_api_obj_value_from_id(
             jamf_url,
             obj_type,
             obj_id,
@@ -159,29 +158,29 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
 
         return mobileconfig_plist
 
-    def unsign_signed_mobileconfig(self, mobileconfig_plist):
-        """checks if profile is signed. This is necessary because Jamf cannot
-        upload a signed profile, so we either need to unsign it, or bail"""
-        output_path = os.path.join("/tmp", str(uuid.uuid4()))
-        cmd = [
-            "/usr/bin/security",
-            "cms",
-            "-D",
-            "-i",
-            mobileconfig_plist,
-            "-o",
-            output_path,
-        ]
-        self.output(cmd, verbose_level=1)
+        # def unsign_signed_mobileconfig(self, mobileconfig_plist):
+        #     """checks if profile is signed. This is necessary because Jamf cannot
+        #     upload a signed profile, so we either need to unsign it, or bail"""
+        #     output_path = os.path.join("/tmp", str(uuid.uuid4()))
+        #     cmd = [
+        #         "/usr/bin/security",
+        #         "cms",
+        #         "-D",
+        #         "-i",
+        #         mobileconfig_plist,
+        #         "-o",
+        #         output_path,
+        #     ]
+        #     self.output(cmd, verbose_level=1)
 
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        _, err = proc.communicate()
-        if os.path.exists(output_path) and os.stat(output_path).st_size > 0:
-            self.output(f"Profile is signed. Unsigned profile at {output_path}")
-            return output_path
-        elif err:
-            self.output("Profile is not signed.")
-            self.output(err, verbose_level=2)
+        # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # _, err = proc.communicate()
+        # if os.path.exists(output_path) and os.stat(output_path).st_size > 0:
+        #     self.output(f"Profile is signed. Unsigned profile at {output_path}")
+        #     return output_path
+        # elif err:
+        #     self.output("Profile is not signed.")
+        #     self.output(err, verbose_level=2)
 
     def upload_mobileconfig(
         self,
@@ -288,7 +287,7 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload a configuration profile"""
-        jamf_url = self.env.get("JSS_URL")
+        jamf_url = self.env.get("JSS_URL").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
         client_id = self.env.get("CLIENT_ID")
@@ -305,16 +304,12 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         replace_profile = self.env.get("replace_profile")
         retain_scope = self.env.get("retain_scope")
         sleep_time = self.env.get("sleep")
-        unsign = self.env.get("unsign_profile")
         # handle setting replace in overrides
         if not replace_profile or replace_profile == "False":
             replace_profile = False
         # handle setting retain_scope in overrides
         if not retain_scope or retain_scope == "False":
             retain_scope = False
-        # handle setting unsign in overrides
-        if not unsign or unsign == "False":
-            unsign = False
 
         # clear any pre-existing summary result
         if "jamfcomputerprofileuploader_summary_result" in self.env:
@@ -348,15 +343,15 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         # description from it, but allowing the values to be substituted by Input keys
         if mobileconfig:
             self.output(f"mobileconfig file supplied: {mobileconfig}")
-            # check if the file is signed
-            mobileconfig_file = self.unsign_signed_mobileconfig(mobileconfig)
+            # check if the file is signed - COMMENTED OUT AS JAMF CURRENTLY STRIPS SIGNING VIA API
+            # mobileconfig_file = self.unsign_signed_mobileconfig(mobileconfig)
             # quit if we get an unsigned profile back and we didn't select --unsign
-            if mobileconfig_file and not unsign:
-                raise ProcessorError(
-                    "Signed profiles cannot be uploaded to Jamf Pro via the API. "
-                    "Use the GUI to upload the signed profile, or use --unsign to upload "
-                    "the profile with the signature removed."
-                )
+            # if mobileconfig_file and not unsign:
+            #     raise ProcessorError(
+            #         "Signed profiles cannot be uploaded to Jamf Pro via the API. "
+            #         "Use the GUI to upload the signed profile, or use --unsign to upload "
+            #         "the profile with the signature removed."
+            #     )
 
             # import mobileconfig
             with open(mobileconfig, "rb") as file:

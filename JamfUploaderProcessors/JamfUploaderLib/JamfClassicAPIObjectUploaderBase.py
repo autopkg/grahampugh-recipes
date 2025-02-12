@@ -37,7 +37,9 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 
 
 class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
-    """Class for functions used to upload a generic API object to Jamf"""
+    """Class for functions used to upload a generic API object to Jamf.
+    Note: Individual processors in this repo for specific API endpoints should always
+    be used if available"""
 
     def prepare_template(self, object_name, object_template):
         """prepare the object contents"""
@@ -106,7 +108,7 @@ class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload an API object"""
-        jamf_url = self.env.get("JSS_URL")
+        jamf_url = self.env.get("JSS_URL").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
         client_id = self.env.get("CLIENT_ID")
