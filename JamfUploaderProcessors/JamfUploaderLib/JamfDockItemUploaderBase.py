@@ -68,7 +68,7 @@ class JamfDockItemUploaderBase(JamfUploaderBase):
         self.output("Uploading dock item..")
 
         object_type = "dock_item"
-        url = "{}/{}/id/{}".format(jamf_url, self.api_endpoints(object_type), obj_id)
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
 
         count = 0
         while True:
@@ -100,7 +100,7 @@ class JamfDockItemUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload a dock item"""
-        jamf_url = self.env.get("JSS_URL")
+        jamf_url = self.env.get("JSS_URL").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
         client_id = self.env.get("CLIENT_ID")

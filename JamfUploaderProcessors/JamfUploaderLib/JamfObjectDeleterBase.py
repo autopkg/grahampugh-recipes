@@ -36,49 +36,57 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 )
 
 
-class JamfPolicyDeleterBase(JamfUploaderBase):
-    """Class for functions used to delete a policy from Jamf"""
+class JamfObjectDeleterBase(JamfUploaderBase):
+    """Class for functions used to delete an API object from Jamf"""
 
-    def delete_policy(self, jamf_url, obj_id, token):
-        """Delete policy"""
+    def delete_object(self, jamf_url, object_type, obj_id, token):
+        """Delete API object"""
 
-        self.output("Deleting Policy...")
+        self.output(f"Deleting {object_type}...")
 
-        object_type = "policy"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        if "JSSResource" in self.api_endpoints(object_type):
+            # do XML stuff
+            url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        else:
+            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{obj_id}"
 
         count = 0
         while True:
             count += 1
-            self.output(f"Policy delete attempt {count}", verbose_level=2)
+            self.output(f"{object_type} delete attempt {count}", verbose_level=2)
             request = "DELETE"
             r = self.curl(request=request, url=url, token=token)
 
             # check HTTP response
-            if self.status_check(r, "Policy", obj_id, request) == "break":
+            if self.status_check(r, object_type, obj_id, request) == "break":
                 break
             if count > 5:
-                self.output("WARNING: Policy deletion did not succeed after 5 attempts")
+                self.output(
+                    f"WARNING: {object_type} deletion did not succeed after 5 attempts"
+                )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
-                raise ProcessorError("ERROR: Policy deletion failed ")
+                raise ProcessorError(f"ERROR: {object_type} deletion failed ")
             sleep(30)
         return r
 
     def execute(self):
-        """Delete a policy"""
+        """Delete an API object"""
         jamf_url = self.env.get("JSS_URL").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
-        policy_name = self.env.get("policy_name")
+        object_name = self.env.get("object_name")
+        object_type = self.env.get("object_type")
 
         # clear any pre-existing summary result
-        if "jamfpolicydeleter_summary_result" in self.env:
-            del self.env["jamfpolicydeleter_summary_result"]
+        if "jamfobjectdeleter_summary_result" in self.env:
+            del self.env["jamfobjectdeleter_summary_result"]
 
         # now start the process of deleting the object
-        self.output(f"Checking for existing '{policy_name}' on {jamf_url}")
+        self.output(
+            f"Checking for existing {object_type} '{object_name}' on {jamf_url}"
+        )
 
         # get token using oauth or basic auth depending on the credentials given
         if jamf_url and client_id and client_secret:
@@ -89,36 +97,36 @@ class JamfPolicyDeleterBase(JamfUploaderBase):
             raise ProcessorError("ERROR: Credentials not supplied")
 
         # check for existing - requires obj_name
-        obj_type = "policy"
-        obj_name = policy_name
         obj_id = self.get_api_obj_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
+            object_name,
+            object_type,
             token,
         )
 
         if obj_id:
-            self.output(f"Policy '{policy_name}' exists: ID {obj_id}")
+            self.output(f"{object_type} '{object_name}' exists: ID {obj_id}")
             self.output(
-                "Deleting existing policy",
+                f"Deleting existing {object_type}",
                 verbose_level=1,
             )
-            self.delete_policy(
+            self.delete_object(
                 jamf_url,
+                object_type,
                 obj_id,
                 token,
             )
         else:
             self.output(
-                f"Policy '{policy_name}' not found on {jamf_url}.",
+                f"{object_type} '{object_name}' not found on {jamf_url}.",
                 verbose_level=1,
             )
             return
 
         # output the summary
-        self.env["jamfpolicydeleter_summary_result"] = {
-            "summary_text": "The following policies were deleted from Jamf Pro:",
-            "report_fields": ["policy"],
-            "data": {"policy": policy_name},
+
+        self.env["jamfobjectdeleter_summary_result"] = {
+            "summary_text": "The following API objects were deleted from Jamf Pro:",
+            "report_fields": ["type", "name"],
+            "data": {"type": object_type, "name": object_name},
         }

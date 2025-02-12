@@ -16,10 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 NOTES:
-All functions are in JamfUploaderLib/JamfComputerProfileUploaderBase.py
+All functions are in JamfUploaderLib/JamfMobileDeviceAppUploaderBase.py
 """
 
-import os.path
+import os
 import sys
 
 # to use a base module in AutoPkg we need to add this path to the sys.path.
@@ -27,17 +27,19 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfComputerProfileUploaderBase import (  # noqa: E402
-    JamfComputerProfileUploaderBase,
+from JamfUploaderLib.JamfMobileDeviceAppUploaderBase import (  # noqa: E402
+    JamfMobileDeviceAppUploaderBase,
 )
 
-__all__ = ["JamfComputerProfileUploader"]
+__all__ = ["JamfMobileDeviceAppUploader"]
 
 
-class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
+class JamfMobileDeviceAppUploader(JamfMobileDeviceAppUploaderBase):
     description = (
-        "A processor for AutoPkg that will upload a computer configuration "
-        "profile to a Jamf Cloud or on-prem server."
+        "A processor for AutoPkg that will update or clone a Mobile device app "
+        "object on a Jamf Pro server."
+        "Note that an icon can only be successsfully injected into a Mobile device app "
+        "item if Cloud Services Connection is enabled."
     )
 
     input_variables = {
@@ -69,51 +71,32 @@ class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "profile_name": {
+        "mobiledeviceapp_name": {
             "required": False,
-            "description": "Configuration Profile name",
+            "description": "Mobile device app name",
             "default": "",
         },
-        "payload": {
+        "clone_from": {
             "required": False,
-            "description": "Path to Configuration Profile payload plist file",
+            "description": "Mobile device app name from which to clone this entry",
+            "default": "",
         },
-        "mobileconfig": {
+        "selfservice_icon_uri": {
             "required": False,
-            "description": "Path to Configuration Profile mobileconfig file",
+            "description": "Mobile device app icon URI",
+            "default": "",
         },
-        "identifier": {
+        "mobiledeviceapp_template": {
             "required": False,
-            "description": "Configuration Profile payload identifier",
+            "description": "Full path to the XML template",
         },
-        "profile_template": {
+        "appconfig_template": {
             "required": False,
-            "description": "Path to Configuration Profile XML template file",
+            "description": "Full path to the AppConfig XML template",
         },
-        "profile_category": {
+        "replace_mobiledeviceapp": {
             "required": False,
-            "description": "a category to assign to the profile",
-        },
-        "organization": {
-            "required": False,
-            "description": "Organization to assign to the profile",
-        },
-        "profile_description": {
-            "required": False,
-            "description": "a description to assign to the profile",
-        },
-        "profile_computergroup": {
-            "required": False,
-            "description": "a computer group that will be scoped to the profile",
-        },
-        "replace_profile": {
-            "required": False,
-            "description": "overwrite an existing Configuration Profile if True.",
-            "default": False,
-        },
-        "retain_scope": {
-            "required": False,
-            "description": "Retain the existing scope if True.",
+            "description": "Overwrite an existing Mobile device app if True.",
             "default": False,
         },
         "sleep": {
@@ -124,8 +107,15 @@ class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
     }
 
     output_variables = {
-        "jamfcomputerprofileuploader_summary_result": {
+        "jamfmobiledeviceappuploader_summary_result": {
             "description": "Description of interesting results.",
+        },
+        "mobiledeviceapp_name": {
+            "description": "Jamf object name of the newly created or modified Mobile device app.",
+        },
+        "mobiledeviceapp_updated": {"description": "Boolean - True if the Mobile device app was changed."},
+        "changed_mobiledeviceapp_id": {
+            "description": "Jamf object ID of the newly created or modified Mobile device app.",
         },
     }
 
@@ -136,5 +126,5 @@ class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfComputerProfileUploader()
+    PROCESSOR = JamfMobileDeviceAppUploader()
     PROCESSOR.execute_shell()

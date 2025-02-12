@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 """
-Copyright 2023 Graham Pugh
+Copyright 2025 Graham Pugh
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 NOTES:
-All functions are in JamfUploaderLib/JamfComputerProfileUploaderBase.py
+The API endpoint must be defined in the api_endpoints function in JamfUploaderBase.py
+
+All functions are in JamfUploaderLib/JamfObjectReaderBase.py
 """
 
 import os.path
@@ -27,17 +29,20 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfComputerProfileUploaderBase import (  # noqa: E402
-    JamfComputerProfileUploaderBase,
+from JamfUploaderLib.JamfObjectReaderBase import (  # pylint: disable=import-error, wrong-import-position
+    JamfObjectReaderBase,
 )
 
-__all__ = ["JamfComputerProfileUploader"]
+__all__ = ["JamfObjectReader"]
 
 
-class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
+class JamfObjectReader(JamfObjectReaderBase):
+    """Processor to read an API object"""
+
     description = (
-        "A processor for AutoPkg that will upload a computer configuration "
-        "profile to a Jamf Cloud or on-prem server."
+        "A processor for AutoPkg that will read an API object template "
+        "on a Jamf Pro server."
+        "'Jamf Pro privileges are required by the API_USERNAME user for whatever the endpoint is."
     )
 
     input_variables = {
@@ -69,63 +74,43 @@ class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "profile_name": {
+        "object_name": {
             "required": False,
-            "description": "Configuration Profile name",
+            "description": "Name of the object. Required unless using 'all_objects'",
             "default": "",
         },
-        "payload": {
-            "required": False,
-            "description": "Path to Configuration Profile payload plist file",
+        "object_type": {
+            "required": True,
+            "description": "Type of the object. This is the name of the key in the XML template",
+            "default": "",
         },
-        "mobileconfig": {
+        "output_path": {
             "required": False,
-            "description": "Path to Configuration Profile mobileconfig file",
+            "description": "Path (folder) to dump the xml or json file",
+            "default": "",
         },
-        "identifier": {
+        "all_objects": {
             "required": False,
-            "description": "Configuration Profile payload identifier",
-        },
-        "profile_template": {
-            "required": False,
-            "description": "Path to Configuration Profile XML template file",
-        },
-        "profile_category": {
-            "required": False,
-            "description": "a category to assign to the profile",
-        },
-        "organization": {
-            "required": False,
-            "description": "Organization to assign to the profile",
-        },
-        "profile_description": {
-            "required": False,
-            "description": "a description to assign to the profile",
-        },
-        "profile_computergroup": {
-            "required": False,
-            "description": "a computer group that will be scoped to the profile",
-        },
-        "replace_profile": {
-            "required": False,
-            "description": "overwrite an existing Configuration Profile if True.",
-            "default": False,
-        },
-        "retain_scope": {
-            "required": False,
-            "description": "Retain the existing scope if True.",
-            "default": False,
-        },
-        "sleep": {
-            "required": False,
-            "description": "Pause after running this processor for specified seconds.",
-            "default": "0",
+            "description": "Download all objects of the specific object type",
+            "default": "False",
         },
     }
 
     output_variables = {
-        "jamfcomputerprofileuploader_summary_result": {
-            "description": "Description of interesting results.",
+        "object_name": {
+            "description": "Jamf object name of the object.",
+        },
+        "object_id": {
+            "description": "Jamf object ID of the object.",
+        },
+        "raw_object": {
+            "description": "String containing the complete raw downloaded XML",
+        },
+        "parsed_object": {
+            "description": "String containing parsed XML (removes IDs and computers)",
+        },
+        "output_path": {
+            "description": "Path of dumped xml",
         },
     }
 
@@ -136,5 +121,5 @@ class JamfComputerProfileUploader(JamfComputerProfileUploaderBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfComputerProfileUploader()
+    PROCESSOR = JamfObjectReader()
     PROCESSOR.execute_shell()
