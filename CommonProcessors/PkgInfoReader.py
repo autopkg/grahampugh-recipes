@@ -55,7 +55,9 @@ class PkgInfoReader(Copier):
             "return the highest version found if multiple packages are found.",
         },
         "packageid": {
-            "description": "The package ID of the package providing the version variable"},
+            "description": "The package ID of the package providing the version variable."},
+        "packageids": {
+            "description": "Array of all package IDs found in the package."},
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
         "installed_size": {"description": "The size of the app when installed (in kilobytes)."},
         "installer_item_size": {"description": "The size of the package (in bytes)."}
@@ -510,9 +512,12 @@ class PkgInfoReader(Copier):
         if metaversion == "0.0.0.0.0":
             metaversion = self.nameAndVersion(shortname)[1]
 
+        packageids = []
         highestpkgversion = "0.0"
         installedsize = 0
+
         for infoitem in receiptinfo:
+            packageids.append(infoitem["packageid"])
             if APLooseVersion(infoitem["version"]) > APLooseVersion(highestpkgversion):
                 highestpkgversion = infoitem["version"]
                 packageid = infoitem["packageid"]
@@ -534,6 +539,7 @@ class PkgInfoReader(Copier):
         cataloginfo["name"] = self.nameAndVersion(shortname)[0]
         cataloginfo["version"] = metaversion
         cataloginfo["packageid"] = packageid
+        cataloginfo["packageids"] = packageids
         for key in ("display_name", "RestartAction", "description"):
             if key in installerinfo:
                 cataloginfo[key] = installerinfo[key]
@@ -587,6 +593,7 @@ class PkgInfoReader(Copier):
             cataloginfo = self.getPackageMetaData(matched_source_path)
             self.env["infodict"] = cataloginfo
             self.env["packageid"] = cataloginfo["packageid"]
+            self.env["packageids"] = cataloginfo["packageids"]
             self.env["version"] = cataloginfo["version"]
             self.env["minimum_os_version"] = cataloginfo["minimum_os_version"]
             self.env["installer_item_size"] = cataloginfo["installer_item_size"]
