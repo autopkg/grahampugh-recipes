@@ -21,8 +21,8 @@ IconGenerator
 This is a processor for AutoPkg, adapted from AppIconExtractor by Matthew Warren:
 https://github.com/autopkg/haircut-recipes/blob/master/Processors/AppIconExtractor.py
 
-Important! You *must* install the Pillow library to AutoPkg's Python framework.
-You can do this by running:
+Important! Requires the Pillow library to be installed. If it is not found, the
+processor will attempt to install it using the following command:
 
 /usr/local/autopkg/python -m pip install --upgrade Pillow
 """
@@ -39,12 +39,12 @@ from autopkglib.DmgMounter import DmgMounter  # pylint: disable=import-error
 
 try:
     from PIL import Image
-except (ImportError, ModuleNotFoundError) as ex:
-    raise ProcessorError(
-        "The Pillow library is required, but was not found. "
-        "Please run the following command to install the library: "
-        "/usr/local/autopkg/python -m pip install --upgrade Pillow"
-    ) from ex
+except (ImportError, ModuleNotFoundError):
+    import subprocess
+    import sys
+    print("Pillow library not found. Installing...")
+    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "Pillow"], check=True)
+    from PIL import Image
 
 __all__ = ["IconGenerator"]
 
