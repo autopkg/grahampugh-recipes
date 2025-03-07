@@ -16,10 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 NOTES:
-All functions are in JamfUploaderLib/JamfExtensionAttributeUploaderBase.py
+The API endpoint must be defined in the api_endpoints function in JamfUploaderBase.py
+
+All functions are in JamfUploaderLib/JamfObjectUploaderBase.py
 """
 
-import os
+import os.path
 import sys
 
 # to use a base module in AutoPkg we need to add this path to the sys.path.
@@ -27,17 +29,18 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfExtensionAttributeUploaderBase import (  # noqa: E402
-    JamfExtensionAttributeUploaderBase,
+from JamfUploaderLib.JamfObjectUploaderBase import (  # pylint: disable=import-error, wrong-import-position
+    JamfObjectUploaderBase,
 )
 
-__all__ = ["JamfExtensionAttributeUploader"]
+__all__ = ["JamfObjectUploader"]
 
 
-class JamfExtensionAttributeUploader(JamfExtensionAttributeUploaderBase):
+class JamfObjectUploader(JamfObjectUploaderBase):
     description = (
-        "A processor for AutoPkg that will upload an Extension Attribute item to a "
-        "Jamf Cloud or on-prem server."
+        "A processor for AutoPkg that will create or update an API object template "
+        "on a Jamf Pro server."
+        "'Jamf Pro privileges are required by the API_USERNAME user for whatever the endpoint is."
     )
 
     input_variables = {
@@ -69,61 +72,31 @@ class JamfExtensionAttributeUploader(JamfExtensionAttributeUploaderBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "ea_name": {
-            "required": False,
-            "description": "Extension Attribute name",
+        "object_name": {
+            "required": True,
+            "description": "Name of the object",
             "default": "",
         },
-        "ea_input_type": {
-            "required": False,
-            "description": ("Type of EA. One of script, popup, text, or ldap."),
-            "default": "script",
+        "object_template": {
+            "required": True,
+            "description": "Full path to the XML template",
         },
-        "ea_script_path": {
-            "required": False,
-            "description": "Full path to the script to be uploaded",
+        "object_type": {
+            "required": True,
+            "description": "Type of the object. This is the name of the key in the XML template",
+            "default": "",
         },
-        "ea_popup_choices": {
-            "required": False,
-            "description": "A comma-separated list of choices for a popup EA.",
-        },
-        "ea_inventory_display": {
+        "elements_to_remove": {
             "required": False,
             "description": (
-                "Inventory Display value for the EA. One of GENERAL, HARDWARE, "
-                "OPERATING_SYSTEM, USER_AND_LOCATION, PURCHASING, EXTENSION_ATTRIBUTES."
+                "A list of XML or JSON elements that should be removed from the downloaded XML. "
+                "Note that id and self_service_icon are removed automatically."
             ),
-            "default": "EXTENSION_ATTRIBUTES",
+            "default": None,
         },
-        "ea_data_type": {
+        "replace_object": {
             "required": False,
-            "description": "Data type for the EA. One of String, Integer or Date.",
-            "default": "String",
-        },
-        "ea_description": {
-            "required": False,
-            "description": "Description for the EA.",
-        },
-        "ea_directory_service_attribute_mapping": {
-            "required": False,
-            "description": (
-                "Directory Service (LDAP) attribute mapping. "
-                "Currently this must be manaully set."
-            ),
-        },
-        "ea_enabled": {
-            "required": False,
-            "description": "String-based EAs can be disabled.",
-            "default": True,
-        },
-        "skip_script_key_substitution": {
-            "required": False,
-            "description": "Skip key substitution in processing the script",
-            "default": False,
-        },
-        "replace_ea": {
-            "required": False,
-            "description": "Overwrite an existing category if True.",
+            "description": "Overwrite an existing object if True.",
             "default": False,
         },
         "sleep": {
@@ -134,9 +107,13 @@ class JamfExtensionAttributeUploader(JamfExtensionAttributeUploaderBase):
     }
 
     output_variables = {
-        "jamfextensionattributeuploader_summary_result": {
+        "jamfobjectuploader_summary_result": {
             "description": "Description of interesting results.",
         },
+        "object_name": {
+            "description": "Jamf object name of the newly created or modified object.",
+        },
+        "object_updated": {"description": "Boolean - True if the object was changed."},
     }
 
     def main(self):
@@ -146,5 +123,5 @@ class JamfExtensionAttributeUploader(JamfExtensionAttributeUploaderBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfExtensionAttributeUploader()
+    PROCESSOR = JamfObjectUploader()
     PROCESSOR.execute_shell()

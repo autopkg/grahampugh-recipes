@@ -36,7 +36,7 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 )
 
 
-class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
+class JamfObjectUploaderBase(JamfUploaderBase):
     """Class for functions used to upload a generic API object to Jamf.
     Note: Individual processors in this repo for specific API endpoints should always
     be used if available"""
@@ -56,7 +56,14 @@ class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
         self.output(f"Uploading {object_type}...")
 
         # if we find an object ID we put, if not, we post
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        if "JSSResource" in self.api_endpoints(object_type):
+            # do XML stuff
+            url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        else:
+            if obj_id:
+                url = f"{jamf_url}/{self.api_endpoints(object_type)}/{obj_id}"
+            else:
+                url = f"{jamf_url}/{self.api_endpoints(object_type)}"
 
         count = 0
         while True:
@@ -95,6 +102,7 @@ class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
         object_type = self.env.get("object_type")
         object_template = self.env.get("object_template")
         replace_object = self.env.get("replace_object")
+        elements_to_remove = self.env.get("elements_to_remove")
         sleep_time = self.env.get("sleep")
         # handle setting replace in overrides
         if not replace_object or replace_object == "False":
@@ -102,8 +110,8 @@ class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
         object_updated = False
 
         # clear any pre-existing summary result
-        if "jamfclassicapiobjectuploader_summary_result" in self.env:
-            del self.env["jamfclassicapiobjectuploader_summary_result"]
+        if "jamfapiobjectuploader_summary_result" in self.env:
+            del self.env["jamfapiobjectuploader_summary_result"]
 
         # handle files with a relative path
         if not object_template.startswith("/"):
@@ -117,8 +125,12 @@ class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
 
         # we need to substitute the values in the object name and template now to
         # account for version strings in the name
+        if "JSSResource" in self.api_endpoints(object_type):
+            xml_escape = True
+        else:
+            xml_escape = False
         object_name, template_file = self.prepare_template(
-            object_name, object_type, object_template, xml_escape=True
+            object_name, object_type, object_template, xml_escape, elements_to_remove
         )
 
         # now start the process of uploading the object
@@ -132,14 +144,19 @@ class JamfClassicAPIObjectUploaderBase(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Credentials not supplied")
 
+        # declare name key
+        name_key = "name"
+        if (
+            object_type == "computer_prestage"
+            or object_type == "mobile_device_prestage"
+        ):
+            name_key = "displayName"
+
         # Check for existing item
         self.output(f"Checking for existing '{object_name}' on {jamf_url}")
 
         obj_id = self.get_api_obj_id_from_name(
-            jamf_url,
-            object_name,
-            object_type,
-            token=token,
+            jamf_url, object_name, object_type, token=token, filter_name=name_key
         )
 
         if obj_id:
