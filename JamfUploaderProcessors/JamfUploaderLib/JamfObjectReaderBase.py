@@ -48,6 +48,7 @@ class JamfObjectReaderBase(JamfUploaderBase):
         client_secret = self.env.get("CLIENT_SECRET")
         object_name = self.env.get("object_name")
         all_objects = self.env.get("all_objects")
+        list_only = self.env.get("list_only")
         object_type = self.env.get("object_type")
         output_dir = self.env.get("output_dir")
         elements_to_remove = self.env.get("elements_to_remove")
@@ -57,34 +58,62 @@ class JamfObjectReaderBase(JamfUploaderBase):
         # handle setting true/false variables in overrides
         if not all_objects or all_objects == "False":
             all_objects = False
+        if not list_only or list_only == "False":
+            list_only = False
 
         # clear any pre-existing summary result
-        if "jamfclassicapiobjectreader_summary_result" in self.env:
-            del self.env["jamfclassicapiobjectreader_summary_result"]
+        if "jamfobjectreader_summary_result" in self.env:
+            del self.env["jamfobjectreader_summary_result"]
 
         # now start the process of reading the object
 
         # get token using oauth or basic auth depending on the credentials given
-        if jamf_url and client_id and client_secret:
-            token = self.handle_oauth(jamf_url, client_id, client_secret)
-        elif jamf_url and jamf_user and jamf_password:
-            token = self.handle_api_auth(jamf_url, jamf_user, jamf_password)
+        if jamf_url:
+            token = self.handle_api_auth(
+                jamf_url,
+                jamf_user=jamf_user,
+                password=jamf_password,
+                client_id=client_id,
+                client_secret=client_secret,
+            )
         else:
-            raise ProcessorError("ERROR: Credentials not supplied")
+            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+
+        # get instance name from URL
+        host = jamf_url.partition("://")[2]
+        subdomain = host.partition(".")[0]
 
         # declare object list
         object_list = []
 
         # declare name key
-        name_key = "name"
-        if (
-            object_type == "computer_prestage"
-            or object_type == "mobile_device_prestage"
-        ):
-            name_key = "displayName"
+        name_key = self.get_name_key(object_type)
 
         # if requesting all objects we need to generate a list of all to iterate through
-        if object_name:
+        if all_objects or list_only:
+            self.output(f"Getting all {object_type} objects from {jamf_url}")
+            object_list = self.get_all_api_objects(jamf_url, object_type, token)
+            if list_only:
+                self.env["object_list"] = object_list
+                if output_dir:
+                    # write the list to a file
+                    output_filename = (
+                        f"{subdomain}-{self.object_list_types(object_type)}.json"
+                    )
+                    file_path = os.path.join(output_dir, output_filename)
+                    try:
+                        with open(file_path, "w", encoding="utf-8") as fp:
+                            json.dump(object_list, fp, indent=4)
+                        self.output(f"Wrote object list to {file_path}")
+                    except IOError as e:
+                        raise ProcessorError(
+                            f"Could not write output to {file_path} - {str(e)}"
+                        ) from e
+                return
+            # we really need an output path for all_objects, so exit if not provided
+            if not output_dir:
+                raise ProcessorError("ERROR: no output path provided")
+        elif object_name:
             # Check for existing item
             self.output(f"Checking for existing '{object_name}' on {jamf_url}")
 
@@ -104,12 +133,6 @@ class JamfObjectReaderBase(JamfUploaderBase):
                 object_list = [{"id": obj_id, name_key: object_name}]
             else:
                 self.output(f"{object_type} '{object_name}' not found on {jamf_url}")
-                return
-        elif all_objects:
-            object_list = self.get_all_api_objects(jamf_url, object_type, token)
-            # we really need an output path for all_objects, so exit if not provided
-            if not output_dir:
-                self.output("ERROR: no output path provided")
                 return
 
         # now iterate through all the objects
@@ -159,9 +182,6 @@ class JamfObjectReaderBase(JamfUploaderBase):
                     filetype = "xml"
                 else:
                     filetype = "json"
-                # get instance name from URL
-                host = jamf_url.partition("://")[2]
-                subdomain = host.partition(".")[0]
 
                 output_filename = (
                     f"{subdomain}-{self.object_list_types(object_type)}-{n}.{filetype}"

@@ -239,9 +239,7 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
                 jamf_url, object_type, obj_id, token
             )
             # substitute pre-existing scope
-            template_contents = self.replace_profile_scope(
-                template_contents, existing_scope
-            )
+            template_contents = self.replace_scope(template_contents, existing_scope)
 
         self.output("Uploading Configuration Profile...")
         # write the template to temp file
@@ -424,12 +422,16 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         self.output(f"Checking for existing '{mobileconfig_name}' on {jamf_url}")
 
         # get token using oauth or basic auth depending on the credentials given
-        if jamf_url and client_id and client_secret:
-            token = self.handle_oauth(jamf_url, client_id, client_secret)
-        elif jamf_url and jamf_user and jamf_password:
-            token = self.handle_api_auth(jamf_url, jamf_user, jamf_password)
+        if jamf_url:
+            token = self.handle_api_auth(
+                jamf_url,
+                jamf_user=jamf_user,
+                password=jamf_password,
+                client_id=client_id,
+                client_secret=client_secret,
+            )
         else:
-            raise ProcessorError("ERROR: Credentials not supplied")
+            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         obj_type = "os_x_configuration_profile"
         obj_name = mobileconfig_name

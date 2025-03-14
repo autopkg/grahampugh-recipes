@@ -83,25 +83,32 @@ class JamfObjectDeleterBase(JamfUploaderBase):
         if "jamfobjectdeleter_summary_result" in self.env:
             del self.env["jamfobjectdeleter_summary_result"]
 
-        # now start the process of deleting the object
+        # get token using oauth or basic auth depending on the credentials given
+        if jamf_url:
+            token = self.handle_api_auth(
+                jamf_url,
+                jamf_user=jamf_user,
+                password=jamf_password,
+                client_id=client_id,
+                client_secret=client_secret,
+            )
+        else:
+            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+
+        if "_settings" in object_type:
+            self.output(f"Object of type {object_type} cannot be deleted")
+            return
+
         self.output(
             f"Checking for existing {object_type} '{object_name}' on {jamf_url}"
         )
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url and client_id and client_secret:
-            token = self.handle_oauth(jamf_url, client_id, client_secret)
-        elif jamf_url and jamf_user and jamf_password:
-            token = self.handle_api_auth(jamf_url, jamf_user, jamf_password)
-        else:
-            raise ProcessorError("ERROR: Credentials not supplied")
+        # declare name key
+        name_key = self.get_name_key(object_type)
 
-        # check for existing - requires obj_name
+        # get the ID from the object bearing the supplied name
         obj_id = self.get_api_obj_id_from_name(
-            jamf_url,
-            object_name,
-            object_type,
-            token,
+            jamf_url, object_name, object_type, token=token, filter_name=name_key
         )
 
         if obj_id:

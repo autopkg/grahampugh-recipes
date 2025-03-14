@@ -222,8 +222,8 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
             replace_profile = False
 
         # clear any pre-existing summary result
-        if "JamfMobileDeviceProfileUploader_summary_result" in self.env:
-            del self.env["JamfMobileDeviceProfileUploader_summary_result"]
+        if "jamfmobiledeviceprofilepploader_summary_result" in self.env:
+            del self.env["jamfmobiledeviceprofilepploader_summary_result"]
 
         profile_updated = False
 
@@ -299,12 +299,16 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
         self.output(f"Checking for existing '{mobileconfig_name}' on {jamf_url}")
 
         # get token using oauth or basic auth depending on the credentials given
-        if jamf_url and client_id and client_secret:
-            token = self.handle_oauth(jamf_url, client_id, client_secret)
-        elif jamf_url and jamf_user and jamf_password:
-            token = self.handle_api_auth(jamf_url, jamf_user, jamf_password)
+        if jamf_url:
+            token = self.handle_api_auth(
+                jamf_url,
+                jamf_user=jamf_user,
+                password=jamf_password,
+                client_id=client_id,
+                client_secret=client_secret,
+            )
         else:
-            raise ProcessorError("ERROR: Credentials not supplied")
+            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         obj_type = "configuration_profile"
         obj_name = mobileconfig_name
@@ -386,7 +390,7 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
         self.env["profile_name"] = profile_name
         self.env["profile_updated"] = profile_updated
         if profile_updated:
-            self.env["JamfMobileDeviceProfileUploader_summary_result"] = {
+            self.env["jamfmobiledeviceprofilepploader_summary_result"] = {
                 "summary_text": (
                     "The following configuration profiles were uploaded to "
                     "or updated in Jamf Pro:"

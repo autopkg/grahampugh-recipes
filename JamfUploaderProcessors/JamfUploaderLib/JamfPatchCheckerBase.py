@@ -127,13 +127,17 @@ class JamfPatchCheckerBase(JamfUploaderBase):
 
         self.output(f"Checking for existing '{patch_softwaretitle}' on {jamf_url}")
 
-        # Get token using oauth or basic auth depending on the credentials given
-        if jamf_url and client_id and client_secret:
-            token = self.handle_oauth(jamf_url, client_id, client_secret)
-        elif jamf_url and jamf_user and jamf_password:
-            token = self.handle_api_auth(jamf_url, jamf_user, jamf_password)
+        # get token using oauth or basic auth depending on the credentials given
+        if jamf_url:
+            token = self.handle_api_auth(
+                jamf_url,
+                jamf_user=jamf_user,
+                password=jamf_password,
+                client_id=client_id,
+                client_secret=client_secret,
+            )
         else:
-            raise ProcessorError("ERROR: Credentials not supplied")
+            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         # Patch Softwaretitle
         obj_type = "patch_software_title"

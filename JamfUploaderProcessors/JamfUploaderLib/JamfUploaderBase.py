@@ -27,10 +27,10 @@ import xml.etree.ElementTree as ET
 from base64 import b64encode
 from collections import abc, namedtuple
 from datetime import datetime, timedelta, timezone
-from html.parser import HTMLParser
 from pathlib import Path
 from shutil import rmtree
 from urllib.parse import quote, urlparse
+from uuid import UUID
 from xml.sax.saxutils import escape
 
 from autopkglib import (  # pylint: disable=import-error
@@ -43,7 +43,7 @@ class JamfUploaderBase(Processor):
     """Common functions used by at least two JamfUploader processors."""
 
     # Global version
-    __version__ = "2025.3.5.0"
+    __version__ = "2025.3.14.1"
 
     def api_endpoints(self, object_type):
         """Return the endpoint URL from the object type"""
@@ -54,16 +54,21 @@ class JamfUploaderBase(Processor):
             "api_client": "api/v1/api-integrations",
             "api_role": "api/v1/api-roles",
             "category": "api/v1/categories",
+            "check_in_settings": "api/v3/check-in",
             "computer_extension_attribute": "api/v1/computer-extension-attributes",
             "computer_group": "JSSResource/computergroups",
+            "computer_inventory_collection_settings": "api/v1/computer-inventory-collection-settings",
             "computer_prestage": "api/v3/computer-prestages",
             "configuration_profile": "JSSResource/mobiledeviceconfigurationprofiles",
             "distribution_point": "JSSResource/distributionpoints",
             "dock_item": "JSSResource/dockitems",
+            "enrollment_settings": "api/v4/enrollment",
+            "enrollment_customization": "api/v2/enrollment-customizations",
             "failover": "api/v1/sso/failover",
             "icon": "api/v1/icon",
             "jamf_pro_version": "api/v1/jamf-pro-version",
             "jcds": "api/v1/jcds",
+            "laps_settings": "api/v2/local-admin-password/settings",
             "logflush": "JSSResource/logflush",
             "ldap_server": "JSSResource/ldapservers",
             "mac_application": "JSSResource/macapplications",
@@ -81,7 +86,9 @@ class JamfUploaderBase(Processor):
             "policy": "JSSResource/policies",
             "policy_icon": "JSSResource/fileuploads/policies",
             "restricted_software": "JSSResource/restrictedsoftware",
+            "self_service_settings": "api/v1/self-service/settings",
             "script": "api/v1/scripts",
+            "smtp_server_settings": "api/v2/smtp-server",
             "token": "api/v1/auth/token",
             "volume_purchasing_location": "api/v1/volume-purchasing-locations",
         }
@@ -134,8 +141,21 @@ class JamfUploaderBase(Processor):
             "policy": "policies",
             "restricted_software": "restricted_software",
             "script": "scripts",
+            "self_service_settings": "self_service_settings",
         }
         return object_list_types[object_type]
+
+    def get_name_key(self, object_type):
+        """Return the name key that identifies the object"""
+        name_key = "name"
+        if object_type in (
+            "api_client",
+            "computer_prestage",
+            "mobile_device_prestage",
+            "enrollment_customization",
+        ):
+            name_key = "displayName"
+        return name_key
 
     def write_json_file(self, data):
         """dump some json to a temporary file"""
@@ -192,8 +212,7 @@ class JamfUploaderBase(Processor):
     def get_enc_creds(self, user, password):
         """encode the username and password into a b64-encoded string"""
         credentials = f"{user}:{password}"
-        enc_creds_bytes = b64encode(credentials.encode("utf-8"))
-        enc_creds = str(enc_creds_bytes, "utf-8")
+        enc_creds = str(b64encode(credentials.encode("utf-8")), "utf-8")
         return enc_creds
 
     def check_api_token(self, jamf_url, jamf_user):
@@ -301,68 +320,100 @@ class JamfUploaderBase(Processor):
 
     def get_api_token_from_basic_auth(self, jamf_url="", jamf_user="", password=""):
         """get a token for the Jamf Pro API or Classic API using basic auth"""
-        if jamf_user:
-            enc_creds = self.get_enc_creds(jamf_user, password)
-            url = jamf_url + "/" + self.api_endpoints("token")
-            r = self.curl(
-                request="POST",
-                url=url,
-                enc_creds=enc_creds,
-            )
-            output = r.output
-            if r.status_code == 200:
-                try:
-                    token = str(output["token"])
-                    expires = str(output["expires"])
+        enc_creds = self.get_enc_creds(jamf_user, password)
+        url = jamf_url + "/" + self.api_endpoints("token")
+        r = self.curl(
+            request="POST",
+            url=url,
+            enc_creds=enc_creds,
+        )
+        output = r.output
+        if r.status_code == 200:
+            try:
+                token = str(output["token"])
+                expires = str(output["expires"])
 
-                    # write the data to a file
-                    self.write_token_to_json_file(jamf_url, jamf_user, output)
-                    self.output("Session token received")
-                    self.output(f"Token: {token}", verbose_level=2)
-                    self.output(f"Expires: {expires}", verbose_level=2)
-                    return token
-                except KeyError:
-                    self.output("ERROR: No token received")
-            else:
+                # write the data to a file
+                self.write_token_to_json_file(jamf_url, jamf_user, output)
+                self.output("Session token received")
+                self.output(f"Token: {token}", verbose_level=2)
+                self.output(f"Expires: {expires}", verbose_level=2)
+                return token
+            except KeyError:
                 self.output("ERROR: No token received")
         else:
-            raise ProcessorError("No credentials given, cannot continue")
+            self.output(f"ERROR: No token received (HTTP response {r.status_code})")
 
-    def handle_api_auth(self, jamf_url, jamf_user, password):
+    def handle_api_auth(
+        self, jamf_url, jamf_user="", password="", client_id="", client_secret=""
+    ):
         """obtain token using basic auth"""
+
+        # first try to get the account and password from the Keychain
+        user_from_kc, pass_from_kc = self.keychain_get_creds(jamf_url)
+        if user_from_kc and pass_from_kc:
+            if self.is_valid_uuid(user_from_kc):
+                client_id = user_from_kc
+                client_secret = pass_from_kc
+                self.output(
+                    "Using API client credentials found in keychain", verbose_level=2
+                )
+            else:
+                jamf_user = user_from_kc
+                password = pass_from_kc
+                self.output(
+                    "Using API account credentials found in keychain", verbose_level=2
+                )
+        else:
+            self.output("Credentials not found in keychain", verbose_level=2)
+
         # check for existing token
         self.output("Checking for existing authentication token", verbose_level=2)
-        token = self.check_api_token(jamf_url, jamf_user)
-
-        # if no valid token, get one
-        if not token:
-            self.output(
-                "Getting an authentication token using Basic Auth", verbose_level=2
-            )
-            token = self.get_api_token_from_basic_auth(jamf_url, jamf_user, password)
-
-        if not token:
-            raise ProcessorError("No token found, cannot continue")
-
+        if client_id and client_secret:
+            token = self.check_api_token(jamf_url, client_id)
+            # if no valid token, get one
+            if not token:
+                self.output(
+                    "Getting an authentication token using OAuth", verbose_level=2
+                )
+                token = self.get_api_token_from_oauth(
+                    jamf_url, client_id, client_secret
+                )
+            if not token:
+                raise ProcessorError("No token found, cannot continue")
+        elif jamf_user and password:
+            token = self.check_api_token(jamf_url, jamf_user)
+            # if no valid token, get one
+            if not token:
+                self.output(
+                    "Getting an authentication token using Basic Auth", verbose_level=2
+                )
+                token = self.get_api_token_from_basic_auth(
+                    jamf_url, jamf_user, password
+                )
+            if not token:
+                raise ProcessorError("No token found, cannot continue")
+        else:
+            raise ProcessorError("Insufficient credentials provided, cannot continue")
         # return token and classic creds
         return token
 
-    def handle_oauth(self, jamf_url, client_id, client_secret):
-        """obtain token"""
-        # check for existing token using OAuth
-        self.output("Checking for existing authentication token", verbose_level=2)
-        token = self.check_api_token(jamf_url, client_id)
+    # def handle_oauth(self, jamf_url, client_id, client_secret):
+    #     """obtain token"""
+    #     # check for existing token using OAuth
+    #     self.output("Checking for existing authentication token", verbose_level=2)
+    #     token = self.check_api_token(jamf_url, client_id)
 
-        # if no valid token, get one
-        if not token:
-            self.output("Getting an authentication token using OAuth", verbose_level=2)
-            token = self.get_api_token_from_oauth(jamf_url, client_id, client_secret)
+    #     # if no valid token, get one
+    #     if not token:
+    #         self.output("Getting an authentication token using OAuth", verbose_level=2)
+    #         token = self.get_api_token_from_oauth(jamf_url, client_id, client_secret)
 
-        if not token:
-            raise ProcessorError("No token found, cannot continue")
+    #     if not token:
+    #         raise ProcessorError("No token found, cannot continue")
 
-        # return token and classic creds
-        return token
+    #     # return token and classic creds
+    #     return token
 
     def clear_tmp_dir(self, tmp_dir="/tmp/jamf_upload"):
         """remove the tmp directory"""
@@ -473,6 +524,11 @@ class JamfUploaderBase(Processor):
             curl_cmd.extend(["--header", "Content-type: multipart/form-data"])
             curl_cmd.extend(["--form", f"file=@{data};type=image/png"])
 
+        elif request == "PATCH":
+            if data:
+                # jamf data upload requires upload-file argument
+                curl_cmd.extend(["--upload-file", data])
+
         # Content-Type for POST/PUT
         elif request == "POST" or request == "PUT":
             if endpoint_type == "slack" or endpoint_type == "teams":
@@ -495,7 +551,7 @@ class JamfUploaderBase(Processor):
             # note: other endpoints should supply their headers via 'additional_curl_opts'
 
         # fail other request types
-        elif request != "GET" and request != "DELETE":
+        elif request != "GET" and request != "DELETE" and request != "PATCH":
             self.output(f"WARNING: HTTP method {request} not supported")
 
         # direct output to a file
@@ -564,7 +620,7 @@ class JamfUploaderBase(Processor):
         """Return a message dependent on the HTTP response"""
         if request == "DELETE":
             action = "deletion"
-        elif request == "PUT":
+        elif request == "PUT" or request == "PATCH":
             action = "update"
         elif request == "POST":
             action = "upload"
@@ -577,8 +633,10 @@ class JamfUploaderBase(Processor):
         if r.status_code < 400:
             if endpoint_type == "jcds":
                 self.output("JCDS2 credentials successfully received", verbose_level=2)
-            else:
+            elif obj_name:
                 self.output(f"{endpoint_type} '{obj_name}' {action} successful")
+            else:
+                self.output(f"{endpoint_type} {action} successful")
             return "break"
         else:
             self.output("API response:", verbose_level=2)
@@ -857,8 +915,8 @@ class JamfUploaderBase(Processor):
                     obj_content = obj_xml.find(obj_path)
                 else:
                     ET.indent(obj_xml)
-                    obj_content = ET.tostring(obj_xml, encoding="UTF-8")
-                return obj_content.decode("UTF-8")
+                    obj_content = ET.tostring(obj_xml, encoding="UTF-8").decode("UTF-8")
+                return obj_content
         else:
             # do JSON stuff
             url = f"{jamf_url}/{self.api_endpoints(object_type)}/{obj_id}"
@@ -1001,7 +1059,7 @@ class JamfUploaderBase(Processor):
                 elem.text = replacement_value
 
     def parse_downloaded_api_object(
-        self, existing_object, object_type, elements_to_remove=None
+        self, existing_object, object_type, elements_to_remove
     ):
         """Removes or replaces instance-specific items such as ID and computer objects"""
         # first determine if this object is using Classic API or Jamf Pro
@@ -1009,15 +1067,15 @@ class JamfUploaderBase(Processor):
             # do XML stuff
             # Parse response as xml
             parsed_xml = ""
+            object_xml = ET.fromstring(existing_object)
             try:
-                object_xml = ET.fromstring(existing_object)
 
                 # remove any id tags
                 self.remove_elements_from_xml(object_xml, "id")
                 # remove any self service icons
                 self.remove_elements_from_xml(object_xml, "self_service_icon")
                 # optional array of other elements to remove
-                if elements_to_remove is not None:
+                if elements_to_remove:
                     for elem in elements_to_remove:
                         self.output(f"Deleting element {elem}...", verbose_level=2)
                         self.remove_elements_from_xml(object_xml, elem)
@@ -1027,33 +1085,33 @@ class JamfUploaderBase(Processor):
 
                 parsed_xml = ET.tostring(object_xml, encoding="UTF-8")
             except ET.ParseError as xml_error:
-                raise ProcessorError from xml_error
+                raise ProcessorError("Could not extract XML") from xml_error
             return parsed_xml.decode("UTF-8")
 
         # do json stuff
         if not isinstance(existing_object, dict):
             existing_object = json.loads(existing_object)
 
-        # remove any id-type tags
-        if "id" in existing_object:
-            existing_object.pop("id")
-        if "categoryId" in existing_object:
-            existing_object.pop("categoryId")
-        if "deviceEnrollmentProgramInstanceId" in existing_object:
-            existing_object.pop("deviceEnrollmentProgramInstanceId")
-        # now go one deep and look for more id keys. Hopefully we don't have to go deeper!
-        for elem in existing_object.values():
-            elem_check = elem
-            if isinstance(elem_check, abc.Mapping):
-                if "id" in elem:
-                    elem.pop("id")
-        return json.dumps(existing_object, indent=4)
+            # remove any id-type tags
+            if "id" in existing_object:
+                existing_object.pop("id")
+            if "categoryId" in existing_object:
+                existing_object.pop("categoryId")
+            if "deviceEnrollmentProgramInstanceId" in existing_object:
+                existing_object.pop("deviceEnrollmentProgramInstanceId")
+            # now go one deep and look for more id keys. Hopefully we don't have to go deeper!
+            for elem in existing_object.values():
+                elem_check = elem
+                if isinstance(elem_check, abc.Mapping):
+                    if "id" in elem:
+                        elem.pop("id")
+            return json.dumps(existing_object, indent=4)
 
     def prepare_template(
         self,
-        object_name,
         object_type,
         object_template,
+        object_name=None,
         xml_escape=False,
         elements_to_remove=None,
     ):
@@ -1083,18 +1141,72 @@ class JamfUploaderBase(Processor):
         template_file = self.write_temp_file(template_contents)
         return object_name, template_file
 
-    class ParseHTMLForError(HTMLParser):  # pylint: disable=abstract-method
-        """Parses HTML output for the appropriate error"""
+    def remove_non_printable(self, text):
+        """Remove non-printable characters.
+        This is required when obtaining a password from the keychain
+        """
+        pattern = r"[\x00-\x1F\x7F-\x9F]"
+        return re.sub(pattern, "", text)
 
-        def __init__(self):
-            HTMLParser.__init__(self)
-            self.error = None
-            self.data = []
+    def is_valid_uuid(self, uuid_to_test):
+        """Check if a string is a version 4 UUID"""
+        try:
+            UUID(str(uuid_to_test))
+            self.output(f"{uuid_to_test} is a Client ID", verbose_level=3)
+            return True
+        except ValueError:
+            self.output(f"{uuid_to_test} is an account name", verbose_level=3)
+            return False
 
-        def handle_data(self, data):
-            self.data.append(data)
-            if "Error:" in data:
-                self.error = data
+    def keychain_get_creds(self, service):
+        """Get an account name in the keychain.
+
+        Args:
+            service: The service name.
+
+        Returns:
+            The account name and password, or `None` for both if not found.
+
+        """
+        account = None
+        passw = None
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-internet-password", "-s", service, "-g"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            self.output(result.stdout, verbose_level=3)
+            for line in result.stdout.splitlines():
+                if "acct" in line:
+                    account = line.split('"')[3]
+        except subprocess.CalledProcessError:
+            pass
+        if account:
+            try:
+                result = subprocess.run(
+                    [
+                        "/usr/bin/security",
+                        "find-internet-password",
+                        "-s",
+                        service,
+                        "-a",
+                        account,
+                        "-w",
+                        "-g",
+                    ],
+                    text=True,
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
+                # self.output(result.stdout, verbose_level=2)
+                passw = self.remove_non_printable(result.stdout)
+            except subprocess.CalledProcessError:
+                pass
+
+        return account, passw
 
 
 if __name__ == "__main__":
