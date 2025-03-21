@@ -1,4 +1,5 @@
 #!/usr/local/autopkg/python
+# pylint: disable=invalid-name
 
 """
 Copyright 2025 Graham Pugh
@@ -82,6 +83,11 @@ class JamfObjectReader(JamfObjectReaderBase):
                 "Secret associated with the Client ID, optionally set as a key in "
                 "the com.github.autopkg preference file."
             ),
+        },
+        "object_id": {
+            "required": False,
+            "description": "ID of an object. May be used instead of supplying an object name.",
+            "default": "",
         },
         "object_name": {
             "required": False,

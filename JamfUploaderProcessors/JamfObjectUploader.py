@@ -1,4 +1,5 @@
 #!/usr/local/autopkg/python
+# pylint: disable=invalid-name
 
 """
 Copyright 2023 Graham Pugh
@@ -79,10 +80,14 @@ class JamfObjectUploader(JamfObjectUploaderBase):
         "object_name": {
             "required": False,
             "description": "Name of the object. Required except for settings-related objects.",
+        },
+        "object_id": {
+            "required": False,
+            "description": "ID of an object. May be used instead of supplying an object name.",
             "default": "",
         },
         "object_template": {
-            "required": True,
+            "required": False,
             "description": "Full path to the XML template",
         },
         "object_type": {
