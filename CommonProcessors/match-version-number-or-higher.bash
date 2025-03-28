@@ -63,6 +63,7 @@ verbose="Off" # "On" or "Off"
 # turn on for a single line output
 quietMode="Off" # "On" or "Off"
 usingJamf="No" # "Yes" or "No"
+jamfCharacterLimit="251"
 
 # get arguments
 while test $# -gt 0
@@ -88,7 +89,7 @@ Usage:
 -j | --usingJamf    Split regex to accommodate Jamf's 255 character limit 
 *                   The version string, e.g. 10.12.2
 
-Note if using -q and -j and the regex exceeds 255 characters, the full regex is not shown.
+Note if using -q and -j and the regex exceeds $jamfCharacterLimit characters, the full regex is not shown.
 The output will be split into multiple lines. 
 e.g. for Version string \"5.0.3 (24978.0517)\" the output is:
 
@@ -341,25 +342,25 @@ regexCharacterCount=$( /usr/bin/wc -c <<< "$regex" | /usr/bin/xargs )
 # display the regex for the version string and its character count
 [[ "$quietMode" != "On" ]] && echo
 [[ "$quietMode" != "On" ]] && echo "Regex for \"$versionString\" or higher ($regexCharacterCount characters):"
-[[ ("$quietMode" == "On" && ("$usingJamf" == "Yes" && "$regexCharacterCount" -le 255) || "$usingJamf" == "No") || "$quietMode" != "On" ]] && echo $regex
+[[ ("$quietMode" == "On" && ("$usingJamf" == "Yes" && "$regexCharacterCount" -le $jamfCharacterLimit) || "$usingJamf" == "No") || "$quietMode" != "On" ]] && echo "$regex"
 [[ "$quietMode" != "On" ]] && echo
 
-if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
+if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt $jamfCharacterLimit ]]; then
 
 	# get count of characters in generated regex string
 	regexCharacters=${#regex}
 	# determine number of regex strings needed, accounting for beginning ^ and ending $ characters
-	jamfStringCount="$((regexCharacters / 255 + 1))"
+	jamfStringCount="$((regexCharacters / jamfCharacterLimit + 1))"
 	split_len=$((regexCharacters / jamfStringCount))
 	
-	dividedRegex=$regex
+	dividedRegex="$regex"
 
 	for (( aBreak=1; aBreak<jamfStringCount; aBreak++ ))
 	do
 		breakDelimiterPosition=$((split_len * aBreak ))
 		regex_beginning="${dividedRegex:0:$breakDelimiterPosition}"
 		regex_end="${dividedRegex:$breakDelimiterPosition}"
-		regex_end=$( /usr/bin/sed "s/|/±/" <<< ${regex_end} )
+		regex_end=$( /usr/bin/sed "s/|/±/" <<< "${regex_end}" )
 		dividedRegex="${regex_beginning}${regex_end}"
 	done
 
@@ -394,9 +395,12 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt 255 ]]; then
 		fi
 		
 		# display each regex string
-		[[ "$quietMode" != "On" ]] && echo "Regex $((aBreak + 1)):"
-		[[ "$quietMode" != "On" ]] && echo "$regexString"
-		[[ "$quietMode" != "On" ]] && echo
+		[[ "$quietMode" != "On" ]] && (
+			echo "Regex $((aBreak + 1)):"
+			echo "$regexString"
+			echo "Character count: $( /usr/bin/wc -c <<< "$regexString" | /usr/bin/xargs )"
+			echo
+		)
 		[[ "$quietMode" == "On" ]] && echo "$regexString"
 	done
 fi
