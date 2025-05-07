@@ -9,7 +9,7 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: '"(?P<match>https://packages\.riot\.im/desktop/install/macos/Element\.dmg)"'
+      re_pattern: '"(?P<match>https://packages\.element\.io/desktop/install/macos/Element\.dmg)"'
       url: "%DOWNLOAD_URL%"
 
   - Processor: URLDownloader
