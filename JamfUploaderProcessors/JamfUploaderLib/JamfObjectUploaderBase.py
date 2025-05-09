@@ -68,14 +68,13 @@ class JamfObjectUploaderBase(JamfUploaderBase):
 
         additional_curl_options = []
         # PATCH endpoints require special options
-        if object_type == "volume_purchasing_location":
+        if (
+            object_type == "volume_purchasing_location"
+            or object_type == "computer_inventory_collection_settings"
+        ):
             request = "PATCH"
-            additional_curl_options = [
-                "--header",
-                "Content-type: application/merge-patch+json",
-            ]
-        elif object_type == "computer_inventory_collection_settings":
-            request = "PATCH"
+        elif object_type == "jamf_protect_register_settings":
+            request = "POST"
             additional_curl_options = [
                 "--header",
                 "Content-type: application/json",
@@ -98,6 +97,11 @@ class JamfObjectUploaderBase(JamfUploaderBase):
             )
             # check HTTP response
             if self.status_check(r, object_type, object_name, request) == "break":
+                if object_type == "failover_generate_command":
+                    output = r.output
+                    failover_url = output.get("failoverUrl", "")
+                    self.output(f"Failover URL: {failover_url}", verbose_level=1)
+                    self.env["failover_url"] = failover_url
                 break
             if count > 5:
                 self.output(
@@ -151,14 +155,15 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
-        # check for an existing object except for settings-related endpoints
-        if "_settings" not in object_type and "_command" not in object_type:
-            if obj_id:
-                # declare name key
-                namekey = self.get_namekey(object_type)
-                namekey_path = self.get_namekey_path(object_type, namekey)
+        # declare name key
+        namekey = self.get_namekey(object_type)
+        namekey_path = self.get_namekey_path(object_type, namekey)
 
-                # if an ID has been passed into the recipe, look for object based on ID rather than name
+        # check for an existing object except for settings-related endpoints
+        if not any(suffix in object_type for suffix in ("_settings", "_command")):
+            if obj_id:
+                # if an ID has been passed into the recipe, look for object based on ID
+                # rather than name
                 self.output(
                     f"Checking for existing {object_type} with ID '{obj_id}' on {jamf_url}"
                 )
@@ -269,7 +274,7 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         object_updated = True
 
         # output the summary
-        self.env["object_name"] = object_name
+        self.env["object_name"] = str(object_name)
         self.env["object_type"] = object_type
         self.env["object_updated"] = object_updated
         if object_updated:
@@ -278,7 +283,7 @@ class JamfObjectUploaderBase(JamfUploaderBase):
                 "report_fields": ["object_name", "object_type", "template"],
                 "data": {
                     "object_type": object_type,
-                    "object_name": object_name,
+                    "object_name": str(object_name),
                     "template": object_template,
                 },
             }

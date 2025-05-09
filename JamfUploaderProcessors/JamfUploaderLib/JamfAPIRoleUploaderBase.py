@@ -118,7 +118,7 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         # we need to substitute the values in the object name and template now to
         # account for version strings in the name
         object_name, template_file = self.prepare_template(
-            object_template, object_name.object_type
+            object_type, object_template, object_name
         )
 
         # now start the process of uploading the object
@@ -140,10 +140,7 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         self.output(f"Checking for existing '{object_name}' on {jamf_url}")
 
         obj_id = self.get_api_obj_id_from_name(
-            jamf_url,
-            object_name,
-            object_type,
-            token=token,
+            jamf_url, object_name, object_type, token=token, filter_name="displayName"
         )
 
         if obj_id:
@@ -179,7 +176,7 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         if object_updated:
             self.env["jamfapiroleuploader_summary_result"] = {
                 "summary_text": "The following objects were updated in Jamf Pro:",
-                "report_fields": [object_type, "template"],
+                "report_fields": ["api_role_name", "template"],
                 "data": {
                     "api_role_name": object_name,
                     "template": object_template,
