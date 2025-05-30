@@ -28,10 +28,11 @@
 	Allowed verbose and using Jamf modes to be called from the command line.
 	Added quiet mode which suppresses all output except the regex itself.
 
-	Modified April 23, 2024 by Graham Pugh
+	Modified 30 May, 2025 by Graham Pugh
 	Changes:
-	Altered the character on which the regex is split for Jamf modes,
-	to prevent problems where there is a 'b' in the version string.
+    Rewrote the logic for splitting the regex for Jamf Pro to use awk. This
+	allows the regex to be split at the pipe character (|) while ensuring that
+	the regex does not exceed the character limit for Jamf Pro fields.
 
 	Purpose: Generate a regular expression (regex) string that matches
 	the provided version number or higher.
@@ -59,21 +60,21 @@ ABOUT_THIS_SCRIPT
 
 # defaults
 # turn on for step-by-step explanation while building the regex or off to provide only the regex
-verbose="Off" # "On" or "Off"
+verbose="false" # "true" or "false"
 # turn on for a single line output
-quietMode="Off" # "On" or "Off"
-usingJamf="No" # "Yes" or "No"
-jamfCharacterLimit="251"
+quietMode="false" # "true" or "false"
+usingJamf="false" # "true" or "false"
+jamfCharacterLimit="251" # Jamf Pro field character limit, set to 255 but leaving room for ^() and )$ characters
 
 # get arguments
 while test $# -gt 0
 do
     case "$1" in
-        -v|--verbose) verbose="On"
+        -v|--verbose) verbose="true"
         ;;
-        -q|--quiet) quietMode="On"
+        -q|--quiet) quietMode="true"
         ;;
-        -j|--usingJamf) usingJamf="Yes"
+        -j|--usingJamf) usingJamf="true"
         ;;
         -h|--help|-*)
             echo "
@@ -106,8 +107,8 @@ e.g. for Version string \"5.0.3 (24978.0517)\" the output is:
 done
 
 # verbose mode trumps quiet mode
-if [[ $verbose == "On" ]]; then
-	quietMode="Off"
+if [[ $verbose == "true" ]]; then
+	quietMode="false"
 fi
 
 # ----- set verbosity and provide a version number string ---------------------
@@ -134,15 +135,14 @@ fi
 # ----- functions -------------------------------------------------------------
 	
 # enables or disables verbose mode
-function logcomment() {
-
-	if [[ "$verbose" = "On" ]]; then
+logcomment() {
+	if [[ "$verbose" == "true" ]]; then
 		echo "$1"
 	fi
 }
 
 # processes a digit within a sequence
-function evaluateSequence()	{
+evaluateSequence()	{
 
 	# ----- process the first digit in a sequence -----------------------------
 
@@ -317,7 +317,7 @@ regex="$regex|$escapedVersionString"
 logcomment "Adding original version string to end of regex as a potential match."
 logcomment
 
-if [[ "$warning" = "Yes" && "$quietMode" != "On" ]]; then
+if [[ "$warning" = "Yes" && "$quietMode" != "true" ]]; then
 	echo
 	echo "==============================================="
 	echo "                                               "
@@ -340,31 +340,14 @@ regex="^($regex.*)$"
 regexCharacterCount=$( /usr/bin/wc -c <<< "$regex" | /usr/bin/xargs )
 
 # display the regex for the version string and its character count
-[[ "$quietMode" != "On" ]] && echo
-[[ "$quietMode" != "On" ]] && echo "Regex for \"$versionString\" or higher ($regexCharacterCount characters):"
-[[ ("$quietMode" == "On" && ("$usingJamf" == "Yes" && "$regexCharacterCount" -le $jamfCharacterLimit) || "$usingJamf" == "No") || "$quietMode" != "On" ]] && echo "$regex"
-[[ "$quietMode" != "On" ]] && echo
+[[ "$quietMode" != "true" ]] && echo
+[[ "$quietMode" != "true" ]] && echo "Regex for \"$versionString\" or higher ($regexCharacterCount characters):"
+[[ ("$quietMode" == "true" && ("$usingJamf" == "true" && "$regexCharacterCount" -le $jamfCharacterLimit) || "$usingJamf" == "No") || "$quietMode" != "true" ]] && echo "$regex"
+[[ "$quietMode" != "true" ]] && echo
 
-if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt $jamfCharacterLimit ]]; then
+if [[ "$usingJamf" == "true" && "$regexCharacterCount" -gt $jamfCharacterLimit ]]; then
 
-	# get count of characters in generated regex string
-	regexCharacters=${#regex}
-	# determine number of regex strings needed, accounting for beginning ^ and ending $ characters
-	jamfStringCount="$((regexCharacters / jamfCharacterLimit + 1))"
-	split_len=$((regexCharacters / jamfStringCount))
-	
-	dividedRegex="$regex"
-
-	for (( aBreak=1; aBreak<jamfStringCount; aBreak++ ))
-	do
-		breakDelimiterPosition=$((split_len * aBreak ))
-		regex_beginning="${dividedRegex:0:$breakDelimiterPosition}"
-		regex_end="${dividedRegex:$breakDelimiterPosition}"
-		regex_end=$( /usr/bin/sed "s/|/±/" <<< "${regex_end}" )
-		dividedRegex="${regex_beginning}${regex_end}"
-	done
-
-	if [[ "$quietMode" != "On" ]]; then
+	if [[ "$quietMode" != "true" ]]; then
 		# print Jamf Pro instructions and both regex strings
 		echo "Jamf Pro has a field character limit of 255 characters."
 		echo "This regex exceeds that field character limit."
@@ -379,30 +362,54 @@ if [[ "$usingJamf" == "Yes" && "$regexCharacterCount" -gt $jamfCharacterLimit ]]
 		echo
 	fi
 
-	# display each Jamf Pro string
-	for (( aBreak=0; aBreak<jamfStringCount; aBreak++ ))
-	do
-		regexString=$( /usr/bin/awk -F "±" -v divider=$(( aBreak + 1 )) '{ print $divider }' <<< "$dividedRegex" )
+	# get count of characters in generated regex string
+	regexCharacters=${#regex}
+	# determine number of regex strings needed, accounting for beginning ^ and ending $ characters
+	jamfStringCount="$((regexCharacters / jamfCharacterLimit + 1))"
+	split_len=$((regexCharacters / jamfStringCount))
 
-		# add beginning of line characters if needed
-		if [[ "$regexString" != "^("* ]]; then
-			regexString="^($regexString"
-		fi
-		
-		# add end of line characters if needed
-		if [[ "$regexString" != *")$" ]]; then
-			regexString="$regexString)$"
-		fi
-		
-		# display each regex string
-		[[ "$quietMode" != "On" ]] && (
-			echo "Regex $((aBreak + 1)):"
-			echo "$regexString"
-			echo "Character count: $( /usr/bin/wc -c <<< "$regexString" | /usr/bin/xargs )"
-			echo
-		)
-		[[ "$quietMode" == "On" ]] && echo "$regexString"
-	done
+	# Remove leading ^( and trailing )$
+	regex_cleaned="${regex#^\(}"
+	regex_cleaned="${regex_cleaned%\)\$}"
+
+	awk -v maxlen=$split_len -v quiet="$quietMode" '
+BEGIN {
+  line = ""
+  count = 1
+}
+{
+  n = split($0, parts, /\|/)
+  for (i = 1; i <= n; i++) {
+    part = parts[i]
+    # +1 for the pipe if line is not empty
+    if (length(line part) + (length(line) > 0 ? 1 : 0) <= maxlen) {
+      line = (length(line) ? line "|" part : part)
+    } else {
+      wrapped = "^(" line ")$"
+      if (quiet == "true") {
+        print wrapped
+      } else {
+        print "Regex " count
+        print wrapped
+        print "Length: " length(wrapped) " characters"
+        print ""
+      }
+      count++
+      line = part
+    }
+  }
+}
+END {
+  if (length(line)) {
+    wrapped = "^(" line ")$"
+    if (quiet == "true") {
+      print wrapped
+    } else {
+      print "Regex " count
+      print wrapped
+      print "Length: " length(wrapped) " characters"
+    }
+  }
+}
+' <<< "$regex_cleaned"
 fi
-
-exit 0
