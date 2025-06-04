@@ -6,4 +6,4 @@ MinimumVersion: 0.4.0
 Process:
   - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
     Arguments:
-      version: "0.4.0"
+      version: "%VERSION%"
