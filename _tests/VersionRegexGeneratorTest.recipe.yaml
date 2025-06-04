@@ -1,0 +1,9 @@
+Description: "Recipe stub for any Processors in this directory."
+Comment: The VERSION key needs to be overridden.
+Identifier: com.github.grahampugh.recipes.VersionRegexGeneratorTest
+Input: {}
+MinimumVersion: 0.4.0
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator
+    Arguments:
+      version: "%VERSION%"
