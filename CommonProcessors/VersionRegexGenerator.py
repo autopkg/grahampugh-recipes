@@ -47,25 +47,25 @@ class VersionRegexGenerator(Processor):
         "version_regex_2": {
             "description": (
                 "Regex which matches or exceeds the inputted version string - ",
-                "second line for complex version numbers.",
+                "second line for complex version strings.",
             ),
         },
         "version_regex_3": {
             "description": (
                 "Regex which matches or exceeds the inputted version string - ",
-                "third line for very complex version numbers.",
+                "third line for very complex version strings.",
             ),
         },
         "version_regex_4": {
             "description": (
                 "Regex which matches or exceeds the inputted version string - ",
-                "fourth line for extremely complex version numbers.",
+                "fourth line for extremely complex version strings.",
             ),
         },
         "version_regex_5": {
             "description": (
                 "Regex which matches or exceeds the inputted version string - ",
-                "fourth line for Microsoft-style version numbers.",
+                "fourth line for Microsoft-style version strings.",
             ),
         },
     }
