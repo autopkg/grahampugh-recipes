@@ -35,7 +35,7 @@ class VersionRegexGenerator(Processor):
         "version": {
             "required": True,
             "description": (
-                "A version string from which to perform the regex generation. "
+                "A version string from which to perform the regex generation."
             ),
         },
     }
@@ -111,7 +111,7 @@ class VersionRegexGenerator(Processor):
             path_to_match_version_number_or_higher_script,
             "-q",
             "-j",
-            self.version,
+            version,
         ]
         regex_lines = subprocess.check_output(cmd).decode("ascii").splitlines()
         # complex version strings might output two or even three lines
