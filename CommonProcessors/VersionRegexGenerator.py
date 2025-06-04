@@ -32,12 +32,6 @@ class VersionRegexGenerator(Processor):
             "description": "A version string from which to perform the regex generation.",
             "default": "match-version-number-or-higher.bash",
         },
-        "version": {
-            "required": True,
-            "description": (
-                "A version string from which to perform the regex generation."
-            ),
-        },
     }
 
     output_variables = {
