@@ -23,13 +23,13 @@ Process:
 
   - Processor: PkgCopier
     Arguments:
-      pkg_path: "%RECIPE_CACHE_DIR%/Scripts/AnyConnect.pkg"
-      source_pkg: "%PKG%/AnyConnect.pkg"
+      pkg_path: "%RECIPE_CACHE_DIR%/Scripts/Cisco Secure Client.pkg"
+      source_pkg: "%PKG%/Cisco Secure Client.pkg"
 
   - Processor: FlatPkgUnpacker
     Arguments:
       destination_path: "%RECIPE_CACHE_DIR%/unpack"
-      flat_pkg_path: "%RECIPE_CACHE_DIR%/Scripts/AnyConnect.pkg"
+      flat_pkg_path: "%RECIPE_CACHE_DIR%/Scripts/Cisco Secure Client.pkg"
       purge_destination: true
 
   - Processor: PkgPayloadUnpacker
@@ -40,14 +40,14 @@ Process:
 
   - Processor: Versioner
     Arguments:
-      input_plist_path: "%RECIPE_CACHE_DIR%/Payload/Applications/Cisco/Cisco AnyConnect Secure Mobility Client.app/Contents/Info.plist"
+      input_plist_path: "%RECIPE_CACHE_DIR%/Payload/Applications/Cisco/Cisco Secure Client.app/Contents/Info.plist"
 
   - Processor: com.github.grahampugh.recipes.commonprocessors/ChoicesXMLGenerator
     Arguments:
       choices_pkg_path: "%pkg_path%"
       choices_xml_dest: "%RECIPE_CACHE_DIR%/Scripts/choices.xml"
       desired_choices:
-        - choice_vpn
+        - choice_anyconnect_vpn
 
   - Processor: Copier
     Arguments:
@@ -62,7 +62,7 @@ Process:
 
         DIR=$(dirname "$0")
 
-        /usr/sbin/installer -applyChoiceChangesXML "$DIR/choices.xml" -pkg "$DIR/AnyConnect.pkg" -target /
+        /usr/sbin/installer -applyChoiceChangesXML "$DIR/choices.xml" -pkg "$DIR/Cisco Secure Client.pkg" -target /
 
         if (test $? = 0) then
             echo "Cisco AnyConnect installed."
@@ -87,7 +87,6 @@ Process:
   - Processor: PathDeleter
     Arguments:
       path_list:
-        - "%RECIPE_CACHE_DIR%/AnyConnect.pkg"
         - "%RECIPE_CACHE_DIR%/unpack"
         - "%RECIPE_CACHE_DIR%/Payload"
         - "%RECIPE_CACHE_DIR%/Scripts"
