@@ -17,3 +17,19 @@ Process:
   - Processor: URLDownloader
 
   - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Teclib (H7XJV96LX2)"
+        - "Developer ID Certification Authority"
+        - "Apple Root CA"
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Teclib (H7XJV96LX2)"
+        - "Developer ID Certification Authority"
+        - "Apple Root CA"
