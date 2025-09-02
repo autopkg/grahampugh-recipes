@@ -1,0 +1,21 @@
+Description: Accepts the T & Cs for App Installers. Required before any titles can be created. Not required on Jamf Pro 11.20 or later.
+Identifier: com.github.grahampugh.recipes.jamf.AppInstallers-AcceptTermsAndConditions
+MinimumVersion: "2.3"
+
+Input: {}
+
+Process:
+  # Check T & Cs status
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfObjectReader
+    Arguments:
+      object_type: app_installers_t_and_c_settings
+      settings_key: accepted
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: settings_value == "True"
+
+  # Accept App Installers T & Cs
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfObjectUploader
+    Arguments:
+      object_type: app_installers_accept_t_and_c_command

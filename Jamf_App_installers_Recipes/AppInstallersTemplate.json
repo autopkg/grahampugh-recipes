@@ -1,0 +1,36 @@
+{
+    "name": "%object_name%",
+    "enabled": true,
+    "appTitleId": "%title_id%",
+    "categoryId": "%category_id%",
+    "deploymentType": "%DEPLOYMENT_TYPE%",
+    "updateBehavior": "%UPDATE_BEHAVIOR%",
+    "smartGroupId": "%group_id%",
+    "installPredefinedConfigProfiles": true,
+    "titleAvailableInAis": true,
+    "triggerAdminNotifications": false,
+    "notificationSettings": {
+        "notificationMessage": "Please update as soon as possible",
+        "notificationInterval": 24,
+        "deadlineMessage": "Closing app to allow update",
+        "deadline": 168,
+        "quitDelay": 5,
+        "completeMessage": "Update is complete",
+        "relaunch": true,
+        "suppress": null
+    },
+    "selfServiceSettings": {
+        "includeInFeaturedCategory": false,
+        "includeInComplianceCategory": false,
+        "forceViewDescription": false,
+        "description": null,
+        "categories": [
+            {
+                "id": "%category_id%",
+                "featured": false
+            }
+        ]
+    },
+    "selectedVersion": "",
+    "versionRemoved": false
+}

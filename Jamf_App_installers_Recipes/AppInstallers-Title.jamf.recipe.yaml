@@ -1,0 +1,64 @@
+Description: Creates an App Installer Title
+Comment: |
+  Requires the following key to be set or overridden in a child recipe:
+  * TITLE_NAME - a valid App Installers title name
+
+  Valid values for the following keys are:
+  * DEPLOYMENT_TYPE - SELF_SERVICE or INSTALL_AUTOMATICALLY
+  * UPDATE_BEHAVIOR - AUTOMATIC or MANUAL
+
+  Terms and Conditions must be accepted for this recipe to work.
+Identifier: com.github.grahampugh.recipes.jamf.AppInstallers-Title
+MinimumVersion: "2.3"
+
+Input:
+  TARGET_GROUP_NAME: All Managed Clients
+  REPLACE_APPINSTALLER: "True"
+  CATEGORY: Applications
+  DEPLOYMENT_TYPE: SELF_SERVICE
+  UPDATE_BEHAVIOR: AUTOMATIC
+
+Process:
+  # Get the ID of the Category to which we will deploy the App Installer
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfObjectReader
+    Arguments:
+      object_name: "%CATEGORY%"
+      object_type: category
+
+  # Set the category ID
+  - Processor: com.github.rtrouton.SharedProcessors/VariablePlaceholder
+    Arguments:
+      category_id: "%object_id%"
+
+  # Get the ID of the Smart Group to which we will deploy the App Installer
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfObjectReader
+    Arguments:
+      object_id: ""
+      object_name: "%TARGET_GROUP_NAME%"
+      object_type: computer_group
+
+  # Set the group ID
+  - Processor: com.github.rtrouton.SharedProcessors/VariablePlaceholder
+    Arguments:
+      group_id: "%object_id%"
+
+  # Read the App Installers title to get its ID
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfObjectReader
+    Arguments:
+      object_id: ""
+      object_name: "%TITLE_NAME%"
+      object_type: app_installers_title
+
+  # Set the title ID
+  - Processor: com.github.rtrouton.SharedProcessors/VariablePlaceholder
+    Arguments:
+      title_id: "%object_id%"
+
+  # Check if a deployment already exists for this title and deployment type
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfObjectUploader
+    Arguments:
+      object_id: ""
+      object_name: "%TITLE_NAME%"
+      object_type: app_installers_deployment
+      object_template: AppInstallersTemplate.json
+      replace_object: "%REPLACE_APPINSTALLER%"
