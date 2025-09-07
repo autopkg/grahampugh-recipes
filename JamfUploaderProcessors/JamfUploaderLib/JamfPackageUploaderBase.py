@@ -855,6 +855,14 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         if not pkg_name:
             pkg_name = os.path.basename(pkg_path)
 
+        # handle files with a relative path
+        if not pkg_path.startswith("/"):
+            found_pkg = self.get_path_to_file(pkg_path)
+            if found_pkg:
+                pkg_path = found_pkg
+            else:
+                raise ProcessorError(f"ERROR: pkg {pkg_path} not found")
+
         # Create a list of smb shares in tuples
         smb_shares = []
         if self.env.get("SMB_URL"):
@@ -926,6 +934,10 @@ class JamfPackageUploaderBase(JamfUploaderBase):
 
         # create a dictionary of package metadata from the inputs
         pkg_category = self.env.get("pkg_category")
+
+        # substitute values in the package category
+        pkg_category = self.substitute_assignable_keys(pkg_category)
+
         reboot_required = self.env.get("reboot_required")
         if not reboot_required or reboot_required == "False":
             reboot_required = False
@@ -934,7 +946,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             send_notification = False
 
         pkg_metadata = {
-            "category": self.env.get("pkg_category"),
+            "category": pkg_category,
             "info": self.env.get("pkg_info"),
             "notes": self.env.get("pkg_notes"),
             "reboot_required": reboot_required,

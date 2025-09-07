@@ -191,6 +191,10 @@ class JamfObjectReaderBase(JamfUploaderBase):
             del self.env["jamfobjectreader_summary_result"]
 
         # now start the process of reading the object
+        # we need to substitute the values in the computer group name now to
+        # account for version strings in the name
+        # substitute user-assignable keys
+        object_name = self.substitute_assignable_keys(object_name)
 
         # get token using oauth or basic auth depending on the credentials given
         if jamf_url:
@@ -254,9 +258,18 @@ class JamfObjectReaderBase(JamfUploaderBase):
                 raise ProcessorError("ERROR: no output path provided")
 
         elif obj_id:
-            object_name = self.get_api_obj_value_from_id(
-                jamf_url, object_type, obj_id, obj_path=namekey_path, token=token
-            )
+            if object_name:
+                self.output(
+                    f"Object ID {obj_id} and name {object_name} provided, "
+                    "using object ID to get object contents"
+                )
+            else:
+                self.output(
+                    f"Object ID {obj_id} provided, using object ID to get object contents"
+                )
+                object_name = self.get_api_obj_value_from_id(
+                    jamf_url, object_type, obj_id, obj_path=namekey_path, token=token
+                )
             object_list = [{"id": obj_id, namekey: object_name}]
             self.output(f"Name: {object_name}", verbose_level=3)
 
@@ -365,7 +378,16 @@ class JamfObjectReaderBase(JamfUploaderBase):
                 # and get the object contents
                 for obj in object_list:
                     i = obj["id"]
-                    n = obj[namekey]
+                    if object_name:
+                        # if we have an object name, use that
+                        n = object_name
+                    else:
+                        # otherwise use the name key from the object
+                        if namekey not in obj:
+                            raise ProcessorError(
+                                f"ERROR: {namekey} not found in object {obj}"
+                            )
+                        n = obj[namekey]
                     raw_object = ""
                     parsed_object = ""
                     payload = ""
@@ -385,7 +407,7 @@ class JamfObjectReaderBase(JamfUploaderBase):
 
                     # dump the object to file if output_dir is specified
                     if output_dir:
-                        self.write_output_file(
+                        object_content, file_path = self.write_output_file(
                             object_type,
                             output_dir,
                             parsed_object,
@@ -421,11 +443,15 @@ class JamfObjectReaderBase(JamfUploaderBase):
             self.env["raw_object"] = str(object_content)
             self.env["settings_key"] = settings_key
             self.env["settings_value"] = str(settings_value)
+            self.output(
+                f"Settings key {settings_key} value {settings_value} exported to env",
+                verbose_level=3,
+            )
         elif not all_objects and not list_only:
             self.env["output_filename"] = output_filename
             self.env["output_path"] = file_path
             self.env["object_name"] = object_name
-            self.env["object_id"] = obj_id
+            self.env["object_id"] = str(obj_id)
             self.env["raw_object"] = str(raw_object)
             self.env["parsed_object"] = str(parsed_object)
 

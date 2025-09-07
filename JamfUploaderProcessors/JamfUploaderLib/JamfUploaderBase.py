@@ -44,7 +44,7 @@ class JamfUploaderBase(Processor):
     """Common functions used by at least two JamfUploader processors."""
 
     # Global version
-    __version__ = "2025.7.10.0"
+    __version__ = "2025.8.6.0"
 
     def api_endpoints(self, object_type, uuid=""):
         """Return the endpoint URL from the object type"""
@@ -56,7 +56,11 @@ class JamfUploaderBase(Processor):
             "advanced_mobile_device_search": "JSSResource/advancedmobiledevicesearches",
             "api_client": "api/v1/api-integrations",
             "api_role": "api/v1/api-roles",
-            "app_installer": "api/v1/app-installers/deployments",
+            "app_installers_deployment": "api/v1/app-installers/deployments",
+            "app_installers_title": "api/v1/app-installers/titles",
+            "app_installers_t_and_c_settings": (
+                "api/v1/app-installers/terms-and-conditions"
+            ),
             "app_installers_accept_t_and_c_command": (
                 "api/v1/app-installers/terms-and-conditions/accept"
             ),
@@ -104,6 +108,7 @@ class JamfUploaderBase(Processor):
             "mobile_device": "api/v2/mobile-devices",
             "mobile_device_application": "JSSResource/mobiledeviceapplications",
             "mobile_device_extension_attribute": "JSSResource/mobiledeviceextensionattributes",
+            "mobile_device_extension_attribute_v1": "api/v1/mobile-device-extension-attributes",
             "mobile_device_group": "JSSResource/mobiledevicegroups",
             "mobile_device_prestage": "api/v1/mobile-device-prestages",
             "network_segment": "JSSResource/networksegments",
@@ -119,7 +124,9 @@ class JamfUploaderBase(Processor):
             "policy_properties_settings": "api/v1/policy-properties",
             "restricted_software": "JSSResource/restrictedsoftware",
             "self_service_settings": "api/v1/self-service/settings",
+            "self_service_plus_settings": "api/v1/self-service-plus/settings",
             "script": "api/v1/scripts",
+            "smart_computer_group_membership": "api/v2/computer-groups/smart-group-membership",
             "smtp_server_settings": "api/v2/smtp-server",
             "sso_cert_command": "api/v2/sso/cert",
             "sso_settings": "api/v3/sso",
@@ -133,7 +140,6 @@ class JamfUploaderBase(Processor):
         object_types = {
             "advanced_computer_search": "advancedcomputersearches",
             "advanced_mobile_device_search": "advancedmobiledevicesearches",
-            "app_installer": "appinstallers",
             "package": "packages",
             "computer_group": "computergroups",
             "configuration_profile": "mobiledeviceconfigurationprofiles",
@@ -144,6 +150,7 @@ class JamfUploaderBase(Processor):
             "policy": "policies",
             "computer_extension_attribute": "computerextensionattributes",
             "mobile_device_extension_attribute": "mobiledeviceextensionattributes",
+            "mobile_device_extension_attribute_v1": "mobiledeviceextensionattributes",
             "restricted_software": "restrictedsoftware",
             "os_x_configuration_profile": "osxconfigurationprofiles",
         }
@@ -159,7 +166,6 @@ class JamfUploaderBase(Processor):
             "advanced_mobile_device_search": "advanced_mobile_device_searches",
             "api_client": "api_clients",
             "api_role": "api_roles",
-            "app_installer": "app_installers",
             "category": "categories",
             "computer": "computers",
             "computer_group": "computer_groups",
@@ -173,6 +179,7 @@ class JamfUploaderBase(Processor):
             "mobile_device": "mobile_devices",
             "mobile_device_application": "mobile_device_applications",
             "mobile_device_extension_attribute": "mobile_device_extension_attributes",
+            "mobile_device_extension_attribute_v1": "mobile_device_extension_attributes",
             "mobile_device_group": "mobile_device_groups",
             "mobile_device_prestage": "mobile_device_prestages",
             "network_segment": "network_segments",
@@ -182,6 +189,7 @@ class JamfUploaderBase(Processor):
             "patch_software_title": "patch_software_titles",
             "policy": "policies",
             "script": "scripts",
+            "smart_computer_group_membership": "smart_computer_group_membership",
         }
         if object_type in object_list_types:
             return object_list_types[object_type]
@@ -206,6 +214,8 @@ class JamfUploaderBase(Processor):
             "enrollment_customization",
         ):
             namekey = "displayName"
+        elif object_type == "app_installers_title":
+            namekey = "titleName"
         return namekey
 
     def get_namekey_path(self, object_type, namekey):
@@ -514,6 +524,7 @@ class JamfUploaderBase(Processor):
         4. The Jamf Pro legacy/packages endpoint, for uploading packages (v3).
         5. Slack webhooks.
         6. Microsoft Teams webhooks.
+        7. Jira Cloud issue requests (REST API)
 
         For the Jamf Pro API and Classic API, basic authentication is used to obtain a
         bearer token, which we write to a file along with its expiry datetime.
@@ -609,8 +620,12 @@ class JamfUploaderBase(Processor):
 
         # Content-Type for POST/PUT
         elif request == "POST" or request == "PUT":
-            if endpoint_type == "slack" or endpoint_type == "teams":
-                # slack and teams require a data argument
+            if (
+                endpoint_type == "slack"
+                or endpoint_type == "teams"
+                or endpoint_type == "jira"
+            ):
+                # jira, slack and teams require a data argument
                 curl_cmd.extend(["--data", data])
                 curl_cmd.extend(["--header", "Content-type: application/json"])
             elif data:
@@ -624,7 +639,7 @@ class JamfUploaderBase(Processor):
                 curl_cmd.extend(
                     ["--header", "Content-Type: application/x-www-form-urlencoded"]
                 )
-            elif "/api/" in url or "/uapi/" in url:
+            elif ("/api/" in url and endpoint_type != "jira") or "/uapi/" in url:
                 curl_cmd.extend(["--header", "Content-type: application/json"])
             # note: other endpoints should supply their headers via 'additional_curl_opts'
 
@@ -638,7 +653,7 @@ class JamfUploaderBase(Processor):
 
         # write session for jamf API requests
         if (
-            "/api/" in url
+            ("/api/" in url and endpoint_type != "jira")
             or "/uapi/" in url
             or "JSSResource" in url
             or endpoint_type == "package_upload"
@@ -886,8 +901,10 @@ class JamfUploaderBase(Processor):
         recipe_dir_path = Path(os.path.expanduser(recipe_dir))
         filepath = os.path.join(recipe_dir, filename)
         matched_override_dir = ""
+        matched_filepath = ""
 
         # first, look in the overrides directory
+        self.output(f"Looking for {filename} in RECIPE_OVERRIDE_DIRS", verbose_level=3)
         if self.env.get("RECIPE_OVERRIDE_DIRS"):
             matched_filepath = ""
             for d in self.env["RECIPE_OVERRIDE_DIRS"]:
@@ -904,21 +921,51 @@ class JamfUploaderBase(Processor):
             if matched_filepath:
                 self.output(f"File found at: {matched_filepath}")
                 return matched_filepath
+        else:
+            self.output("No RECIPE_OVERRIDE_DIRS defined", verbose_level=3)
 
-        # second, look in the same directory as the recipe
-        self.output(f"Looking for {filename} in {recipe_dir}", verbose_level=3)
+        # second, look in the same directory as the recipe or any sibling directories
+        self.output(
+            f"Looking for {filename} in {recipe_dir} or its siblings", verbose_level=3
+        )
+        # First check the recipe directory itself
+        filepath = os.path.join(recipe_dir, filename)
         if os.path.exists(filepath):
             self.output(f"File found at: {filepath}")
             return filepath
+
+        # Then check sibling directories
+        self.output(
+            f"Checking sibling directories of {recipe_dir_path}", verbose_level=3
+        )
+        for sibling in recipe_dir_path.parent.iterdir():
+            if sibling.is_dir() and sibling != recipe_dir_path:
+                self.output(
+                    f"Looking for {filename} in sibling directory: {sibling}",
+                    verbose_level=3,
+                )
+                filepath = os.path.join(sibling, filename)
+                if os.path.exists(filepath):
+                    self.output(f"File found at: {filepath}")
+                    return filepath
 
         # third, try to match the recipe's dir with one of the recipe search dirs
         if self.env.get("RECIPE_SEARCH_DIRS"):
             matched_filepath = ""
             for d in self.env["RECIPE_SEARCH_DIRS"]:
                 search_dir_path = Path(os.path.expanduser(d))
+                self.output(
+                    f"Recipe directory: {recipe_dir_path}",
+                    verbose_level=3,
+                )
+                self.output(
+                    f"Looking for {filename} in {search_dir_path}",
+                    verbose_level=3,
+                )
                 if (
                     search_dir_path == recipe_dir_path
-                    or search_dir_path in recipe_dir_path.parents
+                    or search_dir_path.parent == recipe_dir_path.parent
+                    or search_dir_path in recipe_dir_path.parent.parents
                 ):
                     # matching search dir, look for file in here
                     self.output(f"Matching dir: {search_dir_path}", verbose_level=3)
@@ -928,10 +975,17 @@ class JamfUploaderBase(Processor):
                 if matched_filepath:
                     self.output(f"File found at: {matched_filepath}")
                     return matched_filepath
+            self.output(
+                f"File {filename} not found in any RECIPE_SEARCH_DIRS", verbose_level=3
+            )
 
         # fourth, look in the parent recipe's directory if we are an override
         if matched_override_dir:
             if self.env.get("PARENT_RECIPES"):
+                self.output(
+                    f"Looking for {filename} in parent recipe's repo",
+                    verbose_level=3,
+                )
                 matched_filepath = ""
                 parent = self.env["PARENT_RECIPES"][0]
                 self.output(f"Parent Recipe: {parent}", verbose_level=2)
@@ -952,14 +1006,16 @@ class JamfUploaderBase(Processor):
                     if matched_filepath:
                         self.output(f"File found at: {matched_filepath}")
                         return matched_filepath
+        raise ProcessorError(f"File '{filename}' not found")
 
     def get_all_api_objects(self, jamf_url, object_type, uuid="", token=""):
         """get a list of all objects of a particular type"""
         # Get all objects from Jamf Pro as JSON object
         self.output(f"Getting all {self.api_endpoints(object_type)} from {jamf_url}")
 
+        url_filter = "?page=0&page-size=1000&sort=id&sort-order=asc"
         # check for existing
-        url = f"{jamf_url}/{self.api_endpoints(object_type, uuid)}"
+        url = f"{jamf_url}/{self.api_endpoints(object_type, uuid)}{url_filter}"
         r = self.curl(request="GET", url=url, token=token)
 
         # for Classic API
