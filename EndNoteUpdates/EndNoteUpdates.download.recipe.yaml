@@ -12,7 +12,7 @@ Process:
   - Processor: URLTextSearcher
     Arguments:
       re_pattern: (/updates/%INT_VERSION%.0/EndNote%MAJOR_VERSION%[0-9]*UpdateInstaller.zip)
-      url: http://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml
+      url: https://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml
 
   - Processor: URLDownloader
     Arguments:
@@ -35,4 +35,4 @@ Process:
   - Processor: URLTextSearcher
     Arguments:
       re_pattern: (updateTo\>(?P<version>%INT_VERSION%.*?)\<\/updateTo)
-      url: http://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml
+      url: https://download.endnote.com/updates/%INT_VERSION%.0/EN%INT_VERSION%MacUpdates.xml
