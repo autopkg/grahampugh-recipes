@@ -52,6 +52,7 @@ class JamfUploaderBase(Processor):
             "account": "JSSResource/accounts",
             "account_user": "JSSResource/accounts",
             "account_group": "JSSResource/accounts",
+            "activation_code_settings": "JSSResource/activationcode",
             "advanced_computer_search": "JSSResource/advancedcomputersearches",
             "advanced_mobile_device_search": "JSSResource/advancedmobiledevicesearches",
             "api_client": "api/v1/api-integrations",
@@ -160,8 +161,8 @@ class JamfUploaderBase(Processor):
         """Return a XML dictionary type from the object type"""
         object_list_types = {
             "account": "accounts",
-            "account_user": "accounts_users",
-            "account_group": "accounts_groups",
+            "account_user": "users",
+            "account_group": "groups",
             "advanced_computer_search": "advanced_computer_searches",
             "advanced_mobile_device_search": "advanced_mobile_device_searches",
             "api_client": "api_clients",
@@ -740,10 +741,32 @@ class JamfUploaderBase(Processor):
                 self.output(r.output, verbose_level=2)
 
             if r.status_code >= 400:
-                raise ProcessorError(
-                    f"ERROR: {endpoint_type} '{obj_name}' {action} failed - "
-                    f"status code {r.status_code}"
-                )
+                # extract the error message, which is in a line of the output starting with "<p>Error:".Strip the <p> and </p> tags.
+                if isinstance(r.output, (bytes, bytearray)):
+                    error_lines = re.findall(
+                        r"<p>Error:(.*?)</p>", r.output.decode("utf-8")
+                    )
+                elif isinstance(r.output, str):
+                    error_lines = re.findall(r"<p>Error:(.*?)</p>", r.output)
+                else:
+                    error_lines = []
+                if error_lines:
+                    error_message = error_lines[0].strip()
+                    if obj_name:
+                        raise ProcessorError(
+                            f"ERROR: {endpoint_type} '{obj_name}' {action} failed - "
+                            f"{error_message} (status code {r.status_code})"
+                        )
+                    else:
+                        raise ProcessorError(
+                            f"ERROR: {endpoint_type} {action} failed - "
+                            f"{error_message} (status code {r.status_code})"
+                        )
+                else:
+                    self.output(
+                        f"ERROR: {endpoint_type} {action} failed - "
+                        f"status code {r.status_code}"
+                    )
 
     def get_jamf_pro_version(self, jamf_url, token):
         """get the Jamf Pro version so that we can figure out which auth method to use for the
@@ -776,6 +799,8 @@ class JamfUploaderBase(Processor):
                     verbose_level=4,
                 )
                 obj_id = 0
+                if object_type == "account_user" or object_type == "account_group":
+                    object_list = object_list["accounts"]
                 for obj in object_list[self.object_list_types(object_type)]:
                     self.output(
                         obj,
@@ -965,6 +990,7 @@ class JamfUploaderBase(Processor):
                 if (
                     search_dir_path == recipe_dir_path
                     or search_dir_path.parent == recipe_dir_path.parent
+                    or search_dir_path == recipe_dir_path.parent
                     or search_dir_path in recipe_dir_path.parent.parents
                 ):
                     # matching search dir, look for file in here
@@ -1042,15 +1068,26 @@ class JamfUploaderBase(Processor):
 
         # check for existing
         url = f"{jamf_url}/{self.api_endpoints(object_type)}"
-        r = self.curl(request="GET", url=url, token=token)
 
         # for Classic API
         if "JSSResource" in url:
-            # placeholder as not sure if any settings need to be returned in Classic API
-            obj_content = []
+            r = self.curl(request="GET", url=url, token=token, accept_header="xml")
+            # Parse response as xml
+            try:
+                obj_xml = ET.fromstring(r.output)
+            except ET.ParseError as xml_error:
+                raise ProcessorError from xml_error
+            else:
+                ET.indent(obj_xml)
+                obj_content = ET.tostring(obj_xml, encoding="UTF-8").decode("UTF-8")
+            self.output(
+                obj_content,
+                verbose_level=4,
+            )
 
         # for Jamf Pro API
         else:
+            r = self.curl(request="GET", url=url, token=token, accept_header="json")
             obj_content = r.output
             self.output(
                 obj_content,
