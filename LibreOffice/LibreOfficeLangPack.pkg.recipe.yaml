@@ -43,6 +43,5 @@ Process:
             path: Applications
             user: root
         id: org.libreoffice.langpack-%LANGUAGE_CODE%
-        options: purge_ds_store
         pkgdir: "%RECIPE_CACHE_DIR%"
       pkgname: "%NAME%_%LANGUAGE_CODE%-%version%"

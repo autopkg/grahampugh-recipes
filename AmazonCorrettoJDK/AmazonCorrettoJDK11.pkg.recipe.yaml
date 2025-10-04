@@ -46,7 +46,6 @@ Process:
             path: Library/Java/JavaVirtualMachines
             user: root
         id: com.amazon.corretto-11.jdk
-        options: purge_ds_store
         pkgname: AmazonCorrettoJDK11-%version%
         scripts: Scripts
         version: "%version%"
