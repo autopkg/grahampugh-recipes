@@ -10,7 +10,7 @@ Process:
   - Processor: URLTextSearcher
     Arguments:
       re_pattern: The full MacTeX-(?P<version>.*) install
-      url: http://www.tug.org/mactex/morepackages.html
+      url: https://www.tug.org/mactex/morepackages.html
 
   - Processor: URLDownloader
     Arguments:
