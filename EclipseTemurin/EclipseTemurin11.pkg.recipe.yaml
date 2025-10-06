@@ -70,7 +70,6 @@ Process:
             path: Library/Java/JavaVirtualMachines
             user: root
         id: "net.temurin-%FEATURE_VERSION%-%ARCH%-%JVM_IMPLEMENTATION%.%IMAGE_TYPE%"
-        options: purge_ds_store
         pkgname: "EclipseTemurin_%FEATURE_VERSION%_%IMAGE_TYPE%_%ARCH%_%JVM_IMPLEMENTATION%-%version%"
         version: "%version%"
 

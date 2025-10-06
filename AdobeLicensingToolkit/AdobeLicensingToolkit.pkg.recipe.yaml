@@ -42,7 +42,6 @@ Process:
             path: Library/Management/Adobe
             user: root
         id: com.adobe.adobe-licensing-toolkit
-        options: purge_ds_store
         pkgname: adobe-licensing-toolkit
         version: "1.0"
 

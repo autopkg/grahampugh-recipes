@@ -46,7 +46,6 @@ Process:
             path: Library/Java/JavaVirtualMachines
             user: root
         id: com.amazon.corretto-8.jdk
-        options: purge_ds_store
         pkgname: AmazonCorettoJDK8-%version%
         scripts: Scripts
         version: "%version%"

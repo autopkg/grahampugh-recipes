@@ -54,7 +54,6 @@ Process:
       pkg_request:
         chown: []
         id: com.logi.ghub
-        options: purge_ds_store
         pkgdir: "%RECIPE_CACHE_DIR%"
         pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
         pkgtype: flat
