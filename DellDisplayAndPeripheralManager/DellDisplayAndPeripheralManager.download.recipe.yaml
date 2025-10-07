@@ -8,12 +8,14 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (https:\/\/www\.delldisplaymanagermac\.com\/DDPM\/DDPMv.*?.zip)
-      url: https://www.delldisplaymanagermac.com
+      re_pattern: (?P<url>https:\/\/dl.dell.com\/.*?\/1\/DDPMv(?P<version>.*?).zip)
+      url: https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=ktk2n&oscode=mac1&productcode=dell-display-peripheral-manager
 
   - Processor: URLDownloader
     Arguments:
       url: "%match%"
+      request_headers:
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/600.8.9 (KHTML, like Gecko) Version/8.0.8 Safari/600.8.9
 
   - Processor: EndOfCheckPhase
 
@@ -31,6 +33,6 @@ Process:
     Arguments:
       input_path: "%found_filename%"
       expected_authority_names:
-        - "Developer ID Installer: Yufu Fan (S3YBM9ALKM)"
+        - "Developer ID Installer: Qisda Corp. (76K5J93FY6)"
         - Developer ID Certification Authority
         - Apple Root CA
