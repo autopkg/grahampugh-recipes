@@ -18,16 +18,16 @@ Process:
       input_var: "%pathname%"
       rename_var: pathname_app
 
-  - Processor: com.github.sebtomasi.SharedProcessors/TextSubstituer
+  - Processor: com.github.homebysix-recipes.FindAndReplace/FindAndReplace
     Arguments:
-      input_string: "%url%"
-      pattern_replace:
-        - pattern: .dmg
-          repl: _langpack_%LANGUAGE_CODE%.dmg
+      input_string: '%url%'
+      find: .dmg
+      replace: '_langpack_%LANGUAGE_CODE%.dmg'
+
 
   - Processor: URLDownloader
     Arguments:
       filename: "%NAME%_langpack_%LANGUAGE_CODE%.dmg"
-      url: "%parsed_string%"
+      url: "%output_string%"
 
   - Processor: EndOfCheckPhase
