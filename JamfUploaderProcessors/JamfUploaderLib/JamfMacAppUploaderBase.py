@@ -17,6 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import json
 import os.path
 import sys
 
@@ -44,11 +45,13 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
         url_filter = "?page=0&page-size=100&sort=id"
         object_type = "volume_purchasing_location"
         url = jamf_url + "/" + self.api_endpoints(object_type) + url_filter
-        r = self.curl(request="GET", url=url, token=token)
+        r = self.curl(api_type="jpapi", request="GET", url=url, token=token)
         if r.status_code == 200:
             obj_id = 0
-            # output = json.loads(r.output)
-            output = r.output
+            if isinstance(r.output, dict):
+                output = r.output
+            else:
+                output = json.loads(r.output)
             for obj in output["results"]:
                 self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
                 obj_id = obj["id"]
@@ -56,7 +59,7 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
         else:
             self.output(f"Return code: {r.status_code}", verbose_level=2)
 
-    def prepare_macapp_template(self, macapp_name, macapp_template):
+    def prepare_macapp_template(self, jamf_url, macapp_name, macapp_template):
         """prepare the macapp contents"""
         # import template from file and replace any keys in the template
         if os.path.exists(macapp_template):
@@ -75,7 +78,7 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
         self.output(template_contents, verbose_level=2)
 
         # write the template to temp file
-        template_xml = self.write_temp_file(template_contents)
+        template_xml = self.write_temp_file(jamf_url, template_contents)
         return macapp_name, template_xml
 
     def upload_macapp(
@@ -101,6 +104,7 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
             self.output(f"MAS app upload attempt {count}", verbose_level=2)
             request = "PUT" if obj_id else "POST"
             r = self.curl(
+                api_type="classic",
                 request=request,
                 url=url,
                 token=token,
@@ -175,7 +179,7 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
             self.output(f"MAS app '{macapp_name}' already exists: ID {obj_id}")
             if replace_macapp:
                 self.output(
-                    f"Replacing existing MAS app as 'replace_macapp' is set to True",
+                    "Replacing existing MAS app as 'replace_macapp' is set to True",
                     verbose_level=1,
                 )
 
@@ -262,7 +266,7 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
                 self.env["selfservice_icon_uri"] = selfservice_icon_uri
                 self.env["vpp_id"] = vpp_id
                 macapp_name, template_xml = self.prepare_macapp_template(
-                    macapp_name, macapp_template
+                    jamf_url, macapp_name, macapp_template
                 )
 
                 # upload the macapp
@@ -391,7 +395,7 @@ class JamfMacAppUploaderBase(JamfUploaderBase):
                 self.env["selfservice_icon_uri"] = selfservice_icon_uri
                 self.env["vpp_id"] = vpp_id
                 macapp_name, template_xml = self.prepare_macapp_template(
-                    macapp_name, macapp_template
+                    jamf_url, macapp_name, macapp_template
                 )
 
                 # upload the macapp

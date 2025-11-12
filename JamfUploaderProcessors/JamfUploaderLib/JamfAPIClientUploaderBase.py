@@ -51,7 +51,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
     ):
         """Update API Client metadata."""
 
-        template_file = self.write_json_file(object_data)
+        template_file = self.write_json_file(jamf_url, object_data)
 
         self.output(f"Uploading {object_type}...")
 
@@ -69,7 +69,13 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
                 verbose_level=2,
             )
             request = "PUT" if obj_id else "POST"
-            r = self.curl(request=request, url=url, token=token, data=template_file)
+            r = self.curl(
+                api_type="jpapi",
+                request=request,
+                url=url,
+                token=token,
+                data=template_file,
+            )
             # check HTTP response
             if self.status_check(r, object_type, object_name, request) == "break":
                 break
@@ -105,7 +111,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
                 verbose_level=2,
             )
             request = "POST"
-            r = self.curl(request=request, url=url, token=token)
+            r = self.curl(api_type="jpapi", request=request, url=url, token=token)
             # check HTTP response
             if (
                 self.status_check(r, object_type, "client secret request", request)

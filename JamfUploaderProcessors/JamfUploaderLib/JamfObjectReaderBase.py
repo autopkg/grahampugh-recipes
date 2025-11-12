@@ -49,8 +49,12 @@ class JamfObjectReaderBase(JamfUploaderBase):
         n=None,
     ):
         """output the file"""
+
+        # get api type
+        api_type = self.api_type(object_type)
+
         # construct the filename
-        if "JSSResource" in self.api_endpoints(object_type):
+        if api_type == "classic":
             filetype = "xml"
         else:
             filetype = "json"
@@ -60,8 +64,9 @@ class JamfObjectReaderBase(JamfUploaderBase):
                 object_type = "account_user"
             else:
                 object_type = "account_group"
-            output_filename = f"{subdomain}-accounts-" f"{obj_subtype}-{n}.{filetype}"
-        elif n is not None:
+            output_filename = f"{subdomain}-accounts-{obj_subtype}-{n}.{filetype}"
+        elif n is not None and n != "":
+            self.output(f"Object name is {n}", verbose_level=3)
             # escape slashes in the object name
             n = n.replace("/", "_").replace("\\", "_")
             n = n.replace(":", "_")  # also replace colons with underscores
@@ -174,8 +179,13 @@ class JamfObjectReaderBase(JamfUploaderBase):
         settings_key = self.env.get("settings_key")
         uuid = self.env.get("uuid")
         elements_to_remove = self.env.get("elements_to_remove")
-        if isinstance(elements_to_remove, str):
-            elements_to_remove = [elements_to_remove]
+        elements_to_remove = (
+            [elements_to_remove] if isinstance(elements_to_remove, str) else []
+        )
+        elements_to_retain = self.env.get("elements_to_retain")
+        elements_to_retain = (
+            [elements_to_retain] if isinstance(elements_to_retain, str) else []
+        )
 
         # check for required variables
         if not all_objects and not list_only and not "_settings" in object_type:
@@ -198,13 +208,23 @@ class JamfObjectReaderBase(JamfUploaderBase):
 
         # get token using oauth or basic auth depending on the credentials given
         if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
-                jamf_user=jamf_user,
-                password=jamf_password,
-                client_id=client_id,
-                client_secret=client_secret,
-            )
+            # determine which token we need based on object type. classic and jpapi types use handle_api_auth, platform type uses handle_platform_api_auth
+            api_type = self.api_type(object_type)
+            self.output(f"API type for {object_type} is {api_type}", verbose_level=3)
+            if api_type == "platform":
+                token = self.handle_platform_api_auth(
+                    jamf_url,
+                    client_id=client_id,
+                    client_secret=client_secret,
+                )
+            else:
+                token = self.handle_api_auth(
+                    jamf_url,
+                    jamf_user=jamf_user,
+                    password=jamf_password,
+                    client_id=client_id,
+                    client_secret=client_secret,
+                )
         else:
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
@@ -233,7 +253,7 @@ class JamfObjectReaderBase(JamfUploaderBase):
         if all_objects or list_only:
             self.output(f"Getting all {object_type} objects from {jamf_url}")
             object_list = self.get_all_api_objects(
-                jamf_url, object_type, uuid=uuid, token=token
+                jamf_url, object_type, uuid=uuid, token=token, namekey=namekey
             )
             if list_only:
                 self.env["object_list"] = object_list
@@ -249,10 +269,25 @@ class JamfObjectReaderBase(JamfUploaderBase):
                         self.output(
                             f"Wrote object list to file {file_path}", verbose_level=1
                         )
-                    except IOError as e:
-                        raise ProcessorError(
-                            f"Could not write output to {file_path} - {str(e)}"
-                        ) from e
+                    except IOError:
+                        # try to create the directory if it doesn't exist
+                        if not os.path.isdir(output_dir):
+                            try:
+                                os.makedirs(output_dir)
+                                self.output(
+                                    f"Created output directory {output_dir}",
+                                    verbose_level=1,
+                                )
+                                with open(file_path, "w", encoding="utf-8") as fp:
+                                    json.dump(object_list, fp, indent=4)
+                                self.output(
+                                    f"Wrote object list to file {file_path}",
+                                    verbose_level=1,
+                                )
+                            except OSError as dir_error:
+                                raise ProcessorError(
+                                    f"Could not create output directory {output_dir} - {str(dir_error)}"
+                                ) from dir_error
             # we really need an output path for all_objects, so exit if not provided
             if not output_dir:
                 raise ProcessorError("ERROR: no output path provided")
@@ -298,12 +333,19 @@ class JamfObjectReaderBase(JamfUploaderBase):
                     if obj_id:
                         break
             else:
+                # the group object type has a different ID key
+                if object_type == "group":
+                    id_key = "groupPlatformId"
+                else:
+                    id_key = "id"
+
                 obj_id = self.get_api_obj_id_from_name(
                     jamf_url,
                     object_name,
                     object_type,
                     token=token,
                     filter_name=namekey,
+                    id_key=id_key,
                 )
 
             if obj_id:
@@ -386,7 +428,10 @@ class JamfObjectReaderBase(JamfUploaderBase):
 
                         # parse the object
                         parsed_object = self.parse_downloaded_api_object(
-                            raw_object, object_type, elements_to_remove
+                            raw_object,
+                            object_type,
+                            elements_to_remove,
+                            elements_to_retain,
                         )
 
                         self.output(parsed_object, verbose_level=2)
@@ -410,6 +455,9 @@ class JamfObjectReaderBase(JamfUploaderBase):
                     if object_name:
                         # if we have an object name, use that
                         n = object_name
+                    elif obj_id and len(object_list) == 1:
+                        # if we have an object ID use the ID in the filename if only one object
+                        n = obj_id
                     else:
                         # otherwise use the name key from the object
                         if namekey not in obj:
@@ -428,7 +476,7 @@ class JamfObjectReaderBase(JamfUploaderBase):
 
                     # parse the object
                     parsed_object = self.parse_downloaded_api_object(
-                        raw_object, object_type, elements_to_remove
+                        raw_object, object_type, elements_to_remove, elements_to_retain
                     )
 
                     self.output("Raw object:", verbose_level=3)

@@ -78,7 +78,7 @@ class JamfPackageCleanerBase(JamfUploaderBase):
             count += 1
             self.output(f"Package delete attempt {count}", verbose_level=2)
             request = "DELETE"
-            r = self.curl(request=request, url=url, token=token)
+            r = self.curl(api_type="classic", request=request, url=url, token=token)
 
             # check HTTP response
             if self.status_check(r, "Package", obj_id, request) == "break":
@@ -203,8 +203,11 @@ class JamfPackageCleanerBase(JamfUploaderBase):
         # check for existing
         obj_type = "package"
         url = f"{jamf_url}/{self.api_endpoints(obj_type)}"
-        r = self.curl(request="GET", url=url, token=token)
-        jamf_packages = json.loads(r.output.decode("utf-8"))["packages"]
+        r = self.curl(api_type="classic", request="GET", url=url, token=token)
+        if isinstance(r.output, dict):
+            jamf_packages = r.output["packages"]
+        else:
+            jamf_packages = json.loads(r.output)["packages"]
 
         # Find packages that match the name pattern
         found_packages = [

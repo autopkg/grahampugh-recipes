@@ -17,6 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import json
 import os.path
 import sys
 
@@ -44,11 +45,13 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
         url_filter = "?page=0&page-size=100&sort=id"
         object_type = "volume_purchasing_location"
         url = jamf_url + "/" + self.api_endpoints(object_type) + url_filter
-        r = self.curl(request="GET", url=url, token=token)
+        r = self.curl(api_type="jpapi", request="GET", url=url, token=token)
         if r.status_code == 200:
             obj_id = 0
-            # output = json.loads(r.output)
-            output = r.output
+            if isinstance(r.output, dict):
+                output = r.output
+            else:
+                output = json.loads(r.output)
             for obj in output["results"]:
                 self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
                 obj_id = obj["id"]
@@ -77,7 +80,7 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                 )
 
     def prepare_mobiledeviceapp_template(
-        self, mobiledeviceapp_name, mobiledeviceapp_template
+        self, jamf_url, mobiledeviceapp_name, mobiledeviceapp_template
     ):
         """prepare the mobiledeviceapp contents"""
         # import template from file and replace any keys in the template
@@ -97,7 +100,7 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
         self.output(template_contents, verbose_level=2)
 
         # write the template to temp file
-        template_xml = self.write_temp_file(template_contents)
+        template_xml = self.write_temp_file(jamf_url, template_contents)
         return mobiledeviceapp_name, template_xml
 
     def upload_mobiledeviceapp(
@@ -123,6 +126,7 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
             self.output(f"Mobile device app upload attempt {count}", verbose_level=2)
             request = "PUT" if obj_id else "POST"
             r = self.curl(
+                api_type="classic",
                 request=request,
                 url=url,
                 token=token,
@@ -314,7 +318,7 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                 self.env["appconfig"] = appconfig
                 mobiledeviceapp_name, template_xml = (
                     self.prepare_mobiledeviceapp_template(
-                        mobiledeviceapp_name, mobiledeviceapp_template
+                        jamf_url, mobiledeviceapp_name, mobiledeviceapp_template
                     )
                 )
 
@@ -466,7 +470,7 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                 self.env["appconfig"] = appconfig
                 mobiledeviceapp_name, template_xml = (
                     self.prepare_mobiledeviceapp_template(
-                        mobiledeviceapp_name, mobiledeviceapp_template
+                        jamf_url, mobiledeviceapp_name, mobiledeviceapp_template
                     )
                 )
 

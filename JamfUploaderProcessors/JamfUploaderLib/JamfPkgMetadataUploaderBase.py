@@ -55,13 +55,17 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
 
         request = "GET"
         r = self.curl(
+            api_type="jpapi",
             request=request,
             url=url,
             token=token,
         )
 
         if r.status_code == 200:
-            obj = json.loads(r.output)
+            if isinstance(r.output, dict):
+                obj = r.output
+            else:
+                obj = json.loads(r.output)
             try:
                 obj_id = str(obj["package"]["id"])
             except KeyError:
@@ -138,7 +142,7 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             verbose_level=2,
         )
 
-        pkg_json = self.write_json_file(pkg_data)
+        pkg_json = self.write_json_file(jamf_url, pkg_data)
 
         # if we find a pkg ID we put, if not, we post
         object_type = "package_v1"
@@ -155,7 +159,9 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 verbose_level=2,
             )
             request = "PUT" if pkg_id else "POST"
-            r = self.curl(request=request, url=url, token=token, data=pkg_json)
+            r = self.curl(
+                api_type="jpapi", request=request, url=url, token=token, data=pkg_json
+            )
             # check HTTP response
             if self.status_check(r, "Package Metadata", pkg_name, request) == "break":
                 break

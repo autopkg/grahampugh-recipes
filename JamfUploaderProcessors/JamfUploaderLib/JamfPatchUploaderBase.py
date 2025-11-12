@@ -44,7 +44,7 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfPatchUploaderBase(JamfUploaderBase):
     """Class for functions used to upload a patch policy to Jamf"""
 
-    def prepare_patch_template(self, patch_name, patch_template):
+    def prepare_patch_template(self, jamf_url, patch_name, patch_template):
         """
         Prepares the patch template. Mostly copied from the policy processor.
         """
@@ -64,7 +64,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         self.output(template_contents, verbose_level=2)
 
         # write the template to temp file
-        template_xml = self.write_temp_file(template_contents)
+        template_xml = self.write_temp_file(jamf_url, template_contents)
         return patch_name, template_xml
 
     def handle_patch_pkg(
@@ -114,7 +114,11 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
         # No need to loop over curl function, since we only make a "GET" request.
         r = self.curl(
-            request="GET", url=url, token=token, endpoint_type="patch_software_title"
+            api_type="classic",
+            request="GET",
+            url=url,
+            token=token,
+            endpoint_type="patch_software_title",
         )
 
         if r.status_code != 200:
@@ -161,7 +165,9 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             )
 
         # Write xml file
-        patch_softwaretitle_xml_file = self.write_xml_file(patch_softwaretitle_xml)
+        patch_softwaretitle_xml_file = self.write_xml_file(
+            jamf_url, patch_softwaretitle_xml
+        )
 
         # Upload the 'updated' patch softwaretitle
         count = 0
@@ -169,6 +175,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             count += 1
             self.output(f"Patch Softwaretitle upload attempt {count}.", verbose_level=2)
             r = self.curl(
+                api_type="classic",
                 request="PUT",
                 url=url,  # Unchanged url from the request earlier
                 token=token,
@@ -221,6 +228,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             self.output(f"Patch upload attempt {count}", verbose_level=2)
             request = "PUT" if patch_id else "POST"
             r = self.curl(
+                api_type="classic",
                 request=request,
                 url=url,
                 token=token,
@@ -394,7 +402,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 )
 
             patch_name, patch_template_xml = self.prepare_patch_template(
-                patch_name, patch_template
+                jamf_url, patch_name, patch_template
             )
 
             obj_type = "patch_policy"

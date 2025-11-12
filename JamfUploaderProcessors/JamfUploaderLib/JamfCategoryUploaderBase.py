@@ -58,7 +58,7 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
 
         # write the category.
         count = 0
-        category_json = self.write_json_file(category_data)
+        category_json = self.write_json_file(jamf_url, category_data)
         while True:
             count += 1
             self.output(
@@ -66,7 +66,13 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
                 verbose_level=2,
             )
             request = "PUT" if obj_id else "POST"
-            r = self.curl(request=request, url=url, token=token, data=category_json)
+            r = self.curl(
+                api_type="jpapi",
+                request=request,
+                url=url,
+                token=token,
+                data=category_json,
+            )
 
             # check HTTP response
             if self.status_check(r, "Category", category_name, request) == "break":

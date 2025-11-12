@@ -65,6 +65,7 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
             self.output(f"{object_type} upload attempt {count}", verbose_level=2)
             request = "PUT" if obj_id else "POST"
             r = self.curl(
+                api_type="jpapi",
                 request=request,
                 url=url,
                 token=token,
@@ -115,7 +116,7 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         # we need to substitute the values in the object name and template now to
         # account for version strings in the name
         object_name, template_file = self.prepare_template(
-            object_type, object_template, object_name
+            jamf_url, object_type, object_template, object_name
         )
 
         # now start the process of uploading the object

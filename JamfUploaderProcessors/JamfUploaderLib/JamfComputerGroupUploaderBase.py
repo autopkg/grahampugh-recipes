@@ -86,7 +86,7 @@ class JamfComputerGroupUploaderBase(JamfUploaderBase):
 
         self.output("Uploading Computer Group...")
         # write the template to temp file
-        template_xml = self.write_temp_file(template_contents)
+        template_xml = self.write_temp_file(jamf_url, template_contents)
 
         # if we find an object ID we put, if not, we post
         object_type = "computer_group"
@@ -98,6 +98,7 @@ class JamfComputerGroupUploaderBase(JamfUploaderBase):
             self.output(f"Computer Group upload attempt {count}", verbose_level=2)
             request = "PUT" if obj_id else "POST"
             r = self.curl(
+                api_type="classic",
                 request=request,
                 url=url,
                 token=token,
