@@ -42,8 +42,11 @@ try:
 except (ImportError, ModuleNotFoundError):
     import subprocess
     import sys
+
     print("Pillow library not found. Installing...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "Pillow"], check=True)
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--upgrade", "Pillow"], check=True
+    )
     from PIL import Image
 
 __all__ = ["IconGenerator"]
@@ -301,7 +304,7 @@ class IconGenerator(DmgMounter):
             try:
                 icon.info.get("sizes")
                 if (128, 128, 2) in icon.info.get("sizes"):
-                    icon.size = (128, 128, 2)
+                    icon.size = (256, 256)
                 elif (256, 256) in icon.info.get("sizes"):
                     icon.size = (256, 256)
                 else:
@@ -387,7 +390,7 @@ class IconGenerator(DmgMounter):
         try:
             bg.info.get("sizes")
             if (128, 128, 2) in bg.info.get("sizes"):
-                bg.size = (128, 128, 2)
+                bg.size = (256, 256)
             elif (256, 256) in bg.info.get("sizes"):
                 bg.size = (256, 256)
             else:
