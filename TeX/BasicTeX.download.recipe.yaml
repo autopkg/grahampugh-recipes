@@ -17,6 +17,8 @@ Process:
       CHECK_FILESIZE_ONLY: true
       url: "%DOWNLOAD_URL%"
 
+  - Processor: EndOfCheckPhase
+
   - Processor: CodeSignatureVerifier
     Arguments:
       expected_authority_names:
@@ -24,5 +26,3 @@ Process:
         - Developer ID Certification Authority
         - Apple Root CA
       input_path: "%pathname%"
-
-  - Processor: EndOfCheckPhase
