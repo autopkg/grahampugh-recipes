@@ -1,4 +1,4 @@
-Identifier: multitenant-jamf-tools.jamf.DeleteUnusedPackages
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.DeleteUnusedPackages
 MinimumVersion: "2.3"
 
 Input:

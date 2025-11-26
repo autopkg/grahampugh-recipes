@@ -1,6 +1,6 @@
 Description: |
   Recipe to delete old packages from Jamf Pro server. Requires the NAME key.
-Identifier: multitenant-jamf-tools.jamf.DeleteOldPackages
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.DeleteOldPackages
 MinimumVersion: "2.3"
 
 Input:
