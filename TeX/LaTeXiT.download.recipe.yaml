@@ -21,8 +21,8 @@ Process:
       filename: "%NAME%-%version_ul%.dmg"
       url: "%BASE_URL%/%url%"
 
+  - Processor: EndOfCheckPhase
+
   - Processor: AppDmgVersioner
     Arguments:
       dmg_path: "%pathname%"
-
-  - Processor: EndOfCheckPhase

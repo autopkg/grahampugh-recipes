@@ -9,3 +9,4 @@ Process:
   - Processor: URLDownloader
     Arguments:
       url: https://downloads.claris.com/esd/fmpa_%DOWNLOAD_VERSION%.dmg
+  - Processor: EndOfCheckPhase
