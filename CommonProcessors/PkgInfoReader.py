@@ -55,12 +55,14 @@ class PkgInfoReader(Copier):
             "return the highest version found if multiple packages are found.",
         },
         "packageid": {
-            "description": "The package ID of the package providing the version variable."},
-        "packageids": {
-            "description": "Array of all package IDs found in the package."},
+            "description": "The package ID of the package providing the version variable."
+        },
+        "packageids": {"description": "Array of all package IDs found in the package."},
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
-        "installed_size": {"description": "The size of the app when installed (in kilobytes)."},
-        "installer_item_size": {"description": "The size of the package (in bytes)."}
+        "installed_size": {
+            "description": "The size of the app when installed (in kilobytes)."
+        },
+        "installer_item_size": {"description": "The size of the package (in bytes)."},
     }
 
     description = __doc__
@@ -324,7 +326,7 @@ class PkgInfoReader(Copier):
             try:
                 plist = plistlib.readPlist(infopath)
                 return plist
-            except:  # TODO correct error
+            except (OSError, plistlib.InvalidFileException, ValueError):
                 pass
 
         return None
@@ -514,6 +516,7 @@ class PkgInfoReader(Copier):
 
         packageids = []
         highestpkgversion = "0.0"
+        packageid = ""
         installedsize = 0
 
         for infoitem in receiptinfo:
@@ -547,9 +550,14 @@ class PkgInfoReader(Copier):
         installer_item_size = os.path.getsize(pkgitem)
         cataloginfo["installer_item_size"] = installer_item_size
 
-        if "installKBytes" in receiptinfo:
-            if receiptinfo["installKBytes"] > 0:
-                cataloginfo["installed_size"] = receiptinfo["installKBytes"]
+        # receiptinfo is a list, so we need to check each item for installKBytes
+        total_install_kbytes = 0
+        for receipt in receiptinfo:
+            if isinstance(receipt, dict) and "installKBytes" in receipt:
+                total_install_kbytes += receipt["installKBytes"]
+
+        if total_install_kbytes > 0:
+            cataloginfo["installed_size"] = total_install_kbytes
         elif installedsize:
             cataloginfo["installed_size"] = installedsize
 
