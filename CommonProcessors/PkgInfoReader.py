@@ -600,12 +600,12 @@ class PkgInfoReader(Copier):
 
             cataloginfo = self.getPackageMetaData(matched_source_path)
             self.env["infodict"] = cataloginfo
-            self.env["packageid"] = cataloginfo["packageid"]
-            self.env["packageids"] = cataloginfo["packageids"]
-            self.env["version"] = cataloginfo["version"]
-            self.env["minimum_os_version"] = cataloginfo["minimum_os_version"]
-            self.env["installer_item_size"] = cataloginfo["installer_item_size"]
-            self.env["installed_size"] = cataloginfo["installed_size"]
+            self.env["packageid"] = cataloginfo.get("packageid")
+            self.env["packageids"] = cataloginfo.get("packageids")
+            self.env["version"] = cataloginfo.get("version")
+            self.env["minimum_os_version"] = cataloginfo.get("minimum_os_version")
+            self.env["installer_item_size"] = cataloginfo.get("installer_item_size")
+            self.env["installed_size"] = cataloginfo.get("installed_size")
 
         finally:
             if dmg:
