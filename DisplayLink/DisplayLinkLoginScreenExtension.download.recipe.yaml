@@ -6,6 +6,10 @@ Input:
   NAME: DisplayLink Login Screen Extension
 
 Process:
+  - Processor: DeprecationWarning
+    Arguments:
+      warning_message: Consider switching to the DisplayLinkLoginScreenExtension recipes in the peetinc-recipes repo. This recipe is deprecated and will be removed in the future.
+
   - Processor: URLDownloader
     Arguments:
       url: "https://www.displaylink.com/downloads/macos_extension"
