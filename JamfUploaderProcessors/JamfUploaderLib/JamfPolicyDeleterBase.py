@@ -39,13 +39,13 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfPolicyDeleterBase(JamfUploaderBase):
     """Class for functions used to delete a policy from Jamf"""
 
-    def delete_policy(self, jamf_url, obj_id, token):
+    def delete_policy(self, jamf_url, object_id, token, max_tries):
         """Delete policy"""
 
         self.output("Deleting Policy...")
 
         object_type = "policy"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
 
         count = 0
         while True:
@@ -55,13 +55,15 @@ class JamfPolicyDeleterBase(JamfUploaderBase):
             r = self.curl(api_type="classic", request=request, url=url, token=token)
 
             # check HTTP response
-            if self.status_check(r, "Policy", obj_id, request) == "break":
+            if self.status_check(r, "Policy", object_id, request) == "break":
                 break
-            if count > 5:
-                self.output("WARNING: Policy deletion did not succeed after 5 attempts")
+            if count >= max_tries:
+                self.output(
+                    f"WARNING: Policy deletion did not succeed after {max_tries} attempts"
+                )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Policy deletion failed ")
-            sleep(30)
+            sleep(10)
         return r
 
     def execute(self):
@@ -72,6 +74,15 @@ class JamfPolicyDeleterBase(JamfUploaderBase):
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
         policy_name = self.env.get("policy_name")
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # clear any pre-existing summary result
         if "jamfpolicydeleter_summary_result" in self.env:
@@ -92,26 +103,25 @@ class JamfPolicyDeleterBase(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
-        # check for existing - requires obj_name
-        obj_type = "policy"
-        obj_name = policy_name
-        obj_id = self.get_api_obj_id_from_name(
+        # check for existing - requires object_name
+        object_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
-            token,
+            object_type="policy",
+            object_name=policy_name,
+            token=token,
         )
 
-        if obj_id:
-            self.output(f"Policy '{policy_name}' exists: ID {obj_id}")
+        if object_id:
+            self.output(f"Policy '{policy_name}' exists: ID {object_id}")
             self.output(
                 "Deleting existing policy",
                 verbose_level=1,
             )
             self.delete_policy(
                 jamf_url,
-                obj_id,
+                object_id,
                 token,
+                max_tries,
             )
         else:
             self.output(

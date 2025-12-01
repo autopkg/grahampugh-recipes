@@ -94,7 +94,7 @@ class JamfPatchCheckerBase(JamfUploaderBase):
                 v.append(pkg_element)
                 # Print new version element for debugging reasons
                 self.output(
-                    ET.tostring(v, encoding="UTF-8", method="xml"), verbose_level=3
+                    ET.tostring(v, encoding="unicode", method="xml"), verbose_level=3
                 )
                 self.env["patch_version_found"] = patch_version_found
 
@@ -144,12 +144,10 @@ class JamfPatchCheckerBase(JamfUploaderBase):
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         # Patch Softwaretitle
-        obj_type = "patch_software_title"
-        obj_name = patch_softwaretitle
-        patch_softwaretitle_id = self.get_api_obj_id_from_name(
+        patch_softwaretitle_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
+            object_type="patch_software_title",
+            object_name=patch_softwaretitle,
             token=token,
         )
 

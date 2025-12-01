@@ -47,15 +47,15 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
         url = jamf_url + "/" + self.api_endpoints(object_type) + url_filter
         r = self.curl(api_type="jpapi", request="GET", url=url, token=token)
         if r.status_code == 200:
-            obj_id = 0
+            object_id = 0
             if isinstance(r.output, dict):
                 output = r.output
             else:
                 output = json.loads(r.output)
             for obj in output["results"]:
                 self.output(f"ID: {obj['id']} NAME: {obj['name']}", verbose_level=3)
-                obj_id = obj["id"]
-            return obj_id
+                object_id = obj["id"]
+            return object_id
         else:
             self.output(f"Return code: {r.status_code}", verbose_level=2)
 
@@ -106,11 +106,12 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
     def upload_mobiledeviceapp(
         self,
         jamf_url,
-        mobiledeviceapp_name,
-        template_xml,
+        object_name,
+        object_template,
         sleep_time,
         token,
-        obj_id=0,
+        max_tries,
+        object_id=0,
     ):
         """Upload Mobile device app"""
 
@@ -118,38 +119,36 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
 
         # if we find an object ID we put, if not, we post
         object_type = "mobile_device_application"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
 
         count = 0
         while True:
             count += 1
             self.output(f"Mobile device app upload attempt {count}", verbose_level=2)
-            request = "PUT" if obj_id else "POST"
+            request = "PUT" if object_id else "POST"
             r = self.curl(
                 api_type="classic",
                 request=request,
                 url=url,
                 token=token,
-                data=template_xml,
+                data=object_template,
             )
             # check HTTP response
             if (
-                self.status_check(
-                    r, "mobile_device_application", mobiledeviceapp_name, request
-                )
+                self.status_check(r, "mobile_device_application", object_name, request)
                 == "break"
             ):
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    "WARNING: Mobile device app upload did not succeed after 5 attempts"
+                    f"WARNING: Mobile device app upload did not succeed after {max_tries} attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Mobile device app upload failed ")
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
         return r
 
     def execute(self):
@@ -167,6 +166,15 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
         replace_mobiledeviceapp = self.to_bool(self.env.get("replace_mobiledeviceapp"))
         sleep_time = self.env.get("sleep")
         mobiledeviceapp_updated = False
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # clear any pre-existing summary result
         if "jamfmobiledeviceappuploader_summary_result" in self.env:
@@ -197,43 +205,41 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
-        # check for existing - requires obj_name
-        obj_type = "mobile_device_application"
-        obj_name = mobiledeviceapp_name
-        obj_id = self.get_api_obj_id_from_name(
+        # check for existing - requires object_name
+        object_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
+            object_type="mobile_device_application",
+            object_name=mobiledeviceapp_name,
             token=token,
         )
 
-        if obj_id:
+        if object_id:
             self.output(
-                f"Mobile device app '{mobiledeviceapp_name}' already exists: ID {obj_id}"
+                f"Mobile device app '{mobiledeviceapp_name}' already exists: ID {object_id}"
             )
             if replace_mobiledeviceapp:
                 self.output(
-                    f"Replacing existing Mobile device app as 'replace_mobiledeviceapp' "
-                    f"is set to True",
+                    "Replacing existing Mobile device app as 'replace_mobiledeviceapp' "
+                    "is set to True",
                     verbose_level=1,
                 )
 
                 # obtain the Mobile device app bundleid
-                bundleid = self.get_api_obj_value_from_id(
+                bundleid = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/bundle_id",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/bundle_id",
                     token=token,
                 )
                 if bundleid:
                     self.output(f"Existing bundle ID is '{bundleid}'", verbose_level=1)
                 # obtain the Mobile device app version
-                mobiledeviceapp_version = self.get_api_obj_value_from_id(
+                mobiledeviceapp_version = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/version",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/version",
                     token=token,
                 )
                 if mobiledeviceapp_version:
@@ -242,11 +248,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                         verbose_level=1,
                     )
                 # obtain the Mobile device app free status
-                mobiledeviceapp_free = self.get_api_obj_value_from_id(
+                mobiledeviceapp_free = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/free",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/free",
                     token=token,
                 )
                 if mobiledeviceapp_free:
@@ -255,11 +261,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                         verbose_level=1,
                     )
                 # obtain the Mobile device app URL
-                itunes_store_url = self.get_api_obj_value_from_id(
+                itunes_store_url = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/itunes_store_url",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/itunes_store_url",
                     token=token,
                 )
                 if itunes_store_url:
@@ -269,11 +275,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                     )
                 # obtain the Mobile device app icon
                 if not selfservice_icon_uri:
-                    selfservice_icon_uri = self.get_api_obj_value_from_id(
+                    selfservice_icon_uri = self.get_api_object_value_from_id(
                         jamf_url,
-                        "mobile_device_application",
-                        obj_id,
-                        "self_service/self_service_icon/uri",
+                        object_type="mobile_device_application",
+                        object_id=object_id,
+                        object_path="self_service/self_service_icon/uri",
                         token=token,
                     )
                     if selfservice_icon_uri:
@@ -298,11 +304,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                         appconfig_template
                     )
                 else:
-                    appconfig = self.get_api_obj_value_from_id(
+                    appconfig = self.get_api_object_value_from_id(
                         jamf_url,
-                        "mobile_device_application",
-                        obj_id,
-                        "app_configuration/preferences",
+                        object_type="mobile_device_application",
+                        object_id=object_id,
+                        object_path="app_configuration/preferences",
                         token=token,
                     )
 
@@ -325,11 +331,12 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                 # upload the mobiledeviceapp
                 self.upload_mobiledeviceapp(
                     jamf_url,
-                    mobiledeviceapp_name,
-                    template_xml,
-                    sleep_time,
-                    token,
-                    obj_id=obj_id,
+                    object_name=mobiledeviceapp_name,
+                    object_template=template_xml,
+                    sleep_time=sleep_time,
+                    token=token,
+                    max_tries=max_tries,
+                    object_id=object_id,
                 )
                 mobiledeviceapp_updated = True
 
@@ -356,36 +363,34 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                 )
                 return
         elif clone_from:
-            # check for existing - requires obj_name
-            obj_type = "mobile_device_application"
-            obj_name = clone_from
-            obj_id = self.get_api_obj_id_from_name(
+            # check for existing - requires object_name
+            object_id = self.get_api_object_id_from_name(
                 jamf_url,
-                obj_name,
-                obj_type,
+                object_type="mobile_device_application",
+                object_name=clone_from,
                 token=token,
             )
-            if obj_id:
+            if object_id:
                 self.output(
-                    f"Mobile device app '{clone_from}' already exists: ID {obj_id}"
+                    f"Mobile device app '{clone_from}' already exists: ID {object_id}"
                 )
 
                 # obtain the Mobile device app bundleid
-                bundleid = self.get_api_obj_value_from_id(
+                bundleid = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/bundle_id",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/bundle_id",
                     token=token,
                 )
                 if bundleid:
                     self.output(f"Existing bundle ID is '{bundleid}'", verbose_level=1)
                 # obtain the Mobile device app version
-                mobiledeviceapp_version = self.get_api_obj_value_from_id(
+                mobiledeviceapp_version = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/version",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/version",
                     token=token,
                 )
                 if mobiledeviceapp_version:
@@ -394,11 +399,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                         verbose_level=1,
                     )
                 # obtain the Mobile device app free status
-                mobiledeviceapp_free = self.get_api_obj_value_from_id(
+                mobiledeviceapp_free = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/free",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/free",
                     token=token,
                 )
                 if mobiledeviceapp_free:
@@ -407,11 +412,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                         verbose_level=1,
                     )
                 # obtain the Mobile device app URL
-                itunes_store_url = self.get_api_obj_value_from_id(
+                itunes_store_url = self.get_api_object_value_from_id(
                     jamf_url,
-                    "mobile_device_application",
-                    obj_id,
-                    "general/itunes_store_url",
+                    object_type="mobile_device_application",
+                    object_id=object_id,
+                    object_path="general/itunes_store_url",
                     token=token,
                 )
                 if itunes_store_url:
@@ -421,11 +426,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                     )
                 # obtain the Mobile device app icon
                 if not selfservice_icon_uri:
-                    selfservice_icon_uri = self.get_api_obj_value_from_id(
+                    selfservice_icon_uri = self.get_api_object_value_from_id(
                         jamf_url,
-                        "mobile_device_application",
-                        obj_id,
-                        "self_service/self_service_icon/uri",
+                        object_type="mobile_device_application",
+                        object_id=object_id,
+                        object_path="self_service/self_service_icon/uri",
                         token=token,
                     )
                     if selfservice_icon_uri:
@@ -446,11 +451,11 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                     self.output("Didn't retrieve a VPP ID", verbose_level=2)
                 # obtain appconfig
                 if not appconfig_template:
-                    appconfig = self.get_api_obj_value_from_id(
+                    appconfig = self.get_api_object_value_from_id(
                         jamf_url,
-                        "mobile_device_application",
-                        obj_id,
-                        "app_configuration/preferences",
+                        object_type="mobile_device_application",
+                        object_id=object_id,
+                        object_path="app_configuration/preferences",
                         token=token,
                     )
                 if appconfig_template:
@@ -477,11 +482,12 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
                 # upload the mobiledeviceapp
                 self.upload_mobiledeviceapp(
                     jamf_url,
-                    mobiledeviceapp_name,
-                    template_xml,
-                    sleep_time,
-                    token,
-                    obj_id=0,
+                    object_name=mobiledeviceapp_name,
+                    object_template=template_xml,
+                    sleep_time=sleep_time,
+                    token=token,
+                    max_tries=max_tries,
+                    object_id=0,
                 )
                 mobiledeviceapp_updated = True
 

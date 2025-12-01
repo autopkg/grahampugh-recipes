@@ -42,20 +42,21 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
     def upload_object(
         self,
         jamf_url,
-        object_name,
         object_type,
-        template_file,
+        object_name,
+        object_template,
         sleep_time,
         token,
-        obj_id=0,
+        max_tries,
+        object_id=0,
     ):
         """Upload object"""
 
         self.output(f"Uploading {object_type}...")
 
         # if we find an object ID we put, if not, we post
-        if obj_id:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{obj_id}"
+        if object_id:
+            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}"
         else:
             url = f"{jamf_url}/{self.api_endpoints(object_type)}"
 
@@ -63,27 +64,27 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         while True:
             count += 1
             self.output(f"{object_type} upload attempt {count}", verbose_level=2)
-            request = "PUT" if obj_id else "POST"
+            request = "PUT" if object_id else "POST"
             r = self.curl(
                 api_type="jpapi",
                 request=request,
                 url=url,
                 token=token,
-                data=template_file,
+                data=object_template,
             )
             # check HTTP response
             if self.status_check(r, object_type, object_name, request) == "break":
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    f"WARNING: {object_type} upload did not succeed after 5 attempts"
+                    f"WARNING: {object_type} upload did not succeed after {max_tries} attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError(f"ERROR: {object_type} upload failed ")
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
         return r
 
     def execute(self):
@@ -97,13 +98,22 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         object_template = self.env.get("api_role_template")
         replace_object = self.to_bool(self.env.get("replace_api_role"))
         sleep_time = self.env.get("sleep")
-        object_updated = False
-
+        max_tries = self.env.get("max_tries")
         object_type = "api_role"
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # clear any pre-existing summary result
         if "jamfapiroleuploader_summary_result" in self.env:
             del self.env["jamfapiroleuploader_summary_result"]
+
+        object_updated = False
 
         # handle files with a relative path
         if not object_template.startswith("/"):
@@ -137,12 +147,16 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         # Check for existing item
         self.output(f"Checking for existing '{object_name}' on {jamf_url}")
 
-        obj_id = self.get_api_obj_id_from_name(
-            jamf_url, object_name, object_type, token=token, filter_name="displayName"
+        object_id = self.get_api_object_id_from_name(
+            jamf_url,
+            object_type=object_type,
+            object_name=object_name,
+            token=token,
+            filter_name="displayName",
         )
 
-        if obj_id:
-            self.output(f"{object_type} '{object_name}' already exists: ID {obj_id}")
+        if object_id:
+            self.output(f"{object_type} '{object_name}' already exists: ID {object_id}")
             if replace_object:
                 self.output(
                     f"Replacing existing {object_type} as replace_object is set to True",
@@ -158,12 +172,13 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         # upload the object
         self.upload_object(
             jamf_url,
-            object_name,
-            object_type,
-            template_file,
-            sleep_time,
+            object_type=object_type,
+            object_name=object_name,
+            object_template=template_file,
+            sleep_time=sleep_time,
             token=token,
-            obj_id=obj_id,
+            max_tries=max_tries,
+            object_id=object_id,
         )
         object_updated = True
 

@@ -42,15 +42,14 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
     """Class for functions used to upload a mobile device configuration profile to Jamf"""
 
-    def get_existing_uuid_and_identifier(self, jamf_url, obj_id, token):
+    def get_existing_uuid_and_identifier(self, jamf_url, object_id, token):
         """return the existing UUID to ensure we don't change it"""
         # first grab the payload from the xml object
-        obj_type = "configuration_profile"
-        existing_plist = self.get_api_obj_value_from_id(
+        existing_plist = self.get_api_object_value_from_id(
             jamf_url,
-            obj_type,
-            obj_id,
-            "general/payloads",
+            object_type="configuration_profile",
+            object_id=object_id,
+            object_path="general/payloads",
             token=token,
         )
 
@@ -113,7 +112,7 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
     def upload_mobileconfig(
         self,
         jamf_url,
-        mobileconfig_name,
+        object_name,
         description,
         category,
         mobileconfig_plist,
@@ -122,7 +121,8 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
         profile_uuid,
         sleep_time,
         token,
-        obj_id=0,
+        max_tries,
+        object_id=0,
     ):
         """Update Configuration Profile metadata."""
         # remove newlines, tabs, leading spaces, and XML-escape the payload
@@ -134,7 +134,7 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
 
         # substitute user-assignable keys
         replaceable_keys = {
-            "mobileconfig_name": mobileconfig_name,
+            "mobileconfig_name": object_name,
             "description": description,
             "category": category,
             "payload": mobileconfig,
@@ -164,7 +164,7 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
 
         # if we find an object ID we put, if not, we post
         object_type = "configuration_profile"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
 
         count = 0
         while True:
@@ -172,7 +172,7 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
             self.output(
                 f"Configuration Profile upload attempt {count}", verbose_level=1
             )
-            request = "PUT" if obj_id else "POST"
+            request = "PUT" if object_id else "POST"
             r = self.curl(
                 api_type="classic",
                 request=request,
@@ -183,22 +183,21 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
 
             # check HTTP response
             if (
-                self.status_check(
-                    r, "Configuration Profile", mobileconfig_name, request
-                )
+                self.status_check(r, "Configuration Profile", object_name, request)
                 == "break"
             ):
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    "ERROR: Configuration Profile upload did not succeed after 5 attempts"
+                    f"ERROR: Configuration Profile upload did not succeed after {max_tries} "
+                    "attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 break
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
 
         return r
 
@@ -218,12 +217,21 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
         profile_mobiledevicegroup = self.env.get("profile_mobiledevicegroup")
         replace_profile = self.to_bool(self.env.get("replace_profile"))
         sleep_time = self.env.get("sleep")
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
+
         profile_updated = False
 
         # clear any pre-existing summary result
-        if "jamfmobiledeviceprofilepploader_summary_result" in self.env:
-            del self.env["jamfmobiledeviceprofilepploader_summary_result"]
-
+        if "jamfmobiledeviceprofileuploader_summary_result" in self.env:
+            del self.env["jamfmobiledeviceprofileuploader_summary_result"]
         # substitute values in the profile name and category
         profile_name = self.substitute_assignable_keys(profile_name)
         profile_category = self.substitute_assignable_keys(profile_category)
@@ -311,17 +319,15 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
-        obj_type = "configuration_profile"
-        obj_name = mobileconfig_name
-        obj_id = self.get_api_obj_id_from_name(
+        object_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
+            object_type="configuration_profile",
+            object_name=mobileconfig_name,
             token=token,
         )
-        if obj_id:
+        if object_id:
             self.output(
-                f"Configuration Profile '{mobileconfig_name}' already exists: ID {obj_id}"
+                f"Configuration Profile '{mobileconfig_name}' already exists: ID {object_id}"
             )
             if replace_profile:
                 self.output(
@@ -332,7 +338,7 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
                 (
                     existing_uuid,
                     existing_identifier,
-                ) = self.get_existing_uuid_and_identifier(jamf_url, obj_id, token)
+                ) = self.get_existing_uuid_and_identifier(jamf_url, object_id, token)
                 if mobileconfig:
                     # need to inject the existing payload identifier to prevent ghost profiles
                     mobileconfig_contents = (
@@ -348,16 +354,17 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
                 if mobileconfig_plist:
                     self.upload_mobileconfig(
                         jamf_url,
-                        mobileconfig_name,
-                        profile_description,
-                        profile_category,
-                        mobileconfig_plist,
-                        profile_mobiledevicegroup,
-                        template_contents,
-                        existing_uuid,
-                        sleep_time,
-                        token,
-                        obj_id=obj_id,
+                        object_name=mobileconfig_name,
+                        description=profile_description,
+                        category=profile_category,
+                        mobileconfig_plist=mobileconfig_plist,
+                        devicegroup_name=profile_mobiledevicegroup,
+                        template_contents=template_contents,
+                        profile_uuid=existing_uuid,
+                        sleep_time=sleep_time,
+                        token=token,
+                        max_tries=max_tries,
+                        object_id=object_id,
                     )
                     profile_updated = True
             else:
@@ -375,15 +382,16 @@ class JamfMobileDeviceProfileUploaderBase(JamfUploaderBase):
             if mobileconfig_plist:
                 self.upload_mobileconfig(
                     jamf_url,
-                    mobileconfig_name,
-                    profile_description,
-                    profile_category,
-                    mobileconfig_plist,
-                    profile_mobiledevicegroup,
-                    template_contents,
-                    new_uuid,
-                    sleep_time,
+                    object_name=mobileconfig_name,
+                    description=profile_description,
+                    category=profile_category,
+                    mobileconfig_plist=mobileconfig_plist,
+                    devicegroup_name=profile_mobiledevicegroup,
+                    template_contents=template_contents,
+                    profile_uuid=new_uuid,
+                    sleep_time=sleep_time,
                     token=token,
+                    max_tries=max_tries,
                 )
                 profile_updated = True
             else:

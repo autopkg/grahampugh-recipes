@@ -67,29 +67,27 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             else:
                 obj = json.loads(r.output)
             try:
-                obj_id = str(obj["package"]["id"])
+                object_id = str(obj["package"]["id"])
             except KeyError:
-                obj_id = "-1"
+                object_id = "-1"
         else:
-            obj_id = "-1"
-        return obj_id
+            object_id = "-1"
+        return object_id
 
     def get_category_id(self, jamf_url, category_name, token=""):
         """Get the category ID from the name, or abort if ID not found"""
         # check for existing category
         self.output(f"Checking for '{category_name}' on {jamf_url}")
-        obj_type = "category"
-        obj_name = category_name
-        obj_id = self.get_api_obj_id_from_name(
+        object_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
-            token,
+            object_type="category",
+            object_name=category_name,
+            token=token,
         )
 
-        if obj_id:
-            self.output(f"Category '{category_name}' exists: ID {obj_id}")
-            return obj_id
+        if object_id:
+            self.output(f"Category '{category_name}' exists: ID {object_id}")
+            return object_id
         else:
             self.output(f"Category '{category_name}' not found")
             raise ProcessorError("Supplied package category does not exist")
@@ -101,8 +99,9 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
         pkg_display_name,
         pkg_metadata,
         sleep_time,
+        token,
+        max_tries,
         pkg_id=0,
-        token="",
     ):
         """Update package metadata using v1/packages endpoint."""
 
@@ -165,14 +164,16 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             # check HTTP response
             if self.status_check(r, "Package Metadata", pkg_name, request) == "break":
                 break
-            if count > 5:
-                self.output("Package metadata upload did not succeed after 5 attempts")
+            if count >= max_tries:
+                self.output(
+                    f"Package metadata upload did not succeed after {max_tries} attempts"
+                )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Package metadata upload failed ")
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
         if r.status_code == 201:
             obj = json.loads(json.dumps(r.output))
             self.output(
@@ -181,12 +182,12 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             )
 
             try:
-                obj_id = obj["id"]
+                object_id = obj["id"]
             except KeyError:
-                obj_id = "-1"
+                object_id = "-1"
         else:
-            obj_id = "-1"
-        return obj_id
+            object_id = "-1"
+        return object_id
 
     # main function
     def execute(
@@ -201,11 +202,6 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
         client_secret = self.env.get("CLIENT_SECRET")
         pkg_name = self.env.get("pkg_name")
         pkg_display_name = self.env.get("pkg_display_name")
-        replace_metadata = self.to_bool(self.env.get("replace_pkg_metadata"))
-        sleep_time = self.env.get("sleep")
-        pkg_metadata_updated = False
-
-        # create a dictionary of package metadata from the inputs
         pkg_category = self.env.get("pkg_category")
         pkg_info = self.env.get("pkg_info")
         notes = self.env.get("pkg_notes")
@@ -214,6 +210,18 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
         required_processor = self.env.get("required_processor")
         reboot_required = self.to_bool(self.env.get("reboot_required"))
         send_notification = self.to_bool(self.env.get("send_notification"))
+        sleep_time = self.env.get("sleep")
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
+
+        pkg_metadata_updated = False
 
         # allow passing a pkg path to extract the name
         if "/" in pkg_name:
@@ -274,11 +282,11 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         # check for existing pkg
-        obj_id = self.check_pkg(pkg_name, jamf_url, token=token)
-        self.output(f"ID: {obj_id}", verbose_level=3)  # TEMP
-        if obj_id != "-1":
-            self.output(f"Package '{pkg_name}' already exists: ID {obj_id}")
-            pkg_id = obj_id  # assign pkg_id for smb runs - JCDS runs get it from the pkg upload
+        object_id = self.check_pkg(pkg_name, jamf_url, token=token)
+        self.output(f"ID: {object_id}", verbose_level=3)  # TEMP
+        if object_id != "-1":
+            self.output(f"Package '{pkg_name}' already exists: ID {object_id}")
+            pkg_id = object_id  # assign pkg_id for smb runs - JCDS runs get it from the pkg upload
         else:
             self.output(f"Package '{pkg_name}' not found on server")
             pkg_id = 0
@@ -296,8 +304,9 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 pkg_display_name,
                 pkg_metadata,
                 sleep_time,
-                pkg_id=pkg_id,
                 token=token,
+                max_tries=max_tries,
+                pkg_id=pkg_id,
             )
             pkg_metadata_updated = True
         else:
@@ -306,14 +315,15 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 "Creating package metadata",
                 verbose_level=1,
             )
-            obj_id = self.update_pkg_metadata_api(
+            self.update_pkg_metadata_api(
                 jamf_url,
                 pkg_name,
                 pkg_display_name,
                 pkg_metadata,
                 sleep_time,
-                pkg_id=pkg_id,
                 token=token,
+                max_tries=max_tries,
+                pkg_id=pkg_id,
             )
             pkg_metadata_updated = True
 

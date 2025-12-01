@@ -75,7 +75,8 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         pkg_version,
         pkg_name,
         sleep_time,
-        token="",
+        token,
+        max_tries,
     ):
         """Uploads an updated patch softwaretitle including the linked pkg"""
         self.output("Linking pkg versions in patch softwaretitle...")
@@ -89,20 +90,19 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 f"Attempt '{count}' of fetching package id of '{pkg_name}'.",
                 verbose_level=2,
             )
-            obj_type = "package"
-            obj_name = pkg_name
-            pkg_id = self.get_api_obj_id_from_name(
+            pkg_id = self.get_api_object_id_from_name(
                 jamf_url,
-                obj_name,
-                obj_type,
+                object_type="package",
+                object_name=pkg_name,
                 token=token,
             )
             if pkg_id:
                 self.output(f"Found id '{pkg_id}' for package '{pkg_name}'.")
                 break
-            if count > 3:
+            if count >= max_tries:
                 raise ProcessorError(
-                    f"ERROR: Couldn't fetch package id for package '{pkg_name}'."
+                    f"ERROR: Couldn't fetch package id for package '{pkg_name}' after {max_tries} "
+                    "attempts."
                 )
             sleep(10)
 
@@ -173,7 +173,9 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         count = 0
         while True:
             count += 1
-            self.output(f"Patch Softwaretitle upload attempt {count}.", verbose_level=2)
+            self.output(
+                f"Patch Software Title upload attempt {count}.", verbose_level=2
+            )
             r = self.curl(
                 api_type="classic",
                 request="PUT",
@@ -184,29 +186,31 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             # Check HTTP Status
             if (
                 self.status_check(
-                    r, "Patch Softwaretitle", patch_softwaretitle_name, "PUT"
+                    r, "Patch Software Title", patch_softwaretitle_name, "PUT"
                 )
                 == "break"
             ):
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    "ERROR: Uploading updated Patch Softwaretitle did not succeed after 5 attempts."
+                    "ERROR: Uploading updated Patch Software Title did not succeed after "
+                    f"{max_tries} attempts."
                 )
-                raise ProcessorError("ERROR: Patch Softwaretitle upload failed.")
-            if int(sleep_time) > 30:
+                raise ProcessorError("ERROR: Patch Software Title upload failed.")
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
 
     def upload_patch(
         self,
         jamf_url,
-        patch_name,
+        object_name,
+        object_template,
         patch_softwaretitle_id,
         sleep_time,
         token,
-        patch_template,
+        max_tries,
         patch_id=0,
     ):
         """Uploads the patch policy"""
@@ -232,21 +236,21 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 request=request,
                 url=url,
                 token=token,
-                data=patch_template,
+                data=object_template,
             )
             # check HTTP response
-            if self.status_check(r, "Patch", patch_name, request) == "break":
+            if self.status_check(r, "Patch", object_name, request) == "break":
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    "WARNING: Patch policy upload did not succeed after 5 attempts"
+                    f"WARNING: Patch policy upload did not succeed after {max_tries} attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Policy upload failed.")
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
         return r
 
     def execute(self):
@@ -264,6 +268,15 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         patch_icon_policy_name = self.env.get("patch_icon_policy_name")
         replace_patchpolicy = self.to_bool(self.env.get("replace_patch"))
         sleep_time = self.env.get("sleep")
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # clear any pre-existing summary result
         if "jamfpatchuploader_summary_result" in self.env:
@@ -309,24 +322,19 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         # to extract the icon from a specified policy (if desired).
 
         if patch_icon_policy_name:
-            obj_type = "policy"
-            obj_name = patch_icon_policy_name
-            patch_icon_policy_id = self.get_api_obj_id_from_name(
+            patch_icon_policy_id = self.get_api_object_id_from_name(
                 jamf_url,
-                obj_name,
-                obj_type,
+                object_type="policy",
+                object_name=patch_icon_policy_name,
                 token=token,
             )
             if patch_icon_policy_id:
                 # Only try to extract an icon, if a policy with the given name was found.
-                obj_type = "policy"
-                obj_id = patch_icon_policy_id
-                obj_path = "self_service/self_service_icon/id"
-                patch_icon_id = self.get_api_obj_value_from_id(
+                patch_icon_id = self.get_api_object_value_from_id(
                     jamf_url,
-                    obj_type,
-                    obj_id,
-                    obj_path,
+                    object_type="policy",
+                    object_id=patch_icon_policy_id,
+                    object_path="self_service/self_service_icon/id",
                     token=token,
                 )
                 if patch_icon_id:
@@ -358,13 +366,11 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 verbose_level=1,
             )
 
-        # Patch Softwaretitle
-        obj_type = "patch_software_title"
-        obj_name = patch_softwaretitle
-        patch_softwaretitle_id = self.get_api_obj_id_from_name(
+        # Patch Software Title
+        patch_softwaretitle_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
+            object_type="patch_software_title",
+            object_name=patch_softwaretitle,
             token=token,
         )
 
@@ -391,6 +397,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             pkg_name,
             sleep_time,
             token,
+            max_tries,
         )
 
         # Patch Policy
@@ -405,12 +412,10 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 jamf_url, patch_name, patch_template
             )
 
-            obj_type = "patch_policy"
-            obj_name = patch_name
-            patch_id = self.get_api_obj_id_from_name(
+            patch_id = self.get_api_object_id_from_name(
                 jamf_url,
-                obj_name,
-                obj_type,
+                object_type="patch_policy",
+                object_name=patch_name,
                 token=token,
             )
 
@@ -431,11 +436,12 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             # Upload the patch
             r = self.upload_patch(
                 jamf_url,
-                patch_name,
-                patch_softwaretitle_id,
-                sleep_time,
-                token,
-                patch_template=patch_template_xml,
+                object_name=patch_name,
+                object_template=patch_template_xml,
+                patch_softwaretitle_id=patch_softwaretitle_id,
+                sleep_time=sleep_time,
+                token=token,
+                max_tries=max_tries,
                 patch_id=patch_id,
             )
 

@@ -43,13 +43,13 @@ class JamfComputerGroupDeleterBase(JamfUploaderBase):
     other objects depend on it.
     """
 
-    def delete_computer_group(self, jamf_url, obj_id, token):
+    def delete_computer_group(self, jamf_url, object_id, token, max_tries):
         """Delete computer group"""
 
         self.output("Deleting Computer Group...")
 
         object_type = "computer_group"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
 
         count = 0
         while True:
@@ -59,15 +59,15 @@ class JamfComputerGroupDeleterBase(JamfUploaderBase):
             r = self.curl(api_type="classic", request=request, url=url, token=token)
 
             # check HTTP response
-            if self.status_check(r, "Computer Group", obj_id, request) == "break":
+            if self.status_check(r, "Computer Group", object_id, request) == "break":
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    "WARNING: Computer Group deletion did not succeed after 5 attempts"
+                    f"WARNING: Computer Group deletion did not succeed after {max_tries} attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Computer Group deletion failed ")
-            sleep(30)
+            sleep(10)
         return r
 
     def execute(self):
@@ -78,6 +78,15 @@ class JamfComputerGroupDeleterBase(JamfUploaderBase):
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
         computergroup_name = self.env.get("computergroup_name")
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # clear any pre-existing summary result
         if "jamfcomputergroupdeleter_summary_result" in self.env:
@@ -98,26 +107,25 @@ class JamfComputerGroupDeleterBase(JamfUploaderBase):
         else:
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
-        # check for existing - requires obj_name
-        obj_type = "computer_group"
-        obj_name = computergroup_name
-        obj_id = self.get_api_obj_id_from_name(
+        # check for existing - requires object_name
+        object_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
-            token,
+            object_type="computer_group",
+            object_name=computergroup_name,
+            token=token,
         )
 
-        if obj_id:
-            self.output(f"Computer Group '{computergroup_name}' exists: ID {obj_id}")
+        if object_id:
+            self.output(f"Computer Group '{computergroup_name}' exists: ID {object_id}")
             self.output(
                 "Deleting existing computer group",
                 verbose_level=1,
             )
             self.delete_computer_group(
                 jamf_url,
-                obj_id,
+                object_id,
                 token,
+                max_tries,
             )
         else:
             self.output(

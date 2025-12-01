@@ -39,9 +39,9 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfAccountUploaderBase(JamfUploaderBase):
     """Class for functions used to upload an account to Jamf"""
 
-    def get_account_id_from_name(self, jamf_url, object_name, account_type, token):
+    def get_account_id_from_name(self, jamf_url, account_type, object_name, token):
         """check if an account with the same name exists on the server.
-        This function is different to get_api_obj_id_from_name because we need to check inside
+        This function is different to get_api_object_id_from_name because we need to check inside
         users/groups"""
         # define the relationship between the object types and their URL
         object_type = "account"
@@ -57,7 +57,7 @@ class JamfAccountUploaderBase(JamfUploaderBase):
                 object_list,
                 verbose_level=4,
             )
-            obj_id = 0
+            object_id = 0
             object_subtype = "users"
             if account_type == "group":
                 object_subtype = "groups"
@@ -69,8 +69,8 @@ class JamfAccountUploaderBase(JamfUploaderBase):
                 self.output(f"Object name in list: {obj['name']}")  # TEMP
 
                 if obj["name"].lower() == object_name.lower():
-                    obj_id = obj["id"]
-            return obj_id
+                    object_id = obj["id"]
+            return object_id
         elif r.status_code == 401:
             raise ProcessorError(
                 "ERROR: Jamf returned status code '401' - Access denied."
@@ -101,25 +101,26 @@ class JamfAccountUploaderBase(JamfUploaderBase):
     def upload_account(
         self,
         jamf_url,
-        account_name,
         object_type,
+        object_name,
         template_xml,
-        token,
         sleep_time,
-        obj_id=0,
+        token,
+        max_tries,
+        object_id=0,
     ):
         """Upload account"""
 
         self.output(f"Uploading {object_type}...")
 
         # if we find an object ID we put, if not, we post
-        url = f"{jamf_url}/JSSResource/accounts/{object_type}id/{obj_id}"
+        url = f"{jamf_url}/JSSResource/accounts/{object_type}id/{object_id}"
 
         count = 0
         while True:
             count += 1
             self.output(f"{object_type} upload attempt {count}", verbose_level=2)
-            request = "PUT" if obj_id else "POST"
+            request = "PUT" if object_id else "POST"
             r = self.curl(
                 api_type="classic",
                 request=request,
@@ -128,18 +129,18 @@ class JamfAccountUploaderBase(JamfUploaderBase):
                 data=template_xml,
             )
             # check HTTP response
-            if self.status_check(r, object_type, account_name, request) == "break":
+            if self.status_check(r, object_type, object_name, request) == "break":
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    f"WARNING: {object_type} upload did not succeed after 5 attempts"
+                    f"WARNING: {object_type} upload did not succeed after {max_tries} attempts"
                 )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError(f"ERROR: {object_type} upload failed ")
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
         return r
 
     def execute(self):
@@ -155,7 +156,17 @@ class JamfAccountUploaderBase(JamfUploaderBase):
         group = self.env.get("group")
         account_template = self.env.get("account_template")
         replace_account = self.to_bool(self.env.get("replace_account"))
+        max_tries = self.env.get("max_tries")
         sleep_time = self.env.get("sleep")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
+
         account_updated = False
 
         # clear any pre-existing summary result
@@ -186,10 +197,10 @@ class JamfAccountUploaderBase(JamfUploaderBase):
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         # check for existing account - requires account_name and account_type
-        obj_id = self.get_account_id_from_name(
+        object_id = self.get_account_id_from_name(
             jamf_url,
-            account_name,
-            account_type,
+            account_type=account_type,
+            object_name=account_name,
             token=token,
         )
 
@@ -199,22 +210,22 @@ class JamfAccountUploaderBase(JamfUploaderBase):
                 f"Checking for existing LDAP domain '{domain}' on {jamf_url}",
                 verbose_level=1,
             )
-            # requires obj_name and account type
-            domain_id = self.get_api_obj_id_from_name(
+            # requires object_name and account type
+            domain_id = self.get_api_object_id_from_name(
                 jamf_url,
-                domain,
-                "ldap_server",
+                object_type="ldap_server",
+                object_name=domain,
                 token=token,
             )
             self.env["domain"] = domain
             self.env["domain_id"] = domain_id
 
-        # check for existing group - requires obj_name and account type
+        # check for existing group - requires object_name and account type
         if group:
             group_id = self.get_account_id_from_name(
                 jamf_url,
-                group,
-                "group",
+                account_type="group",
+                object_name=group,
                 token=token,
             )
             self.env["group"] = group
@@ -226,8 +237,8 @@ class JamfAccountUploaderBase(JamfUploaderBase):
             jamf_url, account_name, account_template
         )
 
-        if obj_id:
-            self.output(f"account '{account_name}' already exists: ID {obj_id}")
+        if object_id:
+            self.output(f"account '{account_name}' already exists: ID {object_id}")
             if replace_account:
                 self.output(
                     f"Replacing existing account '{account_name}' as 'replace_account' is set to True",
@@ -243,12 +254,13 @@ class JamfAccountUploaderBase(JamfUploaderBase):
         # upload the account
         self.upload_account(
             jamf_url,
-            account_name,
-            account_type,
-            template_xml,
-            token,
-            sleep_time,
-            obj_id=obj_id,
+            object_type=account_type,
+            object_name=account_name,
+            template_xml=template_xml,
+            sleep_time=sleep_time,
+            token=token,
+            max_tries=max_tries,
+            object_id=object_id,
         )
         account_updated = True
 

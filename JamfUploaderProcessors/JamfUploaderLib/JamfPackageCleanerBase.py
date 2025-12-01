@@ -65,13 +65,13 @@ class JamfPackageCleanerBase(JamfUploaderBase):
                 verbose_level=2,
             )
 
-    def delete_package(self, jamf_url, obj_id, token):
+    def delete_package(self, jamf_url, object_id, token, max_tries):
         """Cleaning Packages"""
 
         self.output("Deleting package...")
 
         object_type = "package"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{obj_id}"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
 
         count = 0
         while True:
@@ -81,15 +81,15 @@ class JamfPackageCleanerBase(JamfUploaderBase):
             r = self.curl(api_type="classic", request=request, url=url, token=token)
 
             # check HTTP response
-            if self.status_check(r, "Package", obj_id, request) == "break":
+            if self.status_check(r, "Package", object_id, request) == "break":
                 break
-            if count > 5:
+            if count >= max_tries:
                 self.output(
-                    "WARNING: Package deletion did not succeed after 5 attempts"
+                    f"WARNING: Package deletion did not succeed after {max_tries} attempts"
                 )
                 self.output(f"\nHTTP DELETE Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Package deletion failed")
-            sleep(30)
+            sleep(10)
         return r
 
     def execute(self):
@@ -108,6 +108,15 @@ class JamfPackageCleanerBase(JamfUploaderBase):
             self.env.get("maximum_allowed_packages_to_delete")
         )
         dry_run = self.to_bool(self.env.get("dry_run"))
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # Create a list of smb shares in tuples
         smb_shares = []
@@ -201,8 +210,8 @@ class JamfPackageCleanerBase(JamfUploaderBase):
             raise ProcessorError("ERROR: Jamf Pro URL not supplied")
 
         # check for existing
-        obj_type = "package"
-        url = f"{jamf_url}/{self.api_endpoints(obj_type)}"
+        object_type = "package"
+        url = f"{jamf_url}/{self.api_endpoints(object_type)}"
         r = self.curl(api_type="classic", request="GET", url=url, token=token)
         if isinstance(r.output, dict):
             jamf_packages = r.output["packages"]
@@ -272,7 +281,12 @@ class JamfPackageCleanerBase(JamfUploaderBase):
                 )
             else:
                 raise ProcessorError("ERROR: Jamf Pro URL not supplied")
-            self.delete_package(jamf_url=jamf_url, obj_id=package["id"], token=token)
+            self.delete_package(
+                jamf_url=jamf_url,
+                object_id=package["id"],
+                token=token,
+                max_tries=max_tries,
+            )
             self.output(f"Deleting {package['name']}", verbose_level=2)
 
             # Process for SMB shares if defined

@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 """
-Copyright 2023 Graham Pugh
+Copyright 2025 Graham Pugh
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 NOTES:
-All functions are in JamfUploaderLib/JamfMobileDeviceAppUploaderBase.py
+All functions are in JamfUploaderLib/JamfObjectStateChangerBase.py
 """
 
-import os
+import os.path
 import sys
 
 # to use a base module in AutoPkg we need to add this path to the sys.path.
@@ -27,19 +27,17 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfMobileDeviceAppUploaderBase import (  # noqa: E402
-    JamfMobileDeviceAppUploaderBase,
+from JamfUploaderLib.JamfObjectStateChangerBase import (  # pylint: disable=import-error, wrong-import-position
+    JamfObjectStateChangerBase,
 )
 
-__all__ = ["JamfMobileDeviceAppUploader"]
+__all__ = ["JamfObjectStateChanger"]
 
 
-class JamfMobileDeviceAppUploader(JamfMobileDeviceAppUploaderBase):
+class JamfObjectStateChanger(JamfObjectStateChangerBase):
     description = (
-        "A processor for AutoPkg that will update or clone a Mobile device app "
-        "object on a Jamf Pro server."
-        "Note that an icon can only be successsfully injected into a Mobile device app "
-        "item if Cloud Services Connection is enabled."
+        "A processor for AutoPkg that will change the state of an object on a Jamf "
+        "Cloud or on-prem server."
     )
 
     input_variables = {
@@ -71,33 +69,34 @@ class JamfMobileDeviceAppUploader(JamfMobileDeviceAppUploaderBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
-        "mobiledeviceapp_name": {
-            "required": False,
-            "description": "Mobile device app name",
+        "object_name": {
+            "required": True,
+            "description": "Name of the object. Required.",
             "default": "",
         },
-        "clone_from": {
-            "required": False,
-            "description": "Mobile device app name from which to clone this entry",
-            "default": "",
+        "object_type": {
+            "required": True,
+            "description": {
+                "The API object type. This is in the singular form - for "
+                "Classic API endpoints this is the name of the key in the XML template. For "
+                "JSON objects it is a construction made interally for this project. See the "
+                "[Object Reference](./Object%20Reference.md) for valid objects. Valid values "
+                "are `policy`, `computer_extension_attribute`, `app_installers_deployment`"
+                "Note that only script-based extension attributes may be enabled or disabled."
+            },
+            "default": "policy",
         },
-        "selfservice_icon_uri": {
-            "required": False,
-            "description": "Mobile device app icon URI",
-            "default": "",
+        "object_state": {
+            "required": True,
+            "description": "The desired state of the object, either 'enable' or 'disable'",
+            "default": "disable",
         },
-        "mobiledeviceapp_template": {
+        "retain_data": {
             "required": False,
-            "description": "Full path to the XML template",
-        },
-        "appconfig_template": {
-            "required": False,
-            "description": "Full path to the AppConfig XML template",
-        },
-        "replace_mobiledeviceapp": {
-            "required": False,
-            "description": "Overwrite an existing Mobile device app if True.",
-            "default": False,
+            "description": "When disabling a computer extension attribute, "
+            "set to true to retain existing data. "
+            "Ignored for other object types.",
+            "default": True,
         },
         "sleep": {
             "required": False,
@@ -115,17 +114,8 @@ class JamfMobileDeviceAppUploader(JamfMobileDeviceAppUploaderBase):
     }
 
     output_variables = {
-        "jamfmobiledeviceappuploader_summary_result": {
+        "jamfobjectstatechanger_summary_result": {
             "description": "Description of interesting results.",
-        },
-        "mobiledeviceapp_name": {
-            "description": "Jamf object name of the newly created or modified Mobile device app.",
-        },
-        "mobiledeviceapp_updated": {
-            "description": "Boolean - True if the Mobile device app was changed."
-        },
-        "changed_mobiledeviceapp_id": {
-            "description": "Jamf object ID of the newly created or modified Mobile device app.",
         },
     }
 
@@ -136,5 +126,5 @@ class JamfMobileDeviceAppUploader(JamfMobileDeviceAppUploaderBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfMobileDeviceAppUploader()
+    PROCESSOR = JamfObjectStateChanger()
     PROCESSOR.execute_shell()

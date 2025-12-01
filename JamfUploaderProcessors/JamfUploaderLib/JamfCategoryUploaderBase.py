@@ -40,19 +40,26 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
     """Class for functions used to upload a category to Jamf"""
 
     def upload_category(
-        self, jamf_url, category_name, priority, token, sleep_time, obj_id=0
+        self,
+        jamf_url,
+        object_name,
+        priority,
+        sleep_time,
+        token,
+        max_tries,
+        object_id=0,
     ):
         """Update category metadata."""
 
         # build the object
-        category_data = {"priority": int(priority), "name": category_name}
+        category_data = {"priority": int(priority), "name": object_name}
 
         self.output("Uploading category..")
 
         # if we find an object ID we put, if not, we post
         object_type = "category"
-        if obj_id:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{obj_id}"
+        if object_id:
+            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}"
         else:
             url = f"{jamf_url}/{self.api_endpoints(object_type)}"
 
@@ -65,7 +72,7 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
                 f"Category upload attempt {count}",
                 verbose_level=2,
             )
-            request = "PUT" if obj_id else "POST"
+            request = "PUT" if object_id else "POST"
             r = self.curl(
                 api_type="jpapi",
                 request=request,
@@ -75,23 +82,25 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
             )
 
             # check HTTP response
-            if self.status_check(r, "Category", category_name, request) == "break":
+            if self.status_check(r, "Category", object_name, request) == "break":
                 break
-            if count > 5:
-                self.output("ERROR: Category creation did not succeed after 5 attempts")
+            if count >= max_tries:
+                self.output(
+                    f"ERROR: Category creation did not succeed after {max_tries} attempts"
+                )
                 self.output(f"\nHTTP POST Response Code: {r.status_code}")
                 raise ProcessorError("ERROR: Category upload failed ")
-            if int(sleep_time) > 30:
+            if int(sleep_time) > 10:
                 sleep(int(sleep_time))
             else:
-                sleep(30)
+                sleep(10)
 
             # output the ID of the new or updated object
-        if not obj_id:
-            obj_id = r.output["id"]
-        if obj_id:
-            self.output(f"Category '{category_name}' has ID {obj_id}")
-        return obj_id
+        if not object_id:
+            object_id = r.output["id"]
+        if object_id:
+            self.output(f"Category '{object_name}' has ID {object_id}")
+        return object_id
 
     def execute(self):
         """Upload a category"""
@@ -104,6 +113,15 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
         category_priority = self.env.get("category_priority")
         replace_category = self.to_bool(self.env.get("replace_category"))
         sleep_time = self.env.get("sleep")
+        max_tries = self.env.get("max_tries")
+
+        # verify that max_tries is an integer greater than zero and less than 10
+        try:
+            max_tries = int(max_tries)
+            if max_tries < 1 or max_tries > 10:
+                raise ValueError
+        except (ValueError, TypeError):
+            max_tries = 5
 
         # clear any pre-existing summary result
         if "jamfcategoryuploader_summary_result" in self.env:
@@ -129,17 +147,15 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
         # now process the category
         # check for existing category
         self.output(f"Checking for existing '{category_name}' on {jamf_url}")
-        obj_type = "category"
-        obj_name = category_name
-        obj_id = self.get_api_obj_id_from_name(
+        object_id = self.get_api_object_id_from_name(
             jamf_url,
-            obj_name,
-            obj_type,
-            token,
+            object_type="category",
+            object_name=category_name,
+            token=token,
         )
 
-        if obj_id:
-            self.output(f"Category '{category_name}' already exists: ID {obj_id}")
+        if object_id:
+            self.output(f"Category '{category_name}' already exists: ID {object_id}")
             if replace_category:
                 self.output(
                     "Replacing existing category as 'replace_category' is set to True",
@@ -150,19 +166,20 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
                     "Not replacing existing category. Use replace_category='True' to enforce.",
                     verbose_level=1,
                 )
-                self.env["category_id"] = obj_id
+                self.env["category_id"] = object_id
                 return
         else:
-            self.output(f"Category '{category_name}' not found: ID {obj_id}")
+            self.output(f"Category '{category_name}' not found: ID {object_id}")
 
         # upload the category
         category_id = self.upload_category(
             jamf_url,
-            category_name,
-            category_priority,
-            token,
-            sleep_time,
-            obj_id,
+            object_name=category_name,
+            priority=category_priority,
+            sleep_time=sleep_time,
+            token=token,
+            max_tries=max_tries,
+            object_id=object_id,
         )
 
         # output the summary
@@ -173,7 +190,7 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
             "report_fields": ["category", "id", "priority"],
             "data": {
                 "category": category_name,
-                "id": str(obj_id),
+                "id": str(object_id),
                 "priority": str(category_priority),
             },
         }
