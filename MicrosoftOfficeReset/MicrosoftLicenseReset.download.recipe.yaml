@@ -6,12 +6,12 @@ Input:
   NAME: Microsoft License Reset
 
 Process:
-  - Processor: URLDownloader
+  - Processor: URLTextSearcher
     Arguments:
-      url: "https://go.microsoft.com/fwlink/?linkid=849815"
-      filename: "Microsoft_License_Reset.pkg"
+      re_pattern: (?P<url>https://github.com/cocopuff2u/MOFA/raw/refs/heads/main/office_reset_tools/office_reset_archived/packages/Office-Reset.com_Microsoft_License_Reset_(?P<version>.*?)\.pkg)
+      url: https://mofa.cocolabs.dev/macos_tools/microsoft_office_repair_tools.html
 
-  - Processor: EndOfCheckPhase
+  - Processor: URLDownloader
 
   - Processor: CodeSignatureVerifier
     Arguments:
