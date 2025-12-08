@@ -50,7 +50,7 @@ class ChoicesXMLGenerator(Processor):
             "description": "Enables recursively identifying child items of child items",
             "default": "False",
             "required": False,
-        }
+        },
     }
     output_variables = {}
 
@@ -72,6 +72,7 @@ class ChoicesXMLGenerator(Processor):
         ).communicate()
         if choices_result:
             try:
+                self.output(choices_result.decode("utf-8"), verbose_level=3)
                 choices_plist = bytearray(
                     re.search(
                         r"(?s)<\?xml.*</plist>", choices_result.decode("utf-8")
@@ -82,13 +83,15 @@ class ChoicesXMLGenerator(Processor):
             except Exception as err:
                 raise ProcessorError(
                     f"Unexpected error parsing manifest as a plist: '{err}'"
-                )
+                ) from err
             child_items = choices_list[0]["childItems"]
             return child_items
         if error:
             raise ProcessorError("No Plist generated from installer command")
 
-    def parse_choices_list(self, child_items, desired_choices, recursive_child_items = False):
+    def parse_choices_list(
+        self, child_items, desired_choices, recursive_child_items=False
+    ):
         """Generates the python dictionary of choices.
         Desired choices are given the choice attribute '1' (chosen).
         Other choices found are given the choice attribute '0'
@@ -96,7 +99,11 @@ class ChoicesXMLGenerator(Processor):
         parsed_choices = []
         for child_dict in child_items:
             if recursive_child_items and child_dict["childItems"]:
-                parsed_choices.extend(self.parse_choices_list(child_dict["childItems"], desired_choices, recursive_child_items))
+                parsed_choices.extend(
+                    self.parse_choices_list(
+                        child_dict["childItems"], desired_choices, recursive_child_items
+                    )
+                )
             try:
                 choice_identifier = child_dict["choiceIdentifier"]
                 if choice_identifier in desired_choices:
@@ -117,7 +124,7 @@ class ChoicesXMLGenerator(Processor):
                             "attributeSetting": 0,
                         }
                     )
-            except:
+            except KeyError:
                 pass
         return parsed_choices
 
@@ -126,8 +133,8 @@ class ChoicesXMLGenerator(Processor):
         try:
             with open(choices_xml_dest, "wb") as f:
                 plistlib.dump(parsed_choices, f)
-        except:
-            self.output("Could not write to file")
+        except (IOError, OSError, plistlib.InvalidFileException) as err:
+            self.output(f"Could not write to file: {err}")
 
     def main(self):
         """Do the work."""
@@ -144,7 +151,9 @@ class ChoicesXMLGenerator(Processor):
             recursive_child_items = True
 
         child_items = self.output_showchoicesxml(choices_pkg_path)
-        parsed_choices = self.parse_choices_list(child_items, desired_choices, recursive_child_items)
+        parsed_choices = self.parse_choices_list(
+            child_items, desired_choices, recursive_child_items
+        )
         self.write_choices_xml(parsed_choices, choices_xml_dest)
 
 
