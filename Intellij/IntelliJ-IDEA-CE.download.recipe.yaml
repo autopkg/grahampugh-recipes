@@ -1,24 +1,10 @@
-Description: Downloads latest Intellij disk image (Intel version). Override ARCH to "arm64" if you want the Apple Silicon version.
+Description: This recipe and the associated processor has been deprecated. Please use com.github.bnpl.autopkg.download.intellijideace instead (autopkg/bnpl-recipes).
 Identifier: com.github.grahampugh.recipes.download.IntelliJ-IDEA-CE
 MinimumVersion: "2.3"
 
-Input:
-  NAME: Intellij IDEA CE
-  ARCH: intel
+Input: {}
 
 Process:
-  - Processor: IntellijURLProvider
+  - Processor: DeprecationWarning
     Arguments:
-      arch: "%ARCH%"
-
-  - Processor: URLDownloader
-    Arguments:
-      filename: "%NAME%.dmg"
-      url: "%url%"
-
-  - Processor: EndOfCheckPhase
-
-  - Processor: CodeSignatureVerifier
-    Arguments:
-      input_path: "%pathname%/IntelliJ IDEA CE.app"
-      requirement: anchor apple generic and identifier "com.jetbrains.intellij.ce" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */) and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"
+      warning_message: This recipe and the associated processor has been deprecated. Please use com.github.bnpl.autopkg.download.intellijideace instead (autopkg/bnpl-recipes).

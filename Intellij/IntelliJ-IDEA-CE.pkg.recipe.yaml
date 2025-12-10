@@ -1,6 +1,6 @@
 Description: Downloads the latest version of dupeGuru and creates a package.
 Identifier: com.github.grahampugh.recipes.pkg.IntelliJ-IDEA-CE
-ParentRecipe: com.github.grahampugh.recipes.download.IntelliJ-IDEA-CE
+ParentRecipe: com.github.bnpl.autopkg.download.intellijideace
 MinimumVersion: "2.3"
 
 Input:
