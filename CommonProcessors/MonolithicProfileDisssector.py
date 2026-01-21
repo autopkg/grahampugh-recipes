@@ -1,5 +1,5 @@
 #!/usr/local/autopkg/python
-"""AutoPkg processor for converting monolithic profiles into discrete preference files."""
+"""AutoPkg processor for dissecting monolithic profiles into discrete preference files."""
 
 import os
 import plistlib
@@ -14,11 +14,11 @@ except ImportError as err:
         "pyyaml is required to use the MonolithicProfileConverter processor"
     ) from err
 
-__all__ = ["MonolithicProfileConverter"]
+__all__ = ["MonolithicProfileDissector"]
 
 
-class MonolithicProfileConverter(URLGetter):
-    """Convert a .mobileconfig profile into per-domain preference files."""
+class MonolithicProfileDissector(URLGetter):
+    """Dissect a .mobileconfig profile into per-domain preference files."""
 
     description = __doc__
     input_variables = {
@@ -204,5 +204,5 @@ class MonolithicProfileConverter(URLGetter):
 
 
 if __name__ == "__main__":
-    PROCESSOR = MonolithicProfileConverter()
+    PROCESSOR = MonolithicProfileDissector()
     PROCESSOR.execute_shell()

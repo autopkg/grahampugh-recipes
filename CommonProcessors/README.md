@@ -10,7 +10,7 @@ To use these processors, add the processor as so:
 - [ChoicesXMLGenerator](#choicesxmlgenerator)
 - [IconGenerator](#icongenerator)
 - [JSSRecipeReceiptChecker](#jssrecipereceiptchecker)
-- [NSURLDownloader](#NSURLDownloader)
+- [MonolithicProfileDissector](#monolithicprofiledissector)
 - [PkgInfoReader](#pkginforeader)
 - [SMBMounter](#smbmounter)
 - [SMBUnmounter](#smbunmounter)
@@ -179,6 +179,29 @@ An AutoPkg processor which works out the latest receipt (by date) from a differe
 
 - **SELF_SERVICE_DESCRIPTION:**
   - **description:** Value of `SELF_SERVICE_DESCRIPTION` obtained from the latest receipt.
+
+# MonolithicProfileDissector
+
+## Description
+
+Dissects a `.mobileconfig` profile into per-domain preference files. This processor analyzes a monolithic configuration profile and extracts individual preference domains into separate PLIST files. It fetches schemas from Apple's device-management repository to determine default values, and only includes preferences that differ from those defaults in the generated files.
+
+## Input variables
+
+- **mobileconfig_path:**
+
+  - **required:** True
+  - **description:** Path to the source mobile configuration profile.
+
+- **output_dir:**
+  - **required:** False
+  - **description:** Directory where the generated PLIST files should be written. Defaults to the directory containing the source profile.
+  - **default:** `""`
+
+## Output variables
+
+- **converted_profile_paths:**
+  - **description:** List of generated per-domain preference files.
 
 # PkgInfoReader
 
