@@ -15,7 +15,7 @@ Process:
       object_type: os_x_configuration_profile
       object_name: "%NAME%"
 
-  - Processor: com.github.grahampugh.recipes.commonprocessors/MonolithicProfileConverter
+  - Processor: com.github.grahampugh.recipes.commonprocessors/MonolithicProfileDisssector
     Arguments:
       mobileconfig_path: "%payload_file_path%"
       output_directory: /Users/Shared/Jamf/JamfUploader
