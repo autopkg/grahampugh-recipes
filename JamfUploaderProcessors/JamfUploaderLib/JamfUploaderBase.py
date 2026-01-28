@@ -45,7 +45,7 @@ class JamfUploaderBase(Processor):
     """Common functions used by at least two JamfUploader processors."""
 
     # Global version
-    __version__ = "2025.12.01.0"
+    __version__ = "2026.01.28.0"
 
     def api_type(self, object_type):
         """Return the API type from the object type"""
@@ -58,6 +58,7 @@ class JamfUploaderBase(Processor):
             "app_installers_accept_t_and_c_command",
             "category",
             "check_in_settings",
+            "cloud_distribution_point",
             "cloud_ldap",
             "computer",
             "computer_extension_attribute",
@@ -168,6 +169,7 @@ class JamfUploaderBase(Processor):
             "blueprint_undeploy_command": f"api/blueprints/v1/blueprints/{uuid}/undeploy",
             "category": "api/v1/categories",
             "check_in_settings": "api/v3/check-in",
+            "cloud_distribution_point": "api/v1/cloud-distribution-point",
             "cloud_ldap": "api/v2/cloud-ldaps",
             "computer": "api/preview/computers",
             "computer_extension_attribute": "api/v1/computer-extension-attributes",
@@ -1194,23 +1196,28 @@ class JamfUploaderBase(Processor):
                     response_data = r.output
                 else:
                     response_data = json.loads(r.output)
-                object_list = response_data[self.object_list_types(object_type)]
+                if object_type == "account_user":
+                    object_list = response_data.get("accounts", {}).get("users", [])
+                elif object_type == "account_group":
+                    object_list = response_data.get("accounts", {}).get("groups", [])
+                else:
+                    object_list = response_data[self.object_list_types(object_type)]
+
                 self.output(
                     object_list,
                     verbose_level=4,
                 )
                 object_id = 0
-                if object_type == "account_user" or object_type == "account_group":
-                    object_list = object_list["accounts"]
                 for obj in object_list:
                     self.output(
                         obj,
                         verbose_level=4,
                     )
                     # we need to check for a case-insensitive match
-                    if obj["name"].lower() == object_name.lower():
-                        object_id = obj["id"]
-                        break
+                    if isinstance(obj, dict) and "name" in obj:
+                        if obj["name"].lower() == object_name.lower():
+                            object_id = obj["id"]
+                            break
                 return object_id
             else:
                 raise ProcessorError(
@@ -1729,7 +1736,17 @@ class JamfUploaderBase(Processor):
 
         if api_type == "classic":
             # do XML stuff
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
+            if object_type == "account_user":
+                url = f"{jamf_url}/{self.api_endpoints(object_type)}/userid/{object_id}"
+            elif object_type == "account_group":
+                url = (
+                    f"{jamf_url}/{self.api_endpoints(object_type)}/groupid/{object_id}"
+                )
+            else:
+                url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
+        elif object_type == "cloud_distribution_point":
+            # cloud_distribution_point endpoint doesn't use IDs in the URL
+            url = f"{jamf_url}/{self.api_endpoints(object_type)}"
         else:
             url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}"
 
@@ -2141,9 +2158,11 @@ class JamfUploaderBase(Processor):
             acct = None
             self.output("Account name or Client ID not provided", verbose_level=2)
         passw = None
+        service_basename = service.removeprefix("https://").removesuffix("/")
         if acct:
             self.output(
-                f"Looking for service '{service}' with account '{acct}' in keychain",
+                f"Looking for service '{service}' with account '{acct}' in keychain "
+                f"where the label matches '{service_basename} ({acct})'",
                 verbose_level=2,
             )
             try:
@@ -2155,6 +2174,8 @@ class JamfUploaderBase(Processor):
                         service,
                         "-a",
                         acct,
+                        "-l",
+                        f"{service_basename} ({acct})",
                         "-w",
                         "-g",
                     ],
@@ -2163,53 +2184,108 @@ class JamfUploaderBase(Processor):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                 )
-                self.output(result.stdout, verbose_level=3)
+                self.output(result.stdout, verbose_level=4)
                 passw = self.remove_non_printable(result.stdout)
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, FileNotFoundError):
                 pass
         else:
-            self.output(f"Looking for service '{service}' in keychain", verbose_level=2)
+            self.output(
+                f"Looking for service '{service}' in keychain "
+                f"where the label matches '{service_basename} (*)'",
+                verbose_level=2,
+            )
+
+            # first we must dump the keychain into a variable so that we may process it
             try:
                 result = subprocess.run(
                     [
                         "/usr/bin/security",
-                        "find-internet-password",
-                        "-s",
-                        service,
-                        "-g",
+                        "dump-keychain",
+                        "login.keychain-db",
                     ],
                     capture_output=True,
                     text=True,
                     check=True,
                 )
-                self.output(result.stdout, verbose_level=3)
-                for line in result.stdout.splitlines():
-                    if "acct" in line:
-                        acct = line.split('"')[3]
-            except subprocess.CalledProcessError:
-                pass
-            if acct:
-                try:
-                    result = subprocess.run(
-                        [
-                            "/usr/bin/security",
-                            "find-internet-password",
-                            "-s",
-                            service,
-                            "-a",
-                            acct,
-                            "-w",
-                            "-g",
-                        ],
-                        text=True,
-                        check=True,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
+                self.output(result.stdout, verbose_level=4)
+
+                # if result is not empty, parse the keychain dump to find entries matching this instance
+                # Split on 'keychain:' to separate entries, then process each entry
+                matching_labels = []
+                if result.stdout:
+
+                    # Split the keychain dump into individual entries using 'keychain:' as separator
+                    entries = result.stdout.split("keychain:")
+
+                    for entry in entries:
+                        # Check if this entry contains our target service
+                        if f'"srvr"<blob>="{service}"' in entry:
+                            # Look for the 0x00000007 line which contains the label
+                            lines = entry.split("\n")
+                            for line in lines:
+                                if "0x00000007" in line and "=" in line:
+                                    # Extract the value between quotes
+                                    match = re.search(r'"([^"]*)"', line)
+                                    if match:
+                                        label = match.group(1)
+                                        # Check if the label matches the expected pattern
+                                        pattern = f"{service_basename} ("
+                                        if label.startswith(pattern) and label.endswith(
+                                            ")"
+                                        ):
+                                            matching_labels.append(label)
+                                            self.output(
+                                                f"Found keychain entry with label: {label}",
+                                                verbose_level=2,
+                                            )
+
+                    self.output(
+                        f"Found {len(matching_labels)} keychain entries for {service_basename}",
+                        verbose_level=2,
                     )
-                    # self.output(result.stdout, verbose_level=2)
-                    passw = self.remove_non_printable(result.stdout)
-                except subprocess.CalledProcessError:
-                    pass
+
+                    # For now, if we found any matching entries, use the first one to extract account
+                    if matching_labels:
+                        # Extract account name from the first matching label
+                        first_label = matching_labels[0]
+                        # Extract the account name between parentheses
+                        account_match = re.search(
+                            rf"{re.escape(service_basename)} \(([^)]+)\)", first_label
+                        )
+                        if account_match:
+                            acct = account_match.group(1)
+                            self.output(
+                                f"Using account '{acct}' from keychain label",
+                                verbose_level=2,
+                            )
+
+                            # Now try to get the password using the extracted account
+                            try:
+                                result = subprocess.run(
+                                    [
+                                        "/usr/bin/security",
+                                        "find-internet-password",
+                                        "-s",
+                                        service,
+                                        "-a",
+                                        acct,
+                                        "-l",
+                                        first_label,
+                                        "-w",
+                                        "-g",
+                                    ],
+                                    text=True,
+                                    check=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                )
+                                # self.output(result.stdout, verbose_level=3) # this shows the password
+                                passw = self.remove_non_printable(result.stdout)
+                            except (subprocess.CalledProcessError, FileNotFoundError):
+                                pass
+
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                pass
 
         return acct, passw
 
