@@ -18,6 +18,8 @@ Process:
     Arguments:
       url: https://downloads.claris.com/esd/fmp_%version%.dmg
 
+  - Processor: EndOfCheckPhase
+
   - Processor: CodeSignatureVerifier
     Arguments:
       input_path: "%pathname%/FileMaker Pro.app"
