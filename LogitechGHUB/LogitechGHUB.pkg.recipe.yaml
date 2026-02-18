@@ -42,7 +42,6 @@ Process:
             pkill lghub
         else
             echo "ERROR: Logitech G Hub installation failed"
-            finish
             exit 1
         fi
       file_mode: "0755"
