@@ -1,0 +1,21 @@
+Identifier: com.github.grahampugh.recipes.tests.CreatePlist
+MinimumVersion: "2.3"
+
+Input: {}
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/CreatePlist
+    Arguments:
+      output_file_name: Firefox
+      plist_content:
+        key1: value1
+        key2: value2
+        key3: value3
+        dict1:
+          subkey1: subvalue1
+          subkey2: subvalue2
+          subkey3: subvalue3
+        array1:
+          - item1
+          - item2
+          - item3

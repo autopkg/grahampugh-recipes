@@ -75,6 +75,105 @@ Generates a `choices.xml` file for use with an installer. A postinstall script i
 
 - None
 
+# CreatePlist
+
+## Description
+
+A processor for AutoPkg that creates a plist file from a dictionary input. The input can contain simple key-value pairs, nested dictionaries, or arrays. This processor works seamlessly with both YAML and PLIST formatted AutoPkg recipes, as AutoPkg handles the conversion to Python dictionaries before the processor runs.
+
+## Input variables
+
+- **output_file_name:**
+  - **required:** True
+  - **description:** Name of the output plist file. If it does not end with `.plist`, the extension will be appended.
+- **plist_content:**
+  - **required:** True
+  - **description:** Dictionary containing the content to write to the plist file. Can contain simple key-value pairs, nested dictionaries, or arrays.
+- **output_dir:**
+  - **required:** False
+  - **description:** Directory to save the plist file. Defaults to `RECIPE_CACHE_DIR`.
+
+## Output variables
+
+- **plist_path:**
+  - **description:** Full path to the created plist file.
+- **createplist_summary_result:**
+  - **description:** Summary of the plist file creation.
+
+## Usage examples
+
+### YAML recipe example
+
+```yaml
+- Processor: com.github.grahampugh.jamf-upload.processors/CreatePlist
+  Arguments:
+    output_file_name: my_settings.plist
+    plist_content:
+      EnableFeature: true
+      MaxRetries: 5
+      ServerURL: https://example.com
+      AllowedUsers:
+        - admin
+        - user1
+        - user2
+      AdvancedSettings:
+        Timeout: 30
+        Debug: false
+```
+
+### PLIST recipe example
+
+```xml
+<dict>
+    <key>Processor</key>
+    <string>com.github.grahampugh.jamf-upload.processors/CreatePlist</string>
+    <key>Arguments</key>
+    <dict>
+        <key>output_file_name</key>
+        <string>my_settings.plist</string>
+        <key>plist_content</key>
+        <dict>
+            <key>EnableFeature</key>
+            <true/>
+            <key>MaxRetries</key>
+            <integer>5</integer>
+            <key>ServerURL</key>
+            <string>https://example.com</string>
+            <key>AllowedUsers</key>
+            <array>
+                <string>admin</string>
+                <string>user1</string>
+                <string>user2</string>
+            </array>
+            <key>AdvancedSettings</key>
+            <dict>
+                <key>Timeout</key>
+                <integer>30</integer>
+                <key>Debug</key>
+                <false/>
+            </dict>
+        </dict>
+    </dict>
+</dict>
+```
+
+### Using in subsequent processors
+
+The `plist_path` output variable can be used in subsequent processors:
+
+```yaml
+- Processor: com.github.grahampugh.jamf-upload.processors/CreatePlist
+  Arguments:
+    output_file_name: com.example.app.plist
+    plist_content:
+      CFBundleIdentifier: com.example.app
+      PayloadType: Configuration
+
+- Processor: SomeOtherProcessor
+  Arguments:
+    input_file: "%plist_path%"
+```
+
 # IconGenerator
 
 ## Description
