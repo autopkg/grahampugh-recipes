@@ -1,0 +1,23 @@
+Identifier: com.github.grahampugh.recipes.tests.CreatePlist
+MinimumVersion: "2.3"
+
+Input: {}
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/CreatePlist
+    Arguments:
+      output_file_name: VLC
+      plist_content:
+        SUEnableAutomaticChecks: False
+        kSUHasLaunchedBefore2: True
+        SUSendProfileInfo: False
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader
+    Arguments:
+      identifier: org.videolan.vlc
+      profile_name: "%output_file_name%"
+      profile_category: Applications
+      profile_template: Profile-single-group.xml
+      profile_computergroup: All Managed Clients
+      payload: "%plist_path%"
+      replace_profile: "True"

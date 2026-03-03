@@ -93,8 +93,11 @@ class CreatePlist(Processor):
                 f"plist_content must be a dictionary, got {type(plist_content).__name__}"
             )
 
-        # Ensure the output file has a .plist extension
-        if not output_file_name.endswith(".plist"):
+        # Ensure the output file has a .plist or .mobileconfig extension
+        if not (
+            output_file_name.endswith(".plist")
+            or output_file_name.endswith(".mobileconfig")
+        ):
             output_file_name = f"{output_file_name}.plist"
 
         # Create the output directory if it doesn't exist
