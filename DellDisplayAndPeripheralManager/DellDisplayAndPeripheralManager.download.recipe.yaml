@@ -4,18 +4,17 @@ MinimumVersion: "2.3"
 
 Input:
   NAME: Dell Display and Peripheral Manager
+  UPDATE_FEED_URL: https://clientperipherals.dell.com/DDPM/Mac/Application/ddpm.json
 
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: (?P<url>https:\/\/dl.dell.com\/.*?\/1\/DDPMv(?P<version>.*?).zip)
-      url: https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=ktk2n&oscode=mac1&productcode=dell-display-peripheral-manager
+      re_pattern: '\"pkgUrl\":\s*\"(?P<url>https://clientperipherals\.dell\.com/DDPM/Mac/Application/DDPMv(?P<version>[0-9.]+)\.zip)\"'
+      url: "%UPDATE_FEED_URL%"
 
   - Processor: URLDownloader
     Arguments:
-      url: "%match%"
-      request_headers:
-        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/600.8.9 (KHTML, like Gecko) Version/8.0.8 Safari/600.8.9
+      url: "%url%"
 
   - Processor: EndOfCheckPhase
 
