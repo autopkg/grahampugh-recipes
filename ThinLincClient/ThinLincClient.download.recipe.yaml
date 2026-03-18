@@ -10,12 +10,12 @@ Input:
 Process:
   - Processor: URLTextSearcher
     Arguments:
-      re_pattern: '(?P<url>%SITE_URL%/downloads/clients/tl-[\d\._]+-client-macos.iso)'
+      re_pattern: '(?P<url>%SITE_URL%/downloads/clients/tl-[\d\._]+-client-macos.dmg)'
       url: "%SITE_URL%/thinlinc/download/"
 
   - Processor: URLDownloader
     Arguments:
-      filename: ThinLincClient.iso
+      filename: ThinLincClient.dmg
 
   - Processor: EndOfCheckPhase
 
