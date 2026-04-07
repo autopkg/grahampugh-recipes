@@ -1,0 +1,20 @@
+Description: >
+  Displays a fleet-wide security posture report for a Jamf Pro instance,
+  including FileVault, Gatekeeper, SIP, and activation lock status across
+  all managed devices.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProSecurityReport
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  OUTPUT_FORMAT: json
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: report
+      action: security
+      profile: "%PROFILE%"
+      output: "%OUTPUT_FORMAT%"
+      out_file: "%RECIPE_CACHE_DIR%/security_report.%OUTPUT_FORMAT%"

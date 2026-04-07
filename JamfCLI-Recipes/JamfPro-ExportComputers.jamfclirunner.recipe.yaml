@@ -1,0 +1,19 @@
+Description: >
+  Exports the full computer inventory from a Jamf Pro instance to a JSON file.
+  The output file is written to RECIPE_CACHE_DIR unless OUT_FILE is overridden.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProExportComputers
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  OUT_FILE: "%RECIPE_CACHE_DIR%/computers.json"
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: computers
+      action: list
+      profile: "%PROFILE%"
+      output: json
+      out_file: "%OUT_FILE%"

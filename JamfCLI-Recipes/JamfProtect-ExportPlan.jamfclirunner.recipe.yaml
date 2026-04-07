@@ -1,0 +1,21 @@
+Description: >
+  Exports a single Jamf Protect plan to a YAML file for backup or version
+  control. Set PLAN_ID to the ID or name of the plan to export.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProtectExportPlan
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-protect-instance
+  PLAN_ID: ""
+  OUT_FILE: "%RECIPE_CACHE_DIR%/plan-export.yaml"
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: protect
+      endpoint: plans
+      action: get
+      identifier: "%PLAN_ID%"
+      profile: "%PROFILE%"
+      output: yaml
+      out_file: "%OUT_FILE%"

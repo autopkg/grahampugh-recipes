@@ -1,0 +1,22 @@
+Description: >
+  Deletes a policy from a Jamf Pro instance by ID or name. Set POLICY_ID to
+  the numeric ID or exact name of the policy to remove. By default DRY_RUN is
+  true so no changes are made; set it to false to perform the deletion.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProDeletePolicyByID
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  POLICY_ID: ""
+  DRY_RUN: "true"
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: classic-policies
+      action: delete
+      identifier: "%POLICY_ID%"
+      profile: "%PROFILE%"
+      confirm: "true"
+      dry_run: "%DRY_RUN%"

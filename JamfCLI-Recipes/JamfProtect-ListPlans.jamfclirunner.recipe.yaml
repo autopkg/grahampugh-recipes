@@ -1,0 +1,18 @@
+Description: Lists all plans from a Jamf Protect tenant using jamf-cli.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProtectListPlans
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-protect-instance
+  OUTPUT_FORMAT: json
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: protect
+      endpoint: plans
+      action: list
+      profile: "%PROFILE%"
+      all: true
+      out_file: "%RECIPE_CACHE_DIR%/plans.%OUTPUT_FORMAT%"
+      output: "%OUTPUT_FORMAT%"
