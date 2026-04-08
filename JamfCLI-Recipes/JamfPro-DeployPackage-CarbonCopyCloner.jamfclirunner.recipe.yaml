@@ -7,13 +7,14 @@ Input:
   NAME: Carbon Copy Cloner
   POLICY_NAME: "Install Latest %NAME%"
   POLICY_TEMPLATE: JamfPolicyTemplate.xml
-  TESTING_GROUP_NAME: Testing
+  USE_FOR_SELF_SERVICE: "true"
+  INSTALL_BUTTON_TEXT: "Install"
+  REINSTALL_BUTTON_TEXT: "Reinstall"
   SELF_SERVICE_DESCRIPTION: Powerful disk cloning and backup utility.
-  UPDATE_PREDICATE: pkg_uploaded == False
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
   GROUP_NAME: Carbon Copy Cloner-update-smart
-  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   SELF_SERVICE_ICON: "%NAME%.png"
+  REPLACE_PKG: "False"
 
 Process:
   - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
@@ -49,25 +50,43 @@ Process:
       endpoint: packages
       action: apply
       from_file: JamfPro-Package.json
-      confirm: "true"
-      name: "%PKG_NAME%"
+      confirm: "%REPLACE_PKG%"
       pkg_info: Package uploaded using JamfCLIRunner
-      pkg_priority: "10"
       pkg_notes: Package uploaded using JamfCLIRunner
+      pkg_priority: "10"
 
   - Processor: StopProcessingIf
     Arguments:
-      predicate: "FALSEPREDICATE"
+      predicate: "object_updated == False"
 
-  # - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
-  #   Arguments:
-  #     computergroup_name: "%GROUP_NAME%"
-  #     computergroup_template: "%GROUP_TEMPLATE%"
-  #     replace_group: True
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: smart-computer-groups
+      action: apply
+      confirm: "true"
+      data:
+        name: "%GROUP_NAME%"
+        description: Computers with outdated %NAME% package
+        criteria:
+          - name: Application Title
+            priority: 0
+            operator: is
+            value: "%NAME%.app"
+            and_or: "and"
+          - name: Application Version
+            priority: 1
+            operator: is not
+            value: "%version%"
+            and_or: "and"
+      output_vars:
+        installed_group_id: id
+        installed_group_name: name
 
-  # - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
-  #   Arguments:
-  #     replace_policy: True
-  #     policy_template: "%POLICY_TEMPLATE%"
-  #     icon: "%SELF_SERVICE_ICON%"
-  #     policy_name: "%POLICY_NAME%"
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: classic-policies
+      action: apply
+      from_file: JamfPro-Policy-InstallPackage.xml
+      confirm: "true"

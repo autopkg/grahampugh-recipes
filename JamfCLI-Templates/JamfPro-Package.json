@@ -15,7 +15,8 @@
   "fillExistingUsers": false,
   "fillUserTemplate": false,
   "osInstall": false,
-  "osRequirements": "10.9"
+  "osRequirements": "10.9",
+  "rebootRequired": false
 }
 
 

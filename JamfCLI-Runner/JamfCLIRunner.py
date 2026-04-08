@@ -52,6 +52,10 @@ from pathlib import Path
 # Matches ANSI/VT100 escape sequences (colours, cursor movement, etc.)
 _ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]|\x1b[@-_]")
 
+# Matches HTTP response status lines in jamf-cli --verbose stderr output,
+# e.g. "<-- 200 200 OK" or "<-- 409 409 Conflict"
+_HTTP_RESPONSE_RE = re.compile(r"<--\s+(\d{3})")
+
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["JamfCLIRunner"]
@@ -130,9 +134,9 @@ class JamfCLIRunner(Processor):
         "jamf_cli_binary": {
             "required": False,
             "description": (
-                "Path to the jamf-cli binary. Defaults to /usr/local/bin/jamf-cli."
+                "Path to the jamf-cli binary. Defaults to 'jamf-cli' in the system PATH."
             ),
-            "default": "/usr/local/bin/jamf-cli",
+            "default": "jamf-cli",
         },
         "type": {
             "required": True,
@@ -360,6 +364,16 @@ class JamfCLIRunner(Processor):
                 "them directly, e.g. '%id%' or '%name%'."
             ),
         },
+        "object_updated": {
+            "description": (
+                "True if the object was created or updated (exit code 0). "
+                "False if jamf-cli exited with code 1 but all observed HTTP responses "
+                "were 2xx, which indicates the object already existed and was intentionally "
+                "not replaced (e.g. 'apply' without '--yes'). "
+                "Use with StopProcessingIf to halt subsequent processors when no change "
+                "was made: predicate 'object_updated == False'."
+            ),
+        },
     }
 
     # Keys whose values are file paths and should be resolved via get_path_to_file
@@ -421,9 +435,7 @@ class JamfCLIRunner(Processor):
                     )
                     text = text.replace(f"%{key}%", str(value))
                 else:
-                    raise ProcessorError(
-                        f"Unsubstitutable key in template: '%{key}%'"
-                    )
+                    raise ProcessorError(f"Unsubstitutable key in template: '%{key}%'")
         return text
 
     def _substitute_file(self, file_path, tmp_files):
@@ -434,13 +446,17 @@ class JamfCLIRunner(Processor):
             with open(file_path, "r", encoding="utf-8") as fh:
                 original = fh.read()
         except OSError as e:
-            raise ProcessorError(f"Could not read template file {file_path}: {e}") from e
+            raise ProcessorError(
+                f"Could not read template file {file_path}: {e}"
+            ) from e
 
         substituted = self.substitute_assignable_keys(original)
 
         tmp = tempfile.NamedTemporaryFile(
-            mode="w", suffix=os.path.splitext(file_path)[1] or ".json",
-            delete=False, encoding="utf-8",
+            mode="w",
+            suffix=os.path.splitext(file_path)[1] or ".json",
+            delete=False,
+            encoding="utf-8",
         )
         tmp.write(substituted)
         tmp.close()
@@ -598,7 +614,7 @@ class JamfCLIRunner(Processor):
 
     def main(self):
         """Build and execute the jamf-cli command."""
-        binary = self.env.get("jamf_cli_binary") or "/usr/local/bin/jamf-cli"
+        binary = self.env.get("jamf_cli_binary") or "jamf-cli"
         cli_type = self.env.get("type", "").strip()
         endpoint = self.env.get("endpoint", "").strip()
         action = (self.env.get("action") or "").strip() or None
@@ -638,9 +654,7 @@ class JamfCLIRunner(Processor):
                 raise ProcessorError(
                     f"'data' must be a dictionary, got {type(data_value).__name__}"
                 )
-            tmp = tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False
-            )
+            tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
             json.dump(self._coerce_data_dict(data_value), tmp, indent=2)
             tmp.close()
             tmp_files.append(tmp.name)
@@ -714,17 +728,38 @@ class JamfCLIRunner(Processor):
         self.env["jamf_cli_output"] = stdout_str
         self.env["jamf_cli_exit_code"] = exit_code
 
+        # Determine whether the operation made a change and whether a non-zero
+        # exit code represents a real failure or a deliberate no-op.
+        #
+        # jamf-cli exits 1 when an object already exists and --yes was not
+        # supplied (e.g. `apply` without `--confirm`).  In that case all HTTP
+        # activity visible in --verbose stderr is successful (2xx), so we treat
+        # the run as a soft success: object_updated = False, no exception raised.
+        #
+        # Any other non-zero exit (4xx/5xx responses, no HTTP activity, etc.)
+        # is still surfaced as a ProcessorError.
+        object_updated = True
         if exit_code != 0:
-            raise ProcessorError(
-                f"jamf-cli exited with code {exit_code}."
-                + (f" Stderr: {stderr_str}" if stderr_str else "")
-            )
+            http_codes = [int(c) for c in _HTTP_RESPONSE_RE.findall(stderr_str)]
+            if http_codes and all(200 <= c < 300 for c in http_codes):
+                object_updated = False
+                self.output(
+                    f"jamf-cli exited with code {exit_code} but all HTTP responses "
+                    f"were successful {http_codes} — object already exists, no change made."
+                )
+            else:
+                raise ProcessorError(
+                    f"jamf-cli exited with code {exit_code}."
+                    + (f" Stderr: {stderr_str}" if stderr_str else "")
+                )
 
         # Parse JSON output and export top-level keys so subsequent processors
         # can reference them directly, e.g. %id% or %name%.
-        # Only applies when the response is a JSON object; arrays (list output)
-        # are skipped since they have no meaningful top-level key mapping.
-        if stdout_str:
+        # Only done when the object was actually created/updated; when
+        # object_updated is False the stdout contains a jamf-cli error envelope
+        # (with keys like "error", "message") that should not pollute the env.
+        # Arrays (list output) are also skipped as they have no useful key mapping.
+        if object_updated and stdout_str:
             try:
                 parsed = json.loads(stdout_str)
                 if isinstance(parsed, dict):
@@ -759,12 +794,15 @@ class JamfCLIRunner(Processor):
                         verbose_level=2,
                     )
 
+        self.env["object_updated"] = object_updated
+
         self.env["jamfclirunner_summary_result"] = {
             "summary_text": "The following jamf-cli command was run:",
-            "report_fields": ["command", "exit_code"],
+            "report_fields": ["command", "exit_code", "object_updated"],
             "data": {
                 "command": " ".join(cmd),
                 "exit_code": str(exit_code),
+                "object_updated": str(object_updated),
             },
         }
 
