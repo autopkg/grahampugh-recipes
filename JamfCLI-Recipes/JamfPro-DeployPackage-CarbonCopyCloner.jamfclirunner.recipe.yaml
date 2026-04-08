@@ -8,8 +8,8 @@ Input:
   POLICY_NAME: "Install Latest %NAME%"
   POLICY_TEMPLATE: JamfPolicyTemplate.xml
   USE_FOR_SELF_SERVICE: "true"
-  INSTALL_BUTTON_TEXT: "Install"
-  REINSTALL_BUTTON_TEXT: "Reinstall"
+  INSTALL_BUTTON_TEXT: Install
+  REINSTALL_BUTTON_TEXT: Reinstall
   SELF_SERVICE_DESCRIPTION: Powerful disk cloning and backup utility.
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
   GROUP_NAME: Carbon Copy Cloner-update-smart
