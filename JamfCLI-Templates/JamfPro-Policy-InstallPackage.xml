@@ -5,7 +5,7 @@
 		<enabled>true</enabled>
 		<frequency>Ongoing</frequency>
 		<category>
-			<name>%POLICY_CATEGORY%</name>
+			<name>%policy_category_name%</name>
 		</category>
 	</general>
 	<!-- scope handled by jamf-cli recipe -->
@@ -28,8 +28,8 @@
 		<self_service_display_name>%SELF_SERVICE_DISPLAY_NAME%</self_service_display_name>
 		<self_service_description>%SELF_SERVICE_DESCRIPTION%</self_service_description>
 		<self_service_icon>
-			<filename>%SELF_SERVICE_ICON%</filename>
-			<uri>%icon_uri%</uri>
+			<filename>%app_icon_name%</filename>
+			<id>%app_icon_id%</id>
 		</self_service_icon>
 	</self_service>
 	<maintenance>

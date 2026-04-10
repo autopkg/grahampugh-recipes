@@ -7,6 +7,7 @@ Input:
   NAME: Carbon Copy Cloner
   POLICY_NAME: "Install Latest %NAME%"
   POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  POLICY_RUN_COMMAND: ""
   USE_FOR_SELF_SERVICE: "true"
   INSTALL_BUTTON_TEXT: Install
   REINSTALL_BUTTON_TEXT: Reinstall
@@ -17,6 +18,11 @@ Input:
   REPLACE_PKG: "False"
 
 Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/IconGenerator
+    Arguments:
+      source_app: "%pkgroot%/Applications/Carbon Copy Cloner.app"
+      composite_uninstall_path: "%RECIPE_CACHE_DIR%/%NAME%-uninstall.png"
+
   - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
     Arguments:
       type: pro
@@ -71,14 +77,14 @@ Process:
         criteria:
           - name: Application Title
             priority: 0
-            operator: is
+            searchType: is
             value: "%NAME%.app"
-            and_or: "and"
+            andOr: "and"
           - name: Application Version
             priority: 1
-            operator: is not
+            searchType: is not
             value: "%version%"
-            and_or: "and"
+            andOr: "and"
       output_vars:
         installed_group_id: id
         installed_group_name: name
@@ -86,7 +92,20 @@ Process:
   - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
     Arguments:
       type: pro
+      endpoint: icons
+      action: upload
+      file: "%app_icon_path%"
+      confirm: "false"
+      output_vars:
+        app_icon_id: id
+        app_icon_name: name
+        app_icon_url: url
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
       endpoint: classic-policies
       action: apply
+      file: ""
       from_file: JamfPro-Policy-InstallPackage.xml
       confirm: "true"

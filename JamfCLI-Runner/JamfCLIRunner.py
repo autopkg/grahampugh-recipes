@@ -645,22 +645,29 @@ class JamfCLIRunner(Processor):
         # processor invocation in the same recipe.
         tmp_env_keys = []
 
-        # If 'data' is provided and 'from_file' is not, serialise 'data' to a
-        # temporary JSON file and use that as the --from-file value.
-        data_value = self.env.get("data")
-        from_file_value = (self.env.get("from_file") or "").strip()
-        if data_value is not None and not from_file_value:
-            if not isinstance(data_value, dict):
-                raise ProcessorError(
-                    f"'data' must be a dictionary, got {type(data_value).__name__}"
-                )
-            tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
-            json.dump(self._coerce_data_dict(data_value), tmp, indent=2)
-            tmp.close()
-            tmp_files.append(tmp.name)
-            tmp_env_keys.append("from_file")
-            self.env["from_file"] = tmp.name
-            self.output(f"Wrote 'data' to temporary file: {tmp.name}")
+        # Commands that accept --file (binary/multipart uploads) never also
+        # accept --from-file (JSON/YAML body). Skip all body-file processing
+        # when --file is in use so those commands are not given a spurious
+        # --from-file argument.
+        using_file_upload = bool((self.env.get("file") or "").strip())
+
+        if not using_file_upload:
+            # If 'data' is provided and 'from_file' is not, serialise 'data' to a
+            # temporary JSON file and use that as the --from-file value.
+            data_value = self.env.get("data")
+            from_file_value = (self.env.get("from_file") or "").strip()
+            if data_value is not None and not from_file_value:
+                if not isinstance(data_value, dict):
+                    raise ProcessorError(
+                        f"'data' must be a dictionary, got {type(data_value).__name__}"
+                    )
+                tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
+                json.dump(self._coerce_data_dict(data_value), tmp, indent=2)
+                tmp.close()
+                tmp_files.append(tmp.name)
+                tmp_env_keys.append("from_file")
+                self.env["from_file"] = tmp.name
+                self.output(f"Wrote 'data' to temporary file: {tmp.name}")
 
         # Resolve file-type inputs to absolute paths
         for key in self.FILE_KEYS:
@@ -677,16 +684,17 @@ class JamfCLIRunner(Processor):
                 verbose_level=2,
             )
 
-        # Substitute %KEY% tokens in from_file and body_file template content.
-        # 'file' is left as-is because it may be a binary (package, script, etc.)
-        # that should not be text-processed.
-        for key in ("from_file", "body_file"):
-            value = (self.env.get(key) or "").strip()
-            if value and os.path.isfile(value):
-                substituted_path = self._substitute_file(value, tmp_files)
-                if key not in tmp_env_keys:
-                    tmp_env_keys.append(key)
-                self.env[key] = substituted_path
+        if not using_file_upload:
+            # Substitute %KEY% tokens in from_file and body_file template content.
+            # 'file' is left as-is because it is a binary (package, script, etc.)
+            # that should not be text-processed.
+            for key in ("from_file", "body_file"):
+                value = (self.env.get(key) or "").strip()
+                if value and os.path.isfile(value):
+                    substituted_path = self._substitute_file(value, tmp_files)
+                    if key not in tmp_env_keys:
+                        tmp_env_keys.append(key)
+                    self.env[key] = substituted_path
 
         # Build command
         cmd = self._build_command(
