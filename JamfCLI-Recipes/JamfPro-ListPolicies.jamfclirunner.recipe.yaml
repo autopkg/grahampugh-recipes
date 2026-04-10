@@ -1,0 +1,17 @@
+Description: Lists all policies from a Jamf Pro instance using jamf-cli.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProListPolicies
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  OUTPUT_FORMAT: json
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: classic-policies
+      action: list
+      profile: "%PROFILE%"
+      output: "%OUTPUT_FORMAT%"
+      out_file: "%RECIPE_CACHE_DIR%/policies.%OUTPUT_FORMAT%"

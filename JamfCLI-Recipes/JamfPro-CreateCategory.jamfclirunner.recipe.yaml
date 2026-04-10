@@ -1,0 +1,27 @@
+Description: |
+  Creates or updates a category in Jamf Pro. The category can be supplied either
+  as a JSON/YAML file path (FROM_FILE) or inline via the 'data' key. When using
+  'data', provide 'name' and optionally 'priority'; FROM_FILE takes precedence if
+  both are set. Use SCAFFOLD to print an example template without making changes.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProCreateCategory
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  CATEGORY: ""
+  FROM_FILE: ""
+  CONFIRM: "false"
+  PRIORITY: "10"
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: categories
+      action: apply
+      profile: "%PROFILE%"
+      from_file: "%FROM_FILE%"
+      confirm: "%CONFIRM%"
+      data:
+        name: "%CATEGORY%"
+        priority: "%PRIORITY%"

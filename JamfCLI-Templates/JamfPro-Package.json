@@ -1,0 +1,22 @@
+{
+  "basePath": "%pkg_path%",
+  "categoryId": "%pkg_category_id%",
+  "fileName": "%pkg_name%",
+  "ignoreConflicts": false,
+  "info": "%pkg_info%",
+  "packageName": "%pkg_name%",
+  "priority": "%pkg_priority%",
+  "suppressEula": false,
+  "suppressFromDock": false,
+  "suppressRegistration": false,
+  "suppressUpdates": false,
+  "swu": false,
+  "notes": "%pkg_notes%",
+  "fillExistingUsers": false,
+  "fillUserTemplate": false,
+  "osInstall": false,
+  "osRequirements": "10.9",
+  "rebootRequired": false
+}
+
+

@@ -1,0 +1,22 @@
+Description: >
+  Retrieves the inventory record for a single computer from a Jamf Pro instance.
+  Set COMPUTER_ID to the numeric ID of the computer to look up.
+  Uses the computers-inventories endpoint; pro computers has no 'get' action.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProGetComputer
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  COMPUTER_ID: ""
+  OUTPUT_FORMAT: json
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: computers-inventories
+      action: get
+      identifier: "%COMPUTER_ID%"
+      profile: "%PROFILE%"
+      out_file: "%RECIPE_CACHE_DIR%/computer_%COMPUTER_ID%.%OUTPUT_FORMAT%"
+      output: "%OUTPUT_FORMAT%"

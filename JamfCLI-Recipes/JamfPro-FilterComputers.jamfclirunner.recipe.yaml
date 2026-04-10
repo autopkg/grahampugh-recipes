@@ -1,0 +1,23 @@
+Description: >
+  Lists computers from a Jamf Pro instance that match a filter expression,
+  e.g. by OS version or management status. Set FILTER to a jamf-cli filter
+  query such as "osVersion>=15" or "managed=true".
+  Uses the computers-inventories endpoint which supports --filter.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProFilterComputers
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  FILTER: managed=true
+  OUTPUT_FORMAT: json
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: computers-inventories
+      action: list
+      profile: "%PROFILE%"
+      filter: "%FILTER%"
+      output: "%OUTPUT_FORMAT%"
+      out_file: "%RECIPE_CACHE_DIR%/filtered_computers.%OUTPUT_FORMAT%"

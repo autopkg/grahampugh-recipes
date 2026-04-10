@@ -1,0 +1,18 @@
+Description: Lists all computers from a Jamf Pro instance using jamf-cli.
+Identifier: com.github.grahampugh.recipes.jamfclirunner.JamfProListAllComputers
+MinimumVersion: "2.3"
+
+Input:
+  PROFILE: my-jamf-pro-instance
+  OUTPUT_FORMAT: json
+
+Process:
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: computers
+      action: list
+      profile: "%PROFILE%"
+      all: true
+      output: "%OUTPUT_FORMAT%"
+      out_file: "%RECIPE_CACHE_DIR%/all_computers.%OUTPUT_FORMAT%"
