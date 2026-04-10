@@ -308,11 +308,12 @@ class JamfCLIRunner(Processor):
         "data": {
             "required": False,
             "description": (
-                "A dictionary of key-value pairs to pass as the --from-file payload. "
+                "A dictionary of key-value pairs to pass as an inline JSON argument. "
                 "Use this instead of 'from_file' when the content can be expressed inline "
                 'in the recipe, e.g. \'{"name": "%CATEGORY%", "priority": 10}\'. '
-                "The dictionary is serialised to a temporary JSON file which is automatically "
-                "cleaned up after the command runs. Ignored if 'from_file' is also set."
+                "The dictionary is serialised to a JSON string and appended as a positional "
+                "argument to the command — no file is written to disk. "
+                "Ignored if 'from_file' is also set."
             ),
         },
         "tenant_id": {
@@ -651,9 +652,11 @@ class JamfCLIRunner(Processor):
         # --from-file argument.
         using_file_upload = bool((self.env.get("file") or "").strip())
 
+        # If 'data' is provided and 'from_file' is not, serialise it to a JSON
+        # string to be fed via stdin (equivalent to <<< '...' in shell). No file
+        # is written to disk.
+        data_json = None
         if not using_file_upload:
-            # If 'data' is provided and 'from_file' is not, serialise 'data' to a
-            # temporary JSON file and use that as the --from-file value.
             data_value = self.env.get("data")
             from_file_value = (self.env.get("from_file") or "").strip()
             if data_value is not None and not from_file_value:
@@ -661,13 +664,7 @@ class JamfCLIRunner(Processor):
                     raise ProcessorError(
                         f"'data' must be a dictionary, got {type(data_value).__name__}"
                     )
-                tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
-                json.dump(self._coerce_data_dict(data_value), tmp, indent=2)
-                tmp.close()
-                tmp_files.append(tmp.name)
-                tmp_env_keys.append("from_file")
-                self.env["from_file"] = tmp.name
-                self.output(f"Wrote 'data' to temporary file: {tmp.name}")
+                data_json = json.dumps(self._coerce_data_dict(data_value))
 
         # Resolve file-type inputs to absolute paths
         for key in self.FILE_KEYS:
@@ -702,15 +699,20 @@ class JamfCLIRunner(Processor):
         )
         cmd = self._append_flags(cmd)
 
-        self.output(f"Running: {' '.join(cmd)}")
+        if data_json:
+            self.output(f"Running: {' '.join(cmd)} <<< '<data>'")
+        else:
+            self.output(f"Running: {' '.join(cmd)}")
 
         try:
             proc = subprocess.Popen(
                 cmd,
+                stdin=subprocess.PIPE if data_json else None,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            stdout, stderr = proc.communicate()
+            stdin_bytes = data_json.encode("utf-8") if data_json else None
+            stdout, stderr = proc.communicate(input=stdin_bytes)
             exit_code = proc.returncode
         finally:
             for path in tmp_files:

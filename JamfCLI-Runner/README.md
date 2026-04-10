@@ -138,7 +138,11 @@ Where the temporary file contains:
 }
 ```
 
-The temporary file is created before the command runs and deleted immediately afterwards, even if the command fails.
+The dictionary is serialised to a JSON string and passed to jamf-cli via stdin — no file is written to disk. This is equivalent to the shell herestring form:
+
+```sh
+jamf-cli pro categories apply <<< '{"name":"Utilities","priority":9}'
+```
 
 ---
 
