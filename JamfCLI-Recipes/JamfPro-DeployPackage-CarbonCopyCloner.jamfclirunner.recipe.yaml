@@ -1,4 +1,4 @@
-Comment: Recipe automatically generated from com.github.jss-recipes.jss.CarbonCopyCloner by JamfRecipeMaker
+Description: Downloads the installer for Carbon Copy Cloner and creates a package, and uploads it to Jamf Pro along with creating a policy to deploy it.
 Identifier: com.github.autopkg.grahampugh-recipes.jamfcli.JamfProDeployPackageCarbonCopyCloner
 ParentRecipe: com.github.keeleysam.recipes.pkg.CarbonCopyCloner
 MinimumVersion: "2.3"
