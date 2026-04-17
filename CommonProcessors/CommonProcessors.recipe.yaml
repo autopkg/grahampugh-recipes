@@ -1,5 +1,7 @@
-Description: "Recipe stub for any Processors in this directory.\n    "
+Description: Recipe stub for any Processors in this directory.
 Identifier: com.github.grahampugh.recipes.commonprocessors
-Input: {}
 MinimumVersion: 0.4.0
+
+Input: {}
+
 Process: []
