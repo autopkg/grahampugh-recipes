@@ -81,9 +81,6 @@ Process:
         name: "%NAME% Version"
         inputType: Script
         inventoryDisplayType: GENERAL
-      output_vars:
-        extension_attribute_id: id
-        extension_attribute_name: name
 
   - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
     Arguments:
