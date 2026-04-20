@@ -72,7 +72,7 @@ Process:
       BINARY_PATH: jamf-cli
       VERSION_ARGUMENT: version
       type: pro
-      endpoint: extension_attributes
+      endpoint: computer-extension-attributes
       action: apply
       profile: "%PROFILE%"
       confirm: "true"
