@@ -21,6 +21,7 @@
 
 import glob
 import os
+import plistlib
 import re
 import shutil
 import subprocess
@@ -31,9 +32,11 @@ from urllib.parse import unquote
 from autopkglib import APLooseVersion  # pylint: disable=import-error
 from autopkglib.Copier import Copier  # pylint: disable=import-error
 
-import plistlib
 
 __all__ = ["PkgInfoReader"]
+
+# we use lots of camelCase-style names. Deal with it.
+# pylint: disable=C0103
 
 
 class PkgInfoReader(Copier):
@@ -66,6 +69,16 @@ class PkgInfoReader(Copier):
     }
 
     description = __doc__
+
+    def getProductVersionFromDist(self, filename):
+        """Extracts product version from a Distribution file"""
+        dom = minidom.parse(filename)
+        product = dom.getElementsByTagName("product")
+        if product:
+            keys = list(product[0].attributes.keys())
+            if "version" in keys:
+                return product[0].attributes["version"].value
+        return None
 
     def parsePkgRefs(self, filename, path_to_pkg=None):
         """Parses a .dist or PackageInfo file looking for pkg-ref or pkg-info tags
@@ -129,11 +142,13 @@ class PkgInfoReader(Copier):
                                         thisdir, relativepath
                                     )
 
-                for key in pkgref_dict:
-                    pkgref = pkgref_dict[key]
+                for key, pkgref in pkgref_dict.items():
                     if "file" in pkgref:
                         if os.path.exists(pkgref["file"]):
-                            info.extend(self.getReceiptInfo(pkgref["file"]))
+                            receipts = self.getReceiptInfo(pkgref["file"]).get(
+                                "receipts", []
+                            )
+                            info.extend(receipts)
                             continue
                     if "version" in pkgref:
                         if "file" in pkgref:
@@ -154,7 +169,8 @@ class PkgInfoReader(Copier):
                 info = self.getBundlePackageInfo(pkgname)
 
         elif pkgname.endswith(".dist"):
-            info = self.parsePkgRefs(pkgname)
+            receiptarray = self.parsePkgRefs(pkgname)
+            info = {"receipts": receiptarray}
 
         return info
 
@@ -191,7 +207,7 @@ class PkgInfoReader(Copier):
                         packageinfoabspath = os.path.abspath(
                             os.path.join(pkgtmp, toc_entry)
                         )
-                        infoarray = self.parsePkgRefs(packageinfoabspath)
+                        receiptarray = self.parsePkgRefs(packageinfoabspath)
                         break
                     else:
                         self.output(
@@ -205,40 +221,35 @@ class PkgInfoReader(Copier):
                         packageinfoabspath = os.path.abspath(
                             os.path.join(pkgtmp, toc_entry)
                         )
-                        infoarray.extend(self.parsePkgRefs(packageinfoabspath))
+                        receiptarray.extend(self.parsePkgRefs(packageinfoabspath))
                     else:
                         self.output(
                             f"An error occurred while extracting {toc_entry}: {err}"
                         )
-            if not infoarray:
-                for toc_entry in [
-                    item for item in toc if item.startswith("Distribution")
-                ]:
-                    # Extract the Distribution file
-                    cmd_extract = ["/usr/bin/xar", "-xf", abspkgpath, toc_entry]
-                    result = subprocess.call(cmd_extract)
-                    if result == 0:
-                        distributionabspath = os.path.abspath(
-                            os.path.join(pkgtmp, toc_entry)
-                        )
-                        infoarray = self.parsePkgRefs(
-                            distributionabspath, path_to_pkg=pkgpath
-                        )
-                        break
-                    else:
-                        self.output(
-                            f"An error occurred while extracting {toc_entry}: {err}"
-                        )
+            if not receiptarray:
+                self.output(
+                    "No receipts found in Distribution or PackageInfo files within "
+                    "the package."
+                )
 
-            if not infoarray:
-                self.output("No valid Distribution or PackageInfo found.")
+            productversion = None
+            for toc_entry in [item for item in toc if item == "Distribution"]:
+                # Extract the Distribution file
+                cmd_extract = ["/usr/bin/xar", "-xf", abspkgpath, toc_entry]
+                result = subprocess.call(cmd_extract)
+                if result == 0:
+                    distributionabspath = os.path.abspath(
+                        os.path.join(pkgtmp, toc_entry)
+                    )
+                    productversion = self.getProductVersionFromDist(distributionabspath)
         else:
             self.output(err.decode("UTF-8"))
 
         # change back to original working dir
         os.chdir(cwd)
         shutil.rmtree(pkgtmp)
-        return infoarray
+        info = {"receipts": receiptarray, "product_version": productversion}
+        return info
 
     def getBomList(self, pkgpath):
         """Gets bom listing from pkgpath, which should be a path
@@ -293,7 +304,7 @@ class PkgInfoReader(Copier):
                 pkginfo["version"] = "0.0"
 
             # now look for applications to suggest for blocking_applications
-            # bomlist = getBomList(pkgpath)
+            # bomlist = self.getBomList(pkgpath)
             # if bomlist:
             #    pkginfo['apps'] = [os.path.basename(item) for item in bomlist
             #                        if item.endswith('.app')]
@@ -333,13 +344,13 @@ class PkgInfoReader(Copier):
 
     def getBundlePackageInfo(self, pkgpath):
         """Get metadata from a bundle-style package"""
-        infoarray = []
+        receiptarray = []
 
         if pkgpath.endswith(".pkg"):
             pkginfo = self.getOnePackageInfo(pkgpath)
             if pkginfo:
-                infoarray.append(pkginfo)
-                return infoarray
+                receiptarray.append(pkginfo)
+                return {"receipts": receiptarray}
 
         bundlecontents = os.path.join(pkgpath, "Contents")
         if os.path.exists(bundlecontents):
@@ -347,7 +358,10 @@ class PkgInfoReader(Copier):
                 if item.endswith(".dist"):
                     filename = os.path.join(bundlecontents, item)
                     # return info using the distribution file
-                    return self.parsePkgRefs(filename, path_to_pkg=bundlecontents)
+                    receiptarray = self.parsePkgRefs(
+                        filename, path_to_pkg=bundlecontents
+                    )
+                    return {"receipts": receiptarray}
 
             # no .dist file found, look for packages in subdirs
             dirsToSearch = []
@@ -357,7 +371,7 @@ class PkgInfoReader(Copier):
                     componentdir = plist["IFPkgFlagComponentDirectory"]
                     dirsToSearch.append(componentdir)
 
-            if dirsToSearch == []:
+            if not dirsToSearch:
                 dirsToSearch = [
                     "",
                     "Contents",
@@ -375,13 +389,13 @@ class PkgInfoReader(Copier):
                             if itempath.endswith(".pkg"):
                                 pkginfo = self.getOnePackageInfo(itempath)
                                 if pkginfo:
-                                    infoarray.append(pkginfo)
+                                    receiptarray.append(pkginfo)
                             elif itempath.endswith(".mpkg"):
                                 pkginfo = self.getBundlePackageInfo(itempath)
                                 if pkginfo:
-                                    infoarray.extend(pkginfo)
+                                    receiptarray.extend(pkginfo.get("receipts", []))
 
-        return infoarray
+        return {"receipts": receiptarray}
 
     def hasValidPackageExt(self, path):
         """Verifies a path ends in '.pkg' or '.mpkg'"""
