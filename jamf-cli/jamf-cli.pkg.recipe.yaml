@@ -1,0 +1,13 @@
+Description: Downloads the latest version of jamf-cli and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.jamf-cli
+ParentRecipe: com.github.dataJAR-recipes.download.jamf-cli
+MinimumVersion: "2.3"
+
+Input:
+  INSTALLER: jamf-cli
+
+Process:
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/%INSTALLER%-%version%.pkg"
+      source_pkg: "%pathname%"
