@@ -1,7 +1,7 @@
 Description: Downloads the installer for jamf-cli and creates a package, and
   uploads it to Jamf Pro along with creating a policy to deploy it.
 Identifier: com.github.autopkg.grahampugh-recipes.jamfcli.JamfProDeployPackagejamf-cli
-ParentRecipe: com.github.autopkg.grahampugh.recipes.pkg.jamf-cli
+ParentRecipe: com.github.grahampugh.recipes.pkg.jamf-cli
 MinimumVersion: "2.3"
 
 Input:
