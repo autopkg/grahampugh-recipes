@@ -1,0 +1,122 @@
+Description: Downloads the installer for jamf-cli and creates a package, and
+  uploads it to Jamf Pro along with creating a policy to deploy it.
+Identifier: com.github.autopkg.grahampugh-recipes.jamfcli.JamfProDeployPackagejamf-cli
+ParentRecipe: com.github.autopkg.grahampugh-recipes.pkg.jamf-cli
+MinimumVersion: "2.3"
+
+Input:
+  NAME: jamf-cli
+  POLICY_NAME: "Install Latest %NAME%"
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  POLICY_RUN_COMMAND: ""
+  USE_FOR_SELF_SERVICE: "true"
+  INSTALL_BUTTON_TEXT: Install
+  REINSTALL_BUTTON_TEXT: Reinstall
+  SELF_SERVICE_DESCRIPTION: Powerful command-line interface for managing Jamf Pro,
+    Protect, School and Platform Services.
+  SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
+  GROUP_NAME: jamf-cli-update-smart
+  SELF_SERVICE_ICON: "%NAME%.png"
+  REPLACE_PKG: "False"
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/IconGenerator
+    Arguments:
+      source_icon: "%NAME%.png"
+      composite_uninstall_path: "%RECIPE_CACHE_DIR%/%NAME%-uninstall.png"
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: categories
+      action: apply
+      profile: "%PROFILE%"
+      confirm: "true"
+      data:
+        name: Utility
+        priority: 10
+      output_vars:
+        pkg_category_id: id
+        pkg_category_name: name
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: categories
+      action: apply
+      confirm: "true"
+      data:
+        name: Testing
+        priority: 10
+      output_vars:
+        policy_category_id: id
+        policy_category_name: name
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: packages
+      action: apply
+      from_file: JamfPro-Package.json
+      confirm: "%REPLACE_PKG%"
+      pkg_info: Package uploaded using JamfCLIRunner
+      pkg_notes: Package uploaded using JamfCLIRunner
+      pkg_priority: "10"
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: "object_updated == False"
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      BINARY_PATH: jamf-cli
+      VERSION_ARGUMENT: version
+      type: pro
+      endpoint: extension_attributes
+      action: apply
+      profile: "%PROFILE%"
+      confirm: "true"
+      script_file: ExtensionAttribute-BinaryVersion.sh
+      data:
+        name: "%NAME% Version"
+        inputType: Script
+        inventoryDisplayType: GENERAL
+      output_vars:
+        extension_attribute_id: id
+        extension_attribute_name: name
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: smart-computer-groups
+      action: apply
+      confirm: "true"
+      data:
+        name: "%GROUP_NAME%"
+        description: Computers with outdated %NAME% package
+        criteria:
+          - name: "%extension_attribute_name%"
+            priority: 0
+            searchType: is not
+            value: "%version%"
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: icons
+      action: upload
+      file: "%app_icon_path%"
+      confirm: "false"
+      output_vars:
+        app_icon_id: id
+        app_icon_name: name
+        app_icon_url: url
+
+  - Processor: com.github.grahampugh.recipes.JamfCLIRunner/JamfCLIRunner
+    Arguments:
+      type: pro
+      endpoint: classic-policies
+      action: apply
+      file: ""
+      from_file: JamfPro-Policy-InstallPackage.xml
+      confirm: "true"

@@ -94,6 +94,7 @@ VALUE_FLAGS = {
     "out_file": "--out-file",
     "from_file": "--from-file",
     "body_file": "--body-file",
+    "script_file": "--script-file",
     "save_to": "--save-to",
     "file": "--file",
     "tenant_id": "--tenant-id",
@@ -258,6 +259,20 @@ class JamfCLIRunner(Processor):
             "required": False,
             "description": "Path to a file to upload. Maps to --file <path>.",
         },
+        "body_file": {
+            "required": False,
+            "description": (
+                "Path to a JSON or YAML file containing the request body. "
+                "Maps to --body-file <path>."
+            ),
+        },
+        "script_file": {
+            "required": False,
+            "description": (
+                "Path to a script file to be added to the object "
+                "(script or computer extension attribute). Maps to --script-file <path>."
+            ),
+        },
         "filter": {
             "required": False,
             "description": (
@@ -378,7 +393,7 @@ class JamfCLIRunner(Processor):
     }
 
     # Keys whose values are file paths and should be resolved via get_path_to_file
-    FILE_KEYS = {"from_file", "body_file", "file"}
+    FILE_KEYS = {"from_file", "body_file", "script_file", "file"}
 
     def _coerce_data_value(self, value):
         """Coerce a value from the 'data' dict to an appropriate JSON type.
@@ -682,10 +697,10 @@ class JamfCLIRunner(Processor):
             )
 
         if not using_file_upload:
-            # Substitute %KEY% tokens in from_file and body_file template content.
+            # Substitute %KEY% tokens in from_file, body_file, and script_file template content.
             # 'file' is left as-is because it is a binary (package, script, etc.)
             # that should not be text-processed.
-            for key in ("from_file", "body_file"):
+            for key in ("from_file", "body_file", "script_file"):
                 value = (self.env.get(key) or "").strip()
                 if value and os.path.isfile(value):
                     substituted_path = self._substitute_file(value, tmp_files)
