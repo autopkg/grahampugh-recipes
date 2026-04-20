@@ -528,19 +528,18 @@ class PkgInfoReader(Copier):
         if metaversion == "0.0.0.0.0":
             metaversion = self.nameAndVersion(shortname)[1]
 
-        highestpkgversion = '0.0'
+        highestpkgversion = "0.0"
         installedsize = 0
-        for infoitem in receiptinfo['receipts']:
-            if (APLooseVersion(infoitem['version']) >
-                    APLooseVersion(highestpkgversion)):
-                highestpkgversion = infoitem['version']
-            if 'installed_size' in infoitem:
+        for infoitem in receiptinfo["receipts"]:
+            if APLooseVersion(infoitem["version"]) > APLooseVersion(highestpkgversion):
+                highestpkgversion = infoitem["version"]
+            if "installed_size" in infoitem:
                 # note this is in KBytes
-                installedsize += infoitem['installed_size']
+                installedsize += infoitem["installed_size"]
 
         if metaversion == "0.0.0.0.0":
             metaversion = highestpkgversion
-        elif len(receiptinfo['receipts']) == 1:
+        elif len(receiptinfo["receipts"]) == 1:
             # there is only one package in this item
             metaversion = highestpkgversion
         elif highestpkgversion.startswith(metaversion):
@@ -550,22 +549,22 @@ class PkgInfoReader(Copier):
 
         cataloginfo = {}
         cataloginfo["name"] = self.nameAndVersion(shortname)[0]
-        cataloginfo['version'] = receiptinfo.get("product_version") or metaversion
+        cataloginfo["version"] = receiptinfo.get("product_version") or metaversion
         for key in ("display_name", "RestartAction", "description"):
             if key in installerinfo:
                 cataloginfo[key] = installerinfo[key]
 
-       if 'installed_size' in installerinfo:
-            if installerinfo['installed_size'] > 0:
-                cataloginfo['installed_size'] = installerinfo['installed_size']
+        if "installed_size" in installerinfo:
+            if installerinfo["installed_size"] > 0:
+                cataloginfo["installed_size"] = installerinfo["installed_size"]
         elif installedsize:
-            cataloginfo['installed_size'] = installedsize
+            cataloginfo["installed_size"] = installedsize
 
-        cataloginfo['receipts'] = receiptinfo['receipts']
+        cataloginfo["receipts"] = receiptinfo["receipts"]
 
-        if os.path.isfile(pkgitem) and not pkgitem.endswith('.dist'):
+        if os.path.isfile(pkgitem) and not pkgitem.endswith(".dist"):
             # flat packages require 10.5.0+
-            cataloginfo['minimum_os_version'] = "10.5.0"
+            cataloginfo["minimum_os_version"] = "10.5.0"
 
         return cataloginfo
 
