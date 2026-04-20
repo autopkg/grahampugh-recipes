@@ -180,7 +180,7 @@ class PkgInfoReader(Copier):
         contained in the flat package
         """
 
-        infoarray = []
+        receiptarray = []
         # get the absolute path to the pkg because we need to do a chdir later
         abspkgpath = os.path.abspath(pkgpath)
         # make a tmp dir to expand the flat package into
@@ -200,7 +200,7 @@ class PkgInfoReader(Copier):
             # Walk trough the TOC entries
             for toc_entry in toc:
                 # If the TOC entry is a top-level PackageInfo, extract it
-                if toc_entry.startswith("PackageInfo") and not infoarray:
+                if toc_entry.startswith("PackageInfo") and not receiptarray:
                     cmd_extract = ["/usr/bin/xar", "-xf", abspkgpath, toc_entry]
                     result = subprocess.call(cmd_extract)
                     if result == 0:
