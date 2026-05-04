@@ -8,6 +8,8 @@ To use these processors, add the processor as so:
 
 - [ChangeModeOwner](#changemodeowner)
 - [ChoicesXMLGenerator](#choicesxmlgenerator)
+- [ConditionalVariableAssigner](#conditionalvariableassigner)
+- [CreatePlist](#createplist)
 - [IconGenerator](#icongenerator)
 - [JSSRecipeReceiptChecker](#jssrecipereceiptchecker)
 - [MonolithicProfileDissector](#monolithicprofiledissector)
