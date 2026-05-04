@@ -75,6 +75,34 @@ Generates a `choices.xml` file for use with an installer. A postinstall script i
 
 - None
 
+# ConditionalVariableAssigner
+
+## Description
+
+Outputs a key-value pair based on a provided predicate. It's possible to define the value of the environment variable based on the predicate being True or False.
+
+## Input variables
+
+- **predicate:**
+
+  - **required:** True
+  - **description:** A predicate on which to perform a match.
+
+- **conditional_key:**
+
+  - **required:** True
+  - **description:** The key name that the value will be applied to.
+
+- **value_if_true:**
+
+  - **required:** True
+  - **description:** The value to give to `conditional_key` if the predicate resolves True.
+
+- **value_if_false:**
+
+  - **required:** True
+  - **description:** The value to give to `conditional_key` if the predicate resolves False.
+
 # CreatePlist
 
 ## Description
