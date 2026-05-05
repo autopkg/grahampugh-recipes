@@ -1,4 +1,4 @@
-Description: Downloads the current release version of polybox and extracts the installer package.
+Description: Downloads the current release version of owncloud and extracts the installer package.
 Identifier: com.github.grahampugh.recipes.pkg.owncloud
 MinimumVersion: "2.3"
 ParentRecipe: com.github.gerardkok.download.ownCloudDesktopClient
