@@ -47,6 +47,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from Foundation import NSPredicate
 from pathlib import Path
 
 # Matches ANSI/VT100 escape sequences (colours, cursor movement, etc.)
@@ -349,6 +350,14 @@ class JamfCLIRunner(Processor):
                 "(or set JAMF_URL env var)."
             ),
         },
+        "skip_if": {
+            "required": False,
+            "description": (
+                "A predicate expression that, if true, causes the processor to skip "
+                "execution and subsequent processors to run as if this processor had "
+                "been successful."
+            ),
+        },
         "output_vars": {
             "required": False,
             "description": (
@@ -378,6 +387,11 @@ class JamfCLIRunner(Processor):
                 "the parsed dict is stored here. Each top-level key is also exported "
                 "individually to the environment so subsequent processors can reference "
                 "them directly, e.g. '%id%' or '%name%'."
+            ),
+        },
+        "process_skipped": {
+            "description": (
+                "True if the processor was skipped due to the 'skip_if' predicate being true."
             ),
         },
         "object_updated": {
@@ -628,6 +642,18 @@ class JamfCLIRunner(Processor):
 
         return cmd
 
+    def predicate_evaluates_as_true(self, predicate_string):
+        """Evaluates predicate against our environment dictionary."""
+        try:
+            predicate = NSPredicate.predicateWithFormat_(predicate_string)
+        except (ValueError, TypeError) as err:
+            raise ProcessorError(
+                f"Predicate error for '{predicate_string}': {err}"
+            ) from err
+        result = predicate.evaluateWithObject_(self.env)
+        self.output(f"({predicate_string}) is {result}", verbose_level=2)
+        return result
+
     def main(self):
         """Build and execute the jamf-cli command."""
         binary = self.env.get("jamf_cli_binary") or "jamf-cli"
@@ -636,6 +662,17 @@ class JamfCLIRunner(Processor):
         action = (self.env.get("action") or "").strip() or None
         identifier = (self.env.get("identifier") or "").strip() or None
         id_before = self._is_truthy(self.env.get("identifier_before_action"))
+        skip_if = self.env.get("skip_if")
+
+        # skip the process if skip_if is True
+        process_skipped = False
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        if skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
 
         # Validate binary
         if not shutil.which(binary):
@@ -820,6 +857,7 @@ class JamfCLIRunner(Processor):
                     )
 
         self.env["object_updated"] = object_updated
+        self.env["process_skipped"] = process_skipped
 
         self.env["jamfclirunner_summary_result"] = {
             "summary_text": "The following jamf-cli command was run:",
