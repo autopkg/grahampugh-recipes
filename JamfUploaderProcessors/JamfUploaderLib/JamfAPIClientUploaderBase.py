@@ -41,7 +41,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
 
     def upload_object(
         self,
-        jamf_url,
+        api_url,
         object_type,
         object_name,
         object_template,
@@ -49,16 +49,18 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         object_id=0,
+        tenant_id="",
     ):
         """Update API Client metadata."""
 
         self.output(f"Uploading {object_type}...")
 
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
         # if we find an object ID we put, if not, we post
         if object_id:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}"
+            url = f"{api_url}/{endpoint}/{object_id}"
         else:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}"
+            url = f"{api_url}/{endpoint}"
 
         count = 0
         while True:
@@ -91,13 +93,21 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         return r
 
     def get_api_client_credentials(
-        self, jamf_url, object_type, sleep_time, token, max_tries, object_id
+        self,
+        api_url,
+        object_type,
+        sleep_time,
+        token,
+        max_tries,
+        object_id,
+        tenant_id="",
     ):
         """Generate the API Client Credentials"""
 
         self.output("Getting API Client credentials...")
 
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}/client-credentials"
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
+        url = f"{api_url}/{endpoint}/{object_id}/client-credentials"
 
         api_client_id = ""
         api_client_secret = ""
@@ -145,11 +155,15 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload a script"""
-        jamf_url = self.env.get("JSS_URL").rstrip("/")
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
+        jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
+        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
+        bearer_token = self.env.get("BEARER_TOKEN")
+        jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         object_name = self.env.get("api_client_name")
         api_client_id = self.env.get("api_client_id")
         api_client_enabled = self.to_bool(self.env.get("api_client_enabled"))
@@ -158,6 +172,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         replace_object = self.to_bool(self.env.get("replace_api_client"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
+        skip_if = self.env.get("skip_if")
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -171,40 +186,62 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         if "jamfapiclientuploader_summary_result" in self.env:
             del self.env["jamfapiclientuploader_summary_result"]
 
+        process_skipped = False
+
+        # skip the process if skip_if is True
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        elif skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
+
         object_uploaded = False
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
+        # get a token
+        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
+            self.auth(
+                jamf_url=jamf_url,
                 jamf_user=jamf_user,
                 password=jamf_password,
+                region=jamf_platform_gw_region,
+                tenant_id=jamf_platform_gw_tenant_id,
                 client_id=client_id,
                 client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
             )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+        )
+
+        # construct the api_url based on the API type
+        api_url = self.construct_api_url(
+            jamf_url=jamf_url, region=jamf_platform_gw_region
+        )
+        self.output(f"API URL is {api_url}", verbose_level=3)
 
         # now start the process of uploading the object
         # check for existing object
         # prioritise checking for API Client ID before Display Name
         object_type = "api_client"
         if api_client_id:
-            self.output(f"Checking for existing '{object_name}' on {jamf_url}")
+            self.output(f"Checking for existing '{object_name}' on {api_url}")
             object_id = self.get_api_object_id_from_name(
-                jamf_url,
+                api_url,
                 object_type=object_type,
                 object_name=object_name,
                 token=token,
+                tenant_id=jamf_platform_gw_tenant_id,
                 filter_name="clientId",
             )
         else:
-            self.output(f"Checking for existing '{object_name}' on {jamf_url}")
+            self.output(f"Checking for existing '{object_name}' on {api_url}")
             object_id = self.get_api_object_id_from_name(
-                jamf_url,
+                api_url,
                 object_type=object_type,
                 object_name=object_name,
                 token=token,
+                tenant_id=jamf_platform_gw_tenant_id,
                 filter_name="displayName",
             )
 
@@ -236,7 +273,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
             "enabled": api_client_enabled,
             "accessTokenLifetimeSeconds": int(access_token_lifetime),
         }
-        template_file = self.write_json_file(jamf_url, object_data)
+        template_file = self.write_json_file(api_url, object_data)
 
         # add either API client ID and/or Display Name
         # this should fail if both are provided and there's a conflict with either
@@ -256,7 +293,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
 
         # post the script
         r = self.upload_object(
-            jamf_url,
+            api_url,
             object_name=object_name,
             object_type=object_type,
             object_template=template_file,
@@ -264,6 +301,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
             token=token,
             max_tries=max_tries,
             object_id=object_id,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
         object_uploaded = True
 
@@ -284,7 +322,13 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         api_client_secret = ""
         if api_client_enabled:
             api_client_id, api_client_secret = self.get_api_client_credentials(
-                jamf_url, object_type, sleep_time, token, max_tries, object_id
+                api_url,
+                object_type,
+                sleep_time,
+                token,
+                max_tries,
+                object_id,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
             self.output(f"Client ID: {api_client_id}")
             self.output(f"Client Secret: {api_client_secret}")
@@ -312,3 +356,4 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
                     "api_client_secret": api_client_secret,
                 },
             }
+        self.env["process_skipped"] = process_skipped

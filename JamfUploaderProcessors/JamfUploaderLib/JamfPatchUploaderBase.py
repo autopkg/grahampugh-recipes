@@ -44,7 +44,7 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfPatchUploaderBase(JamfUploaderBase):
     """Class for functions used to upload a patch policy to Jamf"""
 
-    def prepare_patch_template(self, jamf_url, patch_name, patch_template):
+    def prepare_patch_template(self, api_url, patch_name, patch_template):
         """
         Prepares the patch template. Mostly copied from the policy processor.
         """
@@ -64,12 +64,12 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         self.output(template_contents, verbose_level=2)
 
         # write the template to temp file
-        template_xml = self.write_temp_file(jamf_url, template_contents)
+        template_xml = self.write_temp_file(api_url, template_contents)
         return patch_name, template_xml
 
     def handle_patch_pkg(
         self,
-        jamf_url,
+        api_url,
         patch_softwaretitle_name,
         patch_softwaretitle_id,
         pkg_version,
@@ -77,6 +77,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         sleep_time,
         token,
         max_tries,
+        tenant_id="",
     ):
         """Uploads an updated patch softwaretitle including the linked pkg"""
         self.output("Linking pkg versions in patch softwaretitle...")
@@ -91,10 +92,11 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 verbose_level=2,
             )
             pkg_id = self.get_api_object_id_from_name(
-                jamf_url,
+                api_url,
                 object_type="package",
                 object_name=pkg_name,
                 token=token,
+                tenant_id=tenant_id,
             )
             if pkg_id:
                 self.output(f"Found id '{pkg_id}' for package '{pkg_name}'.")
@@ -108,9 +110,8 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
         # Get current softwaretitle
         object_type = "patch_software_title"
-        url = (
-            f"{jamf_url}/{self.api_endpoints(object_type)}/id/{patch_softwaretitle_id}"
-        )
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
+        url = f"{api_url}/{endpoint}/id/{patch_softwaretitle_id}"
 
         # No need to loop over curl function, since we only make a "GET" request.
         r = self.curl(
@@ -166,7 +167,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
         # Write xml file
         patch_softwaretitle_xml_file = self.write_xml_file(
-            jamf_url, patch_softwaretitle_xml
+            api_url, patch_softwaretitle_xml
         )
 
         # Upload the 'updated' patch softwaretitle
@@ -204,7 +205,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
     def upload_patch(
         self,
-        jamf_url,
+        api_url,
         object_name,
         object_template,
         patch_softwaretitle_id,
@@ -212,18 +213,19 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         patch_id=0,
+        tenant_id="",
     ):
         """Uploads the patch policy"""
         self.output("Uploading Patch policy...")
 
         # For patch policies the url differs when creating a new one or updating one.
         object_type = "patch_policy"
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
         if patch_id:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{patch_id}"
+            url = f"{api_url}/{endpoint}/id/{patch_id}"
         else:
             url = (
-                f"{jamf_url}/{self.api_endpoints(object_type)}/softwaretitleconfig"
-                f"/id/{patch_softwaretitle_id}"
+                f"{api_url}/{endpoint}/softwaretitleconfig/id/{patch_softwaretitle_id}"
             )
 
         count = 0
@@ -255,11 +257,15 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload a patch policy"""
-        jamf_url = self.env.get("JSS_URL").rstrip("/")
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
+        jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
+        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
+        bearer_token = self.env.get("BEARER_TOKEN")
+        jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         pkg_name = self.env.get("pkg_name")
         version = self.env.get("version")
         patch_softwaretitle = self.env.get("patch_softwaretitle")
@@ -269,6 +275,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         replace_patchpolicy = self.to_bool(self.env.get("replace_patch"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
+        skip_if = self.env.get("skip_if")
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -281,6 +288,17 @@ class JamfPatchUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfpatchuploader_summary_result" in self.env:
             del self.env["jamfpatchuploader_summary_result"]
+
+        process_skipped = False
+
+        # skip the process if skip_if is True
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        elif skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
 
         if patch_template:
             patch_policy_enabled = True
@@ -302,17 +320,26 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
         self.output(f"Checking for existing '{patch_softwaretitle}' on {jamf_url}")
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
+        # get a token
+        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
+            self.auth(
+                jamf_url=jamf_url,
                 jamf_user=jamf_user,
                 password=jamf_password,
+                region=jamf_platform_gw_region,
+                tenant_id=jamf_platform_gw_tenant_id,
                 client_id=client_id,
                 client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
             )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+        )
+
+        # construct the api_url based on the API type
+        api_url = self.construct_api_url(
+            jamf_url=jamf_url, region=jamf_platform_gw_region
+        )
+        self.output(f"API URL is {api_url}", verbose_level=3)
 
         # Patch Icon:
         # Sadly there is currently no (reasonable) way to upload an icon for a patch policy.
@@ -323,19 +350,21 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
         if patch_icon_policy_name:
             patch_icon_policy_id = self.get_api_object_id_from_name(
-                jamf_url,
+                api_url,
                 object_type="policy",
                 object_name=patch_icon_policy_name,
                 token=token,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
             if patch_icon_policy_id:
                 # Only try to extract an icon, if a policy with the given name was found.
                 patch_icon_id = self.get_api_object_value_from_id(
-                    jamf_url,
+                    api_url,
                     object_type="policy",
                     object_id=patch_icon_policy_id,
                     object_path="self_service/self_service_icon/id",
                     token=token,
+                    tenant_id=jamf_platform_gw_tenant_id,
                 )
                 if patch_icon_id:
                     # Icon id could be extracted
@@ -368,10 +397,11 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
         # Patch Software Title
         patch_softwaretitle_id = self.get_api_object_id_from_name(
-            jamf_url,
+            api_url,
             object_type="patch_software_title",
             object_name=patch_softwaretitle,
             token=token,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
 
         if not patch_softwaretitle_id:
@@ -390,7 +420,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             )
 
         self.handle_patch_pkg(
-            jamf_url,
+            api_url,
             patch_softwaretitle,
             patch_softwaretitle_id,
             version,
@@ -398,6 +428,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
             sleep_time,
             token,
             max_tries,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
 
         # Patch Policy
@@ -409,14 +440,15 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 )
 
             patch_name, patch_template_xml = self.prepare_patch_template(
-                jamf_url, patch_name, patch_template
+                api_url, patch_name, patch_template
             )
 
             patch_id = self.get_api_object_id_from_name(
-                jamf_url,
+                api_url,
                 object_type="patch_policy",
                 object_name=patch_name,
                 token=token,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
 
             if patch_id:
@@ -435,7 +467,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
 
             # Upload the patch
             r = self.upload_patch(
-                jamf_url,
+                api_url,
                 object_name=patch_name,
                 object_template=patch_template_xml,
                 patch_softwaretitle_id=patch_softwaretitle_id,
@@ -443,6 +475,7 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 token=token,
                 max_tries=max_tries,
                 patch_id=patch_id,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
 
             # Parse xml output to get patch id of freshly created patch policy.
@@ -472,3 +505,4 @@ class JamfPatchUploaderBase(JamfUploaderBase):
                 "patch_version": version,
             },
         }
+        self.env["process_skipped"] = process_skipped

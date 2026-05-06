@@ -1,4 +1,5 @@
 #!/usr/local/autopkg/python
+# pylint: disable=invalid-name
 
 """
 Copyright 2023 Graham Pugh
@@ -27,7 +28,7 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfMacAppUploaderBase import (  # noqa: E402
+from JamfUploaderLib.JamfMacAppUploaderBase import (  # pylint: disable=import-error, wrong-import-position
     JamfMacAppUploaderBase,
 )
 
@@ -41,6 +42,8 @@ class JamfMacAppUploader(JamfMacAppUploaderBase):
         "Note that an icon can only be successsfully injected into a Mac App Store app "
         "item if Cloud Services Connection is enabled."
     )
+
+    __doc__ = description
 
     input_variables = {
         "JSS_URL": {
@@ -71,6 +74,31 @@ class JamfMacAppUploader(JamfMacAppUploaderBase):
             "description": "Secret associated with the Client ID, optionally set as a key in "
             "the com.github.autopkg preference file.",
         },
+        "BEARER_TOKEN": {
+            "required": False,
+            "description": "A pre-existing bearer token for the Jamf Pro API. "
+            "If provided, the token will be validated and used directly, "
+            "bypassing credential-based authentication.",
+        },
+        "JAMF_CLI_PROFILE": {
+            "required": False,
+            "description": "A jamf-cli profile to use to obtain a bearer token. "
+            "Requires jamf-cli to be installed and in the PATH. "
+            "Set to a profile name to enable.",
+            "default": "",
+        },
+        "PLATFORM_API_REGION": {
+            "required": False,
+            "description": "Region for Jamf Platform API Gateway (e.g., 'us1', 'eu1', 'au1'). "
+            "Required for Platform API authentication.",
+            "default": "",
+        },
+        "PLATFORM_API_TENANT_ID": {
+            "required": False,
+            "description": "Tenant ID for Jamf Platform API Gateway. "
+            "Required for Platform API authentication.",
+            "default": "",
+        },
         "macapp_name": {
             "required": False,
             "description": "Mac App Store app name",
@@ -90,6 +118,14 @@ class JamfMacAppUploader(JamfMacAppUploaderBase):
             "required": False,
             "description": "Full path to the XML template",
         },
+        "preferred_volume_purchase_location": {
+            "required": False,
+            "description": (
+                "Text to match within the Volume Purchasing Location name when "
+                "prioritizing app content."
+            ),
+            "default": "",
+        },
         "replace_macapp": {
             "required": False,
             "description": "Overwrite an existing Mac App Store app if True.",
@@ -108,6 +144,11 @@ class JamfMacAppUploader(JamfMacAppUploaderBase):
             ),
             "default": "5",
         },
+        "skip_if": {
+            "required": False,
+            "description": "Skip the process if the supplied predicate evaluates to True.",
+            "default": False,
+        },
     }
 
     output_variables = {
@@ -120,6 +161,10 @@ class JamfMacAppUploader(JamfMacAppUploaderBase):
         "macapp_updated": {"description": "Boolean - True if the macapp was changed."},
         "changed_macapp_id": {
             "description": "Jamf object ID of the newly created or modified macapp.",
+        },
+        "process_skipped": {
+            "description": "Boolean - True if the process was skipped due to "
+            "skip_if predicate resolved to True.",
         },
     }
 

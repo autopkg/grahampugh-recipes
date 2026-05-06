@@ -41,7 +41,7 @@ class JamfScriptUploaderBase(JamfUploaderBase):
 
     def upload_script(
         self,
-        jamf_url,
+        api_url,
         object_name,
         file_path,
         category_id,
@@ -63,6 +63,7 @@ class JamfScriptUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         object_id=0,
+        tenant_id="",
     ):
         """Update script metadata."""
 
@@ -110,16 +111,17 @@ class JamfScriptUploaderBase(JamfUploaderBase):
             verbose_level=2,
         )
 
-        script_json = self.write_json_file(jamf_url, script_data)
+        script_json = self.write_json_file(api_url, script_data)
 
         self.output("Uploading script..")
 
         # if we find an object ID we put, if not, we post
         object_type = "script"
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
         if object_id:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}"
+            url = f"{api_url}/{endpoint}/{object_id}"
         else:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}"
+            url = f"{api_url}/{endpoint}"
 
         count = 0
         while True:
@@ -151,11 +153,15 @@ class JamfScriptUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload a script"""
-        jamf_url = self.env.get("JSS_URL").rstrip("/")
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
+        jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
+        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
+        bearer_token = self.env.get("BEARER_TOKEN")
+        jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         script_path = self.env.get("script_path")
         script_name = self.env.get("script_name")
         script_category = self.env.get("script_category")
@@ -177,6 +183,7 @@ class JamfScriptUploaderBase(JamfUploaderBase):
         replace_script = self.to_bool(self.env.get("replace_script"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
+        skip_if = self.env.get("skip_if")
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -189,6 +196,18 @@ class JamfScriptUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfscriptuploader_summary_result" in self.env:
             del self.env["jamfscriptuploader_summary_result"]
+
+        process_skipped = False
+
+        # skip the process if skip_if is True
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        elif skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
+
         script_uploaded = False
 
         # we need to substitute the values in the script name now to
@@ -203,17 +222,26 @@ class JamfScriptUploaderBase(JamfUploaderBase):
         # we also need to allow substitution of the category
         script_category = self.substitute_assignable_keys(script_category)
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
+        # get a token
+        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
+            self.auth(
+                jamf_url=jamf_url,
                 jamf_user=jamf_user,
                 password=jamf_password,
+                region=jamf_platform_gw_region,
+                tenant_id=jamf_platform_gw_tenant_id,
                 client_id=client_id,
                 client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
             )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+        )
+
+        # construct the api_url based on the API type
+        api_url = self.construct_api_url(
+            jamf_url=jamf_url, region=jamf_platform_gw_region
+        )
+        self.output(f"API URL is {api_url}", verbose_level=3)
 
         # get the id for a category if supplied
         if script_category:
@@ -221,10 +249,11 @@ class JamfScriptUploaderBase(JamfUploaderBase):
 
             # check for existing category - requires object_name
             category_id = self.get_api_object_id_from_name(
-                jamf_url,
+                api_url,
                 object_type="category",
                 object_name=script_category,
                 token=token,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
 
             if not category_id:
@@ -246,16 +275,17 @@ class JamfScriptUploaderBase(JamfUploaderBase):
 
         # now start the process of uploading the object
         # check for existing script
-        self.output(f"Checking for existing '{script_name}' on {jamf_url}")
+        self.output(f"Checking for existing '{script_name}' on {api_url}")
         self.output(
             f"Full path: {script_path}",
             verbose_level=2,
         )
         object_id = self.get_api_object_id_from_name(
-            jamf_url,
+            api_url,
             object_type="script",
             object_name=script_name,
             token=token,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
 
         if object_id:
@@ -274,7 +304,7 @@ class JamfScriptUploaderBase(JamfUploaderBase):
 
         # post the script
         self.upload_script(
-            jamf_url,
+            api_url,
             object_name=script_name,
             file_path=script_path,
             category_id=category_id,
@@ -296,6 +326,7 @@ class JamfScriptUploaderBase(JamfUploaderBase):
             token=token,
             max_tries=max_tries,
             object_id=object_id,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
         script_uploaded = True
 
@@ -340,3 +371,4 @@ class JamfScriptUploaderBase(JamfUploaderBase):
                     "P11": script_parameter11,
                 },
             }
+        self.env["process_skipped"] = process_skipped

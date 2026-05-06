@@ -41,7 +41,7 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
 
     def upload_restriction(
         self,
-        jamf_url,
+        api_url,
         object_name,
         process_name,
         display_message,
@@ -55,6 +55,7 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         object_id=0,
+        tenant_id="",
     ):
         """Update Software Restriction metadata."""
 
@@ -86,11 +87,12 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
         self.output("Uploading Software Restriction...")
 
         # write the template to temp file
-        template_xml = self.write_temp_file(jamf_url, template_contents)
+        template_xml = self.write_temp_file(api_url, template_contents)
 
         # if we find an object ID we put, if not, we post
         object_type = "restricted_software"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/id/{object_id}"
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
+        url = f"{api_url}/{endpoint}/id/{object_id}"
 
         count = 0
         while True:
@@ -126,11 +128,15 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload a software restriction"""
-        jamf_url = self.env.get("JSS_URL").rstrip("/")
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
+        jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
+        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
+        bearer_token = self.env.get("BEARER_TOKEN")
+        jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         restriction_name = self.env.get("restriction_name")
         process_name = self.env.get("process_name")
         template = self.env.get("restriction_template")
@@ -147,6 +153,7 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
         kill_process = self.to_bool(self.env.get("kill_process"))
         delete_executable = self.to_bool(self.env.get("delete_executable"))
         max_tries = self.env.get("max_tries")
+        skip_if = self.env.get("skip_if")
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -159,6 +166,17 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfsoftwarerestrictionuploader_summary_result" in self.env:
             del self.env["jamfsoftwarerestrictionuploader_summary_result"]
+
+        process_skipped = False
+
+        # skip the process if skip_if is True
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        elif skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
 
         restriction_updated = False
 
@@ -180,26 +198,36 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
         with open(template, "r", encoding="utf-8") as file:
             template_contents = file.read()
 
-        # check for existing Software Restriction
-        self.output(f"Checking for existing '{restriction_name}' on {jamf_url}")
-
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
+        # get a token
+        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
+            self.auth(
+                jamf_url=jamf_url,
                 jamf_user=jamf_user,
                 password=jamf_password,
+                region=jamf_platform_gw_region,
+                tenant_id=jamf_platform_gw_tenant_id,
                 client_id=client_id,
                 client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
             )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+        )
+
+        # construct the api_url based on the API type
+        api_url = self.construct_api_url(
+            jamf_url=jamf_url, region=jamf_platform_gw_region
+        )
+        self.output(f"API URL is {api_url}", verbose_level=3)
+
+        # check for existing Software Restriction
+        self.output(f"Checking for existing '{restriction_name}' on {api_url}")
 
         object_id = self.get_api_object_id_from_name(
-            jamf_url,
+            api_url,
             object_type="restricted_software",
             object_name=restriction_name,
             token=token,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
         if object_id:
             self.output(
@@ -223,7 +251,7 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
             )
 
         self.upload_restriction(
-            jamf_url,
+            api_url,
             object_name=restriction_name,
             process_name=process_name,
             display_message=display_message,
@@ -237,6 +265,7 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
             token=token,
             max_tries=max_tries,
             object_id=object_id,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
         restriction_updated = True
 
@@ -252,3 +281,4 @@ class JamfSoftwareRestrictionUploaderBase(JamfUploaderBase):
                 "report_fields": ["restriction_name"],
                 "data": {"mobileconfig_name": restriction_name},
             }
+        self.env["process_skipped"] = process_skipped

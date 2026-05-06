@@ -27,7 +27,7 @@ A processor for AutoPkg that will upload a computer group (smart or static) to a
 - **computergroup_template**:
   - **required**: False
   - **description**: Path to Computer Group template file
-- **eplace_group**:
+- **replace_group**:
   - **required**: False
   - **description**: overwrite an existing Computer Group if True.
   - **default**: False
@@ -39,6 +39,9 @@ A processor for AutoPkg that will upload a computer group (smart or static) to a
   - **required:** False
   - **description:** Maximum number of attempts to upload the account. Must be an integer between 1 and 10.
   - **default:** "5"
+- **skip_if:**
+  - **required:** False
+  - **description:** Skip the process if a supplied predicate is met.
 
 ## Output variables
 

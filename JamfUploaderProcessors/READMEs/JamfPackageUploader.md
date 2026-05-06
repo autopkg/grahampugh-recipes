@@ -62,11 +62,11 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **default:** False
 - **jcds_mode:**
   - **required:** False
-  - **description:** This option is no longer functional. A warning message is displayed if set.
+  - **description:** This option is no longer functional.
   - **default:** False
 - **jcds2_mode:**
   - **required:** False
-  - **description:** Upload package using JCDS2 mode. Requires the `boto3` module to be manually installed.
+  - **description:** This option is no longer functional.
   - **default:** False
 - **aws_cdp_mode:**
   - **required:** False
@@ -74,7 +74,7 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **default:** False
 - **recalculate:**
   - **required:** False
-  - **description:** Recalculate the JCDS package endpoint. Requires Jamf Pro 11.10+ and a configured JCDS endpoint.
+  - **description:** Recalculate the cloud distribution point inventory. Requires Jamf Pro 11.10+ and a configured JCDS endpoint.
   - **default:** False
 - **S3_BUCKET_NAME:**
   - **required:** False
@@ -111,6 +111,9 @@ Can be run as a post-processor for a pkg recipe or in a child recipe. The parent
   - **required:** False
   - **description:** Maximum number of attempts to upload the account. Must be an integer between 1 and 10.
   - **default:** "5"
+- **skip_if:**
+  - **required:** False
+  - **description:** Skip the process if a supplied predicate is met.
 
 ## Output variables
 

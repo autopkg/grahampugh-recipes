@@ -2,9 +2,19 @@
 
 The dates here represent when the features were added to the processors in the `jamf-upload` repo.
 
+## 2026-02-24
+
+* Updated `check_pkg` function in `JamfPackageUploaderBase` to use the Jamf Pro API (v1/packages endpoint) instead of the Classic API.
+* Added `JamfComputerStaticGroupUploader` and `JamfMobileDeviceStaticGroupUploader` processors for creating and managing static groups using the Jamf Pro API.
+
+## 2026-02-12
+
+* Added `preferred_volume_purchase_location` parameter to `JamfMacAppUploader` and `JamfMobileDeviceAppUploader` to allow prioritizing specific VPP locations when apps are available in multiple locations.
+* Enhanced VPP ID retrieval logic to match apps by adam ID and support location preferences.
+
 ## 2024-10-17
 
-* Fixed an issue with `JamfPackageUploader` where if there was both a SMB share set and a cloud DP (using `CLOUD_DP`), the cloud upload would attempt (and fail) to uplaod using the old `dbfileupload` method on servers running 11.5+.
+* Fixed an issue with `JamfPackageUploader` where if there was both a SMB share set and a cloud DP (using `CLOUD_DP`), the cloud upload would attempt (and fail) to upload using the old `dbfileupload` method on servers running 11.5+.
 
 ## 2024-10-06
 

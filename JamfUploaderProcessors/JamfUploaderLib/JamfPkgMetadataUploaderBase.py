@@ -45,44 +45,37 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfPkgMetadataUploaderBase(JamfUploaderBase):
     """Class for functions used to upload package metadata without a package to Jamf"""
 
-    def check_pkg(self, pkg_name, jamf_url, token):
+    def check_pkg(self, pkg_name, api_url, token, tenant_id=""):
         """check if a package with the same name exists in the repo
         note that it is possible to have more than one with the same name
         which could mess things up"""
 
-        object_type = "package"
-        url = f"{jamf_url}/{self.api_endpoints(object_type)}/name/{quote(pkg_name)}"
-
-        request = "GET"
-        r = self.curl(
-            api_type="jpapi",
-            request=request,
-            url=url,
+        object_type = "package_v1"
+        filter_name = "packageName"
+        object_id = self.get_api_object_id_from_name(
+            api_url,
+            object_type=object_type,
+            object_name=pkg_name,
             token=token,
+            filter_name=filter_name,
+            tenant_id=tenant_id,
         )
 
-        if r.status_code == 200:
-            if isinstance(r.output, dict):
-                obj = r.output
-            else:
-                obj = json.loads(r.output)
-            try:
-                object_id = str(obj["package"]["id"])
-            except KeyError:
-                object_id = "-1"
+        if object_id:
+            return str(object_id)
         else:
-            object_id = "-1"
-        return object_id
+            return "-1"
 
-    def get_category_id(self, jamf_url, category_name, token=""):
+    def get_category_id(self, api_url, category_name, token="", tenant_id=""):
         """Get the category ID from the name, or abort if ID not found"""
         # check for existing category
-        self.output(f"Checking for '{category_name}' on {jamf_url}")
+        self.output(f"Checking for '{category_name}' on {api_url}")
         object_id = self.get_api_object_id_from_name(
-            jamf_url,
+            api_url,
             object_type="category",
             object_name=category_name,
             token=token,
+            tenant_id=tenant_id,
         )
 
         if object_id:
@@ -92,9 +85,9 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             self.output(f"Category '{category_name}' not found")
             raise ProcessorError("Supplied package category does not exist")
 
-    def update_pkg_metadata_api(  # pylint: disable=too-many-arguments, too-many-locals
+    def update_pkg_metadata(  # pylint: disable=too-many-arguments, too-many-locals
         self,
-        jamf_url,
+        api_url,
         pkg_name,
         pkg_display_name,
         pkg_metadata,
@@ -102,13 +95,14 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         pkg_id=0,
+        tenant_id="",
     ):
         """Update package metadata using v1/packages endpoint."""
 
         # get category ID
         if pkg_metadata["category"]:
             category_id = self.get_category_id(
-                jamf_url, pkg_metadata["category"], token
+                api_url, pkg_metadata["category"], token, tenant_id=tenant_id
             )
         else:
             category_id = "-1"
@@ -141,14 +135,15 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             verbose_level=2,
         )
 
-        pkg_json = self.write_json_file(jamf_url, pkg_data)
+        pkg_json = self.write_json_file(api_url, pkg_data)
 
         # if we find a pkg ID we put, if not, we post
         object_type = "package_v1"
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
         if int(pkg_id) > 0:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{pkg_id}"
+            url = f"{api_url}/{endpoint}/{pkg_id}"
         else:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}"
+            url = f"{api_url}/{endpoint}"
 
         count = 0
         while True:
@@ -195,11 +190,15 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
     ):  # pylint: disable=too-many-branches, too-many-locals, too-many-statements
         """Perform the metadata upload"""
 
-        jamf_url = self.env.get("JSS_URL").rstrip("/")
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
+        jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
+        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
+        bearer_token = self.env.get("BEARER_TOKEN")
+        jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         pkg_name = self.env.get("pkg_name")
         pkg_display_name = self.env.get("pkg_display_name")
         pkg_category = self.env.get("pkg_category")
@@ -212,6 +211,7 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
         send_notification = self.to_bool(self.env.get("send_notification"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
+        skip_if = self.env.get("skip_if")
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -227,6 +227,26 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
         if "/" in pkg_name:
             pkg_name = os.path.basename(pkg_name)
 
+        # we need to ensure that a zipped package's display name matches the new pkg_name for
+        # comparison with an existing package
+        if not pkg_display_name:
+            pkg_display_name = pkg_name
+
+        # clear any pre-existing summary result
+        if "jamfpkgmetadatauploader_summary_result" in self.env:
+            del self.env["jamfpkgmetadatauploader_summary_result"]
+
+        process_skipped = False
+
+        # skip the process if skip_if is True
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        elif skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
+
         pkg_metadata = {
             "category": pkg_category,
             "info": pkg_info,
@@ -238,51 +258,43 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
             "send_notification": send_notification,
         }
 
-        # we need to ensure that a zipped package's display name matches the new pkg_name for
-        # comparison with an existing package
-        if not pkg_display_name:
-            pkg_display_name = pkg_name
-
-        # clear any pre-existing summary result
-        if "jamfpkgmetadatauploader_summary_result" in self.env:
-            del self.env["jamfpkgmetadatauploader_summary_result"]
-
         # now start the process of uploading the package
         self.output(f"Checking for existing metadata '{pkg_name}' on {jamf_url}")
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
+        # get a token
+        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
+            self.auth(
+                jamf_url=jamf_url,
                 jamf_user=jamf_user,
                 password=jamf_password,
+                region=jamf_platform_gw_region,
+                tenant_id=jamf_platform_gw_tenant_id,
                 client_id=client_id,
                 client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
             )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+        )
 
-        jamf_pro_version = self.get_jamf_pro_version(jamf_url, token)
+        # construct the api_url based on the API type
+        api_url = self.construct_api_url(
+            jamf_url=jamf_url, region=jamf_platform_gw_region
+        )
+        self.output(f"API URL is {api_url}", verbose_level=3)
+
+        jamf_pro_version = self.get_jamf_pro_version(
+            api_url, token, tenant_id=jamf_platform_gw_tenant_id
+        )
 
         if APLooseVersion(jamf_pro_version) < APLooseVersion("11.4"):
             raise ProcessorError(
                 "this processor uses the new packages endpoint so only works on 11.4+"
             )
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
-                jamf_user=jamf_user,
-                password=jamf_password,
-                client_id=client_id,
-                client_secret=client_secret,
-            )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
-
         # check for existing pkg
-        object_id = self.check_pkg(pkg_name, jamf_url, token=token)
+        object_id = self.check_pkg(
+            pkg_name, api_url, token=token, tenant_id=jamf_platform_gw_tenant_id
+        )
         self.output(f"ID: {object_id}", verbose_level=3)  # TEMP
         if object_id != "-1":
             self.output(f"Package '{pkg_name}' already exists: ID {object_id}")
@@ -298,8 +310,8 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 f"Updating package metadata for {pkg_id}",
                 verbose_level=1,
             )
-            self.update_pkg_metadata_api(
-                jamf_url,
+            self.update_pkg_metadata(
+                api_url,
                 pkg_name,
                 pkg_display_name,
                 pkg_metadata,
@@ -307,6 +319,7 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 token=token,
                 max_tries=max_tries,
                 pkg_id=pkg_id,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
             pkg_metadata_updated = True
         else:
@@ -315,8 +328,8 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 "Creating package metadata",
                 verbose_level=1,
             )
-            self.update_pkg_metadata_api(
-                jamf_url,
+            self.update_pkg_metadata(
+                api_url,
                 pkg_name,
                 pkg_display_name,
                 pkg_metadata,
@@ -324,6 +337,7 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                 token=token,
                 max_tries=max_tries,
                 pkg_id=pkg_id,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
             pkg_metadata_updated = True
 
@@ -347,3 +361,4 @@ class JamfPkgMetadataUploaderBase(JamfUploaderBase):
                     "pkg_display_name": pkg_display_name,
                 },
             }
+        self.env["process_skipped"] = process_skipped

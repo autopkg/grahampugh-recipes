@@ -79,6 +79,11 @@ class JamfExtensionAttributePopupChoiceAdjuster(
                 "Directory to save the modified XML or JSON file. Defaults to RECIPE_CACHE_DIR."
             ),
         },
+        "skip_if": {
+            "required": False,
+            "description": "Skip the process if the supplied predicate evaluates to True.",
+            "default": False,
+        },
     }
 
     output_variables = {
@@ -92,6 +97,10 @@ class JamfExtensionAttributePopupChoiceAdjuster(
                 "Parsed processed object string. For chaining additional "
                 "JamfExtensionAttributePopupChoiceAdjuster processors."
             )
+        },
+        "process_skipped": {
+            "description": "Boolean - True if the process was skipped due to "
+            "skip_if predicate resolved to True.",
         },
     }
 

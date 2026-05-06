@@ -79,6 +79,31 @@ class JamfPackageUploader(JamfPackageUploaderBase):
                 "the com.github.autopkg preference file."
             ),
         },
+        "BEARER_TOKEN": {
+            "required": False,
+            "description": "A pre-existing bearer token for the Jamf Pro API. "
+            "If provided, the token will be validated and used directly, "
+            "bypassing credential-based authentication.",
+        },
+        "JAMF_CLI_PROFILE": {
+            "required": False,
+            "description": "A jamf-cli profile to use to obtain a bearer token. "
+            "Requires jamf-cli to be installed and in the PATH. "
+            "Set to a profile name to enable.",
+            "default": "",
+        },
+        "PLATFORM_API_REGION": {
+            "required": False,
+            "description": "Region for Jamf Platform API Gateway (e.g., 'us1', 'eu1', 'au1'). "
+            "Required for Platform API authentication.",
+            "default": "",
+        },
+        "PLATFORM_API_TENANT_ID": {
+            "required": False,
+            "description": "Tenant ID for Jamf Platform API Gateway. "
+            "Required for Platform API authentication.",
+            "default": "",
+        },
         "CLOUD_DP": {
             "required": False,
             "description": (
@@ -207,15 +232,12 @@ class JamfPackageUploader(JamfPackageUploaderBase):
         },
         "jcds_mode": {
             "required": False,
-            "description": (
-                "This option is no longer functional. "
-                "A warning message is displayed if set."
-            ),
+            "description": ("This option is no longer functional. "),
             "default": "False",
         },
         "jcds2_mode": {
             "required": False,
-            "description": "Use jcds2 endpoint if True.",
+            "description": ("This option is no longer functional. "),
             "default": "False",
         },
         "aws_cdp_mode": {
@@ -241,13 +263,18 @@ class JamfPackageUploader(JamfPackageUploaderBase):
         },
         "recalculate": {
             "required": False,
-            "description": "Recalculate package metadata in JCDS.",
+            "description": "Recalculate cloud distribution point inventory.",
             "default": "False",
+        },
+        "recalculate_wait_time": {
+            "required": False,
+            "description": "Time to wait for recalculation to complete.",
+            "default": 0,
         },
         "sleep": {
             "required": False,
             "description": "Pause after running this processor for specified seconds.",
-            "default": "0",
+            "default": 0,
         },
         "max_tries": {
             "required": False,
@@ -255,7 +282,12 @@ class JamfPackageUploader(JamfPackageUploaderBase):
                 "Maximum number of attempts to upload the account. "
                 "Must be an integer between 1 and 10."
             ),
-            "default": "5",
+            "default": 5,
+        },
+        "skip_if": {
+            "required": False,
+            "description": "Skip the process if the supplied predicate evaluates to True.",
+            "default": False,
         },
     }
 
@@ -269,6 +301,10 @@ class JamfPackageUploader(JamfPackageUploaderBase):
         },
         "jamfpackageuploader_summary_result": {
             "description": "Description of interesting results.",
+        },
+        "process_skipped": {
+            "description": "Boolean - True if the process was skipped due to "
+            "skip_if predicate resolved to True.",
         },
     }
 

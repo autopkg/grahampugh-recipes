@@ -84,6 +84,19 @@ class JamfObjectReader(JamfObjectReaderBase):
                 "the com.github.autopkg preference file."
             ),
         },
+        "BEARER_TOKEN": {
+            "required": False,
+            "description": "A pre-existing bearer token for the Jamf Pro API. "
+            "If provided, the token will be validated and used directly, "
+            "bypassing credential-based authentication.",
+        },
+        "JAMF_CLI_PROFILE": {
+            "required": False,
+            "description": "A jamf-cli profile to use to obtain a bearer token. "
+            "Requires jamf-cli to be installed and in the PATH. "
+            "Set to a profile name to enable.",
+            "default": "",
+        },
         "object_id": {
             "required": False,
             "description": "ID of an object. May be used instead of supplying an object name.",
@@ -144,6 +157,11 @@ class JamfObjectReader(JamfObjectReaderBase):
             "description": "Only output a variable with a list of all objects - ID and name",
             "default": "False",
         },
+        "skip_if": {
+            "required": False,
+            "description": "Skip the process if the supplied predicate evaluates to True.",
+            "default": False,
+        },
     }
 
     output_variables = {
@@ -173,6 +191,10 @@ class JamfObjectReader(JamfObjectReaderBase):
         },
         "payload_file_path": {
             "description": "Path of outputted payload",
+        },
+        "process_skipped": {
+            "description": "Boolean - True if the process was skipped due to "
+            "skip_if predicate resolved to True.",
         },
     }
 

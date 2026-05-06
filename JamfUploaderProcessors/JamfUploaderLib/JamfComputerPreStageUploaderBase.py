@@ -43,7 +43,7 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
 
     def upload_prestage(
         self,
-        jamf_url,
+        api_url,
         object_type,
         object_name,
         object_template,
@@ -51,17 +51,19 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         object_id=0,
+        tenant_id="",
     ):
         """Upload object"""
 
         self.output(f"Uploading {object_type}...")
 
+        endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
         # if we find an object ID or it's an endpoint without IDs, we PUT or PATCH
         # if we're creating a new object, we POST
         if object_id:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}/{object_id}"
+            url = f"{api_url}/{endpoint}/{object_id}"
         else:
-            url = f"{jamf_url}/{self.api_endpoints(object_type)}"
+            url = f"{api_url}/{endpoint}"
 
         additional_curl_options = []
         if object_id:
@@ -97,16 +99,21 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
 
     def execute(self):
         """Upload an API object"""
-        jamf_url = self.env.get("JSS_URL").rstrip("/")
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
+        jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
+        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
+        bearer_token = self.env.get("BEARER_TOKEN")
+        jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         prestage_name = self.env.get("prestage_name")
         prestage_template = self.env.get("prestage_template")
         replace_prestage = self.to_bool(self.env.get("replace_prestage"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
+        skip_if = self.env.get("skip_if")
         object_type = "computer_prestage"
 
         # verify that max_tries is an integer greater than zero and less than 10
@@ -121,26 +128,46 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
         if "jamfcomputerprestageuploader_summary_result" in self.env:
             del self.env["jamfcomputerprestageuploader_summary_result"]
 
+        process_skipped = False
+
+        # skip the process if skip_if is True
+        if skip_if and self.predicate_evaluates_as_true(skip_if):
+            self.output("Skipping to next process as skip_if evaluated to True")
+            process_skipped = True
+            self.env["process_skipped"] = process_skipped
+            return
+        elif skip_if:
+            self.output("Not skipping process as skip_if evaluated to False")
+
         prestage_updated = False
 
         # now start the process of uploading the object
         self.output(f"Obtaining API token for {jamf_url}")
 
-        # get token using oauth or basic auth depending on the credentials given
-        if jamf_url:
-            token = self.handle_api_auth(
-                jamf_url,
+        # get a token
+        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
+            self.auth(
+                jamf_url=jamf_url,
                 jamf_user=jamf_user,
                 password=jamf_password,
+                region=jamf_platform_gw_region,
+                tenant_id=jamf_platform_gw_tenant_id,
                 client_id=client_id,
                 client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
             )
-        else:
-            raise ProcessorError("ERROR: Jamf Pro URL not supplied")
+        )
+
+        # construct the api_url based on the API type
+        api_url = self.construct_api_url(
+            jamf_url=jamf_url, region=jamf_platform_gw_region
+        )
+        self.output(f"API URL is {api_url}", verbose_level=3)
 
         # check for an existing object except for settings-related endpoints
         self.output(
-            f"Checking for existing {object_type} '{prestage_name}' on {jamf_url}"
+            f"Checking for existing {object_type} '{prestage_name}' on {api_url}"
         )
 
         # declare name key
@@ -149,11 +176,12 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
 
         # get the ID from the object bearing the supplied name
         object_id = self.get_api_object_id_from_name(
-            jamf_url,
+            api_url,
             object_type=object_type,
             object_name=prestage_name,
             token=token,
             filter_name=namekey,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
 
         if object_id:
@@ -202,7 +230,12 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
         if object_id:
             # PreStages need to match any existing versionLock values
             self.substitute_existing_version_locks(
-                jamf_url, object_type, object_id, template_file, token
+                api_url,
+                object_type,
+                object_id,
+                template_file,
+                token,
+                tenant_id=jamf_platform_gw_tenant_id,
             )
         else:
             # new prestages need an id of -1
@@ -227,7 +260,7 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
 
         # upload the object
         self.upload_prestage(
-            jamf_url,
+            api_url,
             object_type=object_type,
             object_name=prestage_name,
             object_template=template_file,
@@ -235,6 +268,7 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
             token=token,
             max_tries=max_tries,
             object_id=object_id,
+            tenant_id=jamf_platform_gw_tenant_id,
         )
         prestage_updated = True
 
@@ -250,3 +284,4 @@ class JamfComputerPreStageUploaderBase(JamfUploaderBase):
                     "template": prestage_template,
                 },
             }
+        self.env["process_skipped"] = process_skipped

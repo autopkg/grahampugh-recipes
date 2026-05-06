@@ -2,7 +2,7 @@
 
 ## Description
 
-A processor for AutoPkg that will recalculate the JCDS packages endpoint.
+A processor for AutoPkg that will recalculate the cloud ditribution point inventory.
 
 ## Input variables
 
@@ -21,6 +21,9 @@ A processor for AutoPkg that will recalculate the JCDS packages endpoint.
 - **CLIENT_SECRET:**
   - **required:** False
   - **description:** Secret associated with the Client ID, optionally set as a key in the com.github.autopkg preference file.
+- **skip_if:**
+  - **required:** False
+  - **description:** Skip the process if a supplied predicate is met.
 
 ## Output variables
 
