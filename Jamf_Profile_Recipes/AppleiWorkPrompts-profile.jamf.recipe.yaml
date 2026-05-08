@@ -1,0 +1,53 @@
+Description: Uploads computer configurations to the Jamf Pro Server. The target group must already exist. Note that these profiles are only useful for suppressing the subscription prompts where the iWork/Creative Studio apps were installed via the App Store. If the apps were installed via Apple Business / Apple School Manager, then these profiles are unnecessary.
+Identifier: com.github.grahampugh.recipes.jamf.AppleiWorkPrompts-profile
+MinimumVersion: "2.3"
+
+Input:
+  REPLACE_PROFILE: "True"
+  TARGET_GROUP_NAME: All Managed Clients
+  PROFILE_CATEGORY: Applications
+  PROFILE_TEMPLATE: Profile-single-group.xml
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%PROFILE_CATEGORY%"
+      replace_category: False
+
+  - Processor: com.github.grahampugh.recipes.commonprocessors/CreatePlist
+    Arguments:
+      output_file_name: SuppressAppleiWorkPrompts
+      plist_content:
+        SUEnableAutomaticChecks: False
+        kSUHasLaunchedBefore2: True
+        SUSendProfileInfo: False
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader
+    Arguments:
+      identifier: com.apple.Keynote
+      profile_category: "%PROFILE_CATEGORY%"
+      replace_profile: "%REPLACE_PROFILE%"
+      profile_name: Keynote - Suppress Subscription Prompts
+      profile_computergroup: "%TARGET_GROUP_NAME%"
+      profile_template: "%PROFILE_TEMPLATE%"
+      payload: "%plist_path%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader
+    Arguments:
+      identifier: com.apple.Numbers
+      profile_category: "%PROFILE_CATEGORY%"
+      replace_profile: "%REPLACE_PROFILE%"
+      profile_name: Numbers - Suppress Subscription Prompts
+      profile_computergroup: "%TARGET_GROUP_NAME%"
+      profile_template: "%PROFILE_TEMPLATE%"
+      payload: "%plist_path%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader
+    Arguments:
+      identifier: com.apple.Pages
+      profile_category: "%PROFILE_CATEGORY%"
+      replace_profile: "%REPLACE_PROFILE%"
+      profile_name: Pages - Suppress Subscription Prompts
+      profile_computergroup: "%TARGET_GROUP_NAME%"
+      profile_template: "%PROFILE_TEMPLATE%"
+      payload: "%plist_path%"

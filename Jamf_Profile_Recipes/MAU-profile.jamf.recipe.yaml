@@ -1,0 +1,35 @@
+Description: Uploads a computer configuration to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.MAU-profile
+MinimumVersion: "2.3"
+
+Input:
+  NAME: MAU Custom Settings
+  REPLACE_PROFILE: False
+  JSS_INVENTORY_NAME: Microsoft Word.app
+  INSTALLED_GROUP_NAME: Microsoft Office 365 installed
+  MOBILECONFIG: MAU-custom-settings.mobileconfig
+  PROFILE_CATEGORY: Applications
+  PROFILE_NAME: "%NAME%"
+  PROFILE_GROUP_TEMPLATE: SmartGroup-application-installed.xml
+  PROFILE_TEMPLATE: Profile-single-group.xml
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%PROFILE_CATEGORY%"
+      replace_category: False
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      replace_group: False
+      computergroup_name: "%INSTALLED_GROUP_NAME%"
+      computergroup_template: "%PROFILE_GROUP_TEMPLATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerProfileUploader
+    Arguments:
+      profile_category: "%PROFILE_CATEGORY%"
+      replace_profile: "%REPLACE_PROFILE%"
+      profile_name: "%PROFILE_NAME%"
+      profile_computergroup: "%INSTALLED_GROUP_NAME%"
+      profile_template: "%PROFILE_TEMPLATE%"
+      mobileconfig: "%MOBILECONFIG%"
