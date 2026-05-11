@@ -11,10 +11,14 @@ Process:
     Arguments:
       re_pattern: '\"pkgUrl\":\s*\"(?P<url>https://clientperipherals\.dell\.com/DDPM/Mac/Application/DDPMv(?P<version>[0-9.]+)\.zip)\"'
       url: "%UPDATE_FEED_URL%"
+      request_headers:
+        User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
   - Processor: URLDownloader
     Arguments:
       url: "%url%"
+      request_headers:
+        User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
   - Processor: EndOfCheckPhase
 
