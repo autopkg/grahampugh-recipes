@@ -119,6 +119,8 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfapiroleuploader_summary_result" in self.env:
             del self.env["jamfapiroleuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -194,6 +196,18 @@ class JamfAPIRoleUploaderBase(JamfUploaderBase):
                     "replace_object='True' to enforce."
                 )
                 return
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} api_role '{object_name}'")
+            self.env["api_role_updated"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "api_role", "name": object_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # upload the object
         self.upload_object(

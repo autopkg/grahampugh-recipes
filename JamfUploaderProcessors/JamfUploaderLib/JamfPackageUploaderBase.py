@@ -671,6 +671,8 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfpackageuploader_summary_result" in self.env:
             del self.env["jamfpackageuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         # See if the package is a bundle (directory).
         # If so, zip_pkg_path will look for an existing .zip
@@ -751,6 +753,27 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             self.output(f"Package '{pkg_name}' not found on server")
             pkg_id = 0
         self.output(f"Package ID: {object_id}", verbose_level=3)  # TEMP
+
+        if self.env.get("dry_run"):
+            if object_id:
+                action = "UPDATE metadata for"
+            else:
+                action = "CREATE"
+            self.output(f"DRY RUN: Would {action} package '{pkg_name}'")
+            self.env["pkg_name"] = pkg_name
+            self.env["pkg_uploaded"] = False
+            self.env["pkg_metadata_updated"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {
+                    "action": action,
+                    "type": "package",
+                    "name": pkg_name,
+                },
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # Process for SMB shares if defined
         self.output(

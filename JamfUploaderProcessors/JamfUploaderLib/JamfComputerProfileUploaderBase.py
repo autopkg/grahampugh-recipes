@@ -296,6 +296,8 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfcomputerprofileuploader_summary_result" in self.env:
             del self.env["jamfcomputerprofileuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -448,6 +450,19 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
             token=token,
             tenant_id=jamf_platform_gw_tenant_id,
         )
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} configuration profile '{mobileconfig_name}'")
+            self.env["profile_updated"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "os_x_configuration_profile", "name": mobileconfig_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
+
         if object_id:
             self.output(
                 f"Configuration Profile '{mobileconfig_name}' already exists: ID {object_id}"

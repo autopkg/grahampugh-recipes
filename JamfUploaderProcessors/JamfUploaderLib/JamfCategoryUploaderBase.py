@@ -133,6 +133,8 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfcategoryuploader_summary_result" in self.env:
             del self.env["jamfcategoryuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -198,6 +200,19 @@ class JamfCategoryUploaderBase(JamfUploaderBase):
                 return
         else:
             self.output(f"Category '{category_name}' not found: ID {object_id}")
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} category '{category_name}'")
+            self.env["category"] = category_name
+            self.env["category_id"] = object_id or ""
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "category", "name": category_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # upload the category
         category_id = self.upload_category(

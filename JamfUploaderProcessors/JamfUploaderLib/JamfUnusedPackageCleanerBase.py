@@ -405,6 +405,8 @@ class JamfUnusedPackageCleanerBase(JamfUploaderBase):
         # Clear any pre-existing summary result
         if "jamfunusedpackagecleaner_summary_result" in self.env:
             del self.env["jamfunusedpackagecleaner_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         # Get all packages from Jamf Pro as JSON object
         self.output(f"Getting all packages from {jamf_url}")
@@ -549,6 +551,15 @@ class JamfUnusedPackageCleanerBase(JamfUploaderBase):
                     "Dry run mode enabled. No packages will be deleted.",
                     verbose_level=1,
                 )
+                self.env["dry_run_summary_result"] = {
+                    "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                    "report_fields": ["action", "type", "name"],
+                    "data": {
+                        "action": "DELETE",
+                        "type": "package",
+                        "name": f"{len(unused_packages)} unused package(s)",
+                    },
+                }
             else:
                 # delete the packages
                 for pkg_id, pkg_name in unused_packages.items():

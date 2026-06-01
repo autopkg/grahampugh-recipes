@@ -185,6 +185,8 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfapiclientuploader_summary_result" in self.env:
             del self.env["jamfapiclientuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -290,6 +292,18 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
             object_data,
             verbose_level=2,
         )
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} api_client '{object_name}'")
+            self.env["api_client_updated"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "api_client", "name": object_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # post the script
         r = self.upload_object(

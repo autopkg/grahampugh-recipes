@@ -192,6 +192,8 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfextensionattributeuploader_summary_result" in self.env:
             del self.env["jamfextensionattributeuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -269,6 +271,19 @@ class JamfExtensionAttributeUploaderBase(JamfUploaderBase):
                     verbose_level=1,
                 )
                 return
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} extension attribute '{ea_name}'")
+            self.env["extension_attribute"] = ea_name
+            self.env["ea_uploaded"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "computer_extension_attribute", "name": ea_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # upload the EA
         self.upload_ea(

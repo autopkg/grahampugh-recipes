@@ -196,6 +196,8 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfobjectuploader_summary_result" in self.env:
             del self.env["jamfobjectuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         # skip the process if skip_if is True
         if skip_if and self.predicate_evaluates_as_true(skip_if):
@@ -369,6 +371,20 @@ class JamfObjectUploaderBase(JamfUploaderBase):
                 replacement_value=replacement_value,
                 namekey_path=namekey_path,
             )
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} {object_type} '{object_name}'")
+            self.env["object_name"] = str(object_name)
+            self.env["object_type"] = object_type
+            self.env["object_updated"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": object_type, "name": str(object_name)},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # upload the object
         self.upload_object(

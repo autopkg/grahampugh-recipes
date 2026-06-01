@@ -126,6 +126,8 @@ class JamfPackageRecalculatorBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfpackagerecalculator_summary_result" in self.env:
             del self.env["jamfpackagerecalculator_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         # recalculate packages on Cloud Distribution Point if the metadata was updated and recalculation requested
         # (only works on Jamf Pro 11.10 or newer)
@@ -148,6 +150,16 @@ class JamfPackageRecalculatorBase(JamfUploaderBase):
                     jamf_cli_profile=jamf_cli_profile,
                 )
             )
+
+            if self.env.get("dry_run"):
+                self.output("DRY RUN: Would recalculate package inventory on Cloud Distribution Point")
+                self.env["dry_run_summary_result"] = {
+                    "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                    "report_fields": ["action", "type", "name"],
+                    "data": {"action": "RECALCULATE", "type": "cloud_dp_inventory", "name": "packages"},
+                }
+                self.env["process_skipped"] = process_skipped
+                return
 
             # now send the recalculation request
             packages_recalculated = self.recalculate_packages(

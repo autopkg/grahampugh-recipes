@@ -17,7 +17,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json
 import os.path
 import sys
 
@@ -201,6 +200,8 @@ class JamfPackageCleanerBase(JamfUploaderBase):
         # Clear any pre-existing summary result
         if "jamfpackagecleaner_summary_result" in self.env:
             del self.env["jamfpackagecleaner_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         # Abort if the package name match string is too short
         if len(pkg_name_match) < minimum_name_length:
@@ -238,11 +239,14 @@ class JamfPackageCleanerBase(JamfUploaderBase):
         # check for existing
         object_type = "package_v1"
         url = f"{api_url}/{self.api_endpoints(object_type, tenant_id=jamf_platform_gw_tenant_id)}"
-        r = self.curl(api_type="jpapi", request="GET", url=url, token=token)
-        if isinstance(r.output, dict):
-            jamf_packages = r.output["results"]
-        else:
-            jamf_packages = json.loads(r.output)["results"]
+        jamf_packages = self.paginated_get(
+            api_type="jpapi",
+            url=url,
+            token=token,
+            object_type=object_type,
+            namekey="packageName",
+            domain=api_url,
+        )
 
         # Find packages that match the name pattern
         found_packages = [
@@ -296,6 +300,15 @@ class JamfPackageCleanerBase(JamfUploaderBase):
                 "Use '-vv' to see detailed information. "
                 "Aborting."
             )
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {
+                    "action": "DELETE",
+                    "type": "package",
+                    "name": f"{len(packages_to_delete)} package(s) matching criteria",
+                },
+            }
             return
 
         for package in packages_to_delete:

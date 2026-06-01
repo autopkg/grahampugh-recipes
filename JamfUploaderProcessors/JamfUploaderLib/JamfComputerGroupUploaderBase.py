@@ -151,6 +151,8 @@ class JamfComputerGroupUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfcomputergroupuploader_summary_result" in self.env:
             del self.env["jamfcomputergroupuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -228,6 +230,18 @@ class JamfComputerGroupUploaderBase(JamfUploaderBase):
                     verbose_level=1,
                 )
                 return
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} computer group '{computergroup_name}'")
+            self.env["group_uploaded"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "computer_group", "name": computergroup_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         # upload the group
         self.upload_computergroup(

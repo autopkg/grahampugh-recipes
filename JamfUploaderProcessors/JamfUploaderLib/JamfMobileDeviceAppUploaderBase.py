@@ -169,6 +169,8 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
         # clear any pre-existing summary result
         if "jamfmobiledeviceappuploader_summary_result" in self.env:
             del self.env["jamfmobiledeviceappuploader_summary_result"]
+        if "dry_run_summary_result" in self.env:
+            del self.env["dry_run_summary_result"]
 
         process_skipped = False
 
@@ -224,6 +226,18 @@ class JamfMobileDeviceAppUploaderBase(JamfUploaderBase):
             token=token,
             tenant_id=jamf_platform_gw_tenant_id,
         )
+
+        if self.env.get("dry_run"):
+            action = "CREATE" if not object_id else "UPDATE"
+            self.output(f"DRY RUN: Would {action} mobile_device_application '{mobiledeviceapp_name}'")
+            self.env["mobiledeviceapp_updated"] = False
+            self.env["dry_run_summary_result"] = {
+                "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
+                "report_fields": ["action", "type", "name"],
+                "data": {"action": action, "type": "mobile_device_application", "name": mobiledeviceapp_name},
+            }
+            self.env["process_skipped"] = process_skipped
+            return
 
         if object_id:
             self.output(
