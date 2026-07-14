@@ -1,0 +1,28 @@
+Description: Downloads the latest Smallstep Agent release and verifies the code signature.
+Identifier: com.github.grahampugh.recipes.download.SmallstepAgent
+MinimumVersion: "2.7"
+
+Input:
+  NAME: SmallstepAgent
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      url: "https://packages.smallstep.com/stable/step-agent/darwin/index.json"
+      re_pattern: "\"latest_version\": \"([0-9]+(\\.[0-9]+)+)\""
+      result_output_var_name: version
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://packages.smallstep.com/stable/step-agent/darwin/%version%/step-agent_%version%.pkg"
+      filename: "step-agent_%version%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Smallstep Labs, Inc. (83N265AHT9)"
+        - Developer ID Certification Authority
+        - Apple Root CA

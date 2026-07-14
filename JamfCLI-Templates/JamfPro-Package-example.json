@@ -1,0 +1,22 @@
+{
+  "basePath": "/Users/gpugh/Library/AutoPkg/Cache/com.github.autopkg.grahampugh-recipes.jamfcli.JamfProDeployPackageCarbonCopyCloner/Carbon Copy Cloner-7.1.5.pkg",
+  "categoryId": "50",
+  "fileName": "Carbon Copy Cloner-7.1.5.pkg",
+  "ignoreConflicts": false,
+  "info": "Package uploaded using jamf-cli",
+  "packageName": "Carbon Copy Cloner-7.1.5.pkg",
+  "priority": 10,
+  "suppressEula": false,
+  "suppressFromDock": false,
+  "suppressRegistration": false,
+  "suppressUpdates": false,
+  "swu": false,
+  "notes": "Package uploaded using jamf-cli",
+  "fillExistingUsers": false,
+  "fillUserTemplate": false,
+  "osInstall": false,
+  "osRequirements": "10.9",
+  "rebootRequired": false
+}
+
+

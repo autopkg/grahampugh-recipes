@@ -1,0 +1,37 @@
+Description: |-
+  Downloads the latest Smallstep Agent release and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.SmallstepAgent
+ParentRecipe: com.github.grahampugh.recipes.download.SmallstepAgent
+MinimumVersion: "2.7"
+
+Input:
+  NAME: SmallstepAgent
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      flat_pkg_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpacked"
+      purge_destination: true
+
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      destination_path: "%RECIPE_CACHE_DIR%/pkgroot"
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpacked/Payload"
+      purge_destination: true
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/pkgroot/Applications/SmallstepAgent.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%pathname%"    
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/pkgroot"
+        - "%RECIPE_CACHE_DIR%/unpacked"
