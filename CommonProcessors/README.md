@@ -12,6 +12,7 @@ To use these processors, add the processor as so:
 - [CreatePlist](#createplist)
 - [IconGenerator](#icongenerator)
 - [JSSRecipeReceiptChecker](#jssrecipereceiptchecker)
+- [ModelIdentifierRegexGenerator](#modelidentifierregexgenerator)
 - [MonolithicProfileDissector](#monolithicprofiledissector)
 - [PkgInfoReader](#pkginforeader)
 - [SMBMounter](#smbmounter)
@@ -308,6 +309,24 @@ An AutoPkg processor which works out the latest receipt (by date) from a differe
 
 - **SELF_SERVICE_DESCRIPTION:**
   - **description:** Value of `SELF_SERVICE_DESCRIPTION` obtained from the latest receipt.
+
+# ModelIdentifierRegexGenerator
+
+## Description
+
+A processor for AutoPkg that fetches an EveryMac macOS compatibility page and generates a regex matching all supported Mac Model Identifiers. The regex is suitable for use in Jamf Pro Smart Group criteria. `VirtualMac` is always included in the generated regex.
+
+## Input variables
+
+- **compatibility_url:**
+
+  - **required:** True
+  - **description:** URL of an EveryMac macOS compatibility page, e.g. `https://everymac.com/mac-answers/macos-26-tahoe-faq/macos-tahoe-macos-26-compatbility-list-system-requirements.html`
+
+## Output variables
+
+- **model_identifier_regex:**
+  - **description:** A regex string matching all supported Model Identifiers extracted from the compatibility page, plus `VirtualMac`.
 
 # MonolithicProfileDissector
 
