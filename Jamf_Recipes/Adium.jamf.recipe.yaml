@@ -1,0 +1,48 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.Adium by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Adium
+ParentRecipe: com.github.autopkg.pkg.Adium
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Adium
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  CATEGORY: Productivity
+  POLICY_NAME: "Install Latest %NAME%"
+  UPDATE_PREDICATE: pkg_uploaded == False
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
+  POLICY_CATEGORY: Testing
+  GROUP_NAME: Adium-update-smart
+  SELF_SERVICE_DESCRIPTION: Popular instant messaging client supports a plethora of services.
+  SELF_SERVICE_ICON: "%NAME%.png"
+  TESTING_GROUP_NAME: Testing
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      pkg_category: "%CATEGORY%"
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: "%UPDATE_PREDICATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      replace_group: True
+      computergroup_name: "%GROUP_NAME%"
+      computergroup_template: "%GROUP_TEMPLATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      policy_name: "%POLICY_NAME%"
+      policy_template: "%POLICY_TEMPLATE%"
+      icon: "%SELF_SERVICE_ICON%"
+      replace_policy: True

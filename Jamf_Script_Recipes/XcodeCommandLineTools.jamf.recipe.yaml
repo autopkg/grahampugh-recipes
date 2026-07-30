@@ -1,0 +1,52 @@
+Description: Uploads a script to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.XcodeCommandLineTools-script
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Xcode Command Line Tools
+  replace_script: True
+  EXTENSION_ATTRIBUTE_VALUE: functional
+  replace_group: True
+  SCRIPT_PRIORITY: After
+  SCRIPT_NAME: XcodeCommandLineTools-install.sh
+  GROUP_TEMPLATE: SmartGroup-script-self-service-EA.xml
+  EXTENSION_ATTRIBUTE_NAME: XcodeCommandLineTools
+  SELF_SERVICE_DISPLAY_NAME: Xcode Command Line Tools
+  POLICY_TEMPLATE: Policy-script-self-service.xml
+  SELF_SERVICE_ICON: Terminal.png
+  EXTENSION_ATTRIBUTE_SCRIPT: ExtensionAttribute-XcodeCommandLineTools.sh
+  POLICY_CATEGORY: Self-Help
+  SELF_SERVICE_DESCRIPTION: Installs or re-installs the Xcode Command Line Tools.
+  REINSTALL_BUTTON_TEXT: Install
+  INSTALL_BUTTON_TEXT: Install
+  replace_policy: True
+  POLICY_NAME: "%NAME%"
+  TESTING_GROUP_NAME: Testing
+  GROUP_NAME: "%NAME%-self-service"
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfScriptUploader
+    Arguments:
+      script_priority: "%SCRIPT_PRIORITY%"
+      script_path: "%SCRIPT_NAME%"
+      script_category: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfExtensionAttributeUploader
+    Arguments:
+      ea_script_path: "%EXTENSION_ATTRIBUTE_SCRIPT%"
+      ea_name: "%EXTENSION_ATTRIBUTE_NAME%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_name: "%GROUP_NAME%"
+      computergroup_template: "%GROUP_TEMPLATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      policy_name: "%POLICY_NAME%"
+      policy_template: "%POLICY_TEMPLATE%"
+      icon: "%SELF_SERVICE_ICON%"

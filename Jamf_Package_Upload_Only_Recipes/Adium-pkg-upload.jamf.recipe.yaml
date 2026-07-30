@@ -1,0 +1,17 @@
+Comment: Recipe automatically generated from com.github.jss-recipes.jss.Adium by JamfRecipeMaker
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Adium-pkg-upload
+ParentRecipe: com.github.autopkg.pkg.Adium
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Adium
+  CATEGORY: Productivity
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      pkg_category: "%CATEGORY%"

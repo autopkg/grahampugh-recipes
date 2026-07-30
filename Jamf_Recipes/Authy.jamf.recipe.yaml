@@ -1,0 +1,50 @@
+Description: Downloads the latest version and makes a pkg. Then, uploads the package to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.Authy
+ParentRecipe: com.github.nzmacgeek.pkg.authy
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Authy
+  SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
+  UPDATE_PREDICATE: pkg_uploaded == False
+  SELF_SERVICE_ICON: "%NAME%.png"
+  TESTING_GROUP_NAME: Testing
+  CATEGORY: Security
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  GROUP_NAME: "%NAME%-update-smart"
+  SELF_SERVICE_DESCRIPTION: Authy is a free mobile / desktop app for two factor authentication, as well as security partner and SMS delivery service of many websites that want to make two-factor authentication work better for their users.
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  POLICY_NAME: "Install Latest %NAME%"
+  POLICY_CATEGORY: Testing
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: "%UPDATE_PREDICATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_name: "%GROUP_NAME%"
+      computergroup_template: "%GROUP_TEMPLATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      icon: "%SELF_SERVICE_ICON%"
+      policy_template: "%POLICY_TEMPLATE%"
+      policy_name: "%POLICY_NAME%"

@@ -1,0 +1,44 @@
+Description: Uploads a script to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.CiscoAnyConnect-uninstall
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Cisco AnyConnect Secure Mobility Client
+  SELF_SERVICE_ICON: Cisco AnyConnect.png
+  SELF_SERVICE_DISPLAY_NAME: "Uninstall %NAME%"
+  replace_policy: True
+  POLICY_NAME: "Uninstall %NAME%"
+  SELF_SERVICE_DESCRIPTION: Uninstalls Cisco AnyConnect. Please note that with macOS Big Sur and above, an administrator account password must be provided via a prompt in order to remove the System Extension that comes with Cisco AnyConnect.
+  GROUP_NAME: "%NAME%-uninstall"
+  POLICY_CATEGORY: Uninstallers
+  SCRIPT_NAME: CiscoAnyConnect-uninstall.sh
+  INSTALL_BUTTON_TEXT: Uninstall
+  REINSTALL_BUTTON_TEXT: Uninstall
+  GROUP_TEMPLATE: SmartGroup-uninstall-self-service.xml
+  POLICY_TEMPLATE: Policy-uninstall-self-service.xml
+  SCRIPT_PRIORITY: After
+  replace_script: True
+  replace_group: False
+  TESTING_GROUP_NAME: Testing
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfScriptUploader
+    Arguments:
+      script_category: "%POLICY_CATEGORY%"
+      script_priority: "%SCRIPT_PRIORITY%"
+      script_path: "%SCRIPT_NAME%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_template: "%GROUP_TEMPLATE%"
+      computergroup_name: "%GROUP_NAME%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      policy_name: "%POLICY_NAME%"
+      icon: "%SELF_SERVICE_ICON%"
+      policy_template: "%POLICY_TEMPLATE%"

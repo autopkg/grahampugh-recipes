@@ -1,0 +1,54 @@
+Description: Downloads the latest version and makes a pkg. Then, uploads the package to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.Privileges
+ParentRecipe: com.github.rtrouton.pkg.privileges
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Privileges
+  SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
+  UPDATE_PREDICATE: pkg_uploaded == False
+  SELF_SERVICE_ICON: "%NAME%.png"
+  TESTING_GROUP_NAME: Testing
+  CATEGORY: Productivity
+  GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
+  GROUP_NAME: "%NAME%-update-smart"
+  SELF_SERVICE_DESCRIPTION: |-
+    Privileges.app for macOS is designed to allow users to work as a standard user for day-to-day use, by providing a quick and easy way to get administrator rights when needed. When you do need admin rights, you can get them by clicking on the Privileges icon in your Dock.
+    
+    We believe all users, including all developers, can benefit from using Privileges.app. Working as a standard user instead of an administrator adds another layer of security to your Mac and is considered a security best practice. Privileges.app helps enable users to act as administrators of the system only when required.
+    			
+  POLICY_TEMPLATE: JamfPolicyTemplate.xml
+  POLICY_NAME: "Install Latest %NAME%"
+  POLICY_CATEGORY: Testing
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: StopProcessingIf
+    Arguments:
+      predicate: "%UPDATE_PREDICATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_name: "%GROUP_NAME%"
+      computergroup_template: "%GROUP_TEMPLATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      icon: "%SELF_SERVICE_ICON%"
+      policy_template: "%POLICY_TEMPLATE%"
+      policy_name: "%POLICY_NAME%"

@@ -1,28 +1,23 @@
-Description: Creates a package, uploads it to Jamf and creates associated objects. This recipe uses the AppIconExtractor processor from homebysix, which requires the python Pillow module.
-Identifier: com.github.autopkg.grahampugh-recipes.jamf.Miro
-ParentRecipe: com.github.dataJAR-recipes.pkg.Miro
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.MicrosoftOffice365
+ParentRecipe: com.github.grahampugh.recipes.pkg.MicrosoftOffice365
 MinimumVersion: "2.3"
 
 Input:
-  NAME: Miro
-  STATIC_GROUP_NAME: Testing
+  NAME: Microsoft Office 365
+  SELF_SERVICE_ICON: "%NAME%.png"
   GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
-  GROUP_NAME: Miro-update-smart
+  GROUP_NAME: Microsoft Office 365-update-smart
   TESTING_GROUP_NAME: Testing
-  SELF_SERVICE_DESCRIPTION: The online collaborative whiteboard platform to bring teams together, anytime, anywhere.
-  STATIC_GROUP_TEMPLATE: JamfStaticGroupTemplate.xml
+  SELF_SERVICE_DESCRIPTION: Microsoft Office 365 is a popular and powerful suite of productivity apps.
   POLICY_CATEGORY: Testing
   UPDATE_PREDICATE: pkg_uploaded == False
   POLICY_TEMPLATE: JamfPolicyTemplate.xml
   POLICY_NAME: "Install Latest %NAME%"
+  JSS_INVENTORY_NAME: Microsoft Word.app
   CATEGORY: Productivity
 
 Process:
-  - Processor: com.github.haircut.processors/AppIconExtractor
-    Arguments:
-      source_app: "%RECIPE_CACHE_DIR%/Miro/Applications/Miro.app"
-
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
     Arguments:
       category_name: "%CATEGORY%"
@@ -41,19 +36,13 @@ Process:
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
     Arguments:
-      computergroup_name: "%STATIC_GROUP_NAME%"
-      replace_group: False
-      computergroup_template: "%STATIC_GROUP_TEMPLATE%"
-
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
-    Arguments:
-      computergroup_name: "%GROUP_NAME%"
       replace_group: True
+      computergroup_name: "%GROUP_NAME%"
       computergroup_template: "%GROUP_TEMPLATE%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
     Arguments:
       policy_name: "%POLICY_NAME%"
       policy_template: "%POLICY_TEMPLATE%"
-      icon: "%app_icon_path%"
+      icon: "%SELF_SERVICE_ICON%"
       replace_policy: True

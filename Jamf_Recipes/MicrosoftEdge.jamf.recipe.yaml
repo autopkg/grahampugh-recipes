@@ -1,28 +1,25 @@
-Description: Creates a package, uploads it to Jamf and creates associated objects. This recipe uses the AppIconExtractor processor from homebysix, which requires the python Pillow module.
-Identifier: com.github.autopkg.grahampugh-recipes.jamf.Miro
-ParentRecipe: com.github.dataJAR-recipes.pkg.Miro
+Description: Downloads the latest version and makes a pkg. Then, uploads the package to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.MicrosoftEdge
+ParentRecipe: com.github.rtrouton.pkg.microsoftedge
 MinimumVersion: "2.3"
 
 Input:
-  NAME: Miro
-  STATIC_GROUP_NAME: Testing
+  NAME: Microsoft Edge
+  SELF_SERVICE_ICON: "%NAME%.png"
   GROUP_TEMPLATE: JamfSmartGroupTemplate.xml
   SELF_SERVICE_DISPLAY_NAME: "Install Latest %NAME%"
-  GROUP_NAME: Miro-update-smart
+  GROUP_NAME: "%NAME%-update-smart"
   TESTING_GROUP_NAME: Testing
-  SELF_SERVICE_DESCRIPTION: The online collaborative whiteboard platform to bring teams together, anytime, anywhere.
-  STATIC_GROUP_TEMPLATE: JamfStaticGroupTemplate.xml
+  SELF_SERVICE_DESCRIPTION: Microsoft Edge is a fast, simple, and secure web browser, built for the modern web.
   POLICY_CATEGORY: Testing
   UPDATE_PREDICATE: pkg_uploaded == False
   POLICY_TEMPLATE: JamfPolicyTemplate.xml
   POLICY_NAME: "Install Latest %NAME%"
+  EXTENSION_ATTRIBUTE_NAME: "%NAME% Version"
   CATEGORY: Productivity
+  EXTENSION_ATTRIBUTE_SCRIPT: ExtensionAttribute-CFBundleVersion.sh
 
 Process:
-  - Processor: com.github.haircut.processors/AppIconExtractor
-    Arguments:
-      source_app: "%RECIPE_CACHE_DIR%/Miro/Applications/Miro.app"
-
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
     Arguments:
       category_name: "%CATEGORY%"
@@ -31,29 +28,30 @@ Process:
     Arguments:
       category_name: "%POLICY_CATEGORY%"
 
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
     Arguments:
-      pkg_category: "%CATEGORY%"
+      category_name: "%CATEGORY%"
 
   - Processor: StopProcessingIf
     Arguments:
       predicate: "%UPDATE_PREDICATE%"
 
-  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfExtensionAttributeUploader
     Arguments:
-      computergroup_name: "%STATIC_GROUP_NAME%"
-      replace_group: False
-      computergroup_template: "%STATIC_GROUP_TEMPLATE%"
+      ea_script_path: "%EXTENSION_ATTRIBUTE_SCRIPT%"
+      ea_name: "%EXTENSION_ATTRIBUTE_NAME%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
     Arguments:
       computergroup_name: "%GROUP_NAME%"
-      replace_group: True
       computergroup_template: "%GROUP_TEMPLATE%"
 
   - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
     Arguments:
-      policy_name: "%POLICY_NAME%"
+      icon: "%SELF_SERVICE_ICON%"
       policy_template: "%POLICY_TEMPLATE%"
-      icon: "%app_icon_path%"
-      replace_policy: True
+      policy_name: "%POLICY_NAME%"

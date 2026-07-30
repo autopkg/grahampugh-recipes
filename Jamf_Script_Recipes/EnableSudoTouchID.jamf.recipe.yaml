@@ -1,0 +1,44 @@
+Description: Uploads a script to the Jamf Pro Server and creates a Self Service Policy and Smart Group.
+Identifier: com.github.grahampugh.recipes.jamf.EnableSudoTouchID-script
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Enable Touch ID for sudo
+  replace_script: True
+  replace_group: False
+  SELF_SERVICE_ICON: Terminal.png
+  SCRIPT_PRIORITY: After
+  GROUP_TEMPLATE: SmartGroup-script-self-service.xml
+  POLICY_TEMPLATE: Policy-script-self-service.xml
+  SELF_SERVICE_DISPLAY_NAME: Enable Touch ID for sudo
+  SCRIPT_NAME: Enable-TouchID-sudo.sh
+  POLICY_CATEGORY: Self-Help
+  SELF_SERVICE_DESCRIPTION: Enables sudo to be activated via Touch ID. Touch ID must be set up prior to running this item, and may need to be re-run after upgrading macOS.
+  REINSTALL_BUTTON_TEXT: Enable Touch ID
+  INSTALL_BUTTON_TEXT: Enable Touch ID
+  replace_policy: True
+  GROUP_NAME: "%NAME%-self-service"
+  TESTING_GROUP_NAME: Testing
+  POLICY_NAME: "%NAME%"
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfScriptUploader
+    Arguments:
+      script_priority: "%SCRIPT_PRIORITY%"
+      script_path: "%SCRIPT_NAME%"
+      script_category: "%POLICY_CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader
+    Arguments:
+      computergroup_name: "%GROUP_NAME%"
+      computergroup_template: "%GROUP_TEMPLATE%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      policy_name: "%POLICY_NAME%"
+      policy_template: "%POLICY_TEMPLATE%"
+      icon: "%SELF_SERVICE_ICON%"

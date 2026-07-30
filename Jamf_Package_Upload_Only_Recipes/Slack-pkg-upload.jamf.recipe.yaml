@@ -1,0 +1,17 @@
+Comment: Recipe automatically generated from com.github.killahquam.jss.slack by JamfRecipeMaker, and updated to parent com.github.rtrouton.pkg.SlackUniversal
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Slack-pkg-upload
+ParentRecipe: com.github.rtrouton.pkg.SlackUniversal
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Slack
+  CATEGORY: Productivity
+
+Process:
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: "%CATEGORY%"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      pkg_category: "%CATEGORY%"
