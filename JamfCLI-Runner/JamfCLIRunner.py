@@ -47,6 +47,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from datetime import datetime, timezone
 from Foundation import NSPredicate
 from pathlib import Path
 
@@ -342,6 +343,16 @@ class JamfCLIRunner(Processor):
         "token_file": {
             "required": False,
             "description": "Path to a file containing an API token. Maps to --token-file <path>.",
+        },
+        "jamfupload_token_file": {
+            "required": False,
+            "description": (
+                "Path to a JamfUploader-format JSON token file (as written by "
+                "JamfUploaderBase). The processor validates that the URL in the file "
+                "matches the 'jamf_url' input and that the token has not expired, then "
+                "extracts the raw token string and passes it to jamf-cli via "
+                "--token-file. Takes precedence over 'token_file' when both are set."
+            ),
         },
         "jamf_url": {
             "required": False,
@@ -654,6 +665,56 @@ class JamfCLIRunner(Processor):
         self.output(f"({predicate_string}) is {result}", verbose_level=2)
         return result
 
+    def _extract_token_from_jamfupload_file(self, token_file_path, jamf_url):
+        """Parse a JamfUploader JSON token file, validate URL and expiry, return the token string.
+
+        Raises ProcessorError if the file is missing, malformed, the URL does not
+        match, or the token has expired.
+        """
+        if not os.path.exists(token_file_path):
+            raise ProcessorError(
+                f"jamfupload_token_file not found: {token_file_path}"
+            )
+        try:
+            with open(token_file_path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (OSError, json.JSONDecodeError) as e:
+            raise ProcessorError(
+                f"Could not read jamfupload_token_file {token_file_path}: {e}"
+            ) from e
+
+        file_url = data.get("url", "").rstrip("/")
+        req_url = (jamf_url or "").rstrip("/")
+        if file_url != req_url:
+            raise ProcessorError(
+                f"jamfupload_token_file URL mismatch: file contains '{file_url}', "
+                f"but jamf_url is '{req_url}'"
+            )
+
+        token = data.get("token")
+        if not token:
+            raise ProcessorError(
+                f"No token found in jamfupload_token_file: {token_file_path}"
+            )
+
+        expires = data.get("expires")
+        if expires:
+            try:
+                expires_dt = datetime.strptime(expires, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+                    tzinfo=timezone.utc
+                )
+                if expires_dt <= datetime.now(timezone.utc):
+                    raise ProcessorError(
+                        f"Token in jamfupload_token_file has expired: {expires}"
+                    )
+            except ValueError:
+                self.output(
+                    f"Could not parse token expiry '{expires}' — skipping expiry check",
+                    verbose_level=2,
+                )
+
+        return token
+
     def main(self):
         """Build and execute the jamf-cli command."""
         binary = self.env.get("jamf_cli_binary") or "jamf-cli"
@@ -697,6 +758,26 @@ class JamfCLIRunner(Processor):
         # cleared after the run, preventing stale paths leaking to the next
         # processor invocation in the same recipe.
         tmp_env_keys = []
+
+        # If a JamfUploader-format token file is provided, parse it, validate it,
+        # and write the raw token string to a temp file for jamf-cli --token-file.
+        jamfupload_token_file = (self.env.get("jamfupload_token_file") or "").strip()
+        if jamfupload_token_file:
+            jamf_url = (self.env.get("jamf_url") or "").strip()
+            raw_token = self._extract_token_from_jamfupload_file(
+                jamfupload_token_file, jamf_url
+            )
+            tmp_token = tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False, encoding="utf-8"
+            )
+            tmp_token.write(raw_token)
+            tmp_token.close()
+            tmp_files.append(tmp_token.name)
+            self.env["token_file"] = tmp_token.name
+            self.output(
+                f"Extracted token from jamfupload_token_file; wrote to {tmp_token.name}",
+                verbose_level=2,
+            )
 
         # Commands that accept --file (binary/multipart uploads) never also
         # accept --from-file (JSON/YAML body). Skip all body-file processing
