@@ -172,7 +172,8 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
         replace_object = self.to_bool(self.env.get("replace_api_client"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
-        skip_if = self.env.get("skip_if")
+        skip_if = self.get_and_clear_skip_if()
+        dry_run = self.to_bool(self.env.get("dry_run"))
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -293,7 +294,7 @@ class JamfAPIClientUploaderBase(JamfUploaderBase):
             verbose_level=2,
         )
 
-        if self.env.get("dry_run"):
+        if dry_run:
             action = "CREATE" if not object_id else "UPDATE"
             self.output(f"DRY RUN: Would {action} api_client '{object_name}'")
             self.env["api_client_updated"] = False

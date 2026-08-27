@@ -93,9 +93,16 @@ class JamfUnusedPackageCleanerBase(JamfUploaderBase):
         """get a list of all packages in all patch software titles"""
 
         # get all patch software titles
-        titles = self.get_all_api_objects(
-            api_url, "patch_software_title", token=token, tenant_id=tenant_id
-        )
+        try:
+            titles = self.get_all_api_objects(
+                api_url, "patch_software_title", token=token, tenant_id=tenant_id
+            )
+        except ProcessorError:
+            self.output(
+                "Unable to get patch software titles - assuming none exist",
+                verbose_level=1,
+            )
+            return None
 
         # get all package objects from patch titles and add to a list
         if titles:
@@ -316,7 +323,7 @@ class JamfUnusedPackageCleanerBase(JamfUploaderBase):
         output_dir = self.env.get("output_dir")
         slack_webhook_url = self.env.get("slack_webhook_url")
         max_tries = self.env.get("max_tries")
-        skip_if = self.env.get("skip_if")
+        skip_if = self.get_and_clear_skip_if()
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:

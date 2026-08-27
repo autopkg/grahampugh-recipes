@@ -202,7 +202,7 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         self.output(template_contents, verbose_level=2)
 
         # substitute user-assignable keys
-        template_contents = self.substitute_assignable_keys(template_contents)
+        template_contents = self.substitute_assignable_keys(template_contents, xml_escape=True)
 
         self.output("Configuration Profile to be uploaded:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
@@ -283,7 +283,8 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
         retain_scope = self.to_bool(self.env.get("retain_scope"))
         sleep_time = self.env.get("sleep")
         max_tries = self.env.get("max_tries")
-        skip_if = self.env.get("skip_if")
+        skip_if = self.get_and_clear_skip_if()
+        dry_run = self.to_bool(self.env.get("dry_run"))
 
         # verify that max_tries is an integer greater than zero and less than 10
         try:
@@ -451,7 +452,7 @@ class JamfComputerProfileUploaderBase(JamfUploaderBase):
             tenant_id=jamf_platform_gw_tenant_id,
         )
 
-        if self.env.get("dry_run"):
+        if dry_run:
             action = "CREATE" if not object_id else "UPDATE"
             self.output(f"DRY RUN: Would {action} configuration profile '{mobileconfig_name}'")
             self.env["profile_updated"] = False

@@ -29,13 +29,13 @@ import xml.etree.ElementTree as ET
 from base64 import b64encode
 from collections import abc, namedtuple
 from datetime import datetime, timedelta, timezone
-from Foundation import NSPredicate
 from pathlib import Path
 from shutil import rmtree
 from time import sleep
 from urllib.parse import quote, urlparse
 from uuid import UUID
 from xml.sax.saxutils import escape
+from Foundation import NSPredicate  # pylint: disable=import-error
 
 from autopkglib import (  # pylint: disable=import-error
     Processor,
@@ -55,7 +55,7 @@ class JamfUploaderBase(Processor):
     """Common functions used by at least two JamfUploader processors."""
 
     # Global version
-    __version__ = "2026.05.29.0"
+    __version__ = "2026.06.30.0"
 
     # Schema registry instance — lazily initialised per processor run
     _registry = None
@@ -71,6 +71,13 @@ class JamfUploaderBase(Processor):
         result = predicate.evaluateWithObject_(self.env)
         self.output(f"({predicate_string}) is {result}", verbose_level=2)
         return result
+
+    def get_and_clear_skip_if(self):
+        """Read skip_if from env and immediately remove it so subsequent processors
+        cannot inherit the value through the shared AutoPkg environment."""
+        skip_if = self.env.get("skip_if")
+        self.env.pop("skip_if", None)
+        return skip_if
 
     def _get_registry(self, jamf_url):
         """Return the shared JamfSchemaRegistry, creating it on first use.
@@ -302,6 +309,8 @@ class JamfUploaderBase(Processor):
 
     def to_bool(self, value):
         """Convert a value to a boolean"""
+        if value is None:
+            return False
         if isinstance(value, bool):
             return value
         if isinstance(value, str):
@@ -497,7 +506,7 @@ class JamfUploaderBase(Processor):
                             "URL and user for token matches current request",
                             verbose_level=2,
                         )
-                        if data["token"]:
+                        if data.get("token"):
                             try:
                                 # check if it's expired or not
                                 # this may not always work due to inconsistent
@@ -1316,6 +1325,7 @@ class JamfUploaderBase(Processor):
         additional_curl_opts="",
         endpoint_type="",
         accept_header="",
+        _retry=False,
     ):
         """
         Build a curl command based on request type (GET, POST, PUT, PATCH, DELETE).
@@ -1335,7 +1345,12 @@ class JamfUploaderBase(Processor):
         tmp_dir = self.make_tmp_dir(jamf_url=url)
 
         # dry-run: skip write operations but allow auth/token requests
-        if self.env.get("dry_run") and request in ("POST", "PUT", "PATCH", "DELETE"):
+        if self.to_bool(self.env.get("dry_run")) and request in (
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+        ):
             if endpoint_type not in ("oauth", "token", "auth", "platform_api_token"):
                 self.output(f"DRY RUN: Would {request} to {url}")
                 r = namedtuple(
@@ -1418,7 +1433,9 @@ class JamfUploaderBase(Processor):
             curl_cmd.extend(["--show-error"])
 
             # we want to be silent except for package uploads with progress enabled
-            if endpoint_type != "package_v1" or not self.env.get("show_upload_progress"):
+            if endpoint_type != "package_v1" or not self.env.get(
+                "show_upload_progress"
+            ):
                 curl_cmd.extend(["--silent"])
 
             # icon download
@@ -1556,8 +1573,10 @@ class JamfUploaderBase(Processor):
         curl_cmd.extend(["--output", output_file])
         self.output(f"Output file is: {output_file}", verbose_level=3)
 
-        # write session for jamf API requests
-        if "/api/" in url or "/uapi/" in url or "JSSResource" in url:
+        # write session for jamf API requests (only when not already handled above)
+        if api_type not in ("classic", "jpapi") and (
+            "/api/" in url or "/uapi/" in url or "JSSResource" in url
+        ):
             curl_cmd.extend(["--cookie-jar", cookie_jar])
 
             # look for existing session
@@ -1632,6 +1651,47 @@ class JamfUploaderBase(Processor):
                     self.output(
                         f"No output from request ({output_file} not found or empty)"
                     )
+        # On a 401 with a bearer token, fetch a fresh token and retry once
+        if (
+            r.status_code == 401
+            and token
+            and not enc_creds
+            and not _retry
+        ):
+            self.output("Received 401 - attempting to obtain a fresh token", verbose_level=1)
+            if api_type == "platform":
+                new_token = self.handle_platform_api_auth(
+                    region=self.env.get("PLATFORM_API_REGION"),
+                    tenant_id=self.env.get("PLATFORM_API_TENANT_ID"),
+                    client_id=self.env.get("CLIENT_ID"),
+                    client_secret=self.env.get("CLIENT_SECRET"),
+                    jamf_cli_profile=self.env.get("JAMF_CLI_PROFILE") or "",
+                )
+            else:
+                jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
+                new_token = self.handle_api_auth(
+                    jamf_url,
+                    jamf_user=self.env.get("API_USERNAME"),
+                    password=self.env.get("API_PASSWORD"),
+                    client_id=self.env.get("CLIENT_ID"),
+                    client_secret=self.env.get("CLIENT_SECRET"),
+                    jamf_cli_profile=self.env.get("JAMF_CLI_PROFILE") or "",
+                )
+            if new_token and new_token != token:
+                self.output("Retrying request with fresh token", verbose_level=1)
+                return self.curl(
+                    api_type=api_type,
+                    request=request,
+                    url=url,
+                    token=new_token,
+                    enc_creds=enc_creds,
+                    data=data,
+                    additional_curl_opts=additional_curl_opts,
+                    endpoint_type=endpoint_type,
+                    accept_header=accept_header,
+                    _retry=True,
+                )
+
         return r()
 
     def status_check(self, r, endpoint_type, object_name, request):

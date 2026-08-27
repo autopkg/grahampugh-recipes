@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 """
-Copyright 2023 Graham Pugh
+2026 Neil Martin
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 NOTES:
-All functions are in JamfUploaderLib/JamfPolicyLogFlusherBase.py
+All functions are in JamfUploaderLib/JamfDirectoryServiceGroupEncoderBase.py
 """
 
 import os.path
@@ -27,17 +27,19 @@ import sys
 # imports require noqa comments for E402
 sys.path.insert(0, os.path.dirname(__file__))
 
-from JamfUploaderLib.JamfPolicyLogFlusherBase import (  # noqa: E402
-    JamfPolicyLogFlusherBase,
+from JamfUploaderLib.JamfDirectoryServiceGroupEncoderBase import (  # noqa: E402
+    JamfDirectoryServiceGroupEncoderBase,
 )
 
-__all__ = ["JamfPolicyLogFlusher"]
+__all__ = ["JamfDirectoryServiceGroupEncoder"]
 
 
-class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
+class JamfDirectoryServiceGroupEncoder(JamfDirectoryServiceGroupEncoderBase):
     description = (
-        "A processor for AutoPkg that will flush logs for a policy on a Jamf "
-        "Cloud or on-prem server."
+        "A processor for AutoPkg that resolves a directory service group "
+        "name to the base64-encoded {uuid,serverId} value required by directory "
+        "service group smart group and advanced search criteria (Jamf Pro 11.29+). "
+        "Outputs directory_service_group_value for substitution into a template."
     )
 
     input_variables = {
@@ -94,34 +96,35 @@ class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
             "Required for Platform API authentication.",
             "default": "",
         },
-        "dry_run": {
+        "directory_service_group_name": {
             "required": False,
-            "description": "If True, perform read-only checks and report what would change "
-            "without making any writes.",
-            "default": False,
-        },
-        "policy_name": {
-            "required": True,
-            "description": "Policy whose log is to be flushed",
+            "description": "Name of the directory service group to resolve. Must match the "
+            "group name in the directory exactly (case-sensitive). An already-encoded "
+            "base64 value may also be supplied, in which case it is validated and passed "
+            "through unchanged. Not required if directory_service_group_uuid and "
+            "directory_service_group_server_id are both supplied.",
             "default": "",
         },
-        "sleep": {
+        "directory_service_group_uuid": {
             "required": False,
-            "description": "Pause after running this processor for specified seconds.",
-            "default": "0",
+            "description": "UUID of the directory service group. Supply together with "
+            "directory_service_group_server_id to encode the value offline, without "
+            "an API lookup.",
+            "default": "",
         },
-        "logflush_interval": {
+        "directory_service_group_server_id": {
             "required": False,
-            "description": "Log interval to be flushed",
-            "default": "Zero Days",
+            "description": "ID of the Directory Service server the group belongs to, which "
+            "is either an LDAP server or a Cloud Identity Provider. Supply together with "
+            "directory_service_group_uuid to encode the value offline, without an API lookup.",
+            "default": "",
         },
-        "max_tries": {
+        "output_variable_name": {
             "required": False,
-            "description": (
-                "Maximum number of attempts to upload the account. "
-                "Must be an integer between 1 and 10."
-            ),
-            "default": "5",
+            "description": "Optional name of an additional output variable to set to the "
+            "encoded value, e.g. 'DS_GROUP_VALUE' so that %DS_GROUP_VALUE% can be used in "
+            "a template.",
+            "default": "",
         },
         "skip_if": {
             "required": False,
@@ -131,17 +134,20 @@ class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
     }
 
     output_variables = {
-        "jamfpolicylogflusher_summary_result": {
-            "description": "Description of interesting results.",
+        "directory_service_group_value": {
+            "description": "The base64-encoded {uuid,serverId} criterion value."
         },
-        "process_skipped": {
-            "description": "Boolean - True if the process was skipped due to "
-            "skip_if predicate resolved to True.",
+        "directory_service_group_name": {
+            "description": "The resolved directory service group name."
         },
-        "dry_run_summary_result": {
-            "description": "Summary of what would have been changed (only set when dry_run "
-            "is True).",
+        "directory_service_group_uuid": {
+            "description": "The UUID of the resolved directory service group."
         },
+        "directory_service_group_server_id": {
+            "description": "The ID of the Directory Service server (LDAP server or Cloud "
+            "Identity Provider) the resolved group belongs to."
+        },
+        "process_skipped": {"description": "Returns True if the process was skipped."},
     }
 
     def main(self):
@@ -151,5 +157,5 @@ class JamfPolicyLogFlusher(JamfPolicyLogFlusherBase):
 
 
 if __name__ == "__main__":
-    PROCESSOR = JamfPolicyLogFlusher()
+    PROCESSOR = JamfDirectoryServiceGroupEncoder()
     PROCESSOR.execute_shell()
