@@ -56,6 +56,8 @@ jamf-cli --no-color --no-input <type> <endpoint> [<action>] [<identifier>] [flag
 | `serial` | `--serial` | Target device by serial number. |
 | `device_id` | `--id` | Target device by numeric ID. |
 | `device_name` | `--name` | Target device or resource by name. |
+| `tenant_id` | `--tenant-id` | Jamf Pro tenant ID for platform gateway authentication. Mutually exclusive with `environment_id`. |
+| `environment_id` | `--environment-id` | Jamf Pro environment ID for platform gateway authentication. Mutually exclusive with `tenant_id`. |
 | `output_vars` | — | Dictionary mapping new env key names to response key names (see [output_vars](#output_vars)). |
 
 ### Output variables
