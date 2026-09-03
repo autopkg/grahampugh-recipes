@@ -6,3 +6,5 @@
 
 # DS template
 Template.ds.recipe 
+# Claude Code
+.claude/
