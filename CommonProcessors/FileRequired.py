@@ -13,17 +13,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""See docstring for RequiredFile class"""
+"""See docstring for FileRequired class"""
 
 import os
 import re
 
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
-__all__ = ["RequiredFile"]
+__all__ = ["FileRequired"]
 
 
-class RequiredFile(Processor):
+class FileRequired(Processor):
     """Raises a ProcessorError if the file named by a given input key is not
     supplied, does not exist on disk, or does not match an optional set of
     filename qualifications.
@@ -119,5 +119,5 @@ class RequiredFile(Processor):
 
 
 if __name__ == "__main__":
-    PROCESSOR = RequiredFile()
+    PROCESSOR = FileRequired()
     PROCESSOR.execute_shell()
