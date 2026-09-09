@@ -100,6 +100,7 @@ VALUE_FLAGS = {
     "save_to": "--save-to",
     "file": "--file",
     "tenant_id": "--tenant-id",
+    "environment_id": "--environment-id",
     "token_file": "--token-file",
     "jamf_url": "--url",
 }
@@ -337,7 +338,16 @@ class JamfCLIRunner(Processor):
             "required": False,
             "description": (
                 "Jamf Pro tenant ID for platform gateway authentication. "
-                "Maps to --tenant-id <id> (or set JAMF_TENANT_ID env var)."
+                "Maps to --tenant-id <id> (or set JAMF_TENANT_ID env var). "
+                "Mutually exclusive with environment_id."
+            ),
+        },
+        "environment_id": {
+            "required": False,
+            "description": (
+                "Jamf Pro environment ID for platform gateway authentication. "
+                "Maps to --environment-id <id> (or set JAMF_ENVIRONMENT_ID env var). "
+                "Mutually exclusive with tenant_id."
             ),
         },
         "token_file": {

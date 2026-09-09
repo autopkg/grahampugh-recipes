@@ -10,6 +10,7 @@ To use these processors, add the processor as so:
 - [ChoicesXMLGenerator](#choicesxmlgenerator)
 - [ConditionalVariableAssigner](#conditionalvariableassigner)
 - [CreatePlist](#createplist)
+- [FileRequired](#filerequired)
 - [IconGenerator](#icongenerator)
 - [JSSRecipeReceiptChecker](#jssrecipereceiptchecker)
 - [ModelIdentifierRegexGenerator](#modelidentifierregexgenerator)
@@ -204,6 +205,32 @@ The `plist_path` output variable can be used in subsequent processors:
   Arguments:
     input_file: "%plist_path%"
 ```
+
+# FileRequired
+
+## Description
+
+Raises a `ProcessorError` if the file named by a given input key is not supplied, does not exist on disk, or does not match an optional set of filename qualifications.
+
+This is a generalisation of the `PackageRequired` processor, which is hardcoded to the `PKG` key. Point `key_name` at any input variable that must hold a path to a file (or directory) the recipe cannot proceed without, e.g. a licence file, a branding image, or a configuration payload. Unlike a `StopProcessingIf` predicate, this raises (non-zero exit) both when the key is absent from the environment and when it is present but empty, so an operator who forgets to supply the value gets a clear failure rather than a silent no-op or an unsubstituted `%VAR%` reaching a later processor.
+
+Optionally qualify the supplied file further with `allowed_extensions` (restrict the file suffix) and/or `filename_pattern` (require the basename to match a regular expression). When both are set the file must satisfy both.
+
+## Input variables
+
+- **key_name:**
+  - **required:** True
+  - **description:** The name of the input variable that must contain a path to a required file or directory, e.g. `WALLPAPER_FILE`.
+- **allowed_extensions:**
+  - **required:** False
+  - **description:** Optional list of permitted file extensions (case-insensitive, with or without a leading dot), e.g. `['jpg', 'png']` or `'jpg,png'`. If set, the supplied file must end with one of these extensions.
+- **filename_pattern:**
+  - **required:** False
+  - **description:** Optional regular expression that the supplied file's basename must match (via `re.search`), e.g. `^Sibelius_.*\.dmg$`.
+
+## Output variables
+
+- (none)
 
 # IconGenerator
 
