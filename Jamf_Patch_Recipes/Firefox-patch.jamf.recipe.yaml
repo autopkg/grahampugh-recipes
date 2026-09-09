@@ -4,8 +4,8 @@ Description: |
   LOCALE corresponds to directories at http://download-origin.cdn.mozilla.net/pub/mozilla.org/firefox/releases/$FIREFOX_BUILD/mac/
   Examples include 'en-US', 'de', 'ja-JP-mac', 'sv-SE', and 'zh-TW'
   No idea if all Firefox builds are available in all the same localizations, so you may need to verify that any particular combination is offered.
-Identifier: com.github.grahampugh.recipes.jamf.Firefox-patch
-ParentRecipe: com.github.grahampugh.recipes.jamf.Firefox
+Identifier: com.github.autopkg.grahampugh-recipes.jamf.Firefox-patch
+ParentRecipe: com.github.autopkg.grahampugh-recipes.jamf.Firefox
 MinimumVersion: "2.3"
 
 Input:
