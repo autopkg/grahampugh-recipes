@@ -11,7 +11,7 @@ MinimumVersion: "2.3"
 Input:
   NAME: Firefox
   PATCH_NAME: "%NAME%"
-  PATCH_SOFTWARE_TITLE: "%NAME%"
+  PATCH_SOFTWARE_TITLE: Mozilla Firefox
   PATCH_TEMPLATE: PatchTemplate-selfservice.xml
   PATCH_ENABLED: "true"
   POLICY_NAME: "Install Latest %NAME%"
