@@ -529,10 +529,12 @@ class PkgInfoReader(Copier):
             metaversion = self.nameAndVersion(shortname)[1]
 
         highestpkgversion = "0.0"
+        highestpkgid = None
         installedsize = 0
         for infoitem in receiptinfo["receipts"]:
             if APLooseVersion(infoitem["version"]) > APLooseVersion(highestpkgversion):
                 highestpkgversion = infoitem["version"]
+                highestpkgid = infoitem.get("packageid")
             if "installed_size" in infoitem:
                 # note this is in KBytes
                 installedsize += infoitem["installed_size"]
@@ -561,6 +563,17 @@ class PkgInfoReader(Copier):
             cataloginfo["installed_size"] = installedsize
 
         cataloginfo["receipts"] = receiptinfo["receipts"]
+
+        # All package IDs found in the package, and the one providing the
+        # reported version (the highest-versioned receipt, falling back to the
+        # first available packageid).
+        packageids = [
+            item["packageid"]
+            for item in receiptinfo["receipts"]
+            if item.get("packageid")
+        ]
+        cataloginfo["packageids"] = packageids
+        cataloginfo["packageid"] = highestpkgid or (packageids[0] if packageids else None)
 
         if os.path.isfile(pkgitem) and not pkgitem.endswith(".dist"):
             # flat packages require 10.5.0+
