@@ -44,7 +44,7 @@ class JamfObjectDeleter(JamfObjectDeleterBase):
     )
     input_variables = {
         "JSS_URL": {
-            "required": True,
+            "required": False,
             "description": "URL to a Jamf Pro server that the API user has write access "
             "to, optionally set as a key in the com.github.autopkg "
             "preference file.",
@@ -90,6 +90,12 @@ class JamfObjectDeleter(JamfObjectDeleterBase):
             "Required for Platform API authentication.",
             "default": "",
         },
+        "PLATFORM_API_ENVIRONMENT_ID": {
+            "required": False,
+            "description": "Environment ID for Jamf Platform API Gateway. "
+            "Takes precedence over PLATFORM_API_TENANT_ID if both are set.",
+            "default": "",
+        },
         "PLATFORM_API_TENANT_ID": {
             "required": False,
             "description": "Tenant ID for Jamf Platform API Gateway. "
@@ -111,6 +117,14 @@ class JamfObjectDeleter(JamfObjectDeleterBase):
             "required": True,
             "description": "Type of the object. This is the name of the key in the XML template",
             "default": "",
+        },
+        "sleep": {
+            "required": False,
+            "description": "Pause after a successful delete. The value must be an integer, "
+            "and represents the number of seconds to sleep. If the value is less "
+            "than or equal to 10, the sleep will default to 10 seconds to prevent "
+            "immediate lockout.",
+            "default": "0",
         },
         "skip_if": {
             "required": False,

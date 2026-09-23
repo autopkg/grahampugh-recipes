@@ -20,6 +20,8 @@ limitations under the License.
 import os.path
 import sys
 
+from time import sleep
+
 from autopkglib import (  # pylint: disable=import-error
     ProcessorError,
 )
@@ -43,13 +45,16 @@ class JamfObjectDeleterBase(JamfUploaderBase):
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
         jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
-        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
+        platform_level_id = self.env.get("PLATFORM_API_ENVIRONMENT_ID") or self.env.get(
+            "PLATFORM_API_TENANT_ID"
+        )
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
         bearer_token = self.env.get("BEARER_TOKEN")
         jamf_cli_profile = self.env.get("JAMF_CLI_PROFILE")
         object_name = self.env.get("object_name")
         object_type = self.env.get("object_type")
+        sleep_time = self.env.get("sleep")
         skip_if = self.get_and_clear_skip_if()
         dry_run = self.to_bool(self.env.get("dry_run"))
 
@@ -70,19 +75,23 @@ class JamfObjectDeleterBase(JamfUploaderBase):
         elif skip_if:
             self.output("Not skipping process as skip_if evaluated to False")
 
+        # we need to substitute the values in the object name now to
+        # account for version strings in the name
+        # substitute user-assignable keys
+        if object_name:
+            object_name = self.substitute_assignable_keys(object_name)
+
         # get a token
-        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
-            self.auth(
-                jamf_url=jamf_url,
-                jamf_user=jamf_user,
-                password=jamf_password,
-                region=jamf_platform_gw_region,
-                tenant_id=jamf_platform_gw_tenant_id,
-                client_id=client_id,
-                client_secret=client_secret,
-                token=bearer_token,
-                jamf_cli_profile=jamf_cli_profile,
-            )
+        token, jamf_url, jamf_platform_gw_region, platform_level_id = self.auth(
+            jamf_url=jamf_url,
+            jamf_user=jamf_user,
+            password=jamf_password,
+            region=jamf_platform_gw_region,
+            platform_level_id=platform_level_id,
+            client_id=client_id,
+            client_secret=client_secret,
+            token=bearer_token,
+            jamf_cli_profile=jamf_cli_profile,
         )
 
         # construct the api_url based on the API type
@@ -102,7 +111,11 @@ class JamfObjectDeleterBase(JamfUploaderBase):
                 self.env["dry_run_summary_result"] = {
                     "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
                     "report_fields": ["action", "type", "name"],
-                    "data": {"action": "DELETE", "type": object_type, "name": object_type},
+                    "data": {
+                        "action": "DELETE",
+                        "type": object_type,
+                        "name": object_type,
+                    },
                 }
                 self.env["process_skipped"] = process_skipped
                 return
@@ -115,7 +128,7 @@ class JamfObjectDeleterBase(JamfUploaderBase):
                 object_type,
                 object_id=0,
                 token=token,
-                tenant_id=jamf_platform_gw_tenant_id,
+                platform_level_id=platform_level_id,
             )
             object_name = object_type
         else:
@@ -133,17 +146,23 @@ class JamfObjectDeleterBase(JamfUploaderBase):
                 object_name=object_name,
                 token=token,
                 filter_name=namekey,
-                tenant_id=jamf_platform_gw_tenant_id,
+                platform_level_id=platform_level_id,
             )
 
             if object_id:
                 self.output(f"{object_type} '{object_name}' exists: ID {object_id}")
                 if dry_run:
-                    self.output(f"DRY RUN: Would DELETE {object_type} '{object_name}' (ID {object_id})")
+                    self.output(
+                        f"DRY RUN: Would DELETE {object_type} '{object_name}' (ID {object_id})"
+                    )
                     self.env["dry_run_summary_result"] = {
                         "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
                         "report_fields": ["action", "type", "name"],
-                        "data": {"action": "DELETE", "type": object_type, "name": object_name},
+                        "data": {
+                            "action": "DELETE",
+                            "type": object_type,
+                            "name": object_name,
+                        },
                     }
                     self.env["process_skipped"] = process_skipped
                     return
@@ -156,7 +175,7 @@ class JamfObjectDeleterBase(JamfUploaderBase):
                     object_type,
                     object_id,
                     token,
-                    tenant_id=jamf_platform_gw_tenant_id,
+                    platform_level_id=platform_level_id,
                 )
             else:
                 self.output(
@@ -164,6 +183,13 @@ class JamfObjectDeleterBase(JamfUploaderBase):
                     verbose_level=1,
                 )
                 return
+
+        # sleep if required
+        if sleep_time:
+            if int(sleep_time) > 10:
+                sleep(int(sleep_time))
+            else:
+                sleep(10)
 
         # output the summary
 

@@ -50,7 +50,7 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         sleep_time,
         token,
         max_tries,
-        tenant_id="",
+        platform_level_id="",
         object_name=None,
         object_id=0,
     ):
@@ -62,7 +62,9 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         # if we're creating a new object, we POST
 
         if api_type == "classic":
-            endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
+            endpoint = self.api_endpoints(
+                object_type, platform_level_id=platform_level_id
+            )
             if "_settings" in object_type:
                 # settings-style endpoints don't use IDs
                 url = f"{api_url}/{endpoint}"
@@ -75,14 +77,18 @@ class JamfObjectUploaderBase(JamfUploaderBase):
                 and object_id
             ):
                 endpoint = self.api_endpoints(
-                    object_type, uuid=object_id, tenant_id=tenant_id
+                    object_type, uuid=object_id, platform_level_id=platform_level_id
                 )
                 url = f"{api_url}/{endpoint}"
             elif object_id:
-                endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
+                endpoint = self.api_endpoints(
+                    object_type, platform_level_id=platform_level_id
+                )
                 url = f"{api_url}/{endpoint}/{object_id}"
             else:
-                endpoint = self.api_endpoints(object_type, tenant_id=tenant_id)
+                endpoint = self.api_endpoints(
+                    object_type, platform_level_id=platform_level_id
+                )
                 url = f"{api_url}/{endpoint}"
         else:
             raise ProcessorError(f"ERROR: API type {api_type} not supported")
@@ -165,7 +171,9 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         jamf_user = self.env.get("API_USERNAME")
         jamf_password = self.env.get("API_PASSWORD")
         jamf_platform_gw_region = self.env.get("PLATFORM_API_REGION")
-        jamf_platform_gw_tenant_id = self.env.get("PLATFORM_API_TENANT_ID")
+        platform_level_id = self.env.get("PLATFORM_API_ENVIRONMENT_ID") or self.env.get(
+            "PLATFORM_API_TENANT_ID"
+        )
         client_id = self.env.get("CLIENT_ID")
         client_secret = self.env.get("CLIENT_SECRET")
         bearer_token = self.env.get("BEARER_TOKEN")
@@ -214,28 +222,30 @@ class JamfObjectUploaderBase(JamfUploaderBase):
         # get api type
         api_type = self.api_type(object_type)
 
-        # we need to substitute the values in the computer group name now to
+        # we need to substitute the values in the object name now to
         # account for version strings in the name
         # substitute user-assignable keys
         if object_name:
             object_name = self.substitute_assignable_keys(object_name)
 
+        # any replacement values in the template need to be substituted now
+        if element_to_replace and replacement_value:
+            replacement_value = self.substitute_assignable_keys(replacement_value)
+
         # now start the process of uploading the object
         self.output(f"Obtaining API token for {jamf_url}")
 
         # get a token
-        token, jamf_url, jamf_platform_gw_region, jamf_platform_gw_tenant_id = (
-            self.auth(
-                jamf_url=jamf_url,
-                jamf_user=jamf_user,
-                password=jamf_password,
-                region=jamf_platform_gw_region,
-                tenant_id=jamf_platform_gw_tenant_id,
-                client_id=client_id,
-                client_secret=client_secret,
-                token=bearer_token,
-                jamf_cli_profile=jamf_cli_profile,
-            )
+        token, jamf_url, jamf_platform_gw_region, platform_level_id = self.auth(
+            jamf_url=jamf_url,
+            jamf_user=jamf_user,
+            password=jamf_password,
+            region=jamf_platform_gw_region,
+            platform_level_id=platform_level_id,
+            client_id=client_id,
+            client_secret=client_secret,
+            token=bearer_token,
+            jamf_cli_profile=jamf_cli_profile,
         )
 
         # construct the api_url based on the API type
@@ -266,7 +276,7 @@ class JamfObjectUploaderBase(JamfUploaderBase):
                     object_id=object_id,
                     object_path=namekey_path,
                     token=token,
-                    tenant_id=jamf_platform_gw_tenant_id,
+                    platform_level_id=platform_level_id,
                 )
                 if existing_object_name:
                     self.output(
@@ -299,7 +309,7 @@ class JamfObjectUploaderBase(JamfUploaderBase):
                     object_type=object_type,
                     object_name=object_name,
                     token=token,
-                    tenant_id=jamf_platform_gw_tenant_id,
+                    platform_level_id=platform_level_id,
                     filter_name=namekey,
                     id_key=id_key,
                 )
@@ -382,7 +392,11 @@ class JamfObjectUploaderBase(JamfUploaderBase):
             self.env["dry_run_summary_result"] = {
                 "summary_text": "DRY RUN: The following changes would be made in Jamf Pro:",
                 "report_fields": ["action", "type", "name"],
-                "data": {"action": action, "type": object_type, "name": str(object_name)},
+                "data": {
+                    "action": action,
+                    "type": object_type,
+                    "name": str(object_name),
+                },
             }
             self.env["process_skipped"] = process_skipped
             return
@@ -398,7 +412,7 @@ class JamfObjectUploaderBase(JamfUploaderBase):
             max_tries=max_tries,
             object_name=object_name,
             object_id=object_id,
-            tenant_id=jamf_platform_gw_tenant_id,
+            platform_level_id=platform_level_id,
         )
         object_updated = True
 
