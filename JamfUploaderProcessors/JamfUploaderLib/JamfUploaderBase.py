@@ -17,6 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import html
 import json
 import os
 import re
@@ -58,7 +59,7 @@ class JamfUploaderBase(Processor):
     """Common functions used by at least two JamfUploader processors."""
 
     # Global version
-    __version__ = "2026.08.31.0"
+    __version__ = "2026.10.23.0"
 
     # Schema registry instance — lazily initialised per processor run
     _registry = None
@@ -274,6 +275,8 @@ class JamfUploaderBase(Processor):
             "account_group": "groups",
             "blueprint_deploy_command": "blueprints",
             "blueprint_undeploy_command": "blueprints",
+            "computer_inventory": "computers-inventory",
+            "mobile_device_detail": "mobile-devices-detail",
         }
         if object_type in special:
             return special[object_type]
@@ -1581,22 +1584,23 @@ class JamfUploaderBase(Processor):
             raise ProcessorError(f"WARNING: {headers_file} not found") from exc
         if r.status_code is not None:
             self.output(f"HTTP response: {r.status_code}", verbose_level=3)
-            if int(r.status_code) < 400:
-                if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-                    if "ics.services.jamfcloud.com" in url:
-                        r.output = output_file
-                    else:
-                        with open(output_file, "rb") as file:
-                            try:
-                                file.seek(0)  # Reset file pointer to beginning
-                                r.output = json.load(file)
-                            except (json.JSONDecodeError, ValueError):
-                                file.seek(0)  # Reset file pointer to beginning
-                                r.output = file.read()
+            # read the output for error responses too, so that status_check can
+            # report the error description
+            if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
+                if "ics.services.jamfcloud.com" in url and int(r.status_code) < 400:
+                    r.output = output_file
                 else:
-                    self.output(
-                        f"No output from request ({output_file} not found or empty)"
-                    )
+                    with open(output_file, "rb") as file:
+                        try:
+                            file.seek(0)  # Reset file pointer to beginning
+                            r.output = json.load(file)
+                        except (json.JSONDecodeError, ValueError):
+                            file.seek(0)  # Reset file pointer to beginning
+                            r.output = file.read()
+            elif int(r.status_code) < 400:
+                self.output(
+                    f"No output from request ({output_file} not found or empty)"
+                )
         # On a 401 with a bearer token, fetch a fresh token and retry once
         if r.status_code == 401 and token and not enc_creds and not _retry:
             self.output(
@@ -1638,6 +1642,56 @@ class JamfUploaderBase(Processor):
 
         return r
 
+    def format_dependency_error(self, description):
+        """Rewrite a PREREQUISITE_NOT_MET description to list each dependent object
+        by type and name, with an absolute link to it in Jamf Pro"""
+        dependencies = re.findall(r"ObjectDependency\{([^}]*)\}", description)
+        if not dependencies:
+            return description
+        jamf_url = (self.env.get("JSS_URL") or "").rstrip("/")
+        dependency_lines = []
+        for dependency in dependencies:
+            fields = dict(re.findall(r"(\w+)='([^']*)'", dependency))
+            line = (
+                f"{fields.get('nameLocalization', 'UNKNOWN')}: "
+                f"'{fields.get('identifiableName', 'unknown')}'"
+            )
+            if fields.get("hyperlink"):
+                line += f" - {jamf_url}{fields['hyperlink']}"
+            dependency_lines.append(line)
+        summary = description.split(" as it has", 1)[0]
+        return f"{summary} as it is referenced by:\n  " + "\n  ".join(dependency_lines)
+
+    def extract_classic_error(self, output):
+        """Return the error message lines from a Classic API error response.
+
+        The Classic API returns an HTML status page such as:
+            <p style="...">Bad Request</p>
+            <p>Error: Duplicate name</p>
+            <p>You can get technical details <a href="...">here</a>...</p>
+        """
+        if isinstance(output, (bytes, bytearray)):
+            output = output.decode("utf-8", errors="replace")
+        # the usual form
+        error_lines = re.findall(r"<p>Error:(.*?)</p>", output, re.S)
+        if error_lines:
+            return error_lines
+        # otherwise use every paragraph except the status line (the first
+        # paragraph) and the standard "technical details" footer
+        paragraphs = [
+            " ".join(html.unescape(re.sub(r"<[^>]+>", " ", p)).split())
+            for p in re.findall(r"<p[^>]*>(.*?)</p>", output, re.S | re.I)
+        ]
+        if paragraphs:
+            return [
+                p
+                for p in paragraphs[1:]
+                if p and not p.startswith("You can get technical details")
+            ]
+        # not HTML: use the plain text, if any, up to a sensible length
+        text = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", output)).split())
+        return [text[:500]] if text else []
+
     def status_check(self, r, endpoint_type, object_name, request):
         """Return a message dependent on the HTTP response"""
         if request == "DELETE":
@@ -1669,16 +1723,23 @@ class JamfUploaderBase(Processor):
 
             if r.status_code >= 400:
                 # extract the error message
-                if isinstance(r.output, (bytes, bytearray)):
-                    error_lines = re.findall(
-                        r"<p>Error:(.*?)</p>", r.output.decode("utf-8")
-                    )
-                elif isinstance(r.output, str):
-                    error_lines = re.findall(r"<p>Error:(.*?)</p>", r.output)
+                if isinstance(r.output, dict):
+                    # Jamf Pro API JSON error, e.g.
+                    # {"httpStatus": 400, "errors": [{"description": "..."}]}
+                    error_lines = [
+                        self.format_dependency_error(
+                            str(err.get("description") or err.get("code"))
+                        )
+                        for err in r.output.get("errors") or []
+                        if isinstance(err, dict)
+                        and (err.get("description") or err.get("code"))
+                    ]
+                elif isinstance(r.output, (bytes, bytearray, str)):
+                    error_lines = self.extract_classic_error(r.output)
                 else:
                     error_lines = []
                 if error_lines:
-                    error_message = error_lines[0].strip()
+                    error_message = "; ".join(line.strip() for line in error_lines)
                     if object_name:
                         raise ProcessorError(
                             f"ERROR: {endpoint_type} '{object_name}' {action} failed - "
@@ -1701,7 +1762,9 @@ class JamfUploaderBase(Processor):
         url = (
             jamf_url
             + "/"
-            + self.api_endpoints("jamf_pro_version_settings", platform_level_id=platform_level_id)
+            + self.api_endpoints(
+                "jamf_pro_version_settings", platform_level_id=platform_level_id
+            )
         )
         r = self.curl(api_type="jpapi", request="GET", url=url, token=token)
         if r.status_code == 200:
@@ -1729,7 +1792,11 @@ class JamfUploaderBase(Processor):
         api_type = self.api_type(object_type)
         if api_type == "classic":
             # do XML stuff
-            url = jamf_url + "/" + self.api_endpoints(object_type, platform_level_id=platform_level_id)
+            url = (
+                jamf_url
+                + "/"
+                + self.api_endpoints(object_type, platform_level_id=platform_level_id)
+            )
             r = self.curl(api_type=api_type, request="GET", url=url, token=token)
 
             if r.status_code == 200:
@@ -2007,11 +2074,23 @@ class JamfUploaderBase(Processor):
         object_type,
         namekey,
         domain,
+        sections=None,
     ):
         """get a list of all objects of a particular type, handling pagination if needed.
-        For JPAPI endpoints only, as Classic API endpoints do not paginate."""
+        For JPAPI endpoints only, as Classic API endpoints do not paginate.
 
-        url_filter = "?page=0&page-size=1"
+        If `sections` (a list of section names) is supplied, each is appended as a
+        repeated `&section=` query parameter. This applies to the inventory list
+        object types (`computer_inventory`, `mobile_device_detail`) which return
+        full records grouped into sections such as EXTENSION_ATTRIBUTES. When
+        sections are requested the `sort` parameter is omitted, because those
+        endpoints do not accept the default name key as a sort field."""
+
+        section_qs = ""
+        if sections:
+            section_qs = "".join(f"&section={s}" for s in sections)
+
+        url_filter = f"?page=0&page-size=1{section_qs}"
         r = self.curl(
             api_type=api_type, request="GET", url=f"{url}{url_filter}", token=token
         )
@@ -2027,7 +2106,12 @@ class JamfUploaderBase(Processor):
             object_list = []
 
             for page in range(0, (total_objects + 99) // 100):
-                url_filter = f"?page={page}&page-size=100&sort={namekey}&sort-order=asc"
+                if section_qs:
+                    url_filter = f"?page={page}&page-size=100{section_qs}"
+                else:
+                    url_filter = (
+                        f"?page={page}&page-size=100&sort={namekey}&sort-order=asc"
+                    )
                 self.output(f"Getting page {page} of objects", verbose_level=2)
                 if page > 0:
                     time.sleep(0.5)  # be nice to the server
@@ -2063,9 +2147,20 @@ class JamfUploaderBase(Processor):
         return object_list
 
     def get_all_api_objects(
-        self, domain, object_type, platform_level_id="", uuid="", token="", namekey=""
+        self,
+        domain,
+        object_type,
+        platform_level_id="",
+        uuid="",
+        token="",
+        namekey="",
+        sections=None,
     ):
-        """get a list of all objects of a particular type"""
+        """get a list of all objects of a particular type.
+
+        `sections`, when supplied, is passed through to `paginated_get` to request
+        specific inventory record sections (e.g. EXTENSION_ATTRIBUTES) for the
+        inventory list object types."""
 
         # Resolve the correct name key for this object type if not provided
         if not namekey:
@@ -2100,6 +2195,7 @@ class JamfUploaderBase(Processor):
                 object_type,
                 namekey,
                 domain,
+                sections=sections,
             )
         else:
             raise ProcessorError(f"ERROR: Unknown API type {api_type}")
@@ -2114,7 +2210,9 @@ class JamfUploaderBase(Processor):
 
         return object_list
 
-    def get_settings_object(self, jamf_url, object_type, token="", platform_level_id=""):
+    def get_settings_object(
+        self, jamf_url, object_type, token="", platform_level_id=""
+    ):
         """get the content of a settings-style endpoint"""
         # Get results from Jamf Pro as JSON object
         self.output(
@@ -2169,7 +2267,13 @@ class JamfUploaderBase(Processor):
         return object_content
 
     def get_api_object_contents_from_id(
-        self, jamf_url, object_type, object_id, object_path="", token="", platform_level_id=""
+        self,
+        jamf_url,
+        object_type,
+        object_id,
+        object_path="",
+        token="",
+        platform_level_id="",
     ):
         """get the full contents or the value of an item in a Classic or Jamf Pro API object"""
 
@@ -2502,7 +2606,9 @@ class JamfUploaderBase(Processor):
         output, _ = proc.communicate(xml)
         return output
 
-    def get_existing_scope(self, jamf_url, object_type, object_id, token, platform_level_id=""):
+    def get_existing_scope(
+        self, jamf_url, object_type, object_id, token, platform_level_id=""
+    ):
         """return the existing scope"""
         existing_scope_xml = self.get_api_object_contents_from_id(
             jamf_url,
@@ -2721,7 +2827,13 @@ class JamfUploaderBase(Processor):
         return ""
 
     def substitute_existing_version_locks(
-        self, jamf_url, object_type, object_id, object_template, token, platform_level_id=""
+        self,
+        jamf_url,
+        object_type,
+        object_id,
+        object_template,
+        token,
+        platform_level_id="",
     ):
         """replace the existing version lock to ensure we don't change it"""
         # first grab the payload from the json object
@@ -2836,10 +2948,6 @@ class JamfUploaderBase(Processor):
                 element_to_replace,
                 replacement_value,
             )
-
-        # PreStages need to iterate the versionLock value in order to replace them
-        if object_type == "computer_prestage":
-            template_contents = self.inject_version_lock(template_contents)
 
         self.output("object data:", verbose_level=2)
         self.output(template_contents, verbose_level=2)
@@ -3116,7 +3224,12 @@ class JamfUploaderBase(Processor):
         return False
 
     def get_vpp_id(
-        self, api_url, token, store_url=None, preferred_location=None, platform_level_id=""
+        self,
+        api_url,
+        token,
+        store_url=None,
+        preferred_location=None,
+        platform_level_id="",
     ):
         """Determine the Volume Purchasing Location ID that hosts the app's content."""
         locations = self._get_volume_purchasing_locations(
@@ -3142,7 +3255,11 @@ class JamfUploaderBase(Processor):
                 verbose_level=3,
             )
             if self._location_contains_app_content(
-                api_url, token, location_id, target_adam_id, platform_level_id=platform_level_id
+                api_url,
+                token,
+                location_id,
+                target_adam_id,
+                platform_level_id=platform_level_id,
             ):
                 return location_id
         self.output(
