@@ -24,10 +24,10 @@ import subprocess
 from autopkglib import ProcessorError, is_mac
 from autopkglib.DmgMounter import DmgMounter
 
-__all__ = ["FlatPkgUnpacker"]
+__all__ = ["FlatPkgUnpackerFull"]
 
 
-class FlatPkgUnpacker(DmgMounter):
+class FlatPkgUnpackerFull(DmgMounter):
     """Expands a flat package using pkgutil or xar.
     For xar it also optionally skips extracting the payload."""
 
@@ -207,5 +207,5 @@ class FlatPkgUnpacker(DmgMounter):
 
 
 if __name__ == "__main__":
-    PROCESSOR = FlatPkgUnpacker()
+    PROCESSOR = FlatPkgUnpackerFull()
     PROCESSOR.execute_shell()
