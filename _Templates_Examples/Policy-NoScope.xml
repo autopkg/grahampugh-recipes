@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policy>
+	<general>
+		<name>%POLICY_NAME%</name>
+		<enabled>true</enabled>
+		<frequency>Ongoing</frequency>
+		<category>
+			<name>%CATEGORY%</name>
+		</category>
+	</general>
+	<scope>
+		<computer_groups/>
+	</scope>
+	<package_configuration>
+		<packages>
+			<size>1</size>
+			<package>
+				<name>%pkg_name%</name>
+				<action>Install</action>
+			</package>
+		</packages>
+	</package_configuration>
+	<scripts>
+		<size>0</size>
+	</scripts>
+	<self_service>
+		<use_for_self_service>false</use_for_self_service>
+	</self_service>
+	<maintenance>
+		<recon>false</recon>
+	</maintenance>
+	<files_processes/>
+</policy>

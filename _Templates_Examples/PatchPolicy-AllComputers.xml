@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<patch_policy>
+    <general>
+        <name>%patch_name%</name>
+        <enabled>true</enabled>
+        <target_version>%version%</target_version>
+        <distribution_method>selfservice</distribution_method>
+        <allow_downgrade>false</allow_downgrade>
+        <patch_unknown>false</patch_unknown>
+    </general>
+    <scope>
+        <!-- Standard: alle Computer. Für einen Test-Rollout hier z.B. auf eine
+             Smart/Static Group umstellen: all_computers auf false setzen und
+             <computer_groups> mit der Gruppe befüllen. -->
+        <all_computers>true</all_computers>
+        <computers/>
+        <!-- <computer_groups>
+            <computer_group>
+                <name>StCG - Mirko Prod</name>
+            </computer_group>
+        </computer_groups> -->
+        <users/>
+        <buildings/>
+        <departments/>
+        <limitations>
+            <network_segments/>
+            <ibeacons/>
+        </limitations>
+        <exclusions>
+            <computers/>
+            <computer_groups/>
+            <users/>
+            <buildings/>
+            <departments/>
+            <network_segments/>
+            <ibeacons/>
+        </exclusions>
+    </scope>
+    <user_interaction>
+        <install_button_text>Update</install_button_text>
+        <self_service_description>Version %version% ist verfügbar</self_service_description>
+        <self_service_icon>
+            <id>%patch_icon_id%</id>
+        </self_service_icon>
+        <notifications>
+            <notification_enabled>true</notification_enabled>
+            <notification_type>Self Service and Notification Center</notification_type>
+            <notification_subject>%PATCH_SOFTWARE_TITLE% Update verfügbar</notification_subject>
+            <notification_message/>
+            <reminders>
+                <notification_reminders_enabled>true</notification_reminders_enabled>
+                <notification_reminder_frequency>24</notification_reminder_frequency>
+            </reminders>
+        </notifications>
+        <deadlines>
+            <deadline_enabled>true</deadline_enabled>
+            <deadline_period>2</deadline_period>
+        </deadlines>
+        <grace_period>
+            <grace_period_duration>60</grace_period_duration>
+            <notification_center_subject>Wichtig</notification_center_subject>
+            <message>$APP_NAMES wird in $DELAY_MINUTES Minuten aktualisiert. Beende die App, falls du diese geöffnet haben solltest.</message>
+        </grace_period>
+    </user_interaction>
+    <software_title_configuration_id>%patch_softwaretitle_id%</software_title_configuration_id>
+</patch_policy>

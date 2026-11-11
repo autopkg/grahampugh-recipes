@@ -1,0 +1,65 @@
+Description: |
+  All-in-One Firefox DE: lädt die aktuelle deutsche (de) Version von Firefox 
+  als von Mozilla signiertes .pkg herunter (Parent: FirefoxSignedPkg), legt 
+  bzw. prüft die Jamf-Kategorie an, lädt das Paket nach Jamf Pro hoch und 
+  verknüpft die Version anschließend mit dem Patch-Software-Title "Mozilla Firefox" 
+  inkl. Erstellen/Aktualisieren der Patch Policy.
+  
+  Voraussetzung:
+  Der Patch-Software-Title "Mozilla Firefox" muss in Jamf Pro
+  unter Settings > Patch Management einmalig manuell angelegt/abonniert sein,
+  (den nicht-Legacy-Titel wählen), UND die dafür geforderten Extension
+  Attributes müssen dort bestätigt ("accepted") sein - sonst bleibt der Titel
+  inaktiv und JamfPatchUploader kann keine Version zuordnen.
+
+Identifier: com.github.grahampugh.recipes.tests.FirefoxSignedPkg-DE
+ParentRecipe: com.github.autopkg.pkg.FirefoxSignedPkg
+MinimumVersion: '2.3'
+
+Input:
+  CATEGORY: Apps
+  LOCALE: de
+  NAME: Firefox
+  PATCH_NAME: '%version%'
+  PATCH_SOFTWARE_TITLE: Mozilla Firefox
+  PATCH_TEMPLATE: PatchPolicy-AllComputers.xml
+  POLICY_TEMPLATE: Policy-NoScope.xml
+  POLICY_NAME: Install Mozilla Firefox
+
+Process:
+  - Processor: com.github.grahampugh.recipes.commonprocessors/FlatPkgUnpackerFull
+    Arguments:
+      flat_pkg_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      expand_full: True
+      purge_destination: True
+
+  - Processor: com.github.grahampugh.recipes.commonprocessors/IconGenerator
+    Arguments:
+      source_app: "%RECIPE_CACHE_DIR%/unpack/Firefox.pkg/Payload/Firefox.app"
+      composite_uninstall_path: "%RECIPE_CACHE_DIR%/%NAME%-uninstall.png"
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader
+    Arguments:
+      category_name: '%CATEGORY%'
+    
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPackageUploader
+    Arguments:
+      pkg_category: '%CATEGORY%'
+      pkg_name: '%NAME% %version%.pkg'
+    
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader
+    Arguments:
+      policy_name: "%POLICY_NAME%"
+      policy_template: "%POLICY_TEMPLATE%"
+      icon: "%app_icon_path%"
+      replace_policy: True
+
+  - Processor: com.github.grahampugh.jamf-upload.processors/JamfPatchUploader
+    Arguments:
+      patch_icon_policy_name: '%POLICY_NAME%'
+      patch_name: '%PATCH_NAME%'
+      patch_softwaretitle: '%PATCH_SOFTWARE_TITLE%'
+      patch_template: '%PATCH_TEMPLATE%'
+      replace_patch: true
+    
