@@ -1,0 +1,211 @@
+#!/usr/local/autopkg/python
+#
+# Copyright 2013 Timothy Sutton
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.xar_expand
+
+# Borrowed code and concepts from Unzipper and Copier processors.
+"""See docstring for FlatPkgUnpacker class"""
+
+import os.path
+import shutil
+import subprocess
+
+from autopkglib import ProcessorError, is_mac
+from autopkglib.DmgMounter import DmgMounter
+
+__all__ = ["FlatPkgUnpacker"]
+
+
+class FlatPkgUnpacker(DmgMounter):
+    """Expands a flat package using pkgutil or xar.
+    For xar it also optionally skips extracting the payload."""
+
+    description = __doc__
+    lifecycle = {"introduced": "0.1.0"}
+    input_variables = {
+        "flat_pkg_path": {
+            "required": True,
+            "description": (
+                "Path to a flat package. "
+                "Can point to a globbed path inside a .dmg which "
+                "will be mounted."
+            ),
+        },
+        "skip_payload": {
+            "required": False,
+            "description": (
+                "If true, 'Payload' files will be skipped. "
+                "Defaults to False. Note if this option is used then the "
+                "files are extracted using xar(1) instead of pkgutil(1). "
+                "This means components of the package will not be "
+                "extracted such as scripts."
+            ),
+            "default": False,
+        },
+        "expand_full": {
+            "required": False,
+            "description": (
+                "If true, pkgutil --expand-full is used. "
+                "Defaults to False. Note if this option is used then the "
+                "payloads are expanded."
+            ),
+            "default": False,
+        },
+        "destination_path": {
+            "required": True,
+            "description": (
+                "Directory where archive will be unpacked, created if necessary."
+            ),
+        },
+        "purge_destination": {
+            "required": False,
+            "description": (
+                "Whether the contents of the destination directory "
+                "will be removed before unpacking. Note that unless "
+                "skip_payload argument is used the destination directory "
+                "will be removed as pkgutil requires an empty destination."
+            ),
+        },
+    }
+    output_variables = {}
+
+    source_path = None
+
+    def unpack_flat_pkg(self) -> None:
+        """Unpacks a flat package using either xar or pkgutil"""
+        if not is_mac():
+            raise ProcessorError(
+                "Flat package unpacking is only supported on macOS. "
+                "The 'pkgutil' and 'xar' utilities are not available on this platform."
+            )
+
+        # Create the directory if needed.
+        if not os.path.exists(self.env["destination_path"]):
+            try:
+                os.makedirs(self.env["destination_path"])
+            except OSError as err:
+                raise ProcessorError(
+                    f"Can't create {self.env['destination_path']}: {err.strerror}"
+                )
+        elif self.env.get("purge_destination"):
+            for entry in os.listdir(self.env["destination_path"]):
+                path = os.path.join(self.env["destination_path"], entry)
+                try:
+                    if os.path.isdir(path) and not os.path.islink(path):
+                        shutil.rmtree(path)
+                    else:
+                        os.unlink(path)
+                except OSError as err:
+                    raise ProcessorError(f"Can't remove {path}: {err.strerror}")
+
+        if self.env.get("skip_payload"):
+            self.xar_expand()
+        else:
+            self.pkgutil_expand()
+
+    def xar_expand(self) -> None:
+        """Uses xar to expand an archive"""
+        try:
+            xarcmd = [
+                "/usr/bin/xar",
+                "-x",
+                "-C",
+                self.env["destination_path"],
+                "-f",
+                self.source_path,
+            ]
+            if self.env.get("skip_payload"):
+                xarcmd.extend(["--exclude", "Payload"])
+            proc = subprocess.Popen(
+                xarcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+            )
+            _, stderr = proc.communicate()
+        except OSError as err:
+            raise ProcessorError(
+                f"xar execution failed with error code {err.errno}: {err.strerror}"
+            )
+        if proc.returncode != 0:
+            raise ProcessorError(
+                f"extraction of {self.env['flat_pkg_path']} with xar failed: {stderr}"
+            )
+
+    def pkgutil_expand(self) -> None:
+        """Uses pkgutil to expand a flat package"""
+        # pkgutil requires the dest. folder to be non-existent
+        if os.path.exists(self.env["destination_path"]):
+            try:
+                shutil.rmtree(self.env["destination_path"])
+            except OSError as err:
+                raise ProcessorError(
+                    f"Can't remove {self.env['destination_path']}: {err.strerror}"
+                )
+
+        expand_argument = "--expand-full" if self.env["expand_full"] else "--expand"
+        try:
+            pkgutilcmd = [
+                "/usr/sbin/pkgutil",
+                expand_argument,
+                self.source_path,
+                self.env["destination_path"],
+            ]
+            proc = subprocess.Popen(
+                pkgutilcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+            )
+            _, stderr = proc.communicate()
+        except OSError as err:
+            raise ProcessorError(
+                f"pkgutil execution failed with error code {err.errno}: {err.strerror}"
+            )
+        if proc.returncode != 0:
+            raise ProcessorError(
+                f"extraction of {self.env['flat_pkg_path']} with pkgutil failed: "
+                f"{stderr}"
+            )
+
+    def main(self) -> None:
+        # Check if we're trying to copy something inside a dmg.
+        dmg_path, dmg, dmg_source_path = self.parsePathForDMG(self.env["flat_pkg_path"])
+        try:
+            if dmg:
+                # Mount dmg and copy path inside.
+                mount_point = self.mount(dmg_path)
+                _, self.source_path = self.glob_paths_in_mount(
+                    mount_point, dmg_source_path
+                )
+                if not self.source_path:
+                    raise ProcessorError(
+                        f"No valid path found as given by 'flat_pkg_path': "
+                        f"{self.env['flat_pkg_path']}"
+                    )
+                if len(self.source_path) > 1:
+                    raise ProcessorError(
+                        "Multiple source paths found in globbed path in "
+                        "'flat_pkg_path'. There must be only one. Found: "
+                        f"{', '.join(self.source_path)}"
+                    )
+                self.source_path = self.source_path[0]
+            else:
+                # Straight copy from file system.
+                self.source_path = self.env["flat_pkg_path"]
+            self.unpack_flat_pkg()
+            self.output(
+                f"Unpacked {self.source_path} to {self.env['destination_path']}"
+            )
+        finally:
+            self.unmount_if_mounted(dmg_path)
+
+
+if __name__ == "__main__":
+    PROCESSOR = FlatPkgUnpacker()
+    PROCESSOR.execute_shell()
