@@ -27,7 +27,7 @@ Input:
   POLICY_NAME: Install Mozilla Firefox
 
 Process:
-  - Processor: com.github.grahampugh.recipes.commonprocessors/FlatPkgUnpackerFull
+  - Processor: com.github.grahampugh.recipes.commonprocessors/FlatPkgUnpacker
     Arguments:
       flat_pkg_path: "%pathname%"
       destination_path: "%RECIPE_CACHE_DIR%/unpack"
