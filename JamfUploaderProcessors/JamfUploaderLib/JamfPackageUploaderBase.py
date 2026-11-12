@@ -51,8 +51,15 @@ from JamfUploaderBase import (  # pylint: disable=import-error, wrong-import-pos
 class JamfPackageUploaderBase(JamfUploaderBase):
     """Class for functions used to upload a package to Jamf"""
 
+    # HTTP status of the most recent get_pkg_server_record request
+    last_record_status = None
+
     # server package record hash fields, strongest first
     HASH_PREFERENCE = ("sha3512", "sha256", "md5")
+
+    # seconds a package that is READY at the local file's size is given to show a hash before
+    # it is accepted on size alone (Jamf Pro computes no hash for some large packages)
+    SIZE_FALLBACK_GRACE = 20
 
     # hashes of a zero-byte file. The server can report these while it is still receiving
     # or processing an upload, so they mean "not computed yet" rather than a mismatch.
@@ -198,8 +205,13 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         token,
         max_tries,
         platform_level_id="",
+        reauth=None,
     ):
-        """Upload a package to a Cloud Distribution Point using the v1/packages endpoint"""
+        """Upload a package to a Cloud Distribution Point using the v1/packages endpoint
+
+        reauth is an optional callable returning a fresh token. On a 401 it is called (forcing
+        a new token) and the upload is retried with it, as a large upload can outlast the token.
+        """
 
         # if pkg_name does not match the package name in pkg_path we copy the package locally first
         pkg_dirname = os.path.dirname(pkg_path)
@@ -237,6 +249,13 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                 data=pkg_path,
                 endpoint_type="package_v1",
             )
+
+            # an expired or rejected token needs replacing before the next attempt
+            if r.status_code == 401 and reauth:
+                self.output(
+                    "Package upload returned 401 - obtaining a fresh token", verbose_level=1
+                )
+                token = reauth(force=True)
 
             # check HTTP response
             if self.status_check(r, "Package upload", pkg_name, request) == "break":
@@ -514,6 +533,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         endpoint = self.api_endpoints(object_type, platform_level_id=platform_level_id)
         url = f"{api_url}/{endpoint}/{pkg_id}"
         r = self.curl(api_type="jpapi", request="GET", url=url, token=token)
+        self.last_record_status = r.status_code
         if r.status_code == 200:
             return json.loads(json.dumps(r.output))
         return {}
@@ -536,6 +556,9 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         poll_timeout=300,
         platform_level_id="",
         refresh_pkg_name=None,
+        local_size=None,
+        previous_size=None,
+        reauth=None,
     ):
         """Poll GET /v1/packages/{id} until the server has computed a hash, then verify it.
 
@@ -552,8 +575,18 @@ class JamfPackageUploaderBase(JamfUploaderBase):
           - equals previous hash   → server has not recomputed yet, keep waiting
           - matches local hash     → success
           - any other value        → corruption / mismatch, fail immediately
+
+        Jamf Pro computes no hash at all for some large packages on an AWS S3 distribution
+        point, although it still updates size. So when the package is READY with no usable hash
+        and its size equals local_size for SIZE_FALLBACK_GRACE seconds, it is accepted on size
+        alone with a warning that integrity was not verified. If previous_size equals local_size
+        a replace cannot be confirmed by size, and the warning says so.
+
+        reauth is an optional callable returning a fresh token, called (forcing a new token)
+        if the package record request returns 401.
         """
         elapsed = 0
+        size_matched_at = None
         while elapsed < poll_timeout:
             if elapsed > 0 and refresh_pkg_name is not None:
                 self.recalculate_packages(
@@ -562,6 +595,12 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             record = self.get_pkg_server_record(
                 api_url, pkg_id, token, platform_level_id
             )
+            if not record and reauth and self.last_record_status == 401:
+                self.output(
+                    "Package record request returned 401 - obtaining a fresh token",
+                    verbose_level=1,
+                )
+                token = reauth(force=True)
             status = record.get("cloudTransferStatus") or ""
             self.output(
                 f"Package '{pkg_name}' cloudTransferStatus: {status or '(none)'}",
@@ -582,12 +621,13 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                     verbose_level=2,
                 )
             else:
+                hash_populated = False
                 for field in self.HASH_PREFERENCE:
                     server_hash = server_hashes[field]
                     if not server_hash or server_hash == self.EMPTY_FILE_HASHES[field]:
                         continue
-                    # the strongest populated hash decides. Size is deliberately not checked:
-                    # an AWS distribution point does not report it
+                    hash_populated = True
+                    # the strongest populated hash decides
                     if server_hash == local_hashes.get(field):
                         self.output(
                             f"Package '{pkg_name}' hash verified after {elapsed}s "
@@ -603,6 +643,29 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                         )
                         return False
                     break  # still the previous file's hash
+                # size fallback: only when the server has no usable hash at all
+                if (
+                    not hash_populated
+                    and local_size
+                    and str(record.get("size") or "") == str(local_size)
+                ):
+                    if size_matched_at is None:
+                        size_matched_at = elapsed
+                    if elapsed - size_matched_at >= self.SIZE_FALLBACK_GRACE:
+                        same_size = str(previous_size or "") == str(local_size)
+                        reason = (
+                            "was replaced by a file of identical size, so the replace "
+                            "cannot be confirmed by size, and Jamf Pro computed no new hash"
+                            if same_size
+                            else "is READY at the expected size, but Jamf Pro computed no hash"
+                        )
+                        self.output(
+                            f"WARNING: Package '{pkg_name}' {reason} ({local_size} bytes); "
+                            "integrity NOT verified. Jamf Pro does not hash some large packages."
+                        )
+                        return True
+                else:
+                    size_matched_at = None
                 self.output(
                     f"Waiting for server to compute hash for '{pkg_name}' "
                     f"(elapsed {elapsed}s / {poll_timeout}s) …",
@@ -995,10 +1058,30 @@ class JamfPackageUploaderBase(JamfUploaderBase):
         # detect when they change. This must happen before the metadata update, as that PUT
         # can blank the server-computed hash fields.
         previous_hashes = {}
+        previous_size = None
         if int(pkg_id) > 0:
-            previous_hashes = self.get_pkg_server_hashes(
-                self.get_pkg_server_record(api_url, pkg_id, token, platform_level_id)
+            previous_record = self.get_pkg_server_record(
+                api_url, pkg_id, token, platform_level_id
             )
+            previous_hashes = self.get_pkg_server_hashes(previous_record)
+            previous_size = previous_record.get("size")
+
+        def reauth(force=False):
+            """Return a current token, forcing a new one if the cached one was rejected"""
+            if force:
+                self.invalidate_cached_token(jamf_url)
+            new_token, _, _, _ = self.auth(
+                jamf_url=jamf_url,
+                jamf_user=jamf_user,
+                password=jamf_password,
+                region=jamf_platform_gw_region,
+                platform_level_id=platform_level_id,
+                client_id=client_id,
+                client_secret=client_secret,
+                token=bearer_token,
+                jamf_cli_profile=jamf_cli_profile,
+            )
+            return new_token
 
         # now process the package metadata
         if (
@@ -1064,7 +1147,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                 )
 
             self.output(
-                f"Server hashes before upload: {previous_hashes}",
+                f"Server hashes before upload: {previous_hashes} (size {previous_size})",
                 verbose_level=2,
             )
 
@@ -1072,6 +1155,9 @@ class JamfPackageUploaderBase(JamfUploaderBase):
             upload_attempt = 0
             while not upload_verified and upload_attempt < max_tries:
                 upload_attempt += 1
+                if upload_attempt > 1:
+                    # the previous attempt and its hash polling may have outlasted the token
+                    token = reauth()
                 self.output(
                     f"Uploading package to Cloud DP (attempt {upload_attempt})",
                     verbose_level=1,
@@ -1085,6 +1171,7 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                     token=token,
                     max_tries=max_tries,
                     platform_level_id=platform_level_id,
+                    reauth=reauth,
                 )
                 pkg_uploaded = True
 
@@ -1132,6 +1219,9 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                         poll_timeout=hash_poll_timeout,
                         platform_level_id=platform_level_id,
                         refresh_pkg_name="" if recalculate else pkg_name,
+                        local_size=os.path.getsize(pkg_path),
+                        previous_size=previous_size,
+                        reauth=reauth,
                     )
                     if not upload_verified and upload_attempt < max_tries:
                         self.output(
@@ -1140,11 +1230,11 @@ class JamfPackageUploaderBase(JamfUploaderBase):
                             verbose_level=1,
                         )
                         # use the now-stale server hashes as the new baseline for next poll
-                        previous_hashes = self.get_pkg_server_hashes(
-                            self.get_pkg_server_record(
-                                api_url, pkg_id, token, platform_level_id
-                            )
+                        previous_record = self.get_pkg_server_record(
+                            api_url, pkg_id, token, platform_level_id
                         )
+                        previous_hashes = self.get_pkg_server_hashes(previous_record)
+                        previous_size = previous_record.get("size")
                 else:
                     # Jamf Pro < 11.10 — no refresh endpoint, skip verification
                     upload_verified = True
